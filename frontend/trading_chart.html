@@ -1,0 +1,821 @@
+<!--
+    ╔═══════════════════════════════════════════════════════════════╗
+    ║  CoinPulse - Professional Cryptocurrency Trading Platform     ║
+    ║  Copyright © 2024-2025 CoinPulse Development Team            ║
+    ║  All Rights Reserved.                                         ║
+    ╚═══════════════════════════════════════════════════════════════╝
+-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoinPulse - Professional Trading Chart</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lightweight Charts CDN -->
+    <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+
+    <!-- Socket.IO Client CDN (Phase 3 - WebSocket Real-time) -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+    <!-- WebSocket Client Library (Phase 3) -->
+    <script src="js/websocket_client.js?v=20251201_phase3"></script>
+
+    <!-- 통합 CSS 파일 (정리됨: 그리기 목록 가시성 강화) -->
+    <link rel="stylesheet" href="css/integrated.css?v=20251109_coin_image_icons">
+    <link rel="stylesheet" href="css/policy_modal.css?v=20251026">
+
+    <!-- 외부 JavaScript 파일 -->
+    <script src="js/api_handler.js?v=20251109_exec_time_fix"></script>
+
+    <!-- Phase 3 Chart Utilities Modules (4 modules split) -->
+    <script src="js/utils/chart_manager.js?v=20251113_phase3"></script>
+    <script src="js/utils/indicator_calculator.js?v=20251113_phase3"></script>
+    <script src="js/utils/indicator_renderer.js?v=20251129_null_fix"></script>
+    <script src="js/utils/chart_utilities.js?v=20251113_phase3"></script>
+
+    <!-- Chart Utils Wrapper (integrates Phase 3 modules) -->
+    <script src="js/chart_utils.js?v=20251113_phase3_wrapper"></script>
+
+    <!-- 모듈화된 기능 파일들 -->
+    <script src="js/modules/actions/support_resistance.js?v=20251019_2"></script>
+    <script src="js/modules/actions/chart_actions.js?v=20251129_marker_fix">
+    <script src="js/modules/indicators/moving_averages.js?v=20251129_ma_validation"></script>
+    <script src="js/modules/indicators/technical_indicators.js?v=20251109_korean_signals"></script>
+    <script src="js/modules/settings/chart_settings.js?v=20251019_6"></script>
+    <script src="js/modules/drawing/drawing_tools.js?v=20251022_14"></script>
+
+    <!-- Analytics Module (DB Statistics) - DISABLED (not needed) -->
+    <!-- <script src="js/modules/analytics/analytics_dashboard.js?v=20251112_db"></script> -->
+
+    <!-- Phase 2 Core Modules (Delegation Pattern) -->
+    <script src="js/core/data_loader.js?v=20251129_reverse_fix"></script>
+    <script src="js/core/realtime_updates.js?v=20251129_ma_validation"></script>
+    <script src="js/modules/trading/auto_trading_controller.js?v=20251113_phase2"></script>
+
+    <!-- 메인 차트 파일 -->
+    <script src="js/trading_chart_working.js?v=20251113_phase2_refactored"></script>
+
+    <!-- Manual Orders Extension -->
+    <script src="js/manual_orders.js?v=20251028_draggable"></script>
+
+    <!-- Policy Modal Controller -->
+    <script src="js/policy_modal_controller.js?v=20251028_text_policy"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 첫 번째 줄: 코인펄스 헤더 + 정책 상태 -->
+        <div class="header-row">
+            <div class="coinpulse-header">
+                <span class="coinpulse-title">코인펄스</span>
+                <span class="separator">|</span>
+                <span class="policy-management">정책 관리</span>
+            </div>
+
+            <!-- Current Coin Policy Status -->
+            <div class="current-policy-status" id="current-policy-status">
+                <span class="policy-coin-label" id="policy-coin-label">₿ BTC</span>
+                <span class="separator">|</span>
+                <span class="policy-preset-badge" id="policy-preset-badge">⚠️ 정책없음</span>
+                <span class="separator">|</span>
+                <span class="policy-levels" id="policy-levels">
+                    <span class="policy-level-item stop-loss">손절 --</span>
+                    <span class="policy-level-item take-profit">익절 --</span>
+                </span>
+                <span class="separator">|</span>
+                <span class="policy-status-indicator" id="policy-status-indicator">
+                    <span class="status-dot"></span> 비활성
+                </span>
+            </div>
+
+            <div class="portfolio-info">
+                <span class="separator">|</span>
+                <span class="portfolio-stats">
+                    장기: <span id="long-term-count">6</span> |
+                    단기: <span id="short-term-count">9</span> |
+                    투자: <span id="investment-count">0/3</span>
+                </span>
+                <span class="separator">|</span>
+                <span class="budget-info">
+                    예산: <span id="budget-amount">400,000</span> 원 |
+                    수익률: <span id="profit-rate">+0.0</span>%
+                </span>
+            </div>
+
+            <div class="trading-controls">
+                <!-- 단기투자 자동매매 -->
+                <div class="trading-mode-group">
+                    <label class="trading-mode-label">단기투자 자동매매</label>
+                    <button class="btn btn-active-mode" id="active-auto-btn">
+                        <span class="mode-status" id="active-status">비활성화</span>
+                    </button>
+                </div>
+
+                <!-- 정책 설정 -->
+                <button class="btn btn-policy" id="policy-btn">정책 설정</button>
+            </div>
+        </div>
+
+        <!-- 두 번째 줄: 차트 설정 컨트롤만 표시 (가격정보/분석은 보유코인 오른쪽으로 이동) -->
+
+        <!-- 세 번째 줄: 차트 설정 컨트롤 -->
+        <div class="chart-controls-row">
+            <div class="chart-settings">
+                <div class="group-title">차트 설정</div>
+                <div class="settings-container">
+                    <div class="setting-group" style="display: none;">
+                        <label class="setting-label">차트:</label>
+                        <select class="control-select" id="chart-type">
+                            <option value="candlestick">캔들스틱</option>
+                            <option value="line">라인</option>
+                            <option value="area">영역</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label class="setting-label">시간:</label>
+                        <select class="control-select" id="timeframe">
+                            <option value="1m">1분</option>
+                            <option value="5m">5분</option>
+                            <option value="15m">15분</option>
+                            <option value="1h">1시간</option>
+                            <option value="4h">4시간</option>
+                            <option value="1d" selected>일봉</option>
+                            <option value="1w">주봉</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label class="setting-label">코인:</label>
+                        <div class="coin-selector-container">
+                            <input type="text" class="control-input" id="coin-search" placeholder="코인명, 영문명, 코드 검색 (예: xrp, 비트코인, KRW-BTC)" autocomplete="off">
+                            <select class="control-select" id="coin-select">
+                                <option value="KRW-BTC" selected>비트코인 (KRW-BTC)</option>
+                            </select>
+                            <button class="btn btn-small" id="refresh-coins" title="코인 목록 새로고침">🔄</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="indicator-controls">
+                <div class="group-title">기술적 지표</div>
+                <div class="btn-container">
+                    <button class="btn btn-indicator" id="ma-settings-btn">⚙️ 이평선설정</button>
+                    <button class="btn btn-indicator" id="rsi-toggle">RSI</button>
+                    <button class="btn btn-indicator" id="macd-toggle">MACD</button>
+                    <button class="btn btn-indicator" id="bollinger-toggle">BB</button>
+                    <button class="btn btn-indicator" id="supertrend-toggle">SuperTrend</button>
+                </div>
+            </div>
+            
+            <div class="tool-controls">
+                <div class="group-title">그리기 도구 <span style="font-size: 11px; opacity: 0.7; font-weight: normal;">(Ctrl+Z: Undo | Ctrl+Y: Redo)</span></div>
+                <div class="btn-container">
+                    <button class="btn btn-tool" id="draw-trendline">추세선</button>
+                    <button class="btn btn-tool" id="draw-fibonacci">피보나치</button>
+                    <button class="btn btn-tool" id="draw-horizontal">수평선</button>
+                    <button class="btn btn-tool" id="draw-vertical">수직선</button>
+                    <button class="btn btn-tool" id="clear-trendlines">🗑️ 모두 지우기</button>
+                    <button class="btn btn-tool" id="show-drawings">📋 그리기 목록</button>
+                </div>
+            </div>
+            
+            <div class="chart-actions">
+                <div class="group-title">차트 액션</div>
+                <div class="btn-container">
+                <button class="btn btn-action" id="theme-toggle">🌙 테마</button>
+                <button class="btn btn-action" id="support-resistance-toggle">지지저항선</button>
+                <button class="btn btn-action" id="ma-toggle">이평선</button>
+                <button class="btn btn-action active" id="trade-markers-toggle">📍 매매마커</button>
+                <button class="btn btn-action" id="show-history">📋 매매이력</button>
+                <!-- 미체결 주문은 항상 표시되므로 버튼 제거 -->
+                <button class="btn btn-action" id="volume-toggle">거래량</button>
+                </div>
+            </div>
+            
+            
+            <!-- 이평선 설정 모달 -->
+            <div id="ma-settings-modal" class="modal">
+                <div class="modal-content ma-modal-content">
+                    <div class="modal-header">
+                        <h3>이평선 설정</h3>
+                        <button class="modal-close" id="close-ma-settings">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="ma-settings-grid">
+                            <div class="ma-item">
+                                <label>
+                                    <input type="checkbox" id="ma20-toggle">
+                                    <span class="ma-label">MA20</span>
+                                    <span class="ma-color" style="background-color: #ff6b6b;"></span>
+                                </label>
+                            </div>
+                            <div class="ma-item">
+                                <label>
+                                    <input type="checkbox" id="ma50-toggle">
+                                    <span class="ma-label">MA50</span>
+                                    <span class="ma-color" style="background-color: #4ecdc4;"></span>
+                                </label>
+                            </div>
+                            <div class="ma-item">
+                                <label>
+                                    <input type="checkbox" id="ma100-toggle">
+                                    <span class="ma-label">MA100</span>
+                                    <span class="ma-color" style="background-color: #45b7d1;"></span>
+                                </label>
+                            </div>
+                            <div class="ma-item">
+                                <label>
+                                    <input type="checkbox" id="ma200-toggle">
+                                    <span class="ma-label">MA200</span>
+                                    <span class="ma-color" style="background-color: #96ceb4;"></span>
+                                </label>
+                            </div>
+                            <div class="ma-item">
+                                <label>
+                                    <input type="checkbox" id="ma300-toggle">
+                                    <span class="ma-label">MA300</span>
+                                    <span class="ma-color" style="background-color: #feca57;"></span>
+                                </label>
+                            </div>
+                            <div class="ma-item">
+                                <label>
+                                    <input type="checkbox" id="ma500-toggle">
+                                    <span class="ma-label">MA500</span>
+                                    <span class="ma-color" style="background-color: #ff9ff3;"></span>
+                                </label>
+                            </div>
+                            <div class="ma-item">
+                                <label>
+                                    <input type="checkbox" id="ma1000-toggle">
+                                    <span class="ma-label">MA1000</span>
+                                    <span class="ma-color" style="background-color: #54a0ff;"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" id="apply-ma-settings">적용</button>
+                        <button class="btn btn-secondary" id="cancel-ma-settings">취소</button>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- 네 번째 줄: 메인 차트와 보유 코인 + 분석 패널 -->
+        <div class="chart-and-portfolio-section">
+            <div class="chart-section">
+                <!-- Main Price + Volume Chart (가격 + 거래량) -->
+                <div id="chart-container" style="width: 100%; height: 600px; background-color: #131722; margin-bottom: 5px;"></div>
+                <!-- RSI Chart (독립 패널) -->
+                <div id="rsi-container" style="width: 100%; height: 150px; background-color: #131722; margin-bottom: 5px; display: none;"></div>
+                <!-- MACD Chart (독립 패널) -->
+                <div id="macd-container" style="width: 100%; height: 150px; background-color: #131722; margin-bottom: 5px; display: none;"></div>
+            </div>
+            
+            <!-- 보유 코인 섹션 -->
+            <div class="portfolio-section">
+                <div class="portfolio-panel">
+                    <div class="panel-header">
+                        <h3>보유 코인</h3>
+                        <div class="holdings-controls">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="hide-unsupported" checked>
+                                <span class="toggle-text">거래 미지원 숨김</span>
+                            </label>
+                            <button class="btn btn-small" id="refresh-holdings">새로고침</button>
+                        </div>
+                    </div>
+
+                    <!-- KRW 잔고 섹션 -->
+                    <div class="holdings-krw-section" id="holdings-krw-section">
+                        <div class="krw-label">💰 원화 잔고</div>
+                        <div class="krw-details">
+                            <div class="krw-item">
+                                <span class="krw-item-label">사용가능:</span>
+                                <span class="krw-item-value" id="krw-balance">0</span>
+                            </div>
+                            <div class="krw-item">
+                                <span class="krw-item-label">거래대기:</span>
+                                <span class="krw-item-value" id="krw-locked">0</span>
+                            </div>
+                            <div class="krw-item krw-total">
+                                <span class="krw-item-label">총 잔고:</span>
+                                <span class="krw-item-value" id="krw-total">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 포트폴리오 요약 섹션 -->
+                    <div class="holdings-summary-section" id="holdings-summary-section">
+                        <div class="summary-label">📊 포트폴리오 요약</div>
+                        <div class="summary-details">
+                            <div class="summary-row">
+                                <div class="summary-item">
+                                    <span class="summary-item-label">총 자산:</span>
+                                    <span class="summary-item-value" id="summary-total-value">0</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-item-label">코인 가치:</span>
+                                    <span class="summary-item-value" id="summary-crypto-value">0</span>
+                                </div>
+                            </div>
+                            <div class="summary-row">
+                                <div class="summary-item">
+                                    <span class="summary-item-label">평가손익:</span>
+                                    <span class="summary-item-value profit" id="summary-profit">0</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-item-label">수익률:</span>
+                                    <span class="summary-item-value profit" id="summary-profit-rate">0%</span>
+                                </div>
+                            </div>
+                            <div class="summary-row">
+                                <div class="summary-item">
+                                    <span class="summary-item-label">보유 코인:</span>
+                                    <span class="summary-item-value" id="summary-coin-count">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="holdings-header">
+                        <div class="header-symbol">코인</div>
+                        <div class="header-avg-price">평균단가</div>
+                        <div class="header-policy">정책</div>
+                        <div class="header-profit">수익률</div>
+                    </div>
+                    <div class="holdings-list" id="holdings-list">
+                        <div class="loading-text-small">로딩 중...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 코인분석 + 수동주문 통합 섹션 -->
+            <div class="analysis-orders-section">
+                <!-- 코인분석 패널 -->
+                <div class="analysis-panel">
+                    <div class="panel-header">
+                        <h3>코인분석</h3>
+                    </div>
+
+                    <!-- 가격 정보 -->
+                    <div class="price-info">
+                        <div class="section-header">💰 현재 코인</div>
+                        <div class="coin-info-display">
+                            <div class="coin-name" id="coin-name">리플</div>
+                            <div class="candle-type" id="candle-type">일봉</div>
+                        </div>
+                    </div>
+
+                    <!-- 기술적 분석 -->
+                    <div class="technical-analysis">
+                        <div class="section-header">📊 기술적 분석</div>
+                        <div class="rsi-analysis">
+                            <span class="indicator-label">RSI:</span>
+                            <span class="indicator-value" id="rsi-value">76.6</span>
+                            <span class="indicator-status overbought" id="rsi-status">과매수</span>
+                        </div>
+
+                        <div class="ma-analysis">
+                            <div class="ma-item">
+                                <span class="ma-label">MA20:</span>
+                                <span class="ma-value" id="ma20-value">163,081,100</span>
+                            </div>
+                            <div class="ma-item">
+                                <span class="ma-label">MA50:</span>
+                                <span class="ma-value" id="ma50-value">159,511,900</span>
+                            </div>
+                            <div class="ma-item">
+                                <span class="ma-label">MA100:</span>
+                                <span class="ma-value" id="ma100-value">158,700,070</span>
+                            </div>
+                            <div class="ma-item">
+                                <span class="ma-label">MA200:</span>
+                                <span class="ma-value" id="ma200-value">148,042,065</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 실시간 분석 -->
+                    <div class="trend-analysis">
+                        <div class="section-header">📈 실시간 분석</div>
+                        <div class="trend-info">
+                            <span class="trend-label">추세:</span>
+                            <span class="trend-value uptrend" id="trend-direction">상승</span>
+                        </div>
+                        <div class="volatility-info">
+                            <span class="volatility-label">변동성:</span>
+                            <span class="volatility-value high" id="volatility-level">높음</span>
+                        </div>
+                        <div class="support-resistance">
+                            <div class="support">
+                                <span class="sr-label">지지:</span>
+                                <span class="sr-value" id="support-level">₩157,100,000</span>
+                            </div>
+                            <div class="resistance">
+                                <span class="sr-label">저항:</span>
+                                <span class="sr-value" id="resistance-level">₩174,995,000</span>
+                            </div>
+                        </div>
+                        <div class="signal-info">
+                            <span class="signal-label">신호:</span>
+                            <span class="signal-value" id="trading-signal">-</span>
+                        </div>
+                    </div>
+
+                    <!-- 업데이트 시간 -->
+                    <div class="update-info">
+                        <div class="update-time" id="update-time">2025-10-04 22:43:41</div>
+                    </div>
+                </div>
+
+                <!-- 수동주문 패널 -->
+                <div class="manual-order-panel">
+                    <div class="panel-header">
+                        <h3>수동 주문</h3>
+                        <div class="current-coin-info" id="order-coin-info">
+                            <span class="coin-symbol" id="order-coin-symbol">XRP</span>
+                            <span class="current-price" id="order-current-price">850원</span>
+                        </div>
+                    </div>
+
+                    <!-- 매수 섹션 -->
+                    <div class="order-section buy-section">
+                        <div class="order-section-title">
+                            <span class="order-icon">📈</span>
+                            <span>매수</span>
+                        </div>
+                        <div class="order-inputs">
+                            <div class="order-input-group">
+                                <label>가격 (원) <span class="chart-hint">차트 클릭으로 입력</span></label>
+                                <input type="number" id="buy-price" placeholder="차트에서 가격 선택" step="1" readonly>
+                            </div>
+                            <div class="order-input-group">
+                                <label>수량 비율 <span class="balance-info" id="buy-balance-info">잔액: 0원</span></label>
+                                <div class="quantity-percentage-buttons">
+                                    <button class="btn-percentage" data-side="buy" data-percent="10">10%</button>
+                                    <button class="btn-percentage" data-side="buy" data-percent="25">25%</button>
+                                    <button class="btn-percentage" data-side="buy" data-percent="50">50%</button>
+                                    <button class="btn-percentage" data-side="buy" data-percent="100">100%</button>
+                                </div>
+                                <input type="number" id="buy-quantity" placeholder="수량" step="1" readonly>
+                            </div>
+                            <div class="order-total">
+                                <span>총액:</span>
+                                <span id="buy-total-amount">0원</span>
+                            </div>
+                        </div>
+                        <button class="btn-order btn-buy" id="submit-buy-order">
+                            <span class="btn-icon">💰</span>
+                            <span>매수 주문</span>
+                        </button>
+                    </div>
+
+                    <!-- 매도 섹션 -->
+                    <div class="order-section sell-section">
+                        <div class="order-section-title">
+                            <span class="order-icon">📉</span>
+                            <span>매도</span>
+                        </div>
+                        <div class="order-inputs">
+                            <div class="order-input-group">
+                                <label>가격 (원) <span class="chart-hint">차트 클릭으로 입력</span></label>
+                                <input type="number" id="sell-price" placeholder="차트에서 가격 선택" step="1" readonly>
+                            </div>
+                            <div class="order-input-group">
+                                <label>수량 비율 <span class="balance-info" id="sell-balance-info">보유: 0개</span></label>
+                                <div class="quantity-percentage-buttons">
+                                    <button class="btn-percentage" data-side="sell" data-percent="10">10%</button>
+                                    <button class="btn-percentage" data-side="sell" data-percent="25">25%</button>
+                                    <button class="btn-percentage" data-side="sell" data-percent="50">50%</button>
+                                    <button class="btn-percentage" data-side="sell" data-percent="100">100%</button>
+                                </div>
+                                <input type="number" id="sell-quantity" placeholder="수량" step="1" readonly>
+                            </div>
+                            <div class="order-total">
+                                <span>총액:</span>
+                                <span id="sell-total-amount">0원</span>
+                            </div>
+                        </div>
+                        <button class="btn-order btn-sell" id="submit-sell-order">
+                            <span class="btn-icon">💸</span>
+                            <span>매도 주문</span>
+                        </button>
+                    </div>
+
+                    <!-- 주문 내역 -->
+                    <div class="order-history-section">
+                        <div class="order-section-title">
+                            <span class="order-icon">📋</span>
+                            <span>미체결 주문</span>
+                            <button class="btn-refresh-orders" id="refresh-orders">🔄</button>
+                        </div>
+                        <div class="order-history-list" id="order-history-list">
+                            <div class="empty-orders">주문 내역이 없습니다</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 매매이력 모달 -->
+        <div id="history-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="trading-history-title">BTC 매매이력</h2>
+                    <button class="btn-close" id="close-history-modal">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="history-header">
+                        <div class="header-type">거래</div>
+                        <div class="header-time">시간</div>
+                    </div>
+                    <div class="history-list" id="history-list">
+                        <div class="loading-text-small">로딩 중...</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-small" id="refresh-history">새로고침</button>
+                    <button class="btn btn-small" id="close-history-btn">닫기</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 그리기 목록 모달 -->
+        <div id="drawings-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>그리기 목록</h2>
+                    <button class="btn-close" id="close-drawings-modal">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="drawings-list" id="drawings-list">
+                        <div class="empty-text-small">그리기가 없습니다</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-small" id="refresh-drawings">새로고침</button>
+                    <button class="btn btn-small" id="close-drawings-btn">닫기</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 정책 설정 모달 -->
+        <div class="policy-modal" id="policy-modal">
+            <div class="policy-modal-overlay" id="policy-modal-overlay"></div>
+            <div class="policy-modal-container">
+                <div class="policy-modal-header">
+                    <h2>자동매매 정책 설정</h2>
+                    <button class="policy-modal-close" id="close-policy-modal">×</button>
+                </div>
+
+                <div class="policy-modal-body">
+                    <!-- Quick Status -->
+                    <div class="policy-quick-status">
+                        <div class="policy-status-card">
+                            <div class="policy-status-icon active">●</div>
+                            <div class="policy-status-info">
+                                <div class="policy-status-label">자동매매</div>
+                                <div class="policy-status-value" id="modal-auto-status">비활성</div>
+                            </div>
+                            <div class="policy-toggle-switch" id="modal-auto-toggle">
+                                <div class="policy-toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="policy-status-card">
+                            <div class="policy-status-icon">📊</div>
+                            <div class="policy-status-info">
+                                <div class="policy-status-label">활성 정책</div>
+                                <div class="policy-status-value" id="active-policies-count">0/0</div>
+                            </div>
+                        </div>
+
+                        <div class="policy-status-card">
+                            <div class="policy-status-icon">💰</div>
+                            <div class="policy-status-info">
+                                <div class="policy-status-label">총 포지션</div>
+                                <div class="policy-status-value" id="total-position">0%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="policy-modal-tabs">
+                        <button class="policy-modal-tab active" data-tab="quick">빠른 설정</button>
+                        <button class="policy-modal-tab" data-tab="advanced">고급 설정</button>
+                        <button class="policy-modal-tab" data-tab="logs">로그</button>
+                    </div>
+
+                    <!-- Tab Content: Quick Setup -->
+                    <div class="policy-tab-content active" id="policy-quick-tab">
+                        <!-- Coin Selector Section -->
+                        <div class="policy-coin-selector">
+                            <label for="coin-selector">코인 선택</label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <select id="coin-selector" style="flex: 1;">
+                                    <option value="KRW-BTC">₿ 비트코인 (BTC)</option>
+                                    <option value="KRW-ETH">Ξ 이더리움 (ETH)</option>
+                                    <option value="KRW-XRP">✕ 리플 (XRP)</option>
+                                    <option value="KRW-ADA">₳ 에이다 (ADA)</option>
+                                    <option value="KRW-DOGE">Ð 도지코인 (DOGE)</option>
+                                </select>
+                                <button class="btn btn-small" id="add-coin-btn">+ 추가</button>
+                            </div>
+                        </div>
+
+                        <!-- Preset Section - 2D Selection -->
+                        <div class="policy-preset-section">
+                            <h4>빠른 프리셋 선택</h4>
+                            <p class="policy-preset-hint">거래 스타일과 리스크 레벨을 선택하세요</p>
+
+                            <!-- Style Selector -->
+                            <div class="preset-style-selector">
+                                <button class="preset-style-btn active" data-style="long">
+                                    📈 장기 (스윙)
+                                </button>
+                                <button class="preset-style-btn" data-style="short">
+                                    ⚡ 단타 (데이)
+                                </button>
+                            </div>
+
+                            <!-- Risk Level Presets -->
+                            <div class="policy-preset-buttons">
+                                <button class="policy-preset-btn" data-preset="long-conservative">
+                                    <div class="preset-icon">🛡️</div>
+                                    <div class="preset-name">안정형</div>
+                                    <div class="preset-desc">손절 3% | 익절 8%</div>
+                                    <div class="preset-time">시간: 1일</div>
+                                </button>
+                                <button class="policy-preset-btn" data-preset="long-balanced">
+                                    <div class="preset-icon">⚖️</div>
+                                    <div class="preset-name">균형형</div>
+                                    <div class="preset-desc">손절 5% | 익절 15%</div>
+                                    <div class="preset-time">시간: 4시간</div>
+                                </button>
+                                <button class="policy-preset-btn" data-preset="long-aggressive">
+                                    <div class="preset-icon">🚀</div>
+                                    <div class="preset-name">공격형</div>
+                                    <div class="preset-desc">손절 8% | 익절 25%</div>
+                                    <div class="preset-time">시간: 4시간</div>
+                                </button>
+                                <button class="policy-preset-btn" data-preset="manual" style="background: linear-gradient(135deg, #f59e0b, #d97706); border-color: #f59e0b;">
+                                    <div class="preset-icon">✋</div>
+                                    <div class="preset-name">수동</div>
+                                    <div class="preset-desc">자동매매 사용 안 함</div>
+                                    <div class="preset-time">수동 거래 전용</div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Settings Grid - 2 Columns -->
+                        <div class="policy-settings-divider">
+                            <span>세부 설정</span>
+                        </div>
+
+                        <div class="policy-quick-settings">
+                            <div class="policy-quick-setting">
+                                <label>전략</label>
+                                <select id="quick-strategy">
+                                    <option value="trend_following">추세 추종</option>
+                                    <option value="momentum">모멘텀</option>
+                                    <option value="mean_reversion">평균 회귀</option>
+                                </select>
+                            </div>
+
+                            <div class="policy-quick-setting">
+                                <label>시간프레임</label>
+                                <select id="quick-timeframe">
+                                    <option value="5m">5분</option>
+                                    <option value="15m">15분</option>
+                                    <option value="1h">1시간</option>
+                                    <option value="4h">4시간</option>
+                                    <option value="1d">1일</option>
+                                </select>
+                            </div>
+
+                            <div class="policy-quick-setting">
+                                <label>손절 비율 (%)</label>
+                                <input type="number" id="quick-stop-loss" value="3" step="0.5" min="0" max="20">
+                            </div>
+
+                            <div class="policy-quick-setting">
+                                <label>익절 비율 (%)</label>
+                                <input type="number" id="quick-take-profit" value="10" step="0.5" min="0" max="50">
+                            </div>
+
+                            <div class="policy-quick-setting">
+                                <label>포지션 크기 (%)</label>
+                                <input type="number" id="quick-position-size" value="5" step="0.5" min="0.5" max="20">
+                            </div>
+
+                            <div class="policy-quick-setting">
+                                <label>이 코인에 활성화</label>
+                                <div class="policy-toggle-switch active" id="quick-coin-toggle">
+                                    <div class="policy-toggle-slider"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: Advanced -->
+                    <div class="policy-tab-content" id="policy-advanced-tab">
+                        <div class="policy-advanced-section">
+                            <h3>전체 코인 정책</h3>
+                            <div class="policy-table-wrapper">
+                                <table class="policy-table">
+                                    <thead>
+                                        <tr>
+                                            <th>코인</th>
+                                            <th>전략</th>
+                                            <th>시간프레임</th>
+                                            <th>손절(%)</th>
+                                            <th>익절(%)</th>
+                                            <th>포지션(%)</th>
+                                            <th>상태</th>
+                                            <th>액션</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="policies-table-body">
+                                        <tr>
+                                            <td colspan="8" style="text-align: center; padding: 40px; color: #6b7280;">
+                                                정책 로딩 중...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="policy-global-section" style="margin-top: 30px;">
+                            <h3>전역 설정</h3>
+                            <div class="policy-global-grid">
+                                <div class="policy-setting-item">
+                                    <label>체크 주기 (초)</label>
+                                    <input type="number" id="modal-check-interval" value="60" min="10" max="600">
+                                </div>
+                                <div class="policy-setting-item">
+                                    <label>최대 포지션 크기 (%)</label>
+                                    <input type="number" id="modal-max-position" value="10" min="1" max="50">
+                                </div>
+                                <div class="policy-setting-item">
+                                    <label>리스크 레벨</label>
+                                    <select id="modal-risk-level">
+                                        <option value="low">낮음</option>
+                                        <option value="medium">중간</option>
+                                        <option value="high">높음</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: Logs -->
+                    <div class="policy-tab-content" id="policy-logs-tab">
+                        <div class="policy-logs-header">
+                            <h3>최근 거래 활동</h3>
+                            <button class="btn btn-small" id="refresh-policy-logs">🔄 새로고침</button>
+                        </div>
+                        <div class="policy-logs-container" id="modal-policy-logs">
+                            <div class="policy-log-entry">로그 대기 중...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="policy-modal-footer">
+                    <div class="policy-footer-left">
+                        <button class="btn btn-secondary" id="run-test-cycle">▶️ 테스트 실행</button>
+                    </div>
+                    <div class="policy-footer-right">
+                        <button class="btn btn-success" id="save-policy-modal">💾 변경사항 저장</button>
+                        <button class="btn btn-secondary" id="cancel-policy-modal">취소</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- 로딩 오버레이 -->
+        <div id="loading-overlay" class="loading-overlay">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">차트 로딩 중...</div>
+        </div>
+
+        <!-- 그리기 안내 메시지 -->
+        <div id="drawing-instruction" style="display: none; position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: rgba(41, 98, 255, 0.95); color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; z-index: 10000; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+            <span id="drawing-instruction-text"></span>
+            <span style="margin-left: 16px; opacity: 0.8; font-size: 12px;">(ESC to cancel)</span>
+        </div>
+    </div>
+</body>
+</html>

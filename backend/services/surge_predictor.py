@@ -1,0 +1,459 @@
+"""
+Surge Predictor Module
+
+Predicts coins likely to surge in price within 3 days.
+Uses technical analysis to identify high-probability candidates.
+"""
+
+import statistics
+
+
+class SurgePredictor:
+    """
+    Predicts price surge probability for coins.
+
+    Analysis factors:
+    - Volume increase (거래량 급증)
+    - RSI oversold recovery (과매도에서 회복)
+    - Support level proximity (지지선 근처)
+    - Uptrend confirmation (상승 추세)
+    - Price momentum (가격 모멘텀)
+    """
+
+    def __init__(self, config):
+        self.config = config
+        self.surge_config = config.get('surge_prediction', {})
+
+    def analyze_coin(self, coin_symbol, candle_data, current_price):
+        """
+        Analyze coin for surge probability.
+
+        Args:
+            coin_symbol: Coin symbol
+            candle_data: Historical candle data (list of dicts)
+            current_price: Current market price
+
+        Returns:
+            {
+                'coin': coin_symbol,
+                'score': int (0-100),
+                'signals': dict,
+                'recommendation': str
+            }
+        """
+        try:
+            if not candle_data or len(candle_data) < 20:
+                return {
+                    'coin': coin_symbol,
+                    'score': 0,
+                    'signals': {},
+                    'recommendation': 'insufficient_data'
+                }
+
+            # Calculate all signals
+            signals = {}
+
+            # 1. Volume Analysis (거래량 분석)
+            signals['volume'] = self._analyze_volume(candle_data)
+
+            # 2. RSI Analysis (RSI 분석)
+            signals['rsi'] = self._analyze_rsi(candle_data)
+
+            # 3. Support Level (지지선 분석)
+            signals['support'] = self._analyze_support(candle_data, current_price)
+
+            # 4. Trend Analysis (추세 분석)
+            signals['trend'] = self._analyze_trend(candle_data)
+
+            # 5. Price Momentum (가격 모멘텀)
+            signals['momentum'] = self._analyze_momentum(candle_data)
+
+            # Calculate total score (0-100)
+            total_score = self._calculate_score(signals)
+
+            # Generate recommendation
+            min_score = self.surge_config.get('min_surge_probability_score', 60)
+            if total_score >= min_score:
+                recommendation = 'strong_buy'
+            elif total_score >= 50:
+                recommendation = 'buy'
+            elif total_score >= 40:
+                recommendation = 'hold'
+            else:
+                recommendation = 'pass'
+
+            return {
+                'coin': coin_symbol,
+                'score': total_score,
+                'signals': signals,
+                'recommendation': recommendation,
+                'current_price': current_price
+            }
+
+        except Exception as e:
+            print(f"[SurgePredictor] ERROR analyzing {coin_symbol}: {e}")
+            return {
+                'coin': coin_symbol,
+                'score': 0,
+                'signals': {},
+                'recommendation': 'error'
+            }
+
+    def _analyze_volume(self, candle_data):
+        """
+        Analyze volume increase.
+
+        Returns score 0-20 based on volume surge.
+        """
+        try:
+            # Get recent 5 days and previous 15 days
+            recent_volumes = [float(c.get('candle_acc_trade_price', 0)) for c in candle_data[:5]]
+            previous_volumes = [float(c.get('candle_acc_trade_price', 0)) for c in candle_data[5:20]]
+
+            if not recent_volumes or not previous_volumes:
+                return {'score': 0, 'description': 'No volume data'}
+
+            recent_avg = sum(recent_volumes) / len(recent_volumes)
+            previous_avg = sum(previous_volumes) / len(previous_volumes)
+
+            if previous_avg == 0:
+                return {'score': 0, 'description': 'No previous volume'}
+
+            # Calculate volume increase ratio
+            volume_ratio = recent_avg / previous_avg
+            threshold = self.surge_config.get('volume_increase_threshold', 1.5)
+
+            # Score based on volume increase
+            if volume_ratio >= threshold * 2:  # 3배 이상
+                score = 20
+                description = f"Volume surge 3x ({volume_ratio:.1f}x)"
+            elif volume_ratio >= threshold * 1.5:  # 2.25배
+                score = 15
+                description = f"Strong volume increase ({volume_ratio:.1f}x)"
+            elif volume_ratio >= threshold:  # 1.5배
+                score = 10
+                description = f"Volume increase ({volume_ratio:.1f}x)"
+            elif volume_ratio >= 1.2:
+                score = 5
+                description = f"Slight volume increase ({volume_ratio:.1f}x)"
+            else:
+                score = 0
+                description = f"No volume surge ({volume_ratio:.1f}x)"
+
+            return {
+                'score': score,
+                'volume_ratio': volume_ratio,
+                'description': description
+            }
+
+        except Exception as e:
+            print(f"[SurgePredictor] Volume analysis error: {e}")
+            return {'score': 0, 'description': 'Error'}
+
+    def _analyze_rsi(self, candle_data):
+        """
+        Analyze RSI for oversold recovery.
+
+        Returns score 0-25 based on RSI position.
+        """
+        try:
+            # Calculate RSI
+            prices = [float(c.get('trade_price', 0)) for c in candle_data[:14]]
+
+            if len(prices) < 14:
+                return {'score': 0, 'rsi': None, 'description': 'Insufficient data'}
+
+            # Simple RSI calculation
+            gains = []
+            losses = []
+            for i in range(1, len(prices)):
+                change = prices[i-1] - prices[i]  # Reverse order (newest first)
+                if change > 0:
+                    gains.append(change)
+                else:
+                    losses.append(abs(change))
+
+            avg_gain = sum(gains) / len(gains) if gains else 0
+            avg_loss = sum(losses) / len(losses) if losses else 0
+
+            if avg_loss == 0:
+                rsi = 100
+            else:
+                rs = avg_gain / avg_loss
+                rsi = 100 - (100 / (1 + rs))
+
+            # Get thresholds
+            oversold_level = self.surge_config.get('rsi_oversold_level', 35)
+            buy_zone_max = self.surge_config.get('rsi_buy_zone_max', 50)
+
+            # Score based on RSI
+            if oversold_level <= rsi <= buy_zone_max:
+                # Perfect buy zone (35-50)
+                score = 25
+                description = f"RSI in buy zone ({rsi:.1f})"
+            elif 30 <= rsi < oversold_level:
+                # Oversold (30-35)
+                score = 20
+                description = f"RSI oversold ({rsi:.1f})"
+            elif buy_zone_max < rsi <= 60:
+                # Slightly above buy zone
+                score = 15
+                description = f"RSI moderate ({rsi:.1f})"
+            elif rsi < 30:
+                # Very oversold (risky)
+                score = 10
+                description = f"RSI very oversold ({rsi:.1f})"
+            else:
+                # Overbought or neutral
+                score = 0
+                description = f"RSI not favorable ({rsi:.1f})"
+
+            return {
+                'score': score,
+                'rsi': rsi,
+                'description': description
+            }
+
+        except Exception as e:
+            print(f"[SurgePredictor] RSI analysis error: {e}")
+            return {'score': 0, 'rsi': None, 'description': 'Error'}
+
+    def _analyze_support(self, candle_data, current_price):
+        """
+        Analyze proximity to support level.
+
+        Returns score 0-20 based on support proximity.
+        """
+        try:
+            # Get recent lows (last 20 days)
+            lows = [float(c.get('low_price', 0)) for c in candle_data[:20]]
+
+            if not lows or current_price == 0:
+                return {'score': 0, 'description': 'No price data'}
+
+            # Find support level (recent low)
+            support_level = min(lows)
+
+            # Calculate distance from support
+            distance_percent = ((current_price - support_level) / support_level) * 100
+
+            # Get proximity threshold
+            proximity_threshold = self.surge_config.get('support_level_proximity', 0.02) * 100  # 2%
+
+            # Score based on proximity to support
+            if distance_percent <= proximity_threshold:
+                score = 20
+                description = f"At support level ({distance_percent:.1f}% above)"
+            elif distance_percent <= proximity_threshold * 2:
+                score = 15
+                description = f"Near support ({distance_percent:.1f}% above)"
+            elif distance_percent <= proximity_threshold * 3:
+                score = 10
+                description = f"Close to support ({distance_percent:.1f}% above)"
+            elif distance_percent <= proximity_threshold * 5:
+                score = 5
+                description = f"Moderate distance ({distance_percent:.1f}% above)"
+            else:
+                score = 0
+                description = f"Far from support ({distance_percent:.1f}% above)"
+
+            return {
+                'score': score,
+                'support_level': support_level,
+                'distance_percent': distance_percent,
+                'description': description
+            }
+
+        except Exception as e:
+            print(f"[SurgePredictor] Support analysis error: {e}")
+            return {'score': 0, 'description': 'Error'}
+
+    def _analyze_trend(self, candle_data):
+        """
+        Analyze price trend.
+
+        Returns score 0-20 based on uptrend strength.
+        """
+        try:
+            # Get prices for last 7 days
+            prices = [float(c.get('trade_price', 0)) for c in candle_data[:7]]
+
+            if len(prices) < 7:
+                return {'score': 0, 'description': 'Insufficient data'}
+
+            # Calculate simple moving averages
+            sma_3 = sum(prices[:3]) / 3
+            sma_7 = sum(prices) / 7
+
+            # Check trend direction
+            uptrend_days = self.surge_config.get('uptrend_confirmation_days', 3)
+
+            # Count consecutive up days
+            up_days = 0
+            for i in range(1, min(uptrend_days + 1, len(prices))):
+                if prices[i-1] > prices[i]:  # Newer > Older (reverse order)
+                    up_days += 1
+                else:
+                    break
+
+            # Score based on trend
+            if sma_3 > sma_7 * 1.02 and up_days >= 2:
+                score = 20
+                description = f"Strong uptrend ({up_days} days)"
+            elif sma_3 > sma_7 and up_days >= 1:
+                score = 15
+                description = f"Uptrend ({up_days} days)"
+            elif sma_3 > sma_7:
+                score = 10
+                description = "Slight uptrend"
+            elif up_days >= 1:
+                score = 5
+                description = f"Recent bounce ({up_days} days)"
+            else:
+                score = 0
+                description = "No uptrend"
+
+            return {
+                'score': score,
+                'sma_3': sma_3,
+                'sma_7': sma_7,
+                'up_days': up_days,
+                'description': description
+            }
+
+        except Exception as e:
+            print(f"[SurgePredictor] Trend analysis error: {e}")
+            return {'score': 0, 'description': 'Error'}
+
+    def _analyze_momentum(self, candle_data):
+        """
+        Analyze price momentum.
+
+        Returns score 0-15 based on momentum strength.
+        """
+        try:
+            # Get prices for last 5 days
+            prices = [float(c.get('trade_price', 0)) for c in candle_data[:5]]
+
+            if len(prices) < 5:
+                return {'score': 0, 'description': 'Insufficient data'}
+
+            # Calculate momentum (price change rate)
+            oldest_price = prices[-1]
+            newest_price = prices[0]
+
+            if oldest_price == 0:
+                return {'score': 0, 'description': 'Invalid price'}
+
+            momentum_percent = ((newest_price - oldest_price) / oldest_price) * 100
+
+            # Score based on positive momentum
+            if momentum_percent >= 10:
+                score = 15
+                description = f"Very strong momentum (+{momentum_percent:.1f}%)"
+            elif momentum_percent >= 5:
+                score = 12
+                description = f"Strong momentum (+{momentum_percent:.1f}%)"
+            elif momentum_percent >= 2:
+                score = 8
+                description = f"Positive momentum (+{momentum_percent:.1f}%)"
+            elif momentum_percent >= 0:
+                score = 4
+                description = f"Slight positive ({momentum_percent:.1f}%)"
+            else:
+                score = 0
+                description = f"Negative momentum ({momentum_percent:.1f}%)"
+
+            return {
+                'score': score,
+                'momentum_percent': momentum_percent,
+                'description': description
+            }
+
+        except Exception as e:
+            print(f"[SurgePredictor] Momentum analysis error: {e}")
+            return {'score': 0, 'description': 'Error'}
+
+    def _calculate_score(self, signals):
+        """
+        Calculate total surge probability score (0-100).
+
+        Weights:
+        - Volume: 20 points
+        - RSI: 25 points
+        - Support: 20 points
+        - Trend: 20 points
+        - Momentum: 15 points
+        Total: 100 points
+        """
+        total = 0
+        total += signals.get('volume', {}).get('score', 0)
+        total += signals.get('rsi', {}).get('score', 0)
+        total += signals.get('support', {}).get('score', 0)
+        total += signals.get('trend', {}).get('score', 0)
+        total += signals.get('momentum', {}).get('score', 0)
+
+        return min(100, max(0, total))  # Clamp to 0-100
+
+    def find_surge_candidates(self, upbit_api, excluded_coins=None):
+        """
+        Find top surge candidates from all available coins.
+
+        Args:
+            upbit_api: UpbitAPI instance
+            excluded_coins: List of coins to exclude
+
+        Returns:
+            List of candidates sorted by score (highest first)
+        """
+        try:
+            print("[SurgePredictor] Scanning for surge candidates...")
+
+            # Get all KRW markets
+            markets = upbit_api.get_markets()
+            krw_markets = [m for m in markets if m['market'].startswith('KRW-')]
+
+            # Filter excluded coins
+            if excluded_coins:
+                krw_markets = [m for m in krw_markets if m['market'] not in excluded_coins]
+
+            # Analyze each coin
+            candidates = []
+
+            for market in krw_markets:
+                coin_symbol = market['market']
+
+                try:
+                    # Get current price
+                    current_price = upbit_api.get_current_price(coin_symbol)
+                    if not current_price:
+                        continue
+
+                    # Get candle data (30 days for analysis)
+                    candle_data = upbit_api.get_candles_days(coin_symbol, count=30)
+                    if not candle_data:
+                        continue
+
+                    # Analyze coin
+                    analysis = self.analyze_coin(coin_symbol, candle_data, current_price)
+
+                    # Only include coins with minimum score
+                    min_score = self.surge_config.get('min_surge_probability_score', 60)
+                    if analysis['score'] >= min_score:
+                        candidates.append(analysis)
+                        print(f"[SurgePredictor] ✅ {coin_symbol}: Score {analysis['score']} - {analysis['recommendation']}")
+
+                except Exception as e:
+                    print(f"[SurgePredictor] Error analyzing {coin_symbol}: {e}")
+                    continue
+
+            # Sort by score (highest first)
+            candidates.sort(key=lambda x: x['score'], reverse=True)
+
+            print(f"[SurgePredictor] Found {len(candidates)} candidates")
+
+            return candidates
+
+        except Exception as e:
+            print(f"[SurgePredictor] ERROR finding candidates: {e}")
+            return []

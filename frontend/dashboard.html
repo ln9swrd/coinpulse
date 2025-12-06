@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CoinPulse Dashboard - Manage your automated trading">
+    <title>Dashboard - CoinPulse</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/dashboard.css?v=20251124">
+</head>
+<body>
+    <!-- Dashboard Container -->
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <!-- Logo -->
+            <div class="sidebar-header">
+                <h1 class="logo">CoinPulse</h1>
+                <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M3 12h18M3 6h18M3 18h18"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- User Info -->
+            <div class="user-info">
+                <div class="user-avatar">
+                    <span id="user-initial">U</span>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="user-name">Loading...</div>
+                    <div class="user-email" id="user-email">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="sidebar-nav">
+                <a href="#overview" class="nav-item active" data-page="overview">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    <span>Overview</span>
+                </a>
+
+                <a href="#trading" class="nav-item" data-page="trading">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                    </svg>
+                    <span>Trading Chart</span>
+                </a>
+
+                <a href="#portfolio" class="nav-item" data-page="portfolio">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    <span>Portfolio</span>
+                </a>
+
+                <a href="#auto-trading" class="nav-item" data-page="auto-trading">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                    <span>Auto Trading</span>
+                </a>
+
+                <a href="#history" class="nav-item" data-page="history">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>History</span>
+                </a>
+
+                <a href="#pricing" class="nav-item" data-page="pricing">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    <span>Pricing</span>
+                </a>
+
+                <a href="#settings" class="nav-item" data-page="settings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M12 1v6m0 6v6m-9-9h6m6 0h6"></path>
+                    </svg>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <!-- Sidebar Footer -->
+            <div class="sidebar-footer">
+                <button class="nav-item logout-btn" id="logout-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M3 12h18M3 6h18M3 18h18"/>
+                    </svg>
+                </button>
+
+                <h1 class="page-title" id="page-title">Overview</h1>
+
+                <div class="top-bar-actions">
+                    <!-- Notifications -->
+                    <button class="icon-btn" id="notifications-btn" aria-label="Notifications">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        <span class="badge" id="notification-badge">3</span>
+                    </button>
+
+                    <!-- User Menu -->
+                    <div class="user-menu">
+                        <button class="user-menu-btn" id="user-menu-btn">
+                            <div class="user-avatar-small">
+                                <span id="user-initial-small">U</span>
+                            </div>
+                        </button>
+                        <div class="user-menu-dropdown" id="user-menu-dropdown">
+                            <a href="#profile" class="dropdown-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                                <span>Profile</span>
+                            </a>
+                            <a href="#settings" class="dropdown-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                    <path d="M12 1v6m0 6v6m-9-9h6m6 0h6"></path>
+                                </svg>
+                                <span>Settings</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item logout-item" id="logout-dropdown">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                                <span>Logout</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content Container -->
+            <div class="content-container" id="content-container">
+                <!-- Dynamic content will be loaded here -->
+                <div class="loading-state">
+                    <div class="spinner-large"></div>
+                    <p>Loading dashboard...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <!-- API Client Library (must be loaded first) -->
+    <script src="js/api_client.js?v=20251129"></script>
+
+    <!-- Dashboard API Integration -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ================================================================
+            // Authentication Check
+            // ================================================================
+
+            // Redirect to login if not authenticated
+            if (!window.api.isAuthenticated()) {
+                console.log('[Dashboard] User not authenticated, redirecting to login');
+                window.location.href = '/login.html';
+                return;
+            }
+
+            console.log('[Dashboard] User authenticated, loading dashboard...');
+
+            // ================================================================
+            // DOM Elements
+            // ================================================================
+
+            const userNameEl = document.getElementById('user-name');
+            const userEmailEl = document.getElementById('user-email');
+            const userInitialEl = document.getElementById('user-initial');
+            const logoutBtn = document.getElementById('logout-btn');
+            const logoutDropdownBtn = document.getElementById('logout-dropdown');
+            const contentContainer = document.getElementById('content-container');
+
+            // ================================================================
+            // Load User Profile
+            // ================================================================
+
+            async function loadUserProfile() {
+                try {
+                    console.log('[Dashboard] Loading user profile...');
+                    const response = await window.api.getCurrentUser();
+
+                    if (response.success && response.user) {
+                        const user = response.user;
+
+                        // Update UI
+                        if (userNameEl) {
+                            userNameEl.textContent = user.username || user.email.split('@')[0];
+                        }
+                        if (userEmailEl) {
+                            userEmailEl.textContent = user.email;
+                        }
+                        if (userInitialEl) {
+                            const initial = (user.username || user.email)[0].toUpperCase();
+                            userInitialEl.textContent = initial;
+                        }
+
+                        console.log('[Dashboard] User profile loaded:', user);
+                        return user;
+                    } else {
+                        throw new Error('Invalid response format');
+                    }
+                } catch (error) {
+                    console.error('[Dashboard] Failed to load user profile:', error);
+
+                    // If unauthorized, logout
+                    if (error.status === 401) {
+                        window.api.clearTokens();
+                        window.location.href = '/login.html';
+                    }
+
+                    // Show error in UI
+                    if (userNameEl) userNameEl.textContent = 'Error loading profile';
+                    if (userEmailEl) userEmailEl.textContent = 'Please refresh the page';
+                }
+            }
+
+            // ================================================================
+            // Logout Functionality
+            // ================================================================
+
+            async function handleLogout() {
+                try {
+                    console.log('[Dashboard] Logging out...');
+
+                    // Show loading state
+                    if (contentContainer) {
+                        contentContainer.innerHTML = `
+                            <div class="loading-state">
+                                <div class="spinner-large"></div>
+                                <p>Logging out...</p>
+                            </div>
+                        `;
+                    }
+
+                    // Call logout API
+                    await window.api.logout();
+
+                    // Redirect to home
+                    window.location.href = '/index.html';
+                } catch (error) {
+                    console.error('[Dashboard] Logout error:', error);
+
+                    // Clear tokens anyway
+                    window.api.clearTokens();
+                    window.location.href = '/index.html';
+                }
+            }
+
+            // Attach logout handlers
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', handleLogout);
+            }
+            if (logoutDropdownBtn) {
+                logoutDropdownBtn.addEventListener('click', handleLogout);
+            }
+
+            // ================================================================
+            // Initialize Dashboard
+            // ================================================================
+
+            async function initDashboard() {
+                try {
+                    // Load user profile
+                    await loadUserProfile();
+
+                    // Show dashboard content
+                    showDashboardContent();
+
+                    // Load all dashboard data
+                    await Promise.all([
+                        loadPortfolio(),
+                        loadOrders(),
+                        loadAutoTradingStatus()
+                    ]);
+
+                    // Set up auto-refresh (every 30 seconds)
+                    setInterval(async () => {
+                        console.log('[Dashboard] Auto-refreshing data...');
+                        await Promise.all([
+                            loadPortfolio(),
+                            loadOrders(),
+                            loadAutoTradingStatus()
+                        ]);
+                    }, 30000); // 30 seconds
+
+                    console.log('[Dashboard] Initialization complete');
+                } catch (error) {
+                    console.error('[Dashboard] Initialization error:', error);
+                }
+            }
+
+            // ================================================================
+            // Portfolio Display
+            // ================================================================
+
+            async function loadPortfolio() {
+                try {
+                    console.log('[Dashboard] Loading portfolio...');
+                    const response = await window.api.getHoldings();
+
+                    if (response.success && response.holdings) {
+                        displayPortfolio(response.holdings);
+                        return response.holdings;
+                    } else {
+                        throw new Error('Invalid holdings response');
+                    }
+                } catch (error) {
+                    console.error('[Dashboard] Failed to load portfolio:', error);
+                    showPortfolioError();
+                    return null;
+                }
+            }
+
+            function displayPortfolio(holdings) {
+                const portfolioContainer = document.getElementById('portfolio-container');
+                if (!portfolioContainer) return;
+
+                if (!holdings || holdings.length === 0) {
+                    portfolioContainer.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <p>No holdings found. Start trading to see your portfolio here.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const holdingsHTML = holdings.map(holding => {
+                    const value = parseFloat(holding.balance) * parseFloat(holding.avg_buy_price || 0);
+                    const profitLoss = value - (parseFloat(holding.balance) * parseFloat(holding.avg_buy_price || 0));
+                    const profitLossPercent = holding.avg_buy_price ?
+                        ((parseFloat(holding.current_price || 0) - parseFloat(holding.avg_buy_price)) / parseFloat(holding.avg_buy_price) * 100).toFixed(2) :
+                        0;
+
+                    return `
+                        <div class="holding-card">
+                            <div class="holding-header">
+                                <h3>${holding.currency}</h3>
+                                <span class="holding-balance">${parseFloat(holding.balance).toFixed(8)}</span>
+                            </div>
+                            <div class="holding-details">
+                                <div class="detail-row">
+                                    <span>Avg Buy Price:</span>
+                                    <span>${parseFloat(holding.avg_buy_price || 0).toLocaleString()} KRW</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span>Current Price:</span>
+                                    <span>${parseFloat(holding.current_price || 0).toLocaleString()} KRW</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span>Total Value:</span>
+                                    <span>${value.toLocaleString()} KRW</span>
+                                </div>
+                                <div class="detail-row ${profitLoss >= 0 ? 'profit' : 'loss'}">
+                                    <span>P&L:</span>
+                                    <span>${profitLoss >= 0 ? '+' : ''}${profitLoss.toLocaleString()} KRW (${profitLossPercent}%)</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                portfolioContainer.innerHTML = holdingsHTML;
+            }
+
+            function showPortfolioError() {
+                const portfolioContainer = document.getElementById('portfolio-container');
+                if (!portfolioContainer) return;
+
+                portfolioContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #dc3545;">
+                        <p>Failed to load portfolio. Please refresh the page or check your API keys.</p>
+                    </div>
+                `;
+            }
+
+            // ================================================================
+            // Orders History
+            // ================================================================
+
+            async function loadOrders() {
+                try {
+                    console.log('[Dashboard] Loading orders...');
+                    const response = await window.api.getOrders({ limit: 10, state: 'done' });
+
+                    if (response.success && response.orders) {
+                        displayOrders(response.orders);
+                        return response.orders;
+                    } else {
+                        throw new Error('Invalid orders response');
+                    }
+                } catch (error) {
+                    console.error('[Dashboard] Failed to load orders:', error);
+                    showOrdersError();
+                    return null;
+                }
+            }
+
+            function displayOrders(orders) {
+                const ordersContainer = document.getElementById('orders-container');
+                if (!ordersContainer) return;
+
+                if (!orders || orders.length === 0) {
+                    ordersContainer.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <p>No recent orders found.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const ordersHTML = `
+                    <table class="orders-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Market</th>
+                                <th>Type</th>
+                                <th>Price</th>
+                                <th>Volume</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${orders.map(order => `
+                                <tr>
+                                    <td>${new Date(order.created_at).toLocaleString()}</td>
+                                    <td>${order.market}</td>
+                                    <td class="${order.side === 'bid' ? 'buy' : 'sell'}">${order.side.toUpperCase()}</td>
+                                    <td>${parseFloat(order.price || 0).toLocaleString()} KRW</td>
+                                    <td>${parseFloat(order.volume || 0).toFixed(8)}</td>
+                                    <td>${(parseFloat(order.price || 0) * parseFloat(order.volume || 0)).toLocaleString()} KRW</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+
+                ordersContainer.innerHTML = ordersHTML;
+            }
+
+            function showOrdersError() {
+                const ordersContainer = document.getElementById('orders-container');
+                if (!ordersContainer) return;
+
+                ordersContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #dc3545;">
+                        <p>Failed to load orders. Please refresh the page.</p>
+                    </div>
+                `;
+            }
+
+            // ================================================================
+            // Auto-Trading Status
+            // ================================================================
+
+            async function loadAutoTradingStatus() {
+                try {
+                    console.log('[Dashboard] Loading auto-trading status...');
+                    const response = await window.api.getAutoTradingStatus();
+
+                    if (response.success) {
+                        displayAutoTradingStatus(response);
+                        return response;
+                    } else {
+                        throw new Error(response.error || 'Invalid response');
+                    }
+                } catch (error) {
+                    console.error('[Dashboard] Failed to load auto-trading status:', error);
+                    showAutoTradingError();
+                    return null;
+                }
+            }
+
+            function displayAutoTradingStatus(data) {
+                const container = document.getElementById('auto-trading-container');
+                if (!container) return;
+
+                const isEnabled = data.auto_trading_enabled || false;
+                const positionsCount = data.open_positions_count || 0;
+                const stats = data.statistics || {};
+
+                const statusHTML = `
+                    <div class="auto-trading-widget">
+                        <!-- Status Header -->
+                        <div class="status-header ${isEnabled ? 'enabled' : 'disabled'}">
+                            <div class="status-indicator">
+                                <div class="status-dot ${isEnabled ? 'active' : ''}"></div>
+                                <span class="status-text">${isEnabled ? 'ACTIVE' : 'INACTIVE'}</span>
+                            </div>
+                            <button class="btn-toggle-trading" onclick="toggleAutoTrading(${!isEnabled})">
+                                ${isEnabled ? 'STOP' : 'START'}
+                            </button>
+                        </div>
+
+                        <!-- Stats Grid -->
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-label">Open Positions</div>
+                                <div class="stat-value">${positionsCount}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Total Trades</div>
+                                <div class="stat-value">${stats.total_trades || 0}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Win Rate</div>
+                                <div class="stat-value">${(stats.win_rate || 0).toFixed(1)}%</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Total P&L</div>
+                                <div class="stat-value ${(stats.total_profit || 0) >= 0 ? 'profit' : 'loss'}">
+                                    ${(stats.total_profit || 0) >= 0 ? '+' : ''}${(stats.total_profit || 0).toLocaleString()} KRW
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Last Update -->
+                        <div class="last-update">
+                            Last updated: ${data.last_check ? new Date(data.last_check).toLocaleString() : 'N/A'}
+                        </div>
+                    </div>
+                `;
+
+                container.innerHTML = statusHTML;
+            }
+
+            function showAutoTradingError() {
+                const container = document.getElementById('auto-trading-container');
+                if (!container) return;
+
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #dc3545;">
+                        <p>Failed to load auto-trading status.</p>
+                        <p style="font-size: 14px; color: #666;">Auto-trading engine may not be initialized.</p>
+                    </div>
+                `;
+            }
+
+            async function toggleAutoTrading(enable) {
+                try {
+                    console.log(`[Dashboard] ${enable ? 'Starting' : 'Stopping'} auto-trading...`);
+
+                    // Show loading state
+                    const container = document.getElementById('auto-trading-container');
+                    if (container) {
+                        container.innerHTML = `
+                            <div class="loading-state">
+                                <div class="spinner-small"></div>
+                                <p>${enable ? 'Starting' : 'Stopping'} auto-trading...</p>
+                            </div>
+                        `;
+                    }
+
+                    // Call API
+                    const response = enable ?
+                        await window.api.startAutoTrading({}) :
+                        await window.api.stopAutoTrading();
+
+                    if (response.success) {
+                        console.log('[Dashboard] Auto-trading toggled successfully');
+                        // Reload status after 1 second
+                        setTimeout(() => loadAutoTradingStatus(), 1000);
+                    } else {
+                        throw new Error(response.error || 'Failed to toggle auto-trading');
+                    }
+                } catch (error) {
+                    console.error('[Dashboard] Toggle auto-trading error:', error);
+                    alert(`Failed to ${enable ? 'start' : 'stop'} auto-trading: ${error.message}`);
+                    // Reload current status
+                    loadAutoTradingStatus();
+                }
+            }
+
+            // ================================================================
+            // Dashboard Content
+            // ================================================================
+
+            function showDashboardContent() {
+                if (!contentContainer) return;
+
+                contentContainer.innerHTML = `
+                    <div class="dashboard-grid">
+                        <!-- Portfolio Section -->
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h2>Portfolio Holdings</h2>
+                                <button class="btn-refresh" onclick="loadPortfolio()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                                    </svg>
+                                    Refresh
+                                </button>
+                            </div>
+                            <div class="card-content" id="portfolio-container">
+                                <div class="loading-state">
+                                    <div class="spinner-small"></div>
+                                    <p>Loading portfolio...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Orders Section -->
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h2>Recent Orders</h2>
+                                <button class="btn-refresh" onclick="loadOrders()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                                    </svg>
+                                    Refresh
+                                </button>
+                            </div>
+                            <div class="card-content" id="orders-container">
+                                <div class="loading-state">
+                                    <div class="spinner-small"></div>
+                                    <p>Loading orders...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Auto-Trading Status Section -->
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h2>Auto-Trading Status</h2>
+                                <button class="btn-refresh" onclick="loadAutoTradingStatus()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                                    </svg>
+                                    Refresh
+                                </button>
+                            </div>
+                            <div class="card-content" id="auto-trading-container">
+                                <div class="loading-state">
+                                    <div class="spinner-small"></div>
+                                    <p>Loading auto-trading status...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Links Section -->
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h2>Quick Links</h2>
+                            </div>
+                            <div class="card-content">
+                                <div class="quick-links">
+                                    <a href="/trading_chart.html" class="quick-link">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                                        </svg>
+                                        <span>Trading Chart</span>
+                                    </a>
+                                    <a href="/swing_trading_settings.html" class="quick-link">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                            <path d="M12 1v6m0 6v6m-9-9h6m6 0h6"></path>
+                                        </svg>
+                                        <span>Trading Settings</span>
+                                    </a>
+                                    <a href="/policy_manager.html" class="quick-link">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                            <polyline points="14 2 14 8 20 8"></polyline>
+                                        </svg>
+                                        <span>Policy Manager</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // ================================================================
+            // Start Dashboard
+            // ================================================================
+
+            // Wait for DOM to be ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initDashboard);
+            } else {
+                initDashboard();
+            }
+
+            console.log('[Dashboard] API integration loaded');
+        })();
+    </script>
+
+    <!-- Original Dashboard Scripts -->
+    <script src="js/dashboard.js?v=20251124"></script>
+</body>
+</html>

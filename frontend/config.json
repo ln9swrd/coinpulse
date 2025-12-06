@@ -1,0 +1,60 @@
+{
+  "api": {
+    "chartServerUrl": "http://localhost:8080",
+    "tradingServerUrl": "http://localhost:8081",
+    "upbitUrl": "https://api.upbit.com",
+    "maxDataCount": 200,
+    "endpoints": {
+      "chart": {
+        "candles": {
+          "minutes": "/api/upbit/candles/minutes",
+          "days": "/api/upbit/candles/days",
+          "weeks": "/api/upbit/candles/weeks",
+          "months": "/api/upbit/candles/months"
+        },
+        "health": "/health"
+      },
+      "trading": {
+        "holdings": "/api/holdings",
+        "orders": "/api/orders",
+        "policies": "/api/policies",
+        "health": "/api/health"
+      }
+    }
+  },
+  "chart": {
+    "defaultSymbol": "KRW-BTC",
+    "defaultInterval": "1440",
+    "theme": {
+      "backgroundColor": "#1e1e1e",
+      "textColor": "#ffffff",
+      "fontSize": 12,
+      "fontFamily": "Arial, sans-serif"
+    },
+    "dimensions": {
+      "minHeight": 700,
+      "maxHeight": 1000,
+      "heightRatio": 0.85
+    },
+    "localization": {
+      "locale": "ko-KR"
+    }
+  },
+  "indicators": {
+    "default": {
+      "ma20": true,
+      "ma50": true,
+      "ma100": true,
+      "ma200": true,
+      "bb": false,
+      "volume": true
+    }
+  },
+  "ui": {
+    "refreshInterval": 30000,
+    "animationDuration": 300
+  },
+  "files": {
+    "tradingHistory": "./trading_history.json"
+  }
+}

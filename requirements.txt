@@ -1,0 +1,20 @@
+flask==2.3.3
+flask-cors==4.0.0
+python-dotenv==1.0.0
+requests==2.31.0
+PyJWT==2.8.0
+schedule==1.2.0
+psutil==5.9.6
+
+# WebSocket Support (Phase 3)
+flask-socketio==5.3.4
+python-socketio==5.9.0
+
+# Database (PostgreSQL + SQLite support)
+SQLAlchemy==2.0.23
+psycopg2-binary==2.9.9
+alembic==1.12.1
+
+# Production Server (Railway/Heroku)
+gunicorn==21.2.0
+eventlet==0.33.3
