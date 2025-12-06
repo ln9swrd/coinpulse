@@ -413,12 +413,15 @@ def startup():
 if __name__ == '__main__':
     startup()
 
+    # Get PORT from environment (Railway/Render) or config
+    port = int(os.environ.get('PORT', CONFIG['server']['port']))
+    
     # Run the Flask app with SocketIO support (Phase 3)
     # Note: Using socketio.run() instead of app.run() for WebSocket support
     socketio.run(
         app,
-        host=CONFIG['server']['host'],
-        port=CONFIG['server']['port'],
-        debug=CONFIG['server']['debug'],
-        allow_unsafe_werkzeug=True  # For development only
+        host='0.0.0.0',  # Must be 0.0.0.0 for Railway
+        port=port,
+        debug=False,  # Disable debug in production
+        allow_unsafe_werkzeug=True
     )
