@@ -408,6 +408,60 @@ def init_background_services():
     except Exception as e:
         logger.error(f"Failed to start backup scheduler: {e}")
 
+    # Initialize Telegram alert bot (Optional - requires TELEGRAM_BOT_TOKEN)
+    try:
+        telegram_token = os.getenv('TELEGRAM_BOT_TOKEN')
+        if telegram_token:
+            from backend.services.telegram_bot import SurgeTelegramBot, TELEGRAM_AVAILABLE
+            from backend.services.surge_alert_scheduler import SurgeAlertScheduler
+
+            if TELEGRAM_AVAILABLE:
+                # Initialize Telegram bot
+                telegram_bot = SurgeTelegramBot(token=telegram_token)
+
+                # Start bot in background
+                import asyncio
+                import threading
+
+                def run_telegram_bot():
+                    """Run Telegram bot in separate thread"""
+                    try:
+                        asyncio.run(telegram_bot.start())
+                    except Exception as e:
+                        logger.error(f"Telegram bot error: {e}")
+
+                telegram_thread = threading.Thread(target=run_telegram_bot, daemon=True)
+                telegram_thread.start()
+
+                # Initialize surge alert scheduler (5 minute interval)
+                surge_alert_scheduler = SurgeAlertScheduler(
+                    telegram_bot=telegram_bot,
+                    check_interval=300  # 5 minutes
+                )
+
+                # Start scheduler in background
+                def run_surge_alerts():
+                    """Run surge alert scheduler"""
+                    try:
+                        asyncio.run(surge_alert_scheduler.start())
+                    except Exception as e:
+                        logger.error(f"Surge alert scheduler error: {e}")
+
+                alert_thread = threading.Thread(target=run_surge_alerts, daemon=True)
+                alert_thread.start()
+
+                # Store references
+                app.telegram_bot = telegram_bot
+                app.surge_alert_scheduler = surge_alert_scheduler
+
+                logger.info("Telegram bot and surge alert scheduler started (5 minute interval)")
+            else:
+                logger.warning("python-telegram-bot not installed - Telegram alerts disabled")
+        else:
+            logger.info("TELEGRAM_BOT_TOKEN not set - Telegram alerts disabled")
+    except Exception as e:
+        logger.error(f"Failed to start Telegram services: {e}")
+
 
 # ============================================================================
 # Application Startup

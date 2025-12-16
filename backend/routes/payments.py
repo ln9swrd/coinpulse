@@ -266,3 +266,210 @@ def deactivate_billing_key(billing_key_id):
         }), 500
     finally:
         session.close()
+
+
+@payments_bp.route('/refund', methods=['POST'])
+def refund_payment():
+    """
+    결제 환불 처리
+
+    Request Body:
+        {
+            "paymentKey": "결제 키",
+            "cancelReason": "환불 사유",
+            "refundReceiveAccount": {  # 선택사항
+                "bank": "은행 코드",
+                "accountNumber": "계좌번호",
+                "holderName": "예금주명"
+            },
+            "cancelAmount": 10000  # 선택사항, 부분 환불 시
+        }
+
+    Returns:
+        JSON: 환불 결과
+    """
+    data = request.json
+    payment_key = data.get('paymentKey')
+    cancel_reason = data.get('cancelReason', '고객 요청')
+    cancel_amount = data.get('cancelAmount')  # None이면 전액 환불
+    refund_account = data.get('refundReceiveAccount')  # 가상계좌 환불용
+
+    if not payment_key:
+        return jsonify({
+            'success': False,
+            'error': '결제 키가 필요합니다'
+        }), 400
+
+    try:
+        # Toss Payments 환불 API 호출
+        refund_data = {
+            'cancelReason': cancel_reason
+        }
+
+        # 부분 환불 시 금액 지정
+        if cancel_amount:
+            refund_data['cancelAmount'] = cancel_amount
+
+        # 가상계좌 환불 계좌 정보
+        if refund_account:
+            refund_data['refundReceiveAccount'] = refund_account
+
+        response = requests.post(
+            f'https://api.tosspayments.com/v1/payments/{payment_key}/cancel',
+            headers=get_auth_header(),
+            json=refund_data
+        )
+
+        if response.status_code == 200:
+            refund_result = response.json()
+
+            # TODO: 환불 내역을 데이터베이스에 기록
+            # - 환불 금액
+            # - 환불 사유
+            # - 환불 시간
+            # - 사용자 구독 상태 업데이트
+
+            return jsonify({
+                'success': True,
+                'message': '환불이 완료되었습니다',
+                'refund': {
+                    'paymentKey': refund_result.get('paymentKey'),
+                    'orderId': refund_result.get('orderId'),
+                    'status': refund_result.get('status'),
+                    'canceledAt': refund_result.get('canceledAt'),
+                    'cancelAmount': refund_result.get('cancelAmount'),
+                    'cancelReason': refund_result.get('cancelReason')
+                }
+            })
+        else:
+            error = response.json()
+            return jsonify({
+                'success': False,
+                'error': error.get('message', '환불 처리 실패'),
+                'code': error.get('code')
+            }), 400
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'환불 처리 중 오류 발생: {str(e)}'
+        }), 500
+
+
+@payments_bp.route('/refund/status/<payment_key>', methods=['GET'])
+def get_refund_status(payment_key):
+    """
+    결제/환불 상태 조회
+
+    Args:
+        payment_key (str): 결제 키
+
+    Returns:
+        JSON: 결제 정보 (취소 내역 포함)
+    """
+    try:
+        response = requests.get(
+            f'https://api.tosspayments.com/v1/payments/{payment_key}',
+            headers=get_auth_header()
+        )
+
+        if response.status_code == 200:
+            payment_data = response.json()
+
+            return jsonify({
+                'success': True,
+                'payment': {
+                    'paymentKey': payment_data.get('paymentKey'),
+                    'orderId': payment_data.get('orderId'),
+                    'status': payment_data.get('status'),
+                    'totalAmount': payment_data.get('totalAmount'),
+                    'balanceAmount': payment_data.get('balanceAmount'),
+                    'method': payment_data.get('method'),
+                    'approvedAt': payment_data.get('approvedAt'),
+                    'cancels': payment_data.get('cancels', [])  # 환불 내역
+                }
+            })
+        else:
+            error = response.json()
+            return jsonify({
+                'success': False,
+                'error': error.get('message', '결제 정보 조회 실패')
+            }), 404
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@payments_bp.route('/subscription/cancel/<int:user_id>', methods=['POST'])
+def cancel_subscription(user_id):
+    """
+    구독 취소 (다음 결제부터 중지)
+
+    Args:
+        user_id (int): 사용자 ID
+
+    Request Body:
+        {
+            "reason": "취소 사유",
+            "refund": false  # 즉시 환불 여부 (현재 결제 기간 환불)
+        }
+
+    Returns:
+        JSON: 취소 결과
+    """
+    from backend.database.models import UserSubscription
+
+    data = request.json or {}
+    cancel_reason = data.get('reason', '사용자 요청')
+    immediate_refund = data.get('refund', False)
+
+    session = get_db_session()
+    try:
+        # 사용자 구독 정보 조회
+        subscription = session.query(UserSubscription).filter_by(
+            user_id=user_id,
+            status='active'
+        ).first()
+
+        if not subscription:
+            return jsonify({
+                'success': False,
+                'error': '활성 구독을 찾을 수 없습니다'
+            }), 404
+
+        # 구독 상태 업데이트
+        subscription.status = 'cancelled'
+        subscription.cancel_reason = cancel_reason
+        subscription.cancelled_at = datetime.utcnow()
+
+        # 즉시 환불 처리
+        if immediate_refund and subscription.last_payment_key:
+            # TODO: 일할 계산 후 부분 환불 처리
+            # 현재 결제 기간 중 사용한 일수 계산
+            # 남은 기간에 대해 환불
+            pass
+
+        session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': '구독이 취소되었습니다',
+            'subscription': {
+                'user_id': user_id,
+                'status': 'cancelled',
+                'end_date': subscription.end_date.isoformat() if subscription.end_date else None,
+                'cancelled_at': subscription.cancelled_at.isoformat()
+            }
+        })
+
+    except Exception as e:
+        session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+    finally:
+        session.close()
