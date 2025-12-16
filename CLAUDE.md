@@ -409,11 +409,14 @@ backend/
    - 점유하고 있는 프로세스를 강제 중지 후 해당 포트 사용
    - `tasklist`, `netstat` 명령어로 점유 프로세스 확인 후 `taskkill` 사용
    - 중복 프로세스 실행 방지 (성능 저하 원인)
-3. **인코딩 오류 방지 강화**:
+3. **인코딩 오류 방지 강화** (2025.12.16 업데이트):
    - 한글, 이모지, 특수문자로 인한 작업 중단 방지
-   - 모든 파일은 UTF-8 인코딩으로 저장
+   - **✅ 모든 파일은 UTF-8 BOM 인코딩으로 저장** (필수)
+   - **✅ Windows 환경에서 한글 호환성 보장**
    - 개발 환경에서 인코딩 설정 통일
    - UI 텍스트는 영어 우선, 한글 사용 시 주의
+   - **VS Code 설정**: `"files.encoding": "utf8bom"`
+   - **PyCharm 설정**: File Encodings → UTF-8 with BOM
 4. **기존 파일 편집 우선**: 새 파일 생성보다 기존 파일 수정
 5. **중복 변수 선언 금지**: JavaScript에서 변수 중복 선언 방지
 6. **캐시 무효화**: 파일 수정 시 `?v=날짜` 파라미터 사용
@@ -550,18 +553,46 @@ backend/
 - **파일 구조**: HTML(구조) + CSS(통합) + JS(모듈화) 분리
 - **네이밍**: 영어 변수명, 한글/이모지 금지
 
-### 인코딩 설정 예시
+### 인코딩 설정 예시 (2025.12.16 업데이트)
+
+#### Python 파일 인코딩
 ```python
-# Python 파일 상단에 인코딩 명시
-# -*- coding: utf-8 -*-
+# ✅ UTF-8 BOM 권장 (파일 저장 시 에디터에서 UTF-8 BOM 선택)
+# BOM이 있으면 # -*- coding: utf-8 -*- 불필요
 
 # 파일 읽기/쓰기 시 인코딩 명시
-with open('config.json', 'r', encoding='utf-8') as f:
+with open('config.json', 'r', encoding='utf-8-sig') as f:  # BOM 자동 제거
     config = json.load(f)
 
 # JSON 파일 저장 시 ensure_ascii=False 사용
-with open('data.json', 'w', encoding='utf-8') as f:
+with open('data.json', 'w', encoding='utf-8-sig') as f:  # BOM 포함
     json.dump(data, f, ensure_ascii=False, indent=2)
+```
+
+#### VS Code 설정 (.vscode/settings.json)
+```json
+{
+  "files.encoding": "utf8bom",
+  "files.autoGuessEncoding": false,
+  "[python]": {
+    "files.encoding": "utf8bom"
+  },
+  "[javascript]": {
+    "files.encoding": "utf8bom"
+  },
+  "[markdown]": {
+    "files.encoding": "utf8bom"
+  }
+}
+```
+
+#### Git 설정 (.gitattributes)
+```
+# UTF-8 BOM을 유지하도록 Git 설정
+*.py text eol=crlf encoding=utf-8-bom
+*.js text eol=crlf encoding=utf-8-bom
+*.md text eol=crlf encoding=utf-8-bom
+*.json text eol=crlf encoding=utf-8-bom
 ```
 
 ---

@@ -1,0 +1,47 @@
+# CoinPulse Git Attributes
+# Enforces UTF-8 BOM encoding and CRLF line endings for Windows compatibility
+
+# Python files
+*.py text eol=crlf
+
+# JavaScript files
+*.js text eol=crlf
+
+# Markdown files
+*.md text eol=crlf
+
+# JSON files
+*.json text eol=crlf
+
+# HTML/CSS files
+*.html text eol=crlf
+*.css text eol=crlf
+
+# Configuration files
+*.ini text eol=crlf
+*.conf text eol=crlf
+*.yaml text eol=crlf
+*.yml text eol=crlf
+
+# Shell scripts (use LF for Linux compatibility)
+*.sh text eol=lf
+
+# Batch files (Windows specific)
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# SQL files
+*.sql text eol=crlf
+
+# Binary files (no conversion)
+*.db binary
+*.sqlite binary
+*.sqlite3 binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar.gz binary
