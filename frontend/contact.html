@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>문의하기 - 코인펄스</title>
+    <link rel="stylesheet" href="css/landing.css">
+    <style>
+        .contact-container {
+            max-width: 1200px;
+            margin: 80px auto;
+            padding: 40px;
+        }
+        .contact-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .contact-header h1 {
+            font-size: 36px;
+            margin-bottom: 15px;
+        }
+        .contact-header p {
+            font-size: 18px;
+            color: var(--text-secondary);
+        }
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+        @media (max-width: 768px) {
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .contact-form {
+            background: var(--surface-color);
+            padding: 40px;
+            border-radius: 12px;
+        }
+        .form-group {
+            margin-bottom: 24px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0,0,0,0.2);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary-color);
+            color: var(--background-dark);
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .submit-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        .submit-btn:disabled {
+            background: rgba(0,255,136,0.3);
+            cursor: not-allowed;
+            transform: none;
+        }
+        .contact-info {
+            background: var(--surface-color);
+            padding: 40px;
+            border-radius: 12px;
+        }
+        .info-item {
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .info-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .info-item h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        .info-item p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 8px;
+        }
+        .info-item a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        .info-item a:hover {
+            text-decoration: underline;
+        }
+        .quick-links {
+            background: var(--surface-color);
+            padding: 40px;
+            border-radius: 12px;
+            margin-top: 40px;
+        }
+        .quick-links h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .link-card {
+            background: rgba(0,255,136,0.05);
+            padding: 24px;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        .link-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-4px);
+        }
+        .link-card h3 {
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+        .link-card p {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+        .link-card a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .success-message {
+            background: rgba(0,255,136,0.1);
+            border: 2px solid var(--primary-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .error-message {
+            background: rgba(255,68,68,0.1);
+            border: 2px solid #ff4444;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1 class="logo"><a href="index.html" style="color: var(--primary-color); text-decoration: none;">코인펄스</a></h1>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html">홈</a>
+                <a href="docs.html">가이드</a>
+                <a href="faq.html">FAQ</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="contact-container">
+        <div class="contact-header">
+            <h1>문의하기</h1>
+            <p>궁금하신 점이나 문제가 있으시면 언제든지 연락주세요</p>
+        </div>
+
+        <div class="contact-grid">
+            <!-- Contact Form -->
+            <div class="contact-form">
+                <h2 style="margin-bottom: 30px;">문의 양식</h2>
+
+                <div class="success-message" id="success-message">
+                    <strong>✓ 문의가 성공적으로 전송되었습니다!</strong>
+                    <p style="margin-top: 10px; margin-bottom: 0;">빠른 시일 내에 답변드리겠습니다.</p>
+                </div>
+
+                <div class="error-message" id="error-message">
+                    <strong>✗ 문의 전송에 실패했습니다.</strong>
+                    <p style="margin-top: 10px; margin-bottom: 0;">잠시 후 다시 시도해주시거나 이메일로 직접 연락주세요.</p>
+                </div>
+
+                <form id="contact-form" onsubmit="handleSubmit(event)">
+                    <div class="form-group">
+                        <label for="name">이름 *</label>
+                        <input type="text" id="name" name="name" required placeholder="홍길동">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">이메일 *</label>
+                        <input type="email" id="email" name="email" required placeholder="example@email.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">문의 유형 *</label>
+                        <select id="category" name="category" required>
+                            <option value="">선택해주세요</option>
+                            <option value="account">계정/가입</option>
+                            <option value="payment">결제/환불</option>
+                            <option value="api">API 연동</option>
+                            <option value="trading">자동매매</option>
+                            <option value="technical">기술 문제</option>
+                            <option value="suggestion">건의사항</option>
+                            <option value="other">기타</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subject">제목 *</label>
+                        <input type="text" id="subject" name="subject" required placeholder="문의 제목을 입력하세요">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message">문의 내용 *</label>
+                        <textarea id="message" name="message" required placeholder="문의하실 내용을 상세히 작성해주세요"></textarea>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="submit-btn">
+                        문의하기
+                    </button>
+                </form>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="contact-info">
+                <h2 style="margin-bottom: 30px;">연락처 정보</h2>
+
+                <div class="info-item">
+                    <h3>📧 이메일</h3>
+                    <p><a href="mailto:ln9swrd@gmail.com">ln9swrd@gmail.com</a></p>
+                    <p style="font-size: 14px; color: rgba(255,255,255,0.5);">평일 24시간 이내 답변</p>
+                </div>
+
+                <div class="info-item">
+                    <h3>📞 전화</h3>
+                    <p><a href="tel:010-9575-4890">010-9575-4890</a></p>
+                    <p style="font-size: 14px; color: rgba(255,255,255,0.5);">평일 09:00 - 18:00 (점심시간 12:00-13:00 제외)</p>
+                </div>
+
+                <div class="info-item">
+                    <h3>🏢 사업장 주소</h3>
+                    <p>서울특별시 서초구 남부순환로 335길 35, 303호 J06</p>
+                </div>
+
+                <div class="info-item">
+                    <h3>🏢 사업자 정보</h3>
+                    <p>상호: 신시 (SINSI)</p>
+                    <p>대표자: 노용호</p>
+                    <p>사업자등록번호: 203-10-62676</p>
+                    <p>통신판매업: 2024-서울서초-3807</p>
+                </div>
+
+                <div class="info-item">
+                    <h3>⏰ 고객센터 운영시간</h3>
+                    <p>평일: 09:00 - 18:00</p>
+                    <p>점심시간: 12:00 - 13:00</p>
+                    <p>주말/공휴일: 휴무</p>
+                    <p style="font-size: 14px; color: rgba(255,255,255,0.5); margin-top: 10px;">
+                        긴급 문의는 이메일로 남겨주시면 최대한 빠르게 답변드리겠습니다.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="quick-links">
+            <h2>빠른 도움말</h2>
+            <div class="links-grid">
+                <div class="link-card">
+                    <h3>📚 사용자 가이드</h3>
+                    <p>서비스 이용 방법을 확인하세요</p>
+                    <a href="docs.html">가이드 보기 →</a>
+                </div>
+
+                <div class="link-card">
+                    <h3>❓ FAQ</h3>
+                    <p>자주 묻는 질문과 답변</p>
+                    <a href="faq.html">FAQ 보기 →</a>
+                </div>
+
+                <div class="link-card">
+                    <h3>💳 환불 정책</h3>
+                    <p>환불 절차와 정책 안내</p>
+                    <a href="refund.html">정책 보기 →</a>
+                </div>
+
+                <div class="link-card">
+                    <h3>🔒 개인정보처리방침</h3>
+                    <p>개인정보 보호 정책</p>
+                    <a href="privacy.html">방침 보기 →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function handleSubmit(event) {
+            event.preventDefault();
+
+            const form = document.getElementById('contact-form');
+            const submitBtn = document.getElementById('submit-btn');
+            const successMsg = document.getElementById('success-message');
+            const errorMsg = document.getElementById('error-message');
+
+            // Hide previous messages
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.textContent = '전송 중...';
+
+            // Get form data
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                category: document.getElementById('category').value,
+                subject: document.getElementById('subject').value,
+                message: document.getElementById('message').value,
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                // TODO: Replace with actual API endpoint
+                // For now, simulate API call
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // In production, send to backend:
+                // const response = await fetch('/api/contact', {
+                //     method: 'POST',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify(formData)
+                // });
+
+                // For now, send email using mailto (temporary solution)
+                const mailtoLink = `mailto:ln9swrd@gmail.com?subject=[코인펄스 문의] ${formData.subject}&body=이름: ${formData.name}%0D%0A이메일: ${formData.email}%0D%0A유형: ${formData.category}%0D%0A%0D%0A${formData.message}`;
+
+                // Show success message
+                successMsg.style.display = 'block';
+                form.reset();
+
+                // Open default email client
+                window.location.href = mailtoLink;
+
+                // Scroll to success message
+                successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            } catch (error) {
+                console.error('Contact form error:', error);
+                errorMsg.style.display = 'block';
+                errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } finally {
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.textContent = '문의하기';
+            }
+        }
+    </script>
+</body>
+</html>
