@@ -42,6 +42,7 @@ from backend.routes.suspension_admin import suspension_admin_bp  # ✅ Re-enable
 from backend.routes.plan_admin import plan_admin_bp  # Plan configuration management
 from backend.routes.stats_routes import stats_bp  # Statistics API
 from backend.routes.surge_routes import surge_bp  # Surge prediction MVP (81.25% accuracy)
+from backend.routes.scheduler_admin import scheduler_admin_bp  # Subscription scheduler admin
 
 # Import WebSocket service (Phase 3)
 from backend.services.websocket_service import init_websocket_service, setup_socketio_handlers
@@ -211,7 +212,8 @@ def register_blueprints():
         (suspension_admin_bp, None),  # ✅ Re-enabled - Suspension admin (already has /api/admin/suspensions prefix)
         (plan_admin_bp, None),  # Plan admin (already has /api/admin/plans prefix)
         (stats_bp, None),  # Statistics API (already has /api/stats prefix)
-        (surge_bp, '/api')  # Surge prediction API (81.25% backtest accuracy)
+        (surge_bp, '/api'),  # Surge prediction API (81.25% backtest accuracy)
+        (scheduler_admin_bp, '/api/admin')  # Subscription renewal scheduler admin
     ]
 
     for blueprint, url_prefix in blueprints:
@@ -389,14 +391,18 @@ def init_background_services():
     except Exception as e:
         logger.error(f"Failed to start background order sync: {e}")
 
-#     # Initialize subscription renewal scheduler
-#     try:
-#         from backend.services.renewal_scheduler import start_renewal_scheduler_background
-# 
-#         start_renewal_scheduler_background()
-#         logger.info("Subscription renewal scheduler started")
-#     except Exception as e:
-#         logger.error(f"Failed to start renewal scheduler: {e}")
+    # Initialize subscription renewal scheduler (Phase 8)
+    try:
+        from backend.services.subscription_scheduler import start_scheduler
+
+        subscription_scheduler = start_scheduler()
+
+        # Store reference for later use
+        app.subscription_scheduler = subscription_scheduler
+
+        logger.info("Subscription renewal scheduler started (daily check at 00:00 KST)")
+    except Exception as e:
+        logger.error(f"Failed to start subscription renewal scheduler: {e}")
 
 
 # ============================================================================
