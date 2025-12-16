@@ -448,5 +448,155 @@ def get_user_positions(user_id):
         }), 500
 
 
+@auto_trading_bp.route('/auto-trading/history/<int:user_id>', methods=['GET'])
+def get_trading_history(user_id):
+    """
+    Get trading history (closed positions) for a user.
+
+    Args:
+        user_id: User ID
+
+    Returns:
+        JSON with trading history
+    """
+    try:
+        from backend.database.models import SwingPositionHistory
+
+        session = get_db_session()
+        try:
+            history = session.query(SwingPositionHistory).filter_by(
+                user_id=user_id
+            ).order_by(SwingPositionHistory.sell_time.desc()).limit(50).all()
+
+            return jsonify({
+                "success": True,
+                "history": [h.to_dict() for h in history]
+            })
+
+        finally:
+            session.close()
+
+    except Exception as e:
+        print(f"[AutoTradingRoutes] ERROR getting history: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+@auto_trading_bp.route('/auto-trading/stats/<int:user_id>', methods=['GET'])
+def get_trading_stats(user_id):
+    """
+    Get trading statistics for a user.
+
+    Args:
+        user_id: User ID
+
+    Returns:
+        JSON with statistics
+    """
+    try:
+        from backend.database.models import SwingPosition, SwingPositionHistory
+
+        session = get_db_session()
+        try:
+            # Get active positions count
+            active_positions = session.query(SwingPosition).filter_by(
+                user_id=user_id,
+                status='open'
+            ).count()
+
+            # Get closed positions
+            closed_positions = session.query(SwingPositionHistory).filter_by(
+                user_id=user_id
+            ).all()
+
+            # Calculate statistics
+            total_trades = len(closed_positions)
+            winning_trades = len([p for p in closed_positions if p.profit_loss > 0])
+            win_rate = (winning_trades / total_trades * 100) if total_trades > 0 else 0
+
+            total_profit = sum(p.profit_loss for p in closed_positions)
+            total_investment = sum(p.buy_amount for p in closed_positions)
+            total_profit_percent = (total_profit / total_investment * 100) if total_investment > 0 else 0
+
+            return jsonify({
+                "success": True,
+                "stats": {
+                    "active_positions": active_positions,
+                    "total_trades": total_trades,
+                    "winning_trades": winning_trades,
+                    "losing_trades": total_trades - winning_trades,
+                    "win_rate": win_rate,
+                    "total_profit": total_profit,
+                    "total_profit_percent": total_profit_percent
+                }
+            })
+
+        finally:
+            session.close()
+
+    except Exception as e:
+        print(f"[AutoTradingRoutes] ERROR getting stats: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+@auto_trading_bp.route('/auto-trading/toggle/<int:user_id>', methods=['POST'])
+def toggle_auto_trading(user_id):
+    """
+    Toggle auto-trading on/off for a user.
+
+    Args:
+        user_id: User ID
+
+    Request Body:
+        {
+            "enabled": true/false
+        }
+
+    Returns:
+        JSON with success status
+    """
+    try:
+        data = request.json
+        enabled = data.get('enabled', False)
+
+        session = get_db_session()
+        try:
+            config = session.query(UserConfig).filter_by(user_id=user_id).first()
+
+            if not config:
+                # Create default config
+                config = UserConfig(
+                    user_id=user_id,
+                    trading_enabled=enabled
+                )
+                session.add(config)
+            else:
+                config.trading_enabled = enabled
+                config.updated_at = datetime.utcnow()
+
+            session.commit()
+
+            return jsonify({
+                "success": True,
+                "message": f"Auto trading {'enabled' if enabled else 'disabled'} for user {user_id}",
+                "enabled": enabled
+            })
+
+        finally:
+            session.close()
+
+    except Exception as e:
+        print(f"[AutoTradingRoutes] ERROR toggling auto trading: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
 # Initialize when module is loaded
 init_auto_trading()
