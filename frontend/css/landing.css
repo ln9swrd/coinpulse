@@ -148,8 +148,16 @@ body {
 }
 
 .hero-note {
-    color: var(--text-secondary);
+    color: #dc3545;
     font-size: 14px;
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 2px solid #dc3545;
+    border-radius: 8px;
+    padding: 12px 24px;
+    margin: 20px auto 0;
+    max-width: 500px;
+    text-align: center;
+    font-weight: 600;
 }
 
 /* 5. Stats Grid - 가로 배치 */
