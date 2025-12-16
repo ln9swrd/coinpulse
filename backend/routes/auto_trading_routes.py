@@ -42,7 +42,7 @@ def init_auto_trading():
         print(f"[AutoTradingRoutes] ERROR initializing: {e}")
 
 
-@auto_trading_bp.route('/api/auto-trading/config/<int:user_id>', methods=['GET'])
+@auto_trading_bp.route('/auto-trading/config/<int:user_id>', methods=['GET'])
 def get_user_config(user_id):
     """
     Get auto-trading configuration for a user.
@@ -80,7 +80,7 @@ def get_user_config(user_id):
         }), 500
 
 
-@auto_trading_bp.route('/api/auto-trading/config/<int:user_id>', methods=['POST'])
+@auto_trading_bp.route('/auto-trading/config/<int:user_id>', methods=['POST'])
 def save_user_config(user_id):
     """
     Save or update auto-trading configuration for a user.
@@ -167,7 +167,7 @@ def save_user_config(user_id):
         }), 500
 
 
-@auto_trading_bp.route('/api/auto-trading/status', methods=['GET'])
+@auto_trading_bp.route('/auto-trading/status', methods=['GET'])
 @require_auth
 def get_current_user_trading_status():
     """
@@ -247,7 +247,7 @@ def _get_trading_status_impl(user_id):
         }), 500
 
 
-@auto_trading_bp.route('/api/auto-trading/status/<int:user_id>', methods=['GET'])
+@auto_trading_bp.route('/auto-trading/status/<int:user_id>', methods=['GET'])
 def get_trading_status(user_id):
     """
     Get current auto-trading status for a user (legacy endpoint).
@@ -261,7 +261,7 @@ def get_trading_status(user_id):
     return _get_trading_status_impl(user_id)
 
 
-@auto_trading_bp.route('/api/auto-trading/start/<int:user_id>', methods=['POST'])
+@auto_trading_bp.route('/auto-trading/start/<int:user_id>', methods=['POST'])
 def start_auto_trading(user_id):
     """
     Start auto-trading for a user (enable flag).
@@ -301,7 +301,7 @@ def start_auto_trading(user_id):
         }), 500
 
 
-@auto_trading_bp.route('/api/auto-trading/stop/<int:user_id>', methods=['POST'])
+@auto_trading_bp.route('/auto-trading/stop/<int:user_id>', methods=['POST'])
 def stop_auto_trading(user_id):
     """
     Stop auto-trading for a user (disable flag).
@@ -341,7 +341,7 @@ def stop_auto_trading(user_id):
         }), 500
 
 
-@auto_trading_bp.route('/api/auto-trading/run-cycle/<int:user_id>', methods=['POST'])
+@auto_trading_bp.route('/auto-trading/run-cycle/<int:user_id>', methods=['POST'])
 def run_trading_cycle(user_id):
     """
     Manually trigger one auto-trading cycle for a user.
@@ -371,7 +371,7 @@ def run_trading_cycle(user_id):
         }), 500
 
 
-@auto_trading_bp.route('/api/auto-trading/logs/<int:user_id>', methods=['GET'])
+@auto_trading_bp.route('/auto-trading/logs/<int:user_id>', methods=['GET'])
 def get_trading_logs(user_id):
     """
     Get trading logs for a user.
@@ -416,7 +416,7 @@ def get_trading_logs(user_id):
         }), 500
 
 
-@auto_trading_bp.route('/api/auto-trading/positions/<int:user_id>', methods=['GET'])
+@auto_trading_bp.route('/auto-trading/positions/<int:user_id>', methods=['GET'])
 def get_user_positions(user_id):
     """
     Get all positions (open and closed) for a user.

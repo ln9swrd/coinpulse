@@ -353,6 +353,8 @@ def login():
                 'success': True,
                 'message': 'Login successful',
                 'user': user.to_dict(),
+                'token': access_token,  # Top-level for convenience
+                'access_token': access_token,  # Alternative field name
                 'tokens': {
                     'access_token': access_token,
                     'refresh_token': refresh_token,

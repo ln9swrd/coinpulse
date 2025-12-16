@@ -89,7 +89,9 @@ class BackgroundSyncScheduler:
                     print(f"[BackgroundSync] Latest order: {result.get('latest_order_time', 'N/A')}")
             else:
                 print(f"\n[BackgroundSync] WARNING: Sync failed: {result.get('error')}")
-                print(f"[BackgroundSync] Orders synced before failure: {result['synced_count']}")
+                synced_count = result.get('synced_count', 0)  # 안전한 가져오기
+                print(f"[BackgroundSync] Orders synced before failure: {synced_count}")
+                #print(f"[BackgroundSync] Orders synced before failure: {result['synced_count']}")
 
         except Exception as e:
             print(f"\n[BackgroundSync] ERROR: Unexpected error: {e}")

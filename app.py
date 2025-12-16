@@ -29,11 +29,19 @@ from backend.services import ChartService, HoldingsService
 
 # Import all route blueprints
 from backend.routes.auth_routes import auth_bp
+from backend.routes.user_routes import user_bp  # User API routes (plan, profile)
 from backend.routes.holdings_routes import holdings_bp
 from backend.routes.auto_trading_routes import auto_trading_bp
-from backend.routes.subscription_routes import subscription_bp
+from backend.routes.subscription_routes import subscription_bp  # ✅ Re-enabled
 from backend.routes.payment import payment_bp  # Payment routes
 from backend.routes.health_routes import health_bp
+from backend.routes.admin import admin_bp  # Admin routes for beta tester management
+from backend.routes.users_admin import users_admin_bp  # User admin routes
+from backend.routes.benefits_admin import benefits_admin_bp  # ✅ Re-enabled - Universal benefits management
+from backend.routes.suspension_admin import suspension_admin_bp  # ✅ Re-enabled - User suspension management
+from backend.routes.plan_admin import plan_admin_bp  # Plan configuration management
+from backend.routes.stats_routes import stats_bp  # Statistics API
+from backend.routes.surge_routes import surge_bp  # Surge prediction MVP (81.25% accuracy)
 
 # Import WebSocket service (Phase 3)
 from backend.services.websocket_service import init_websocket_service, setup_socketio_handlers
@@ -162,6 +170,10 @@ cors_origins = CONFIG['cors']['origins']
 CORS(app, origins=cors_origins, supports_credentials=True)
 logger.info(f"CORS enabled for origins: {cors_origins}")
 
+# Performance middleware (gzip compression, caching, logging)
+from backend.middleware.performance import setup_performance_middleware
+setup_performance_middleware(app)
+
 # ============================================================================
 # WebSocket (SocketIO) Setup - Phase 3
 # ============================================================================
@@ -187,11 +199,19 @@ def register_blueprints():
     """Register all route blueprints"""
     blueprints = [
         (auth_bp, '/api/auth'),
+        (user_bp, None),  # User API routes (already has /api/user prefix)
         (holdings_bp, '/api'),
         (auto_trading_bp, '/api'),
         (payment_bp, '/api/payment'),  # Payment routes
-        (subscription_bp, '/api/subscription'),
-        (health_bp, '/api')  # Phase 5 - Health monitoring
+        (subscription_bp, None),  # ✅ Re-enabled - Subscription routes (already has /api/subscription prefix)
+        (health_bp, '/api'),  # Phase 5 - Health monitoring
+        (admin_bp, None),  # Admin routes (already has /api/admin prefix)
+        (users_admin_bp, None),  # User admin routes
+        (benefits_admin_bp, None),  # ✅ Re-enabled - Benefits admin (already has /api/admin/benefits prefix)
+        (suspension_admin_bp, None),  # ✅ Re-enabled - Suspension admin (already has /api/admin/suspensions prefix)
+        (plan_admin_bp, None),  # Plan admin (already has /api/admin/plans prefix)
+        (stats_bp, None),  # Statistics API (already has /api/stats prefix)
+        (surge_bp, '/api')  # Surge prediction API (81.25% backtest accuracy)
     ]
 
     for blueprint, url_prefix in blueprints:
@@ -369,14 +389,14 @@ def init_background_services():
     except Exception as e:
         logger.error(f"Failed to start background order sync: {e}")
 
-    # Initialize subscription renewal scheduler
-    try:
-        from backend.services.renewal_scheduler import start_renewal_scheduler_background
-
-        start_renewal_scheduler_background()
-        logger.info("Subscription renewal scheduler started")
-    except Exception as e:
-        logger.error(f"Failed to start renewal scheduler: {e}")
+#     # Initialize subscription renewal scheduler
+#     try:
+#         from backend.services.renewal_scheduler import start_renewal_scheduler_background
+# 
+#         start_renewal_scheduler_background()
+#         logger.info("Subscription renewal scheduler started")
+#     except Exception as e:
+#         logger.error(f"Failed to start renewal scheduler: {e}")
 
 
 # ============================================================================
