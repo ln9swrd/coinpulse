@@ -1,0 +1,47 @@
+{
+  "server": {
+    "name": "Trading API Server",
+    "host": "0.0.0.0",
+    "port": 8081,
+    "debug": true,
+    "description": "포트폴리오 및 거래 데이터 API 서버 (단타매매 기능 포함)"
+  },
+  "api": {
+    "upbit_base_url": "https://api.upbit.com",
+    "upbit_access_key": "",
+    "upbit_secret_key": "",
+    "default_count": 200,
+    "max_count": 200,
+    "request_timeout": 5,
+    "max_retries": 3
+  },
+  "cors": {
+    "origins": [
+      "http://localhost:8080",
+      "http://127.0.0.1:8080",
+      "http://localhost:8081",
+      "http://127.0.0.1:8081",
+      "http://localhost:8082",
+      "http://127.0.0.1:8082",
+      "*"
+    ]
+  },
+  "paths": {
+    "frontend": "frontend",
+    "policies": "policies"
+  },
+  "network": {
+    "port_check_timeout": 1
+  },
+  "database": {
+    "pool_size": 50,
+    "max_overflow": 50,
+    "pool_recycle": 3600,
+    "pool_timeout": 30,
+    "pool_pre_ping": true,
+    "echo": false,
+    "autocommit": false,
+    "autoflush": false,
+    "expire_on_commit": false
+  }
+}

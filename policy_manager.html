@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>코인펄스 - 정책 관리자</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #27ae60, #229954);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .policy-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .policy-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .policy-item:hover {
+            background: #e3f2fd;
+            border-color: #3498db;
+        }
+
+        .policy-item h3 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .policy-item p {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .policy-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-active {
+            background-color: #27ae60;
+        }
+
+        .status-inactive {
+            background-color: #e74c3c;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 코인펄스 정책 관리자</h1>
+            <p>자동매매 정책을 설정하고 관리하세요</p>
+            <div class="nav-buttons">
+                <a href="/" class="btn btn-secondary">🏠 메인으로</a>
+                <button class="btn btn-success" onclick="refreshPolicies()">🔄 새로고침</button>
+                <button class="btn btn-danger" onclick="clearAllPolicies()">🗑️ 전체 삭제</button>
+            </div>
+        </div>
+
+        <div id="alert-container"></div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2>📝 새 정책 추가</h2>
+                <form id="policy-form">
+                    <div class="form-group">
+                        <label for="coin-symbol">코인 심볼</label>
+                        <select id="coin-symbol" required>
+                            <option value="">코인을 선택하세요</option>
+                            <option value="KRW-BTC">비트코인 (BTC)</option>
+                            <option value="KRW-ETH">이더리움 (ETH)</option>
+                            <option value="KRW-XRP">리플 (XRP)</option>
+                            <option value="KRW-ADA">에이다 (ADA)</option>
+                            <option value="KRW-DOT">폴카닷 (DOT)</option>
+                            <option value="KRW-LINK">체인링크 (LINK)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="strategy">전략</label>
+                            <select id="strategy" required>
+                                <option value="trend_following">추세 추종</option>
+                                <option value="momentum">모멘텀</option>
+                                <option value="mean_reversion">평균 회귀</option>
+                                <option value="breakout">브레이크아웃</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="timeframe">시간대</label>
+                            <select id="timeframe" required>
+                                <option value="1m">1분</option>
+                                <option value="5m">5분</option>
+                                <option value="15m">15분</option>
+                                <option value="1h">1시간</option>
+                                <option value="4h">4시간</option>
+                                <option value="1d">1일</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="buy-threshold">매수 임계값 (%)</label>
+                            <input type="number" id="buy-threshold" step="0.01" min="0" max="100" value="2" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="sell-threshold">매도 임계값 (%)</label>
+                            <input type="number" id="sell-threshold" step="0.01" min="0" max="100" value="5" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="stop-loss">손절매 (%)</label>
+                            <input type="number" id="stop-loss" step="0.01" min="0" max="100" value="3" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="take-profit">익절매 (%)</label>
+                            <input type="number" id="take-profit" step="0.01" min="0" max="100" value="10" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="position-size">포지션 크기 (%)</label>
+                        <input type="number" id="position-size" step="0.01" min="0" max="100" value="5" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="indicators">기술적 지표</label>
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            <label><input type="checkbox" value="sma_20" checked> SMA 20</label>
+                            <label><input type="checkbox" value="sma_50" checked> SMA 50</label>
+                            <label><input type="checkbox" value="rsi_14" checked> RSI 14</label>
+                            <label><input type="checkbox" value="macd"> MACD</label>
+                            <label><input type="checkbox" value="bb"> 볼린저 밴드</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="enabled" checked> 정책 활성화
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-success" style="width: 100%;">💾 정책 저장</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>📋 현재 정책 목록</h2>
+                <div id="policies-container" class="policy-list">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        정책을 불러오는 중...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>⚙️ 전역 설정</h2>
+            <form id="global-settings-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="check-interval">체크 간격 (초)</label>
+                        <input type="number" id="check-interval" min="10" max="3600" value="60">
+                    </div>
+                    <div class="form-group">
+                        <label for="risk-level">위험도</label>
+                        <select id="risk-level">
+                            <option value="low">낮음</option>
+                            <option value="medium" selected>보통</option>
+                            <option value="high">높음</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="max-position-size">최대 포지션 크기 (%)</label>
+                        <input type="number" id="max-position-size" min="1" max="100" value="10">
+                    </div>
+                    <div class="form-group">
+                        <label for="min-profit-rate">최소 수익률 (%)</label>
+                        <input type="number" id="min-profit-rate" step="0.01" min="0" max="100" value="2">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="max-loss-rate">최대 손실률 (%)</label>
+                        <input type="number" id="max-loss-rate" step="0.01" min="0" max="100" value="5">
+                    </div>
+                    <div class="form-group">
+                        <label for="trading-hours">거래 시간</label>
+                        <select id="trading-hours">
+                            <option value="24/7" selected>24시간</option>
+                            <option value="9-18">9시-18시</option>
+                            <option value="custom">사용자 정의</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success">💾 전역 설정 저장</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // API_BASE를 설정 파일에서 동적으로 로드
+        let API_BASE = 'http://localhost:8081/api';
+        
+        // 설정 파일에서 포트 정보 로드
+        fetch('../trading_server_config.json')
+            .then(response => response.json())
+            .then(config => {
+                const port = config.server.port;
+                API_BASE = `http://localhost:${port}/api`;
+                console.log('API_BASE updated to:', API_BASE);
+            })
+            .catch(error => {
+                console.warn('Failed to load trading server config, using default:', error);
+            });
+        
+        let currentPolicies = {};
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPolicies();
+            loadGlobalSettings();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('policy-form').addEventListener('submit', handlePolicySubmit);
+            document.getElementById('global-settings-form').addEventListener('submit', handleGlobalSettingsSubmit);
+        }
+
+        async function loadPolicies() {
+            try {
+                const response = await fetch(`${API_BASE}/policies`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentPolicies = data;
+                    displayPolicies(data.coin_policies || {});
+                } else {
+                    showAlert('정책을 불러오는데 실패했습니다.', 'error');
+                }
+            } catch (error) {
+                showAlert('정책을 불러오는 중 오류가 발생했습니다: ' + error.message, 'error');
+            }
+        }
+
+        function displayPolicies(policies) {
+            const container = document.getElementById('policies-container');
+            
+            if (Object.keys(policies).length === 0) {
+                container.innerHTML = '<div class="loading">등록된 정책이 없습니다.</div>';
+                return;
+            }
+
+            let html = '';
+            for (const [coin, policy] of Object.entries(policies)) {
+                html += `
+                    <div class="policy-item">
+                        <h3>
+                            <span class="status-indicator ${policy.enabled ? 'status-active' : 'status-inactive'}"></span>
+                            ${coin}
+                        </h3>
+                        <p><strong>전략:</strong> ${policy.strategy || 'N/A'}</p>
+                        <p><strong>시간대:</strong> ${policy.timeframe || 'N/A'}</p>
+                        <p><strong>매수 임계값:</strong> ${policy.buy_threshold || 'N/A'}%</p>
+                        <p><strong>매도 임계값:</strong> ${policy.sell_threshold || 'N/A'}%</p>
+                        <p><strong>포지션 크기:</strong> ${policy.position_size || 'N/A'}%</p>
+                        <div class="policy-actions">
+                            <button class="btn btn-small btn-secondary" onclick="editPolicy('${coin}')">✏️ 수정</button>
+                            <button class="btn btn-small btn-danger" onclick="deletePolicy('${coin}')">🗑️ 삭제</button>
+                            <button class="btn btn-small ${policy.enabled ? 'btn-danger' : 'btn-success'}" 
+                                    onclick="togglePolicy('${coin}', ${!policy.enabled})">
+                                ${policy.enabled ? '⏸️ 비활성화' : '▶️ 활성화'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        async function handlePolicySubmit(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const coinSymbol = document.getElementById('coin-symbol').value;
+            
+            const indicators = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+                .map(cb => cb.value);
+
+            const policyData = {
+                strategy: document.getElementById('strategy').value,
+                timeframe: document.getElementById('timeframe').value,
+                buy_threshold: parseFloat(document.getElementById('buy-threshold').value),
+                sell_threshold: parseFloat(document.getElementById('sell-threshold').value),
+                stop_loss: parseFloat(document.getElementById('stop-loss').value),
+                take_profit: parseFloat(document.getElementById('take-profit').value),
+                position_size: parseFloat(document.getElementById('position-size').value),
+                indicators: indicators,
+                enabled: document.getElementById('enabled').checked
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/trading/policy/${coinSymbol}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ policy_data: policyData })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert(`${coinSymbol} 정책이 저장되었습니다.`, 'success');
+                    loadPolicies();
+                    e.target.reset();
+                } else {
+                    showAlert('정책 저장에 실패했습니다: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showAlert('정책 저장 중 오류가 발생했습니다: ' + error.message, 'error');
+            }
+        }
+
+        async function handleGlobalSettingsSubmit(e) {
+            e.preventDefault();
+            
+            const settings = {
+                check_interval: parseInt(document.getElementById('check-interval').value),
+                risk_level: document.getElementById('risk-level').value,
+                max_position_size: parseFloat(document.getElementById('max-position-size').value),
+                min_profit_rate: parseFloat(document.getElementById('min-profit-rate').value),
+                max_loss_rate: parseFloat(document.getElementById('max-loss-rate').value),
+                trading_hours: document.getElementById('trading-hours').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/policies/global`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(settings)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert('전역 설정이 저장되었습니다.', 'success');
+                } else {
+                    showAlert('전역 설정 저장에 실패했습니다: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showAlert('전역 설정 저장 중 오류가 발생했습니다: ' + error.message, 'error');
+            }
+        }
+
+        async function loadGlobalSettings() {
+            try {
+                const response = await fetch(`${API_BASE}/policies`);
+                const data = await response.json();
+                
+                if (data.success && data.global_settings) {
+                    const settings = data.global_settings;
+                    document.getElementById('check-interval').value = settings.check_interval || 60;
+                    document.getElementById('risk-level').value = settings.risk_level || 'medium';
+                    document.getElementById('max-position-size').value = settings.max_position_size || 10;
+                    document.getElementById('min-profit-rate').value = settings.min_profit_rate || 2;
+                    document.getElementById('max-loss-rate').value = settings.max_loss_rate || 5;
+                    document.getElementById('trading-hours').value = settings.trading_hours || '24/7';
+                }
+            } catch (error) {
+                console.error('전역 설정 로드 오류:', error);
+            }
+        }
+
+        async function deletePolicy(coinSymbol) {
+            if (!confirm(`${coinSymbol} 정책을 삭제하시겠습니까?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/policies/${coinSymbol}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert(`${coinSymbol} 정책이 삭제되었습니다.`, 'success');
+                    loadPolicies();
+                } else {
+                    showAlert('정책 삭제에 실패했습니다: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showAlert('정책 삭제 중 오류가 발생했습니다: ' + error.message, 'error');
+            }
+        }
+
+        async function togglePolicy(coinSymbol, enabled) {
+            try {
+                const response = await fetch(`${API_BASE}/trading/policy/${coinSymbol}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        policy_data: { enabled: enabled }
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert(`${coinSymbol} 정책이 ${enabled ? '활성화' : '비활성화'}되었습니다.`, 'success');
+                    loadPolicies();
+                } else {
+                    showAlert('정책 상태 변경에 실패했습니다: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showAlert('정책 상태 변경 중 오류가 발생했습니다: ' + error.message, 'error');
+            }
+        }
+
+        function editPolicy(coinSymbol) {
+            const policy = currentPolicies.coin_policies[coinSymbol];
+            if (!policy) return;
+
+            // 폼에 정책 데이터 채우기
+            document.getElementById('coin-symbol').value = coinSymbol;
+            document.getElementById('strategy').value = policy.strategy || '';
+            document.getElementById('timeframe').value = policy.timeframe || '';
+            document.getElementById('buy-threshold').value = policy.buy_threshold || '';
+            document.getElementById('sell-threshold').value = policy.sell_threshold || '';
+            document.getElementById('stop-loss').value = policy.stop_loss || '';
+            document.getElementById('take-profit').value = policy.take_profit || '';
+            document.getElementById('position-size').value = policy.position_size || '';
+            document.getElementById('enabled').checked = policy.enabled || false;
+
+            // 지표 체크박스 설정
+            if (policy.indicators) {
+                policy.indicators.forEach(indicator => {
+                    const checkbox = document.querySelector(`input[value="${indicator}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+
+            // 폼으로 스크롤
+            document.getElementById('policy-form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function clearAllPolicies() {
+            if (!confirm('모든 정책을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+                return;
+            }
+
+            try {
+                const policies = currentPolicies.coin_policies || {};
+                for (const coinSymbol of Object.keys(policies)) {
+                    await fetch(`${API_BASE}/policies/${coinSymbol}`, {
+                        method: 'DELETE'
+                    });
+                }
+                
+                showAlert('모든 정책이 삭제되었습니다.', 'success');
+                loadPolicies();
+            } catch (error) {
+                showAlert('정책 삭제 중 오류가 발생했습니다: ' + error.message, 'error');
+            }
+        }
+
+        function refreshPolicies() {
+            loadPolicies();
+            loadGlobalSettings();
+            showAlert('데이터를 새로고침했습니다.', 'info');
+        }
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alert-container');
+            const alertClass = `alert-${type}`;
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert ${alertClass}`;
+            alertDiv.textContent = message;
+            
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alertDiv);
+            
+            // 5초 후 자동 제거
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.parentNode.removeChild(alertDiv);
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
+

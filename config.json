@@ -1,0 +1,62 @@
+{
+  "server": {
+    "name": "CoinPulse Web Service",
+    "host": "0.0.0.0",
+    "port": 8080,
+    "debug": true,
+    "description": "Integrated cryptocurrency trading platform"
+  },
+  "api": {
+    "upbit_base_url": "https://api.upbit.com",
+    "request_timeout": 5,
+    "max_retries": 3,
+    "default_count": 200,
+    "max_count": 200
+  },
+  "cache": {
+    "default_ttl": 60,
+    "enabled": true,
+    "max_size": 1000
+  },
+  "cors": {
+    "origins": [
+      "http://localhost:8080",
+      "http://127.0.0.1:8080",
+      "http://localhost:3000",
+      "http://127.0.0.1:3000",
+      "*"
+    ]
+  },
+  "database": {
+    "url": "postgresql://postgres:postgres@localhost:5432/coinpulse",
+    "pool_size": 10,
+    "max_overflow": 20,
+    "echo": false
+  },
+  "paths": {
+    "frontend": "frontend",
+    "static": "frontend",
+    "logs": "logs",
+    "data": "data"
+  },
+  "security": {
+    "jwt_secret_key": "change-this-in-production",
+    "jwt_access_token_expires": 3600,
+    "jwt_refresh_token_expires": 2592000,
+    "password_min_length": 8,
+    "rate_limit": {
+      "enabled": true,
+      "default": "100 per minute"
+    }
+  },
+  "background_services": {
+    "order_sync": {
+      "enabled": true,
+      "interval_seconds": 300
+    },
+    "market_data": {
+      "enabled": true,
+      "interval_seconds": 60
+    }
+  }
+}

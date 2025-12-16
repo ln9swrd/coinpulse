@@ -1,0 +1,230 @@
+{
+  "auto_trading_enabled": true,
+  "coin_policies": {
+    "KRW-ADA": {
+      "buy_threshold": 0.02,
+      "enabled": false,
+      "indicators": [],
+      "position_size": 0,
+      "sell_threshold": 0.05,
+      "stop_loss": 0,
+      "strategy": "manual",
+      "take_profit": 0,
+      "timeframe": "1d"
+    },
+    "KRW-AKT": {
+      "buy_threshold": 0.02,
+      "enabled": false,
+      "indicators": [],
+      "position_size": 0,
+      "sell_threshold": 0.05,
+      "stop_loss": 0,
+      "strategy": "manual",
+      "take_profit": 0,
+      "timeframe": "1d"
+    },
+    "KRW-ALGO": {
+      "buy_threshold": 0.02,
+      "enabled": false,
+      "indicators": [],
+      "position_size": 0,
+      "sell_threshold": 0.05,
+      "stop_loss": 0,
+      "strategy": "manual",
+      "take_profit": 0,
+      "timeframe": "1d"
+    },
+    "KRW-BSV": {
+      "buy_threshold": 0.02,
+      "enabled": false,
+      "indicators": [],
+      "position_size": 0,
+      "sell_threshold": 0.05,
+      "stop_loss": 0,
+      "strategy": "manual",
+      "take_profit": 0,
+      "timeframe": "1d"
+    },
+    "KRW-BTC": {
+      "buy_threshold": 0.02,
+      "enabled": true,
+      "indicators": [
+        "sma_20",
+        "rsi_14",
+        "macd"
+      ],
+      "position_size": 0.05,
+      "sell_threshold": 0.05,
+      "stop_loss": 0.03,
+      "strategy": "trend_following",
+      "take_profit": 0.1,
+      "timeframe": "1h"
+    },
+    "KRW-CVC": {
+      "buy_threshold": 0.02,
+      "enabled": false,
+      "indicators": [],
+      "position_size": 0,
+      "sell_threshold": 0.05,
+      "stop_loss": 0,
+      "strategy": "manual",
+      "take_profit": 0,
+      "timeframe": "1d"
+    },
+    "KRW-ELF": {
+      "buy_threshold": 0.02,
+      "enabled": false,
+      "indicators": [],
+      "position_size": 0,
+      "sell_threshold": 0.05,
+      "stop_loss": 0,
+      "strategy": "manual",
+      "take_profit": 0,
+      "timeframe": "1d"
+    },
+    "KRW-ETH": {
+      "buy_threshold": 0.03,
+      "enabled": true,
+      "indicators": [
+        "sma_20",
+        "rsi_14",
+        "macd"
+      ],
+      "position_size": 0.03,
+      "sell_threshold": 0.06,
+      "stop_loss": 0.04,
+      "strategy": "momentum",
+      "take_profit": 0.12,
+      "timeframe": "1h"
+    },
+    "KRW-ETHF": {
+      "buy_threshold": 0.02,
+      "enabled": false,
+      "indicators": [],
+      "position_size": 0,
+      "sell_threshold": 0.05,
+      "stop_loss": 0,
+      "strategy": "manual",
+      "take_profit": 0,
+      "timeframe": "1d"
+    },
+    "KRW-ETHW": {
+      "buy_threshold": 0.02,
+      "enabled": false,
+      "indicators": [],
+      "position_size": 0,
+      "sell_threshold": 0.05,
+      "stop_loss": 0,
+      "strategy": "manual",
+      "take_profit": 0,
+      "timeframe": "1d"
+    },
+    "KRW-GAS": {
+      "buy_threshold": 0.02,
+      "enabled": false,
+      "indicators": [],
+      "position_size": 0,
+      "sell_threshold": 0.05,
+      "stop_loss": 0,
+      "strategy": "manual",
+      "take_profit": 0,
+      "timeframe": "1d"
+    },
+    "KRW-IMX": {
+      "buy_threshold": 0.02,
+      "enabled": false,
+      "indicators": [],
+      "position_size": 0,
+      "sell_threshold": 0.05,
+      "stop_loss": 0,
+      "strategy": "manual",
+      "take_profit": 0,
+      "timeframe": "1d"
+    },
+    "KRW-SEI": {
+      "buy_threshold": 0.02,
+      "enabled": false,
+      "indicators": [],
+      "position_size": 0,
+      "sell_threshold": 0.05,
+      "stop_loss": 0,
+      "strategy": "manual",
+      "take_profit": 0,
+      "timeframe": "1d"
+    },
+    "KRW-SHIB": {
+      "buy_threshold": 0.02,
+      "enabled": false,
+      "indicators": [],
+      "position_size": 0,
+      "sell_threshold": 0.05,
+      "stop_loss": 0,
+      "strategy": "manual",
+      "take_profit": 0,
+      "timeframe": "1d"
+    },
+    "KRW-STX": {
+      "buy_threshold": 0.02,
+      "enabled": false,
+      "indicators": [],
+      "position_size": 0,
+      "sell_threshold": 0.05,
+      "stop_loss": 0,
+      "strategy": "manual",
+      "take_profit": 0,
+      "timeframe": "1d"
+    },
+    "KRW-TRX": {
+      "buy_threshold": 0.02,
+      "enabled": false,
+      "indicators": [],
+      "position_size": 0,
+      "sell_threshold": 0.05,
+      "stop_loss": 0,
+      "strategy": "manual",
+      "take_profit": 0,
+      "timeframe": "1d"
+    },
+    "KRW-XRP": {
+      "buy_threshold": 0.02,
+      "enabled": false,
+      "indicators": [],
+      "position_size": 0,
+      "sell_threshold": 0.05,
+      "stop_loss": 0,
+      "strategy": "manual",
+      "take_profit": 0,
+      "timeframe": "1d"
+    },
+    "KRW-KRW": {
+      "enabled": false,
+      "strategy": "manual",
+      "timeframe": "1d",
+      "stop_loss": 0,
+      "take_profit": 0,
+      "position_size": 0,
+      "buy_threshold": 0.02,
+      "sell_threshold": 0.05,
+      "indicators": []
+    },
+    "KRW-TOTAL": {
+      "enabled": false,
+      "strategy": "manual",
+      "timeframe": "1d",
+      "stop_loss": 0,
+      "take_profit": 0,
+      "position_size": 0,
+      "buy_threshold": 0.02,
+      "sell_threshold": 0.05,
+      "indicators": []
+    }
+  },
+  "global_settings": {
+    "check_interval": 60,
+    "max_loss_rate": 0.05,
+    "max_position_size": 0.1,
+    "min_profit_rate": 0.02,
+    "risk_level": "medium",
+    "trading_hours": "24/7"
+  }
+}

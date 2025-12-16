@@ -1,0 +1,76 @@
+{
+  "swing_trading_enabled": true,
+  "test_mode": true,
+  "description": "3-day swing trading configuration",
+
+  "budget": {
+    "total_budget_krw": 40000,
+    "min_order_amount": 6000,
+    "max_order_amount": 40000,
+    "max_concurrent_positions": 3
+  },
+
+  "holding_strategy": {
+    "holding_period_days": 3,
+    "force_sell_after_period": false,
+    "allow_early_profit_taking": true
+  },
+
+  "profit_targets": {
+    "take_profit_min": 0.08,
+    "take_profit_max": 0.15,
+    "stop_loss_min": 0.03,
+    "stop_loss_max": 0.05,
+    "trailing_stop_enabled": true,
+    "trailing_stop_percent": 0.02
+  },
+
+  "risk_management": {
+    "emergency_stop_loss_per_coin": 0.03,
+    "auto_stop_on_loss": true,
+    "daily_max_loss_krw": 12000,
+    "max_loss_per_position": 0.05
+  },
+
+  "coin_selection": {
+    "strategy": "price_surge_prediction",
+    "excluded_coins": [
+      "KRW-BTC",
+      "KRW-ETH",
+      "KRW-USDT",
+      "KRW-USDC"
+    ],
+    "min_daily_volume_krw": 5000000000,
+    "max_volatility_24h": 0.20,
+    "market_cap_rank_max": 100
+  },
+
+  "surge_prediction": {
+    "volume_increase_threshold": 1.5,
+    "rsi_oversold_level": 35,
+    "rsi_buy_zone_max": 50,
+    "support_level_proximity": 0.02,
+    "uptrend_confirmation_days": 3,
+    "min_surge_probability_score": 60
+  },
+
+  "monitoring": {
+    "check_interval_seconds": 300,
+    "position_check_interval_seconds": 60,
+    "price_update_interval_seconds": 30
+  },
+
+  "test_mode_config": {
+    "virtual_balance_krw": 1000000,
+    "simulate_orders": true,
+    "log_all_signals": true,
+    "test_duration_days": 7
+  },
+
+  "notifications": {
+    "notify_on_buy": true,
+    "notify_on_sell": true,
+    "notify_on_emergency_stop": true,
+    "notification_method": "console"
+  }
+}

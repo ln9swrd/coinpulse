@@ -1,0 +1,38 @@
+{
+  "server": {
+    "name": "Chart API Server",
+    "host": "0.0.0.0",
+    "port": 8080,
+    "debug": true,
+    "description": "Upbit 차트 데이터 API 서버"
+  },
+  "api": {
+    "upbit_base_url": "https://api.upbit.com",
+    "request_timeout": 5,
+    "max_retries": 3
+  },
+  "cache": {
+    "default_ttl": 60,
+    "enabled": true
+  },
+  "cors": {
+    "origins": [
+      "http://localhost:8080",
+      "http://127.0.0.1:8080",
+      "http://localhost:8081",
+      "http://127.0.0.1:8081",
+      "*"
+    ]
+  },
+  "database": {
+    "pool_size": 50,
+    "max_overflow": 50,
+    "pool_recycle": 3600,
+    "pool_timeout": 30,
+    "pool_pre_ping": true,
+    "echo": false,
+    "autocommit": false,
+    "autoflush": false,
+    "expire_on_commit": false
+  }
+}
