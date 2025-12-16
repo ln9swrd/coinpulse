@@ -1,5 +1,12 @@
 """
-Swing Trading Engine
+⚠️ LEGACY - Swing Trading Engine (JSON-based, Single-user)
+
+DEPRECATED: Use 'db_swing_trading_engine.py' or 'enhanced_auto_trading_engine.py' instead.
+
+This module uses JSON file storage and is designed for single-user environments.
+For multi-user production systems with database support, please use:
+- backend/services/enhanced_auto_trading_engine.py (recommended)
+- backend/services/db_swing_trading_engine.py
 
 3-day holding strategy with automatic buy/sell execution.
 Integrates PositionTracker and SurgePredictor.

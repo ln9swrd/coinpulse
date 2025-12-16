@@ -1,5 +1,11 @@
 """
-Position Tracker Module
+⚠️ LEGACY - Position Tracker (JSON-based, Single-user)
+
+DEPRECATED: Use 'db_position_tracker.py' instead.
+
+This module uses JSON file storage and is designed for single-user environments.
+For multi-user production systems with database support, please use:
+- backend/services/db_position_tracker.py
 
 Manages open positions for swing trading strategy.
 Tracks buy/sell history, holding periods, and profit/loss.

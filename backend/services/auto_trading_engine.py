@@ -1,6 +1,13 @@
 """
-Auto Trading Engine Module
+⚠️ LEGACY - Auto Trading Engine (Basic)
 
+DEPRECATED: Use 'enhanced_auto_trading_engine.py' instead.
+
+This is a basic auto-trading engine without full database integration.
+For production systems with multi-user support and comprehensive features, please use:
+- backend/services/enhanced_auto_trading_engine.py (recommended)
+
+Auto Trading Engine Module
 Provides automated trading policy execution and market analysis.
 """
 
