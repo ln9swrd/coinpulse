@@ -1,0 +1,24 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://coinpulse.sinsi.ai/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
+
+# 크롤링 허용
+Allow: /index.html
+Allow: /surge_monitoring.html
+Allow: /backtest_results.html
+Allow: /trading_chart.html
+Allow: /dashboard.html
+Allow: /login.html
+Allow: /signup.html
+
+# 크롤링 금지
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /checkout.html
+Disallow: /payment-*

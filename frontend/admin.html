@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoinPulse Admin Dashboard v2.0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .admin-info {
+            text-align: right;
+        }
+
+        .admin-token {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 16px 32px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s;
+            white-space: nowrap;
+            border: none;
+            background: none;
+        }
+
+        .tab:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            background: white;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 40px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #212529;
+        }
+
+        .stat-value.highlight {
+            color: #667eea;
+        }
+
+        /* Search & Actions */
+        .actions-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        /* Table */
+        .table-container {
+            background: white;
+            border-radius: 16px;
+            border: 2px solid #e9ecef;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f8f9fa;
+        }
+
+        th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 700;
+            color: #495057;
+            font-size: 14px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #f8f9fa;
+            color: #212529;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            margin-bottom: 24px;
+        }
+
+        .modal-header h2 {
+            font-size: 24px;
+            color: #212529;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .empty-state-text {
+            font-size: 18px;
+            color: #6c757d;
+            margin-bottom: 24px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 0;
+            }
+            
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .actions-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div>
+                <h1>🎛️ CoinPulse Admin Dashboard</h1>
+                <div class="admin-token" id="tokenDisplay">Token: Loading...</div>
+            </div>
+            <div class="admin-info">
+                <button class="btn btn-secondary" onclick="logout()">Logout</button>
+            </div>
+        </header>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('stats')">📊 Dashboard</button>
+            <button class="tab" onclick="switchTab('users')">👥 Users</button>
+            <button class="tab" onclick="switchTab('payments')">💳 Payments</button>
+            <button class="tab" onclick="switchTab('beta')">🧪 Beta Testers</button>
+            <button class="tab" onclick="switchTab('plans')">💎 Plans</button>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Stats Tab -->
+            <div id="stats-tab" class="tab-content active">
+                <div class="stats-grid" id="statsCards">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Users</div>
+                        <div class="stat-value highlight" id="statTotalUsers">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Active Subscriptions</div>
+                        <div class="stat-value" id="statActiveSubscriptions">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Pending Payments</div>
+                        <div class="stat-value" id="statPendingPayments">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Beta Testers</div>
+                        <div class="stat-value" id="statBetaTesters">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Monthly Revenue</div>
+                        <div class="stat-value" id="statMonthlyRevenue">₩0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Revenue</div>
+                        <div class="stat-value" id="statTotalRevenue">₩0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="users-tab" class="tab-content">
+                <div class="actions-bar">
+                    <div class="search-box">
+                        <input type="text" id="userSearch" placeholder="🔍 Search users..." onkeyup="filterUsers()">
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>이메일</th>
+                                <th>사용자명</th>
+                                <th>현재 플랜</th>
+                                <th>상태</th>
+                                <th>만료일</th>
+                                <th>관리</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable">
+                            <tr><td colspan="6" class="loading">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Payments Tab -->
+            <div id="payments-tab" class="tab-content">
+                <div class="actions-bar">
+                    <div class="search-box">
+                        <input type="text" id="paymentSearch" placeholder="🔍 Search payments..." onkeyup="filterPayments()">
+                    </div>
+                    <select id="paymentStatusFilter" onchange="loadPayments()">
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="all">All</option>
+                    </select>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Payment Code</th>
+                                <th>Email</th>
+                                <th>Plan</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paymentsTable">
+                            <tr><td colspan="7" class="loading">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Beta Testers Tab -->
+            <div id="beta-tab" class="tab-content">
+                <div class="actions-bar">
+                    <div class="search-box">
+                        <input type="text" id="betaSearch" placeholder="🔍 Search beta testers..." onkeyup="filterBeta()">
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddBetaModal()">+ Add Beta Tester</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="betaTable">
+                            <tr><td colspan="5" class="loading">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Plans Tab -->
+            <div id="plans-tab" class="tab-content">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Plan</th>
+                                <th>Price</th>
+                                <th>Features</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="plansTable">
+                            <tr><td colspan="5" class="loading">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>플랜 변경 (수동)</h2>
+                <p style="color: #6c757d; font-size: 14px; margin-top: 8px;">계좌이체 확인 후 플랜을 수동으로 변경합니다</p>
+            </div>
+            <form id="userForm">
+                <input type="hidden" id="editUserId">
+                <div class="form-group">
+                    <label>이메일</label>
+                    <input type="email" id="editUserEmail" readonly style="background: #f8f9fa;">
+                </div>
+                <div class="form-group">
+                    <label>플랜 선택 *</label>
+                    <select id="editUserPlan" required>
+                        <option value="FREE">FREE - 무료 플랜</option>
+                        <option value="PREMIUM">PREMIUM - 프리미엄 플랜</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>기간 (일수) *</label>
+                    <input type="number" id="editDurationDays" value="30" min="1" max="365" required>
+                    <small>플랜 활성 기간 (기본: 30일)</small>
+                </div>
+                <div class="form-group">
+                    <label>관리자 메모</label>
+                    <textarea id="editNotes" placeholder="예: 계좌이체 확인 - 홍길동, 49,000원" rows="3"></textarea>
+                    <small>입금 확인 내용을 기록해 주세요</small>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('userModal')">취소</button>
+                    <button type="submit" class="btn btn-primary">플랜 변경</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Payment Request Details</h2>
+            </div>
+            <div id="paymentDetails"></div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('paymentModal')">Close</button>
+                <button type="button" class="btn btn-success" onclick="approvePayment()">✓ Approve</button>
+                <button type="button" class="btn btn-danger" onclick="rejectPayment()">✗ Reject</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="betaModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Beta Tester</h2>
+            </div>
+            <form id="betaForm">
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="betaEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="betaName">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('betaModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE = window.location.origin + '/api/admin';
+        let adminToken = localStorage.getItem('adminToken') || '';
+        let currentPaymentId = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            loadDashboard();
+        });
+
+        // Auth
+        function checkAuth() {
+            if (!adminToken) {
+                adminToken = prompt('Enter Admin Token:');
+                if (adminToken) {
+                    localStorage.setItem('adminToken', adminToken);
+                    document.getElementById('tokenDisplay').textContent = `Token: ${adminToken.substring(0, 20)}...`;
+                } else {
+                    alert('Admin token required!');
+                    location.reload();
+                }
+            } else {
+                document.getElementById('tokenDisplay').textContent = `Token: ${adminToken.substring(0, 20)}...`;
+            }
+        }
+
+        function logout() {
+            if (confirm('Logout?')) {
+                localStorage.removeItem('adminToken');
+                location.reload();
+            }
+        }
+
+        function getHeaders() {
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${adminToken}`
+            };
+        }
+
+        // Tab Switching
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+
+            // Load data
+            switch(tabName) {
+                case 'stats': loadDashboard(); break;
+                case 'users': loadUsers(); break;
+                case 'payments': loadPayments(); break;
+                case 'beta': loadBetaTesters(); break;
+                case 'plans': loadPlans(); break;
+            }
+        }
+
+        // Dashboard
+        async function loadDashboard() {
+            try {
+                // Load all stats in parallel
+                const [users, payments, beta, plans] = await Promise.all([
+                    fetch(`${API_BASE}/users`, { headers: getHeaders() }).then(r => r.json()),
+                    fetch(`${API_BASE}/payment-requests?status=pending`, { headers: getHeaders() }).then(r => r.json()),
+                    fetch(`${API_BASE}/beta-testers`, { headers: getHeaders() }).then(r => r.json()),
+                    fetch(`${API_BASE}/plans`, { headers: getHeaders() }).then(r => r.json())
+                ]);
+
+                // Update stats
+                document.getElementById('statTotalUsers').textContent = users.count || 0;
+                document.getElementById('statPendingPayments').textContent = payments.count || 0;
+                document.getElementById('statBetaTesters').textContent = beta.testers?.length || 0;
+                
+                // Calculate active subscriptions
+                const activeSubscriptions = users.users?.filter(u => 
+                    u.subscription_status === 'active' && u.plan_code !== 'free'
+                ).length || 0;
+                document.getElementById('statActiveSubscriptions').textContent = activeSubscriptions;
+
+            } catch (error) {
+                console.error('Failed to load dashboard:', error);
+            }
+        }
+
+        // Users
+        async function loadUsers() {
+            try {
+                const response = await fetch(`${API_BASE}/users`, { headers: getHeaders() });
+                const data = await response.json();
+
+                if (data.success) {
+                    renderUsers(data.users);
+                } else {
+                    alert('Failed to load users: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Failed to load users:', error);
+            }
+        }
+
+        function renderUsers(users) {
+            const tbody = document.getElementById('usersTable');
+            
+            if (!users || users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-state-icon">👥</div><div class="empty-state-text">No users yet</div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = users.map(user => `
+                <tr>
+                    <td>${user.email}</td>
+                    <td>${user.username || '-'}</td>
+                    <td><span class="badge badge-${getPlanBadge(user.plan_code)}">${(user.plan_code || 'FREE').toUpperCase()}</span></td>
+                    <td><span class="badge badge-${user.is_active ? 'success' : 'danger'}">${user.is_active ? '활성' : '비활성'}</span></td>
+                    <td>${user.expires_at ? new Date(user.expires_at).toLocaleDateString('ko-KR') : '-'}</td>
+                    <td>
+                        <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="editUser(${user.id}, '${user.email}', '${(user.plan_code || 'FREE').toUpperCase()}')">플랜 변경</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getPlanBadge(plan) {
+            const planLower = (plan || 'free').toLowerCase();
+            const badges = {
+                'free': 'info',
+                'premium': 'success',
+                'pro': 'warning'
+            };
+            return badges[planLower] || 'info';
+        }
+
+        function editUser(userId, email, plan) {
+            document.getElementById('editUserId').value = userId;
+            document.getElementById('editUserEmail').value = email;
+            document.getElementById('editUserPlan').value = plan;
+            openModal('userModal');
+        }
+
+        document.getElementById('userForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const userId = document.getElementById('editUserId').value;
+            const planCode = document.getElementById('editUserPlan').value;
+            const durationDays = parseInt(document.getElementById('editDurationDays').value);
+            const notes = document.getElementById('editNotes').value;
+
+            if (!confirm(`${planCode} 플랜을 ${durationDays}일 동안 활성화하시겠습니까?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/users/${userId}/plan`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({
+                        plan_code: planCode,
+                        duration_days: durationDays,
+                        notes: notes
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    closeModal('userModal');
+                    loadUsers();
+                    loadDashboard();
+                    alert(`✓ ${planCode} 플랜이 활성화되었습니다!\n만료일: ${data.expires_at || '확인 필요'}`);
+                } else {
+                    alert('실패: ' + data.error);
+                }
+            } catch (error) {
+                alert('오류: ' + error.message);
+            }
+        });
+
+        function filterUsers() {
+            const search = document.getElementById('userSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#usersTable tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(search) ? '' : 'none';
+            });
+        }
+
+        // Payments
+        async function loadPayments() {
+            const status = document.getElementById('paymentStatusFilter').value;
+            const queryStatus = status === 'all' ? '' : `?status=${status}`;
+
+            try {
+                const response = await fetch(`${API_BASE}/payment-requests${queryStatus}`, { headers: getHeaders() });
+                const data = await response.json();
+
+                if (data.success) {
+                    renderPayments(data.requests);
+                } else {
+                    alert('Failed to load payments: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Failed to load payments:', error);
+            }
+        }
+
+        function renderPayments(payments) {
+            const tbody = document.getElementById('paymentsTable');
+            
+            if (!payments || payments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="empty-state-icon">💳</div><div class="empty-state-text">No payment requests</div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = payments.map(payment => `
+                <tr>
+                    <td><strong>${payment.payment_code}</strong></td>
+                    <td>${payment.email}</td>
+                    <td><span class="badge badge-${getPlanBadge(payment.plan_code)}">${payment.plan_code}</span></td>
+                    <td>₩${payment.amount.toLocaleString()}</td>
+                    <td><span class="badge badge-${getStatusBadge(payment.status)}">${payment.status}</span></td>
+                    <td>${new Date(payment.created_at).toLocaleDateString()}</td>
+                    <td>
+                        ${payment.status === 'pending' ? `
+                            <button class="btn btn-success" style="padding: 6px 12px; font-size: 12px;" onclick="showPaymentDetails(${payment.id})">Review</button>
+                        ` : '-'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getStatusBadge(status) {
+            const badges = { 'pending': 'warning', 'approved': 'success', 'rejected': 'danger' };
+            return badges[status] || 'info';
+        }
+
+        function showPaymentDetails(paymentId) {
+            currentPaymentId = paymentId;
+            // In a real app, fetch payment details
+            document.getElementById('paymentDetails').innerHTML = `
+                <div class="form-group">
+                    <label>Payment ID</label>
+                    <p>${paymentId}</p>
+                </div>
+                <p>Review this payment request and approve or reject.</p>
+            `;
+            openModal('paymentModal');
+        }
+
+        async function approvePayment() {
+            if (!currentPaymentId) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/payment-requests/${currentPaymentId}/approve`, {
+                    method: 'POST',
+                    headers: getHeaders()
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    closeModal('paymentModal');
+                    loadPayments();
+                    loadDashboard();
+                    alert('✓ Payment approved!');
+                } else {
+                    alert('Failed: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function rejectPayment() {
+            alert('Reject functionality to be implemented');
+        }
+
+        function filterPayments() {
+            const search = document.getElementById('paymentSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#paymentsTable tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(search) ? '' : 'none';
+            });
+        }
+
+        // Beta Testers
+        async function loadBetaTesters() {
+            try {
+                const response = await fetch(`${API_BASE}/beta-testers`, { headers: getHeaders() });
+                const data = await response.json();
+
+                if (data.success) {
+                    renderBetaTesters(data.testers);
+                } else {
+                    alert('Failed to load beta testers: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Failed to load beta testers:', error);
+            }
+        }
+
+        function renderBetaTesters(testers) {
+            const tbody = document.getElementById('betaTable');
+            
+            if (!testers || testers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><div class="empty-state-icon">🧪</div><div class="empty-state-text">No beta testers yet</div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = testers.map(tester => `
+                <tr>
+                    <td>${tester.email}</td>
+                    <td>${tester.name || '-'}</td>
+                    <td><span class="badge badge-${tester.is_active ? 'success' : 'danger'}">${tester.is_active ? 'Active' : 'Inactive'}</span></td>
+                    <td>${new Date(tester.joined_at).toLocaleDateString()}</td>
+                    <td>
+                        <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="deleteBetaTester(${tester.id})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openAddBetaModal() {
+            openModal('betaModal');
+        }
+
+        document.getElementById('betaForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                email: document.getElementById('betaEmail').value,
+                name: document.getElementById('betaName').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/beta-tester`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    closeModal('betaModal');
+                    loadBetaTesters();
+                    loadDashboard();
+                    document.getElementById('betaForm').reset();
+                    alert('✓ Beta tester added!');
+                } else {
+                    alert('Failed: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+
+        async function deleteBetaTester(id) {
+            if (!confirm('Delete this beta tester?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/beta-tester/${id}`, {
+                    method: 'DELETE',
+                    headers: getHeaders()
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    loadBetaTesters();
+                    loadDashboard();
+                    alert('✓ Beta tester deleted!');
+                } else {
+                    alert('Failed: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function filterBeta() {
+            const search = document.getElementById('betaSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#betaTable tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(search) ? '' : 'none';
+            });
+        }
+
+        // Plans
+        async function loadPlans() {
+            try {
+                const response = await fetch(`${API_BASE}/plans`, { headers: getHeaders() });
+                const data = await response.json();
+
+                if (data.success) {
+                    renderPlans(data.plans);
+                } else {
+                    alert('Failed to load plans: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Failed to load plans:', error);
+            }
+        }
+
+        function renderPlans(plans) {
+            const tbody = document.getElementById('plansTable');
+            
+            if (!plans || plans.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><div class="empty-state-icon">💎</div><div class="empty-state-text">No plans configured</div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = plans.map(plan => `
+                <tr>
+                    <td><strong>${plan.plan_name_ko}</strong> (${plan.plan_code})</td>
+                    <td>₩${plan.price.monthly.toLocaleString()}/월</td>
+                    <td>${plan.description}</td>
+                    <td><span class="badge badge-${plan.display.is_active ? 'success' : 'danger'}">${plan.display.is_active ? 'Active' : 'Inactive'}</span></td>
+                    <td>-</td>
+                </tr>
+            `).join('');
+        }
+
+        // Modal Management
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Auto refresh every 30 seconds
+        setInterval(loadDashboard, 30000);
+    </script>
+</body>
+</html>

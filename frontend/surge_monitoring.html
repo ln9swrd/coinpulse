@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoinPulse - 급등 예측 모니터링 (검증 완료 81.25% 적중률)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        .header .verified-badge {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-right: 15px;
+        }
+
+        .header .last-update {
+            display: inline-block;
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        /* Backtest Stats */
+        .backtest-stats {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .backtest-stats h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card .label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .stat-card.positive {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        /* Candidates Grid */
+        .candidates-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .candidates-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .candidates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .candidate-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 5px solid #667eea;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .candidate-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .candidate-card.high-score {
+            border-left-color: #10b981;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        }
+
+        .candidate-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .candidate-market {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .candidate-score {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .candidate-card.high-score .candidate-score {
+            background: #10b981;
+        }
+
+        .candidate-price {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .candidate-signals {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .signal-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85em;
+        }
+
+        .signal-label {
+            color: #666;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .signal-value {
+            color: #333;
+            font-weight: bold;
+        }
+
+        .signal-value.positive {
+            color: #10b981;
+        }
+
+        .signal-value.negative {
+            color: #ef4444;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.5em;
+            color: #667eea;
+        }
+
+        .no-candidates {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .error {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            color: #991b1b;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .candidates-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .candidate-card {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .refresh-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: background 0.3s;
+        }
+
+        .refresh-button:hover {
+            background: #5568d3;
+        }
+
+        .refresh-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🚀 CoinPulse 급등 예측 모니터링</h1>
+            <p class="subtitle">AI 기반 5가지 기술적 지표 분석 시스템 (실시간)</p>
+            <span class="verified-badge">✓ 검증 완료 81.25% 적중률</span>
+            <span class="last-update" id="last-update">로딩 중...</span>
+            <button class="refresh-button" id="refresh-btn" onclick="loadCandidates()">새로고침</button>
+        </div>
+
+        <!-- Backtest Stats -->
+        <div class="backtest-stats">
+            <h2>📊 백테스트 검증 결과 (2024.11.13 ~ 2024.12.07)</h2>
+            <div class="stats-grid">
+                <div class="stat-card positive">
+                    <div class="label">적중률</div>
+                    <div class="value" id="win-rate">-</div>
+                </div>
+                <div class="stat-card positive">
+                    <div class="label">평균 수익률</div>
+                    <div class="value" id="avg-return">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">평균 수익 (승리시)</div>
+                    <div class="value" id="avg-win">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">평균 손실 (실패시)</div>
+                    <div class="value" id="avg-loss">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">총 거래 수</div>
+                    <div class="value" id="total-trades">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">보유 기간</div>
+                    <div class="value">3일</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Candidates Section -->
+        <div class="candidates-section">
+            <h2>🎯 현재 급등 예측 후보 <span style="font-size: 0.7em; color: #888;" id="candidate-count">(로딩 중...)</span></h2>
+            <div id="candidates-container" class="loading">
+                데이터를 불러오는 중...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API 설정
+        const API_BASE_URL = 'http://localhost:8081';
+        const AUTO_REFRESH_INTERVAL = 30000; // 30초
+        let autoRefreshTimer = null;
+
+        // 페이지 로드 시 실행
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCandidates();
+            startAutoRefresh();
+        });
+
+        // 자동 새로고침 시작
+        function startAutoRefresh() {
+            if (autoRefreshTimer) {
+                clearInterval(autoRefreshTimer);
+            }
+            autoRefreshTimer = setInterval(loadCandidates, AUTO_REFRESH_INTERVAL);
+        }
+
+        // 급등 후보 로드
+        async function loadCandidates() {
+            const container = document.getElementById('candidates-container');
+            const refreshBtn = document.getElementById('refresh-btn');
+
+            // 버튼 비활성화
+            refreshBtn.disabled = true;
+            refreshBtn.textContent = '로딩 중...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/surge-candidates`);
+                const data = await response.json();
+
+                if (data.success) {
+                    // 백테스트 통계 업데이트
+                    updateBacktestStats(data.backtest_stats);
+
+                    // 후보 목록 업데이트
+                    renderCandidates(data.candidates);
+
+                    // 마지막 업데이트 시간
+                    document.getElementById('last-update').textContent =
+                        `마지막 업데이트: ${new Date().toLocaleTimeString('ko-KR')}`;
+
+                    // 후보 수
+                    document.getElementById('candidate-count').textContent =
+                        `(${data.count}개 발견)`;
+                } else {
+                    showError('데이터를 불러오는 중 오류가 발생했습니다: ' + data.error);
+                }
+            } catch (error) {
+                showError('서버 연결 오류: ' + error.message);
+            } finally {
+                // 버튼 활성화
+                refreshBtn.disabled = false;
+                refreshBtn.textContent = '새로고침';
+            }
+        }
+
+        // 백테스트 통계 업데이트
+        function updateBacktestStats(stats) {
+            document.getElementById('win-rate').textContent = stats.win_rate + '%';
+            document.getElementById('avg-return').textContent = '+' + stats.avg_return + '%';
+            document.getElementById('avg-win').textContent = '+' + stats.avg_win + '%';
+            document.getElementById('avg-loss').textContent = stats.avg_loss + '%';
+            document.getElementById('total-trades').textContent = stats.total_trades + '건';
+        }
+
+        // 후보 목록 렌더링
+        function renderCandidates(candidates) {
+            const container = document.getElementById('candidates-container');
+
+            if (!candidates || candidates.length === 0) {
+                container.innerHTML = '<div class="no-candidates">현재 급등 예측 후보가 없습니다.</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            container.className = 'candidates-grid';
+
+            candidates.forEach(candidate => {
+                const card = createCandidateCard(candidate);
+                container.appendChild(card);
+            });
+        }
+
+        // 후보 카드 생성
+        function createCandidateCard(candidate) {
+            const card = document.createElement('div');
+            card.className = 'candidate-card';
+
+            // 고득점 카드 강조
+            if (candidate.score >= 70) {
+                card.className += ' high-score';
+            }
+
+            const signals = candidate.signals;
+            const price = formatPrice(candidate.current_price);
+
+            card.innerHTML = `
+                <div class="candidate-header">
+                    <div class="candidate-market">${candidate.market}</div>
+                    <div class="candidate-score">${candidate.score}점</div>
+                </div>
+                <div class="candidate-price">${price} KRW</div>
+                <div class="candidate-signals">
+                    ${createSignalItem('거래량', signals.volume)}
+                    ${createSignalItem('RSI', signals.rsi)}
+                    ${createSignalItem('지지선', signals.support)}
+                    ${createSignalItem('추세', signals.trend)}
+                    ${createSignalItem('모멘텀', signals.momentum)}
+                </div>
+            `;
+
+            // 클릭 시 상세 페이지로 이동 (향후 구현)
+            card.onclick = () => {
+                alert(`${candidate.market} 상세 분석 페이지 (구현 예정)`);
+            };
+
+            return card;
+        }
+
+        // 시그널 아이템 생성
+        function createSignalItem(label, signal) {
+            if (!signal) return '';
+
+            const scoreClass = signal.score >= 15 ? 'positive' : signal.score >= 10 ? '' : 'negative';
+
+            return `
+                <div class="signal-item">
+                    <div class="signal-label">${label} (${signal.score}점)</div>
+                    <div class="signal-value ${scoreClass}">${signal.description}</div>
+                </div>
+            `;
+        }
+
+        // 가격 포맷
+        function formatPrice(price) {
+            if (price >= 1000) {
+                return price.toLocaleString('ko-KR', { maximumFractionDigits: 0 });
+            } else if (price >= 1) {
+                return price.toLocaleString('ko-KR', { maximumFractionDigits: 2 });
+            } else {
+                return price.toLocaleString('ko-KR', { maximumFractionDigits: 4 });
+            }
+        }
+
+        // 에러 표시
+        function showError(message) {
+            const container = document.getElementById('candidates-container');
+            container.innerHTML = `
+                <div class="error">
+                    <strong>오류:</strong> ${message}
+                </div>
+            `;
+        }
+
+        // 페이지 벗어날 때 자동 새로고침 중지
+        window.addEventListener('beforeunload', function() {
+            if (autoRefreshTimer) {
+                clearInterval(autoRefreshTimer);
+            }
+        });
+    </script>
+</body>
+</html>

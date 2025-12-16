@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoinPulse - Real-time Dashboard</title>
+
+    <!-- Socket.IO Client -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .connection-status.connected {
+            background: #10b981;
+            color: white;
+        }
+
+        .connection-status.disconnected {
+            background: #ef4444;
+            color: white;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            font-size: 18px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-content {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .price-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .price-card:hover {
+            background: #f3f4f6;
+            transform: translateX(5px);
+        }
+
+        .price-symbol {
+            font-weight: 700;
+            font-size: 16px;
+            color: #374151;
+        }
+
+        .price-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .price-change {
+            font-size: 14px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .price-up {
+            color: #10b981;
+            background: #d1fae5;
+        }
+
+        .price-down {
+            color: #ef4444;
+            background: #fee2e2;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            font-size: 16px;
+            color: #111827;
+        }
+
+        .notification {
+            padding: 15px;
+            background: #e0e7ff;
+            border-left: 4px solid #667eea;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .notification-time {
+            color: #6b7280;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #9ca3af;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .market-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .market-tag {
+            padding: 8px 16px;
+            background: #f3f4f6;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .market-tag:hover {
+            background: #e5e7eb;
+        }
+
+        .market-tag.active {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .header h1 {
+                font-size: 22px;
+                justify-content: center;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .price-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <span>📊</span>
+                CoinPulse Real-time Dashboard
+            </h1>
+            <div class="connection-status disconnected" id="connection-status">
+                <span class="status-dot"></span>
+                <span id="status-text">Connecting...</span>
+            </div>
+        </div>
+
+        <!-- Market Selector -->
+        <div class="card">
+            <div class="card-header">Select Markets to Monitor</div>
+            <div class="market-selector" id="market-selector">
+                <div class="market-tag active" data-market="KRW-BTC">BTC</div>
+                <div class="market-tag active" data-market="KRW-ETH">ETH</div>
+                <div class="market-tag active" data-market="KRW-XRP">XRP</div>
+                <div class="market-tag" data-market="KRW-ADA">ADA</div>
+                <div class="market-tag" data-market="KRW-SOL">SOL</div>
+                <div class="market-tag" data-market="KRW-DOGE">DOGE</div>
+                <div class="market-tag" data-market="KRW-DOT">DOT</div>
+                <div class="market-tag" data-market="KRW-MATIC">MATIC</div>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Real-time Prices -->
+            <div class="card">
+                <div class="card-header">
+                    Real-time Prices
+                    <span style="font-size: 12px; color: #6b7280;">Updated every 1s</span>
+                </div>
+                <div class="card-content" id="price-container">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📈</div>
+                        <div>Connecting to price feed...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Status -->
+            <div class="card">
+                <div class="card-header">Portfolio Status</div>
+                <div class="card-content">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Value</span>
+                        <span class="stat-value" id="total-value">Loading...</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Open Positions</span>
+                        <span class="stat-value" id="open-positions">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total P/L</span>
+                        <span class="stat-value" id="total-pl">0 KRW</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Win Rate</span>
+                        <span class="stat-value" id="win-rate">0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications -->
+            <div class="card">
+                <div class="card-header">Recent Notifications</div>
+                <div class="card-content" id="notifications-container">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔔</div>
+                        <div>No notifications yet</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // WebSocket Connection
+        const socket = io('https://coinpulse.sinsi.ai', {
+            transports: ['websocket', 'polling'],
+            reconnection: true,
+            reconnectionDelay: 1000,
+            reconnectionAttempts: 10
+        });
+
+        // State
+        const state = {
+            subscribedMarkets: new Set(['KRW-BTC', 'KRW-ETH', 'KRW-XRP']),
+            prices: {},
+            notifications: []
+        };
+
+        // Elements
+        const connectionStatus = document.getElementById('connection-status');
+        const statusText = document.getElementById('status-text');
+        const priceContainer = document.getElementById('price-container');
+        const notificationsContainer = document.getElementById('notifications-container');
+        const marketSelector = document.getElementById('market-selector');
+
+        // Socket.IO Event Handlers
+        socket.on('connect', () => {
+            console.log('[WebSocket] Connected');
+            updateConnectionStatus(true);
+
+            // Subscribe to markets
+            state.subscribedMarkets.forEach(market => {
+                socket.emit('subscribe_market', { market });
+                console.log(`[WebSocket] Subscribed to ${market}`);
+            });
+        });
+
+        socket.on('disconnect', () => {
+            console.log('[WebSocket] Disconnected');
+            updateConnectionStatus(false);
+        });
+
+        socket.on('connected', (data) => {
+            console.log('[WebSocket] Server acknowledged connection:', data);
+        });
+
+        socket.on('price_update', (data) => {
+            console.log('[WebSocket] Price update:', data);
+            updatePrice(data);
+        });
+
+        socket.on('order_notification', (data) => {
+            console.log('[WebSocket] Order notification:', data);
+            addNotification('Order', data);
+        });
+
+        socket.on('position_update', (data) => {
+            console.log('[WebSocket] Position update:', data);
+            addNotification('Position', data);
+        });
+
+        socket.on('error', (data) => {
+            console.error('[WebSocket] Error:', data);
+        });
+
+        // Update connection status
+        function updateConnectionStatus(connected) {
+            if (connected) {
+                connectionStatus.classList.remove('disconnected');
+                connectionStatus.classList.add('connected');
+                statusText.textContent = 'Connected';
+            } else {
+                connectionStatus.classList.remove('connected');
+                connectionStatus.classList.add('disconnected');
+                statusText.textContent = 'Disconnected';
+            }
+        }
+
+        // Update price display
+        function updatePrice(data) {
+            const { market, price, change } = data;
+            state.prices[market] = data;
+
+            // Render all prices
+            renderPrices();
+        }
+
+        function renderPrices() {
+            const markets = Array.from(state.subscribedMarkets);
+
+            if (markets.length === 0) {
+                priceContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📈</div>
+                        <div>Select markets to monitor</div>
+                    </div>
+                `;
+                return;
+            }
+
+            priceContainer.innerHTML = markets.map(market => {
+                const data = state.prices[market];
+                if (!data) {
+                    return `
+                        <div class="price-card">
+                            <div class="price-symbol">${market.replace('KRW-', '')}</div>
+                            <div style="color: #9ca3af;">Loading...</div>
+                        </div>
+                    `;
+                }
+
+                const changeClass = data.change >= 0 ? 'price-up' : 'price-down';
+                const changePrefix = data.change >= 0 ? '+' : '';
+
+                return `
+                    <div class="price-card">
+                        <div class="price-symbol">${market.replace('KRW-', '')}</div>
+                        <div style="text-align: right;">
+                            <div class="price-value">${Number(data.price).toLocaleString()} KRW</div>
+                            <div class="price-change ${changeClass}">
+                                ${changePrefix}${data.change.toFixed(2)}%
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Add notification
+        function addNotification(type, data) {
+            const notification = {
+                type,
+                data,
+                timestamp: new Date().toLocaleTimeString()
+            };
+
+            state.notifications.unshift(notification);
+            if (state.notifications.length > 10) {
+                state.notifications.pop();
+            }
+
+            renderNotifications();
+        }
+
+        function renderNotifications() {
+            if (state.notifications.length === 0) {
+                notificationsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔔</div>
+                        <div>No notifications yet</div>
+                    </div>
+                `;
+                return;
+            }
+
+            notificationsContainer.innerHTML = state.notifications.map(notif => `
+                <div class="notification">
+                    <strong>${notif.type}</strong>: ${JSON.stringify(notif.data.data || notif.data, null, 2)}
+                    <div class="notification-time">${notif.timestamp}</div>
+                </div>
+            `).join('');
+        }
+
+        // Market selector
+        marketSelector.addEventListener('click', (e) => {
+            if (e.target.classList.contains('market-tag')) {
+                const market = e.target.dataset.market;
+                const isActive = e.target.classList.contains('active');
+
+                if (isActive) {
+                    // Unsubscribe
+                    e.target.classList.remove('active');
+                    state.subscribedMarkets.delete(market);
+                    socket.emit('unsubscribe_market', { market });
+                    console.log(`[WebSocket] Unsubscribed from ${market}`);
+                } else {
+                    // Subscribe
+                    e.target.classList.add('active');
+                    state.subscribedMarkets.add(market);
+                    socket.emit('subscribe_market', { market });
+                    console.log(`[WebSocket] Subscribed to ${market}`);
+                }
+
+                renderPrices();
+            }
+        });
+
+        // Fetch portfolio status periodically
+        async function fetchPortfolioStatus() {
+            try {
+                const response = await fetch('https://coinpulse.sinsi.ai/api/auto-trading/status/1');
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('open-positions').textContent = data.open_positions_count || 0;
+                    document.getElementById('total-pl').textContent =
+                        (data.statistics?.total_profit || 0).toLocaleString() + ' KRW';
+                    document.getElementById('win-rate').textContent =
+                        (data.statistics?.win_rate || 0).toFixed(1) + '%';
+                }
+            } catch (error) {
+                console.error('Error fetching portfolio status:', error);
+            }
+        }
+
+        // Initialize
+        renderPrices();
+        fetchPortfolioStatus();
+        setInterval(fetchPortfolioStatus, 5000); // Update every 5 seconds
+
+        console.log('[Dashboard] Initialized');
+    </script>
+</body>
+</html>

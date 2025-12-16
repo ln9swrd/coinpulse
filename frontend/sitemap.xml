@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+    <!-- 메인 페이지 -->
+    <url>
+        <loc>https://coinpulse.sinsi.ai/</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+
+    <!-- 급등 예측 (MVP 핵심 기능) -->
+    <url>
+        <loc>https://coinpulse.sinsi.ai/surge_monitoring.html</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>hourly</changefreq>
+        <priority>0.9</priority>
+    </url>
+
+    <!-- 백테스트 결과 (신뢰도 증명) -->
+    <url>
+        <loc>https://coinpulse.sinsi.ai/backtest_results.html</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- 거래 차트 -->
+    <url>
+        <loc>https://coinpulse.sinsi.ai/trading_chart.html</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.7</priority>
+    </url>
+
+    <!-- 회원가입 -->
+    <url>
+        <loc>https://coinpulse.sinsi.ai/signup.html</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+
+    <!-- 로그인 -->
+    <url>
+        <loc>https://coinpulse.sinsi.ai/login.html</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.5</priority>
+    </url>
+
+    <!-- 대시보드 (로그인 필요) -->
+    <url>
+        <loc>https://coinpulse.sinsi.ai/dashboard.html</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.7</priority>
+    </url>
+
+</urlset>

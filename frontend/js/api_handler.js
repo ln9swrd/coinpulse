@@ -33,8 +33,8 @@ async function loadConfig() {
         console.error('Failed to load config:', error);
         // 기본값 사용
         API_CONFIG = {
-            chartServer: 'http://localhost:8080',
-            tradingServer: 'http://localhost:8081',
+            chartServer: 'https://coinpulse.sinsi.ai',
+            tradingServer: 'https://coinpulse.sinsi.ai',
             endpoints: {
                 chart: {
                     candles: {

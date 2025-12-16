@@ -10,7 +10,7 @@
     // 1. Configuration
     // ============================================
     const CONFIG = {
-        apiUrl: 'http://localhost:8081/api',  // To be loaded from config.json
+        apiUrl: 'https://coinpulse.sinsi.ai/api',  // To be loaded from config.json
         endpoints: {
             login: '/auth/login',
             signup: '/auth/signup',

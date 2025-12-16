@@ -608,7 +608,8 @@ class DataLoader {
                 if (needsSave) {
                     console.log(`[Working] Saving ${createdCount} new manual policies...`);
     
-                    const response = await fetch('http://localhost:8081/api/trading/policies', {
+                    const baseUrl = window.apiHandler?.API_CONFIG?.tradingServer || 'https://coinpulse.sinsi.ai';
+                    const response = await fetch(`${baseUrl}/api/trading/policies`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(policies)

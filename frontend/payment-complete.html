@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>결제 완료 - CoinPulse</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Pretendard', -apple-system, sans-serif; background: #0a0a0f; color: #e0e0e0; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .container { text-align: center; padding: 40px; }
+        .icon { font-size: 80px; margin-bottom: 30px; }
+        .success .icon { color: #4facfe; }
+        .error .icon { color: #ff6b6b; }
+        h1 { font-size: 28px; color: #fff; margin-bottom: 15px; }
+        p { color: #888; margin-bottom: 30px; line-height: 1.6; }
+        .btn { display: inline-block; padding: 15px 40px; background: linear-gradient(135deg, #4facfe, #00f2fe); border-radius: 8px; color: #fff; text-decoration: none; font-weight: bold; }
+        .btn:hover { opacity: 0.9; }
+        .info { background: #1a1a2e; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: left; }
+        .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #333; }
+        .info-row:last-child { border: none; }
+        .label { color: #888; }
+        .value { color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="container" id="content">
+        <!-- 동적 로딩 -->
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const status = params.get('status');
+        const content = document.getElementById('content');
+        
+        if (status === 'success') {
+            content.classList.add('success');
+            content.innerHTML = `
+                <div class="icon">✓</div>
+                <h1>결제 등록 완료!</h1>
+                <p>빌링키가 성공적으로 등록되었습니다.<br>이제 정기결제가 자동으로 진행됩니다.</p>
+                <div class="info">
+                    <div class="info-row">
+                        <span class="label">상태</span>
+                        <span class="value">활성화됨</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">결제 수단</span>
+                        <span class="value">신용카드</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">빌링키</span>
+                        <span class="value">${params.get('billingKey') || '등록완료'}</span>
+                    </div>
+                </div>
+                <a href="/dashboard" class="btn">대시보드로 이동</a>
+            `;
+        } else {
+            content.classList.add('error');
+            const error = params.get('error') || '알 수 없는 오류';
+            content.innerHTML = `
+                <div class="icon">✕</div>
+                <h1>결제 실패</h1>
+                <p>결제 처리 중 문제가 발생했습니다.<br>${error}</p>
+                <a href="/subscribe.html" class="btn">다시 시도</a>
+            `;
+        }
+    </script>
+</body>
+</html>

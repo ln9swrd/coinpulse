@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>구독 결제 - CoinPulse</title>
+    <script src="https://js.tosspayments.com/v1/payment"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Pretendard', -apple-system, sans-serif; background: #0a0a0f; color: #e0e0e0; min-height: 100vh; }
+        .container { max-width: 600px; margin: 0 auto; padding: 60px 20px; }
+        h1 { color: #fff; font-size: 28px; margin-bottom: 10px; }
+        .subtitle { color: #888; margin-bottom: 40px; }
+        .plan-card { background: #1a1a2e; border-radius: 12px; padding: 30px; margin-bottom: 20px; border: 2px solid transparent; cursor: pointer; transition: all 0.3s; }
+        .plan-card:hover, .plan-card.selected { border-color: #4facfe; }
+        .plan-card.selected { background: #1e2a4a; }
+        .plan-name { font-size: 20px; color: #fff; margin-bottom: 8px; }
+        .plan-price { font-size: 28px; color: #4facfe; font-weight: bold; }
+        .plan-price span { font-size: 14px; color: #888; font-weight: normal; }
+        .plan-features { margin-top: 15px; color: #aaa; font-size: 14px; }
+        .billing-toggle { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; }
+        .billing-btn { padding: 10px 24px; border-radius: 20px; border: 1px solid #333; background: transparent; color: #888; cursor: pointer; transition: all 0.3s; }
+        .billing-btn.active { background: #4facfe; color: #fff; border-color: #4facfe; }
+        .pay-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, #4facfe, #00f2fe); border: none; border-radius: 8px; color: #fff; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 30px; }
+        .pay-btn:hover { opacity: 0.9; }
+        .pay-btn:disabled { background: #333; cursor: not-allowed; }
+        .back { display: inline-block; margin-bottom: 30px; color: #4facfe; text-decoration: none; }
+        .save-badge { background: #ff6b6b; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 12px; margin-left: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back">← 홈으로</a>
+        <h1>구독 플랜 선택</h1>
+        <p class="subtitle">원하는 플랜과 결제 주기를 선택하세요</p>
+        
+        <div class="billing-toggle">
+            <button class="billing-btn active" data-billing="monthly">월간 결제</button>
+            <button class="billing-btn" data-billing="yearly">연간 결제 <span class="save-badge">17% 할인</span></button>
+        </div>
+        
+        <div id="plans-container">
+            <!-- 동적 로딩 -->
+        </div>
+        
+        <button class="pay-btn" id="pay-btn" disabled>플랜을 선택하세요</button>
+    </div>
+
+    <script>
+        const clientKey = 'test_ck_jExPeJWYVQ4YJgk6d0yn349R5gvN';
+        const tossPayments = TossPayments(clientKey);
+        
+        let selectedPlan = null;
+        let billingCycle = 'monthly';
+        let plansData = [];
+        
+        // 플랜 데이터 로드
+        async function loadPlans() {
+            try {
+                const res = await fetch('/api/admin/plans/public');
+                const data = await res.json();
+                plansData = data.plans.filter(p => p.plan_code !== 'free' && p.plan_code !== 'enterprise');
+                renderPlans();
+            } catch(e) {
+                console.error('플랜 로드 실패:', e);
+            }
+        }
+        
+        function renderPlans() {
+            const container = document.getElementById('plans-container');
+            container.innerHTML = plansData.map(plan => {
+                const price = billingCycle === 'monthly' ? plan.price.monthly : plan.price.annual;
+                const period = billingCycle === 'monthly' ? '월' : '년';
+                return `
+                    <div class="plan-card" data-plan="${plan.plan_code}" data-price="${price}">
+                        <div class="plan-name">${plan.plan_name_ko}</div>
+                        <div class="plan-price">₩${price.toLocaleString()}<span>/${period}</span></div>
+                        <div class="plan-features">${plan.description}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            // 클릭 이벤트
+            document.querySelectorAll('.plan-card').forEach(card => {
+                card.addEventListener('click', () => selectPlan(card));
+            });
+        }
+        
+        function selectPlan(card) {
+            document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedPlan = {
+                code: card.dataset.plan,
+                price: parseInt(card.dataset.price)
+            };
+            document.getElementById('pay-btn').disabled = false;
+            document.getElementById('pay-btn').textContent = `₩${selectedPlan.price.toLocaleString()} 결제하기`;
+        }
+        
+        // 빌링 토글
+        document.querySelectorAll('.billing-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.billing-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                billingCycle = btn.dataset.billing;
+                selectedPlan = null;
+                document.getElementById('pay-btn').disabled = true;
+                document.getElementById('pay-btn').textContent = '플랜을 선택하세요';
+                renderPlans();
+            });
+        });
+        
+        // 결제 실행
+        document.getElementById('pay-btn').addEventListener('click', async () => {
+            if (!selectedPlan) return;
+            
+            const orderId = 'COINPULSE_' + Date.now();
+            const orderName = `CoinPulse ${selectedPlan.code} (${billingCycle === 'monthly' ? '월간' : '연간'})`;
+            
+            try {
+                await tossPayments.requestBillingAuth('카드', {
+                    customerKey: 'customer_' + Date.now(),
+                    successUrl: window.location.origin + '/api/payments/billing/success',
+                    failUrl: window.location.origin + '/api/payments/billing/fail',
+                    customerEmail: 'test@example.com',
+                    customerName: '테스트'
+                });
+            } catch (error) {
+                console.error('결제 요청 실패:', error);
+                alert('결제 요청 중 오류가 발생했습니다.');
+            }
+        });
+        
+        loadPlans();
+    </script>
+</body>
+</html>

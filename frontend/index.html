@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="CoinPulse - AI-powered cryptocurrency auto-trading platform. Trade smarter with automated strategies.">
-    <meta name="keywords" content="cryptocurrency, auto-trading, bitcoin, upbit, trading bot">
-    <title>CoinPulse - Smart Auto-Trading for Everyone</title>
-
+    <meta name="description" content="코인펄스 - 기술적 분석 기반 암호화폐 자동매매 플랫폼. 스마트한 자동 트레이딩 보조 도구.">
+    <meta name="keywords" content="암호화폐, 자동매매, 비트코인, 업비트, 트레이딩봇">
+    <title>코인펄스 - 기술적 분석 기반 자동매매 플랫폼</title>
     <!-- CSS -->
     <link rel="stylesheet" href="css/landing.css">
-
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,360 +18,466 @@
     <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
-                <h1 class="logo">CoinPulse</h1>
+                <h1 class="logo">코인펄스</h1>
             </div>
             <div class="nav-menu">
-                <a href="#features">Features</a>
-                <a href="#pricing">Pricing</a>
-                <a href="#about">About</a>
-                <a href="login.html" class="btn-secondary">Login</a>
-                <a href="signup.html" class="btn-primary">Get Started</a>
+                <a href="#features">기능</a>
+                <a href="#pricing">요금제</a>
+                <a href="#about">소개</a>
+                <a href="login.html" class="btn-secondary">로그인</a>
+                <a href="signup.html" class="btn-primary">시작하기</a>
             </div>
-            <button class="mobile-menu-toggle" aria-label="Toggle menu">
+            <button class="mobile-menu-toggle" aria-label="메뉴 열기">
                 <span></span>
                 <span></span>
                 <span></span>
             </button>
         </div>
     </nav>
-
     <!-- Hero Section -->
     <section class="hero">
         <div class="container">
             <div class="hero-content">
                 <h1 class="hero-title">
-                    Trade Smarter, Not Harder
+                    더 스마트하게 트레이딩하세요
                 </h1>
                 <p class="hero-subtitle">
-                    AI-powered cryptocurrency auto-trading platform.<br>
-                    Let algorithms handle your trades 24/7 while you focus on what matters.
+                    기술적 분석 기반 암호화폐 자동매매 보조 플랫폼.<br>
+                    24시간 알고리즘이 시장을 분석하는 동안, 당신은 중요한 일에 집중하세요.
                 </p>
                 <div class="hero-cta">
-                    <a href="signup.html" class="btn-primary btn-large">
-                        Start Free Trial
-                    </a>
-                    <a href="#features" class="btn-secondary btn-large">
-                        Learn More
-                    </a>
+                    <a href="signup.html" class="btn-primary-large">7일 무료 체험</a>
+                    <a href="#features" class="btn-secondary-large">기능 알아보기</a>
                 </div>
-                <div class="hero-stats">
-                    <div class="stat">
-                        <span class="stat-number">3,000+</span>
-                        <span class="stat-label">Active Traders</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-number">$2M+</span>
-                        <span class="stat-label">Trading Volume</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-number">99.9%</span>
-                        <span class="stat-label">Uptime</span>
-                    </div>
+                <p class="hero-note">
+                    ⚠️ 베타 테스트 진행 중 | 신용카드 등록 불필요
+                </p>
+            </div>
+            <!-- Image removed - files not available
+            <div class="hero-visual">
+                <div class="dashboard-preview">
+                    <img src="images/dashboard-preview.png" alt="코인펄스 대시보드" />
                 </div>
             </div>
-            <div class="hero-image">
-                <div class="chart-preview">
-                    <!-- Placeholder for chart animation -->
-                    <div class="chart-line"></div>
-                    <div class="chart-candles">
-                        <div class="candle green"></div>
-                        <div class="candle red"></div>
-                        <div class="candle green"></div>
-                        <div class="candle green"></div>
-                        <div class="candle red"></div>
-                        <div class="candle green"></div>
-                    </div>
-                </div>
-            </div>
+            -->
         </div>
     </section>
-
+    <!-- Stats Section - 실제 데이터 기반 -->
     <!-- Features Section -->
     <section id="features" class="features">
         <div class="container">
             <div class="section-header">
-                <h2>Powerful Features for Smart Trading</h2>
-                <p>Everything you need to automate your crypto trading strategy</p>
-            </div>
-
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                        </svg>
-                    </div>
-                    <h3>24/7 Auto-Trading</h3>
-                    <p>Automated trading algorithms work around the clock, capturing opportunities even while you sleep.</p>
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" data-stat="total-users">1</div>
+                    <div class="stat-label">총 사용자</div>
                 </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M12 2v20M2 12h20"/>
-                            <circle cx="12" cy="12" r="10"/>
-                        </svg>
-                    </div>
-                    <h3>AI-Powered Signals</h3>
-                    <p>Advanced machine learning algorithms analyze market trends and generate high-probability trading signals.</p>
+                <div class="stat-item">
+                    <div class="stat-number" data-stat="active-users">1</div>
+                    <div class="stat-label">활성 사용자</div>
                 </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
-                        </svg>
-                    </div>
-                    <h3>Risk Management</h3>
-                    <p>Built-in stop-loss and take-profit mechanisms protect your capital and lock in profits automatically.</p>
+                <div class="stat-item">
+                    <div class="stat-number" data-stat="total-trades">0</div>
+                    <div class="stat-label">총 거래</div>
                 </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                        </svg>
-                    </div>
-                    <h3>Real-Time Analytics</h3>
-                    <p>Comprehensive dashboard with real-time charts, portfolio tracking, and performance metrics.</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <rect x="3" y="3" width="18" height="18" rx="2"/>
-                            <path d="M9 11l3 3L22 4"/>
-                        </svg>
-                    </div>
-                    <h3>Multi-Coin Support</h3>
-                    <p>Trade multiple cryptocurrencies simultaneously with independent strategies for each coin.</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                        </svg>
-                    </div>
-                    <h3>Bank-Grade Security</h3>
-                    <p>Your API keys and personal data are encrypted and stored securely. We never have access to your funds.</p>
+                <div class="stat-item">
+                    <div class="stat-number">실시간</div>
+                    <div class="stat-label">자동 업데이트</div>
                 </div>
             </div>
         </div>
     </section>
-
+                <h2>핵심 기능</h2>
+                <p>검증된 기술적 분석 지표를 활용한 자동매매 보조 시스템</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>실시간 시장 분석</h3>
+                    <p>5개 주요 암호화폐의 실시간 가격, 거래량, 변동성을 지속적으로 모니터링합니다.</p>
+                    <ul class="feature-list">
+                        <li>BTC, ETH, XRP 등 주요 코인</li>
+                        <li>1분 단위 실시간 업데이트</li>
+                        <li>멀티 차트 동시 모니터링</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>기술적 분석 자동화</h3>
+                    <p>검증된 기술적 지표(SMA, RSI, MACD, SuperTrend)를 활용한 시그널 생성</p>
+                    <ul class="feature-list">
+                        <li>이동평균선(MA20/60/200/300)</li>
+                        <li>RSI, MACD, 볼린저밴드</li>
+                        <li>SuperTrend 추세 지표</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>자동 주문 실행</h3>
+                    <p>설정한 전략에 따라 자동으로 매매 주문을 실행하는 보조 시스템</p>
+                    <ul class="feature-list">
+                        <li>사용자 정의 거래 전략</li>
+                        <li>리스크 관리 설정</li>
+                        <li>거래 내역 실시간 추적</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <h3>포트폴리오 관리</h3>
+                    <p>전체 자산 현황과 수익률을 한눈에 파악하고 관리할 수 있습니다.</p>
+                    <ul class="feature-list">
+                        <li>실시간 포트폴리오 가치 추적</li>
+                        <li>코인별 수익률 분석</li>
+                        <li>거래 히스토리 조회</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔔</div>
+                    <h3>실시간 알림</h3>
+                    <p>중요한 시장 변동과 거래 실행 결과를 즉시 알려드립니다.</p>
+                    <ul class="feature-list">
+                        <li>가격 알림 설정</li>
+                        <li>거래 체결 알림</li>
+                        <li>시스템 상태 알림</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>안전한 보안</h3>
+                    <p>API 키는 암호화되어 안전하게 보관되며, 출금 권한은 요구하지 않습니다.</p>
+                    <ul class="feature-list">
+                        <li>API 키 암호화 저장</li>
+                        <li>읽기/거래 권한만 사용</li>
+                        <li>출금 권한 불필요</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Pricing Section - 법적으로 안전한 요금제 -->
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <div class="section-header">
+                <h2>요금제</h2>
+                <p>베타 테스트 기간 특별 요금 (정식 출시 후 변경 가능)</p>
+            </div>
+            <div class="pricing-grid">
+                <!-- Free Plan -->
+                <div class="pricing-card">
+                    <div class="plan-header">
+                        <h3>무료 체험</h3>
+                        <div class="plan-price">
+                            <span class="price">₩0</span>
+                            <span class="period">/ 7일</span>
+                        </div>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✓ 7일 무료 체험</li>
+                        <li>✓ 1개 코인 모니터링</li>
+                        <li>✓ 하루 3회 자동매매</li>
+                        <li>✓ 기본 기술적 지표</li>
+                        <li>✓ 이메일 알림</li>
+                        <li>✗ 고급 지표</li>
+                        <li>✗ 무제한 거래</li>
+                    </ul>
+                    <a href="signup.html" class="btn-plan">시작하기</a>
+                    <p class="plan-note">신용카드 등록 불필요</p>
+                </div>
+                <!-- Premium Plan -->
+                <div class="pricing-card featured">
+                    <div class="plan-badge">인기</div>
+                    <div class="plan-header">
+                        <h3>프리미엄</h3>
+                        <div class="plan-price">
+                            <span class="price">₩39,900</span>
+                            <span class="period">/ 월</span>
+                        </div>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✓ 3개 코인 동시 모니터링</li>
+                        <li>✓ 무제한 자동매매</li>
+                        <li>✓ 모든 기술적 지표</li>
+                        <li>✓ 실시간 알림</li>
+                        <li>✓ 거래 히스토리 무제한</li>
+                        <li>✓ 우선 고객 지원</li>
+                        <li>✗ VIP 전략</li>
+                    </ul>
+                    <a href="signup.html" class="btn-plan btn-plan-featured">시작하기</a>
+                    <p class="plan-note">언제든지 해지 가능</p>
+                </div>
+                <!-- Pro Plan -->
+                <div class="pricing-card">
+                    <div class="plan-header">
+                        <h3>프로</h3>
+                        <div class="plan-price">
+                            <span class="price">₩99,900</span>
+                            <span class="period">/ 월</span>
+                        </div>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✓ 5개 코인 동시 모니터링</li>
+                        <li>✓ 무제한 자동매매</li>
+                        <li>✓ 모든 기술적 지표</li>
+                        <li>✓ 실시간 알림 (모든 채널)</li>
+                        <li>✓ 고급 백테스팅</li>
+                        <li>✓ VIP 전용 전략</li>
+                        <li>✓ 1:1 전담 지원</li>
+                    </ul>
+                    <a href="signup.html" class="btn-plan">시작하기</a>
+                    <p class="plan-note">프로 트레이더용</p>
+                </div>
+            </div>
+            <div class="pricing-note">
+                <p>💳 모든 결제는 Toss Payments를 통해 안전하게 처리됩니다</p>
+                <p>⚠️ 베타 테스트 기간 중 요금제는 정식 출시 후 변경될 수 있습니다</p>
+            </div>
+        </div>
+    </section>
     <!-- How It Works -->
     <section class="how-it-works">
         <div class="container">
             <div class="section-header">
-                <h2>How It Works</h2>
-                <p>Get started in 3 simple steps</p>
+                <h2>간단한 3단계 시작</h2>
+                <p>복잡한 설정 없이 3분 만에 시작할 수 있습니다</p>
             </div>
-
-            <div class="steps">
-                <div class="step">
+            <div class="steps-grid">
+                <div class="step-card">
                     <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h3>Sign Up & Connect</h3>
-                        <p>Create your account and securely connect your Upbit API keys.</p>
-                    </div>
+                    <h3>계정 생성</h3>
+                    <p>이메일로 간단하게 가입하고 7일 무료 체험을 시작하세요. 신용카드 등록이 필요 없습니다.</p>
                 </div>
-
-                <div class="step">
+                <div class="step-card">
                     <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h3>Configure Strategy</h3>
-                        <p>Set your trading parameters, risk tolerance, and choose which coins to trade.</p>
-                    </div>
+                    <h3>API 연결</h3>
+                    <p>업비트 API 키를 안전하게 연결합니다. 읽기/거래 권한만 필요하며, 출금 권한은 사용하지 않습니다.</p>
                 </div>
-
-                <div class="step">
+                <div class="step-card">
                     <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h3>Start Auto-Trading</h3>
-                        <p>Activate auto-trading and let our algorithms handle the rest 24/7.</p>
-                    </div>
+                    <h3>전략 설정</h3>
+                    <p>원하는 코인과 거래 전략을 선택하면 자동으로 시작됩니다. 언제든지 설정을 변경할 수 있습니다.</p>
                 </div>
             </div>
         </div>
     </section>
-
-    <!-- Pricing Preview -->
-    <section id="pricing" class="pricing-preview">
+    <!-- About Section -->
+    <section id="about" class="about">
         <div class="container">
-            <div class="section-header">
-                <h2>Choose Your Plan</h2>
-                <p>Start free, upgrade anytime</p>
-            </div>
-
-            <div class="pricing-cards">
-                <div class="pricing-card">
-                    <div class="plan-name">Free</div>
-                    <div class="plan-price">
-                        <span class="price">0</span>
-                        <span class="currency">KRW/month</span>
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>코인펄스는 어떤 서비스인가요?</h2>
+                    <p class="about-description">
+                        코인펄스는 검증된 기술적 분석 지표를 활용하여 암호화폐 자동매매를 보조하는 플랫폼입니다.
+                        복잡한 차트 분석과 24시간 시장 모니터링의 부담을 덜어드립니다.
+                    </p>
+                    <div class="about-features">
+                        <div class="about-feature-item">
+                            <h4>🎯 검증된 기술적 지표</h4>
+                            <p>SMA, RSI, MACD, SuperTrend 등 전통적으로 검증된 기술적 분석 지표를 활용합니다.</p>
+                        </div>
+                        <div class="about-feature-item">
+                            <h4>🔒 안전한 API 연동</h4>
+                            <p>출금 권한을 요구하지 않으며, API 키는 암호화되어 안전하게 보관됩니다.</p>
+                        </div>
+                        <div class="about-feature-item">
+                            <h4>📊 투명한 거래 내역</h4>
+                            <p>모든 거래 내역을 실시간으로 확인하고, 언제든지 자동매매를 중지할 수 있습니다.</p>
+                        </div>
                     </div>
-                    <ul class="plan-features">
-                        <li>1 Coin Monitoring</li>
-                        <li>Manual Trading Only</li>
-                        <li>Basic Charts</li>
-                        <li>7-Day History</li>
-                    </ul>
-                    <a href="signup.html" class="btn-secondary btn-block">Get Started</a>
                 </div>
-
-                <div class="pricing-card featured">
-                    <div class="featured-badge">Most Popular</div>
-                    <div class="plan-name">Premium</div>
-                    <div class="plan-price">
-                        <span class="price">29,900</span>
-                        <span class="currency">KRW/month</span>
-                    </div>
-                    <ul class="plan-features">
-                        <li>10 Coin Monitoring</li>
-                        <li>Full Auto-Trading</li>
-                        <li>AI Signals</li>
-                        <li>Advanced Analytics</li>
-                        <li>Unlimited History</li>
-                        <li>Priority Support</li>
-                    </ul>
-                    <a href="signup.html" class="btn-primary btn-block">Start Free Trial</a>
+                <!-- Image removed - files not available
+                <div class="about-visual">
+                    <img src="images/about-illustration.png" alt="코인펄스 소개" />
                 </div>
-
-                <div class="pricing-card">
-                    <div class="plan-name">Enterprise</div>
-                    <div class="plan-price">
-                        <span class="price">Custom</span>
-                        <span class="currency">Pricing</span>
-                    </div>
-                    <ul class="plan-features">
-                        <li>Unlimited Coins</li>
-                        <li>Custom Strategies</li>
-                        <li>Dedicated Manager</li>
-                        <li>API Access</li>
-                        <li>White Labeling</li>
-                        <li>SLA Guarantee</li>
-                    </ul>
-                    <a href="#contact" class="btn-secondary btn-block">Contact Sales</a>
-                </div>
-            </div>
-
-            <div class="pricing-note">
-                <p>All plans include 14-day free trial. No credit card required.</p>
+                -->
             </div>
         </div>
     </section>
-
-    <!-- Testimonials -->
-    <section class="testimonials">
-        <div class="container">
-            <div class="section-header">
-                <h2>What Our Users Say</h2>
-            </div>
-
-            <div class="testimonials-grid">
-                <div class="testimonial-card">
-                    <div class="testimonial-rating">★★★★★</div>
-                    <p class="testimonial-text">
-                        "CoinPulse has completely changed how I trade. The auto-trading feature lets me sleep peacefully knowing my portfolio is being managed 24/7."
-                    </p>
-                    <div class="testimonial-author">
-                        <strong>김민수</strong>
-                        <span>Premium User</span>
-                    </div>
-                </div>
-
-                <div class="testimonial-card">
-                    <div class="testimonial-rating">★★★★★</div>
-                    <p class="testimonial-text">
-                        "The AI signals are incredibly accurate. My portfolio has grown 45% in the last 3 months. Highly recommend!"
-                    </p>
-                    <div class="testimonial-author">
-                        <strong>이지영</strong>
-                        <span>Premium User</span>
-                    </div>
-                </div>
-
-                <div class="testimonial-card">
-                    <div class="testimonial-rating">★★★★★</div>
-                    <p class="testimonial-text">
-                        "Simple to use yet powerful. The risk management features give me peace of mind. Best trading platform I've used."
-                    </p>
-                    <div class="testimonial-author">
-                        <strong>박준호</strong>
-                        <span>Enterprise User</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- CTA Section -->
-    <section class="cta-section">
+    <section class="cta">
         <div class="container">
-            <h2>Ready to Start Trading Smarter?</h2>
-            <p>Join thousands of traders using CoinPulse to automate their crypto trading</p>
-            <div class="cta-buttons">
-                <a href="signup.html" class="btn-primary btn-large">Start Free Trial</a>
-                <a href="#features" class="btn-secondary btn-large">Learn More</a>
+            <div class="cta-content">
+                <h2>지금 바로 시작하세요</h2>
+                <p>7일 무료 체험으로 코인펄스의 자동매매 시스템을 경험해보세요</p>
+                <div class="cta-buttons">
+                    <a href="signup.html" class="btn-primary-large">무료로 시작하기</a>
+                    <a href="#pricing" class="btn-secondary-large">요금제 보기</a>
+                </div>
+                <p class="cta-note">⚠️ 신용카드 등록 불필요 | 언제든지 해지 가능</p>
             </div>
         </div>
     </section>
-
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <div class="footer-grid">
-                <div class="footer-column">
-                    <h3 class="logo">CoinPulse</h3>
-                    <p>Smart auto-trading for everyone.<br>Trade with confidence, powered by AI.</p>
-                    <div class="social-links">
-                        <a href="#" aria-label="Twitter">Twitter</a>
-                        <a href="#" aria-label="Telegram">Telegram</a>
-                        <a href="#" aria-label="Discord">Discord</a>
-                    </div>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>코인펄스</h3>
+                    <p>기술적 분석 기반 암호화폐 자동매매 보조 플랫폼</p>
                 </div>
-
-                <div class="footer-column">
-                    <h4>Product</h4>
+                <div class="footer-section">
+                    <h4>서비스</h4>
                     <ul>
-                        <li><a href="#features">Features</a></li>
-                        <li><a href="#pricing">Pricing</a></li>
-                        <li><a href="trading_chart.html">Live Demo</a></li>
-                        <li><a href="#roadmap">Roadmap</a></li>
+                        <li><a href="#features">기능</a></li>
+                        <li><a href="#pricing">요금제</a></li>
+                        <li><a href="dashboard.html">대시보드</a></li>
                     </ul>
                 </div>
-
-                <div class="footer-column">
-                    <h4>Company</h4>
+                <div class="footer-section">
+                    <h4>지원</h4>
                     <ul>
-                        <li><a href="#about">About Us</a></li>
-                        <li><a href="#blog">Blog</a></li>
-                        <li><a href="#careers">Careers</a></li>
-                        <li><a href="#contact">Contact</a></li>
+                        <li><a href="docs.html">문서</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="contact.html">문의하기</a></li>
                     </ul>
                 </div>
-
-                <div class="footer-column">
-                    <h4>Legal</h4>
+                <div class="footer-section">
+                    <h4>법적 고지</h4>
                     <ul>
-                        <li><a href="terms.html">Terms of Service</a></li>
-                        <li><a href="privacy.html">Privacy Policy</a></li>
-                        <li><a href="disclaimer.html">Risk Disclaimer</a></li>
+                        <li><a href="terms.html">이용약관</a></li>
+                        <li><a href="privacy.html">개인정보처리방침</a></li>
                     </ul>
                 </div>
             </div>
-
             <div class="footer-bottom">
-                <p>&copy; 2025 CoinPulse. All rights reserved.</p>
+                <p>&copy; 2024 코인펄스. All rights reserved.</p>
                 <p class="disclaimer">
-                    Cryptocurrency trading involves substantial risk of loss. Past performance is not indicative of future results.
+                    ⚠️ <strong>투자 위험 고지</strong>: 암호화폐 거래는 높은 위험을 수반하며 원금 손실 가능성이 있습니다. 
+                    과거 수익률이 미래 수익을 보장하지 않으며, 투자 전 충분한 검토가 필요합니다. 
+                    본 서비스는 자동매매 보조 도구이며, 최종 투자 결정과 그에 따른 책임은 사용자 본인에게 있습니다.
+                    본 서비스는 현재 베타 테스트 단계이며, 정식 출시 전까지 기능 및 요금제가 변경될 수 있습니다.
                 </p>
             </div>
         </div>
     </footer>
-
     <!-- JavaScript -->
     <script src="js/landing.js"></script>
+<!-- 사업자정보 푸터 -->
+<footer style="background: #1a1a2e; border-top: 1px solid #333; padding: 40px 20px; margin-top: 80px;">
+    <div style="max-width: 1200px; margin: 0 auto; color: #888; font-size: 13px; line-height: 1.8;">
+        <div style="margin-bottom: 20px;">
+            <strong style="color: #fff; font-size: 16px;">신시 (SINSI)</strong>
+        </div>
+        <p>
+            대표자: 노용호 | 사업자등록번호: 203-10-62676<br>
+            통신판매업 신고번호: 2024-서울서초-3807<br>
+            주소: 서울특별시 서초구 남부순환로 335길 35, 303호 J06<br>
+            고객센터: 010-9575-4890 | 이메일: ln9swrd@gmail.com
+        </p>
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #333;">
+            <a href="/terms" style="color: #888; margin-right: 20px;">이용약관</a>
+            <a href="/privacy" style="color: #888; margin-right: 20px;">개인정보처리방침</a>
+            <a href="/refund" style="color: #888;">환불정책</a>
+        </div>
+        <p style="margin-top: 20px; color: #666;">
+            © 2024 CoinPulse by SINSI. All rights reserved.
+        </p>
+    </div>
+</footer>
 </body>
 </html>
+<script>
+// 요금제 API 연동
+document.addEventListener('DOMContentLoaded', function() {
+    loadPricingPlans();
+});
+async function loadPricingPlans() {
+    try {
+        const response = await fetch('/api/admin/plans/public');
+        const data = await response.json();
+        
+        if (data.success && data.plans) {
+            renderPricingCards(data.plans);
+        }
+    } catch (error) {
+        console.error('요금제 로드 실패:', error);
+    }
+}
+function formatPrice(price, planCode) {
+    if (price === 0) return '무료, 문의';
+    return '₩' + price.toLocaleString('ko-KR');
+}
+function renderPricingCards(plans) {
+    const grid = document.querySelector('.pricing-grid');
+    if (!grid) return;
+    
+    // 기존 카드 제거
+    grid.innerHTML = '';
+    
+    // 플랜 순서대로 렌더링
+    plans.forEach(plan => {
+        const isFeatured = plan.display.is_featured;
+        const badge = plan.display.badge_text;
+        
+        const card = document.createElement('div');
+        card.className = 'pricing-card' + (isFeatured ? ' featured' : '');
+        
+        // 기능 목록 생성
+        let features = '';
+        
+        // 모니터링
+        const coins = plan.limits.max_coins || '무제한';
+        features += `<li>✓ ${coins === '무제한' ? '무제한' : coins + '개'} 코인 모니터링</li>`;
+        
+        // 자동매매
+        if (plan.features.auto_trading) {
+            features += `<li>✓ 자동매매 (전략 ${plan.limits.max_auto_strategies || '무제한'}개)</li>`;
+        } else {
+            features += `<li>✗ 자동매매</li>`;
+        }
+        
+        // 지표
+        if (plan.features.advanced_indicators) {
+            features += `<li>✓ 고급 기술적 지표</li>`;
+        } else {
+            features += `<li>✓ 기본 기술적 지표</li>`;
+        }
+        
+        // 백테스팅
+        if (plan.features.backtesting) {
+            features += `<li>✓ 백테스팅</li>`;
+        }
+        
+        // 데이터 내보내기
+        if (plan.features.data_export) {
+            features += `<li>✓ 데이터 내보내기</li>`;
+        }
+        
+        // API 접근
+        if (plan.features.api_access) {
+            features += `<li>✓ API 접근</li>`;
+        }
+        
+        // 지원 레벨
+        const supportText = {
+            'community': '커뮤니티 지원',
+            'email': '이메일 지원',
+            'priority': '우선 지원',
+            'dedicated': '전담 지원'
+        };
+        features += `<li>✓ ${supportText[plan.support.level] || plan.support.level}</li>`;
+        
+        card.innerHTML = `
+            ${badge ? `<div class="plan-badge">${badge}</div>` : ''}
+            <div class="plan-header">
+                <h3>${plan.plan_name_ko || plan.plan_name}</h3>
+                <div class="plan-price">
+                    <span class="price">${formatPrice(plan.price.monthly, plan.plan_code)}</span>
+                    <span class="period">${plan.price.monthly > 0 ? '/ 월' : ''}</span>
+                </div>
+            </div>
+            <ul class="plan-features">
+                ${features}
+            </ul>
+            <a href="${plan.plan_code === 'enterprise' ? 'mailto:support@sinsi.ai' : 'signup.html'}" 
+               class="btn-plan ${isFeatured ? 'btn-plan-featured' : ''}">
+                ${plan.display.cta_text || '시작하기'}
+            </a>
+            ${plan.trial_days > 0 ? `<p class="plan-note">${plan.trial_days}일 무료 체험</p>` : ''}
+        `;
+        
+        grid.appendChild(card);
+    });
+}
+</script>
