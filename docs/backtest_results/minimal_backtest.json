@@ -1,0 +1,272 @@
+{
+  "coins_tested": [
+    "KRW-XRP",
+    "KRW-ADA",
+    "KRW-DOGE",
+    "KRW-AVAX",
+    "KRW-SHIB",
+    "KRW-DOT",
+    "KRW-MATIC",
+    "KRW-SOL",
+    "KRW-LINK",
+    "KRW-BCH",
+    "KRW-NEAR",
+    "KRW-XLM",
+    "KRW-ALGO",
+    "KRW-ATOM",
+    "KRW-ETC",
+    "KRW-VET",
+    "KRW-ICP",
+    "KRW-FIL",
+    "KRW-HBAR",
+    "KRW-APT",
+    "KRW-SAND",
+    "KRW-MANA",
+    "KRW-AXS",
+    "KRW-AAVE",
+    "KRW-EOS",
+    "KRW-THETA",
+    "KRW-XTZ",
+    "KRW-EGLD",
+    "KRW-BSV",
+    "KRW-ZIL"
+  ],
+  "test_date": "2024-11-13",
+  "sell_date": "2024-11-16",
+  "candidates": [
+    {
+      "market": "KRW-BCH",
+      "score": 65,
+      "buy_price": 623900.0,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 4.184244118947319,
+          "description": "Volume surge 3x (4.2x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 58.3584633538744,
+          "description": "RSI moderate (58.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 448200.0,
+          "distance_percent": 39.201249442213296,
+          "description": "Far from support (39.2% above)"
+        },
+        "trend": {
+          "score": 15,
+          "sma_3": 634166.6666666666,
+          "sma_7": 588728.5714285715,
+          "up_days": 1,
+          "description": "Uptrend (1 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 11.172487526728439,
+          "description": "Very strong momentum (+11.2%)"
+        }
+      }
+    },
+    {
+      "market": "KRW-XLM",
+      "score": 60,
+      "buy_price": 176.5,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 12.224656756366205,
+          "description": "Volume surge 3x (12.2x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 52.26730310262529,
+          "description": "RSI moderate (52.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 124.5,
+          "distance_percent": 41.76706827309237,
+          "description": "Far from support (41.8% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 176.0,
+          "sma_7": 157.3,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 24.5589273112209,
+          "description": "Very strong momentum (+24.6%)"
+        }
+      }
+    },
+    {
+      "market": "KRW-SAND",
+      "score": 67,
+      "buy_price": 403.0,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 6.5170425395834295,
+          "description": "Volume surge 3x (6.5x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 49.83606557377049,
+          "description": "RSI in buy zone (49.8)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 312.0,
+          "distance_percent": 29.166666666666668,
+          "description": "Far from support (29.2% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 420.0,
+          "sma_7": 395.42857142857144,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 5.774278215223097,
+          "description": "Strong momentum (+5.8%)"
+        }
+      }
+    },
+    {
+      "market": "KRW-MANA",
+      "score": 67,
+      "buy_price": 477.0,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 6.447814535373746,
+          "description": "Volume surge 3x (6.4x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 46.728971962616825,
+          "description": "RSI in buy zone (46.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 360.0,
+          "distance_percent": 32.5,
+          "description": "Far from support (32.5% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 500.6666666666667,
+          "sma_7": 469.2857142857143,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 6.7114093959731544,
+          "description": "Strong momentum (+6.7%)"
+        }
+      }
+    },
+    {
+      "market": "KRW-BSV",
+      "score": 65,
+      "buy_price": 91870.0,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.717988114153746,
+          "description": "Volume surge 3x (3.7x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 57.92503434290574,
+          "description": "RSI moderate (57.9)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 61600.0,
+          "distance_percent": 49.13961038961039,
+          "description": "Far from support (49.1% above)"
+        },
+        "trend": {
+          "score": 15,
+          "sma_3": 88493.33333333333,
+          "sma_7": 81444.28571428571,
+          "up_days": 1,
+          "description": "Uptrend (1 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 20.675160908971495,
+          "description": "Very strong momentum (+20.7%)"
+        }
+      }
+    }
+  ],
+  "results": [
+    {
+      "market": "KRW-BCH",
+      "score": 65,
+      "buy_price": 623900.0,
+      "sell_price": 647800.0,
+      "return_pct": 3.8307421061067477,
+      "success": true
+    },
+    {
+      "market": "KRW-XLM",
+      "score": 60,
+      "buy_price": 176.5,
+      "sell_price": 310.2,
+      "return_pct": 75.75070821529745,
+      "success": true
+    },
+    {
+      "market": "KRW-SAND",
+      "score": 67,
+      "buy_price": 403.0,
+      "sell_price": 555.0,
+      "return_pct": 37.71712158808933,
+      "success": true
+    },
+    {
+      "market": "KRW-MANA",
+      "score": 67,
+      "buy_price": 477.0,
+      "sell_price": 611.0,
+      "return_pct": 28.09224318658281,
+      "success": true
+    },
+    {
+      "market": "KRW-BSV",
+      "score": 65,
+      "buy_price": 91870.0,
+      "sell_price": 98690.0,
+      "return_pct": 7.423533253510395,
+      "success": true
+    }
+  ],
+  "summary": {
+    "total_trades": 5,
+    "wins": 5,
+    "losses": 0,
+    "win_rate": 100.0,
+    "avg_return": 30.562869669917347,
+    "avg_win": 30.562869669917347,
+    "avg_loss": 0,
+    "best_trade": {
+      "market": "KRW-XLM",
+      "return": 75.75070821529745
+    },
+    "worst_trade": {
+      "market": "KRW-BCH",
+      "return": 3.8307421061067477
+    }
+  }
+}

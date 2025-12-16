@@ -1,0 +1,15 @@
+[Unit]
+Description=CoinPulse Flask Application
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/coinpulse
+Environment="PATH=/opt/coinpulse/venv/bin"
+ExecStart=/opt/coinpulse/venv/bin/python app.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

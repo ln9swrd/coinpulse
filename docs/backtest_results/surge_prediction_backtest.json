@@ -1,0 +1,6911 @@
+{
+  "config": {
+    "surge_prediction": {
+      "volume_increase_threshold": 1.5,
+      "rsi_oversold_level": 35,
+      "rsi_buy_zone_max": 50,
+      "support_level_proximity": 0.02,
+      "uptrend_confirmation_days": 3,
+      "min_surge_probability_score": 60
+    }
+  },
+  "backtest_period": {
+    "start": "2024-09-01",
+    "end": "2024-12-12",
+    "holding_days": 3
+  },
+  "candidates": [
+    {
+      "date": "2024-09-01",
+      "market": "KRW-BORA",
+      "score": 65,
+      "buy_price": 112.4,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 4.551513724883505,
+          "description": "Volume surge 3x (4.6x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 50.0,
+          "description": "RSI in buy zone (50.0)"
+        },
+        "support": {
+          "score": 20,
+          "support_level": 112.1,
+          "distance_percent": 0.2676181980374767,
+          "description": "At support level (0.3% above)"
+        },
+        "trend": {
+          "score": 0,
+          "sma_3": 115.96666666666665,
+          "sma_7": 119.64285714285714,
+          "up_days": 0,
+          "description": "No uptrend"
+        },
+        "momentum": {
+          "score": 0,
+          "momentum_percent": -11.005542359461593,
+          "description": "Negative momentum (-11.0%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-09-08",
+      "market": "KRW-SUI",
+      "score": 70,
+      "buy_price": 1275.0,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 2.0086308724554893,
+          "description": "Volume increase (2.0x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 48.96242288278182,
+          "description": "RSI in buy zone (49.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 1011.0,
+          "distance_percent": 26.112759643916917,
+          "description": "Far from support (26.1% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 1210.0,
+          "sma_7": 1135.7142857142858,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 16.014558689717926,
+          "description": "Very strong momentum (+16.0%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-09-15",
+      "market": "KRW-ATH",
+      "score": 80,
+      "buy_price": 78.2,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 6.668014126206909,
+          "description": "Volume surge 3x (6.7x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 47.69479132045013,
+          "description": "RSI in buy zone (47.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 57.65,
+          "distance_percent": 35.64614050303557,
+          "description": "Far from support (35.6% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 76.27,
+          "sma_7": 71.26714285714284,
+          "up_days": 2,
+          "description": "Strong uptrend (2 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 15.90336445827776,
+          "description": "Very strong momentum (+15.9%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-09-15",
+      "market": "KRW-STG",
+      "score": 72,
+      "buy_price": 406.3,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 5.739220322047783,
+          "description": "Volume surge 3x (5.7x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 44.50395307319563,
+          "description": "RSI in buy zone (44.5)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 342.8,
+          "distance_percent": 18.52392065344224,
+          "description": "Far from support (18.5% above)"
+        },
+        "trend": {
+          "score": 15,
+          "sma_3": 397.06666666666666,
+          "sma_7": 389.4857142857142,
+          "up_days": 1,
+          "description": "Uptrend (1 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 8.260058619770849,
+          "description": "Strong momentum (+8.3%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-09-15",
+      "market": "KRW-META",
+      "score": 68,
+      "buy_price": 33.8,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 8.874180367602499,
+          "description": "Volume surge 3x (8.9x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 45.05238649592547,
+          "description": "RSI in buy zone (45.1)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 29.97,
+          "distance_percent": 12.779446112779441,
+          "description": "Far from support (12.8% above)"
+        },
+        "trend": {
+          "score": 15,
+          "sma_3": 33.5,
+          "sma_7": 33.002857142857145,
+          "up_days": 1,
+          "description": "Uptrend (1 days)"
+        },
+        "momentum": {
+          "score": 8,
+          "momentum_percent": 2.7667984189723214,
+          "description": "Positive momentum (+2.8%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-09-15",
+      "market": "KRW-MOC",
+      "score": 63,
+      "buy_price": 74.5,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 21.078848196527254,
+          "description": "Volume surge 3x (21.1x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 49.39573720061526,
+          "description": "RSI in buy zone (49.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 65.93,
+          "distance_percent": 12.998634915819798,
+          "description": "Far from support (13.0% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 75.89666666666666,
+          "sma_7": 74.23857142857142,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 8,
+          "momentum_percent": 2.7586206896551726,
+          "description": "Positive momentum (+2.8%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-LSK",
+      "score": 60,
+      "buy_price": 1204.0,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 4.380625118710109,
+          "description": "Volume surge 3x (4.4x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 53.35533553355336,
+          "description": "RSI moderate (53.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 968.8,
+          "distance_percent": 24.27745664739885,
+          "description": "Far from support (24.3% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 1229.3333333333333,
+          "sma_7": 1143.4285714285713,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.054844606946983,
+          "description": "Very strong momentum (+10.1%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-PUNDIX",
+      "score": 60,
+      "buy_price": 572.3,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 36.21901228700631,
+          "description": "Volume surge 3x (36.2x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 58.70389085396663,
+          "description": "RSI moderate (58.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 468.0,
+          "distance_percent": 22.286324786324776,
+          "description": "Far from support (22.3% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 596.6999999999999,
+          "sma_7": 545.6571428571428,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 12.701851122489158,
+          "description": "Very strong momentum (+12.7%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-BEAM",
+      "score": 65,
+      "buy_price": 22.97,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 5.586005227824839,
+          "description": "Volume surge 3x (5.6x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 55.59210526315789,
+          "description": "RSI moderate (55.6)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 15.4,
+          "distance_percent": 49.15584415584415,
+          "description": "Far from support (49.2% above)"
+        },
+        "trend": {
+          "score": 15,
+          "sma_3": 22.236666666666665,
+          "sma_7": 21.044285714285714,
+          "up_days": 1,
+          "description": "Uptrend (1 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.485810485810484,
+          "description": "Very strong momentum (+10.5%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-HBAR",
+      "score": 67,
+      "buy_price": 72.06,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 4.653168141593521,
+          "description": "Volume surge 3x (4.7x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 46.04983416957224,
+          "description": "RSI in buy zone (46.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 62.77,
+          "distance_percent": 14.800063724709252,
+          "description": "Far from support (14.8% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 72.56333333333333,
+          "sma_7": 69.75714285714285,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 5.9861744374172785,
+          "description": "Strong momentum (+6.0%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-POWR",
+      "score": 60,
+      "buy_price": 292.5,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 17.216974333109004,
+          "description": "Volume surge 3x (17.2x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 56.34715025906734,
+          "description": "RSI moderate (56.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 228.3,
+          "distance_percent": 28.120893561103806,
+          "description": "Far from support (28.1% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 298.09999999999997,
+          "sma_7": 277.11428571428576,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 11.471036585365864,
+          "description": "Very strong momentum (+11.5%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-ARK",
+      "score": 60,
+      "buy_price": 610.4,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 115.06986207331785,
+          "description": "Volume surge 3x (115.1x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 51.59415971394517,
+          "description": "RSI moderate (51.6)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 367.5,
+          "distance_percent": 66.09523809523809,
+          "description": "Far from support (66.1% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 676.5333333333333,
+          "sma_7": 533.0714285714286,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 43.1855500821018,
+          "description": "Very strong momentum (+43.2%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-HIVE",
+      "score": 67,
+      "buy_price": 266.7,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 19.264571174998327,
+          "description": "Volume surge 3x (19.3x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 48.710257948410295,
+          "description": "RSI in buy zone (48.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 214.5,
+          "distance_percent": 24.33566433566433,
+          "description": "Far from support (24.3% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 270.4,
+          "sma_7": 254.2,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 7.932011331444758,
+          "description": "Strong momentum (+7.9%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-CBK",
+      "score": 60,
+      "buy_price": 795.7,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 2.1315022819882583,
+          "description": "Volume increase (2.1x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 57.89175938148224,
+          "description": "RSI moderate (57.9)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 611.1,
+          "distance_percent": 30.207821960399283,
+          "description": "Far from support (30.2% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 783.1,
+          "sma_7": 742.9571428571428,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 11.755617977528097,
+          "description": "Very strong momentum (+11.8%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-STORJ",
+      "score": 67,
+      "buy_price": 546.3,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.3048675710202047,
+          "description": "Volume surge 3x (3.3x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 47.982551799345686,
+          "description": "RSI in buy zone (48.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 426.0,
+          "distance_percent": 28.2394366197183,
+          "description": "Far from support (28.2% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 556.3666666666667,
+          "sma_7": 529.2857142857143,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 8.69478710704336,
+          "description": "Strong momentum (+8.7%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-STEEM",
+      "score": 60,
+      "buy_price": 252.0,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 9.232983741035662,
+          "description": "Volume surge 3x (9.2x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 55.46558704453442,
+          "description": "RSI moderate (55.5)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 202.2,
+          "distance_percent": 24.629080118694368,
+          "description": "Far from support (24.6% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 254.66666666666666,
+          "sma_7": 238.40000000000003,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.817941952506594,
+          "description": "Very strong momentum (+10.8%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-ORBS",
+      "score": 65,
+      "buy_price": 37.5,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.939601425426322,
+          "description": "Strong volume increase (2.9x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 59.748427672955934,
+          "description": "RSI moderate (59.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 28.71,
+          "distance_percent": 30.61650992685475,
+          "description": "Far from support (30.6% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 35.76666666666666,
+          "sma_7": 33.142857142857146,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 19.655392469687303,
+          "description": "Very strong momentum (+19.7%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-SXP",
+      "score": 60,
+      "buy_price": 345.9,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 151.53645462160284,
+          "description": "Volume surge 3x (151.5x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 59.80675255442025,
+          "description": "RSI moderate (59.8)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 241.1,
+          "distance_percent": 43.467440895893816,
+          "description": "Far from support (43.5% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 369.3,
+          "sma_7": 335.6142857142857,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 23.403496254013547,
+          "description": "Very strong momentum (+23.4%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-ONT",
+      "score": 60,
+      "buy_price": 255.7,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 19.30202157672806,
+          "description": "Volume surge 3x (19.3x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 58.44559585492227,
+          "description": "RSI moderate (58.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 207.0,
+          "distance_percent": 23.52657004830917,
+          "description": "Far from support (23.5% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 261.3666666666667,
+          "sma_7": 243.91428571428568,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.310612597066427,
+          "description": "Very strong momentum (+10.3%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-ICX",
+      "score": 60,
+      "buy_price": 191.1,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 12.280208778412856,
+          "description": "Volume surge 3x (12.3x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 53.710937499999986,
+          "description": "RSI moderate (53.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 153.0,
+          "distance_percent": 24.901960784313722,
+          "description": "Far from support (24.9% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 192.9333333333333,
+          "sma_7": 182.04285714285714,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.080645161290324,
+          "description": "Very strong momentum (+10.1%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-09-29",
+      "market": "KRW-DOGE",
+      "score": 60,
+      "buy_price": 163.0,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.227732723075127,
+          "description": "Volume surge 3x (3.2x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 53.36076817558295,
+          "description": "RSI moderate (53.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 133.0,
+          "distance_percent": 22.55639097744361,
+          "description": "Far from support (22.6% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 164.96666666666667,
+          "sma_7": 155.1142857142857,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 12.258953168044085,
+          "description": "Very strong momentum (+12.3%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-09-29",
+      "market": "KRW-ZRX",
+      "score": 64,
+      "buy_price": 471.6,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 6.083555357856892,
+          "description": "Volume surge 3x (6.1x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 36.565096952908604,
+          "description": "RSI in buy zone (36.6)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 368.0,
+          "distance_percent": 28.152173913043484,
+          "description": "Far from support (28.2% above)"
+        },
+        "trend": {
+          "score": 15,
+          "sma_3": 474.9666666666667,
+          "sma_7": 465.3142857142857,
+          "up_days": 1,
+          "description": "Uptrend (1 days)"
+        },
+        "momentum": {
+          "score": 4,
+          "momentum_percent": 1.4411701441170244,
+          "description": "Slight positive (1.4%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-10-06",
+      "market": "KRW-T",
+      "score": 60,
+      "buy_price": 33.19,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.6680263565563447,
+          "description": "No volume surge (0.7x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 38.69653767820772,
+          "description": "RSI in buy zone (38.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 28.05,
+          "distance_percent": 18.324420677361843,
+          "description": "Far from support (18.3% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 32.43333333333334,
+          "sma_7": 31.445714285714292,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 11.488075243533753,
+          "description": "Very strong momentum (+11.5%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-10-06",
+      "market": "KRW-MOC",
+      "score": 60,
+      "buy_price": 92.13,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.1591840931760536,
+          "description": "No volume surge (0.2x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 40.964737888458714,
+          "description": "RSI in buy zone (41.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 74.42,
+          "distance_percent": 23.797366299381878,
+          "description": "Far from support (23.8% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 90.19666666666667,
+          "sma_7": 87.13571428571429,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.893115069812225,
+          "description": "Very strong momentum (+10.9%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-10-06",
+      "market": "KRW-XEC",
+      "score": 62,
+      "buy_price": 0.04808,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.9328724093259462,
+          "description": "Volume increase (1.9x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 47.29907773386033,
+          "description": "RSI in buy zone (47.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 0.04006,
+          "distance_percent": 20.0199700449326,
+          "description": "Far from support (20.0% above)"
+        },
+        "trend": {
+          "score": 15,
+          "sma_3": 0.04818666666666666,
+          "sma_7": 0.04674714285714286,
+          "up_days": 1,
+          "description": "Uptrend (1 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 5.647110525159296,
+          "description": "Strong momentum (+5.6%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-10-13",
+      "market": "KRW-BLUR",
+      "score": 60,
+      "buy_price": 337.0,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 1.1034846450811406,
+          "description": "No volume surge (1.1x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 43.22545255074055,
+          "description": "RSI in buy zone (43.2)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 255.7,
+          "distance_percent": 31.795072350410642,
+          "description": "Far from support (31.8% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 319.53333333333336,
+          "sma_7": 308.6,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 16.367403314917116,
+          "description": "Very strong momentum (+16.4%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-10-13",
+      "market": "KRW-CHZ",
+      "score": 62,
+      "buy_price": 101.3,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 5.693056727841341,
+          "description": "Volume surge 3x (5.7x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 58.13235747982895,
+          "description": "RSI moderate (58.1)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 78.12,
+          "distance_percent": 29.672299027137726,
+          "description": "Far from support (29.7% above)"
+        },
+        "trend": {
+          "score": 15,
+          "sma_3": 96.58666666666666,
+          "sma_7": 94.39285714285714,
+          "up_days": 1,
+          "description": "Uptrend (1 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 6.073298429319369,
+          "description": "Strong momentum (+6.1%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-10-13",
+      "market": "KRW-MINA",
+      "score": 70,
+      "buy_price": 777.0,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 2.2460797506288848,
+          "description": "Volume increase (2.2x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 45.302574389836174,
+          "description": "RSI in buy zone (45.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 638.4,
+          "distance_percent": 21.710526315789476,
+          "description": "Far from support (21.7% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 731.2999999999998,
+          "sma_7": 708.4999999999999,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 16.21298235118157,
+          "description": "Very strong momentum (+16.2%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-10-27",
+      "market": "KRW-AUCTION",
+      "score": 64,
+      "buy_price": 18300.0,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 7.330266289224033,
+          "description": "Volume surge 3x (7.3x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 48.62681744749597,
+          "description": "RSI in buy zone (48.6)"
+        },
+        "support": {
+          "score": 10,
+          "support_level": 17320.0,
+          "distance_percent": 5.658198614318707,
+          "description": "Close to support (5.7% above)"
+        },
+        "trend": {
+          "score": 5,
+          "sma_3": 18170.0,
+          "sma_7": 18380.0,
+          "up_days": 1,
+          "description": "Recent bounce (1 days)"
+        },
+        "momentum": {
+          "score": 4,
+          "momentum_percent": 0.16420361247947454,
+          "description": "Slight positive (0.2%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-03",
+      "market": "KRW-BORA",
+      "score": 60,
+      "buy_price": 118.2,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.9776971474536618,
+          "description": "Strong volume increase (3.0x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 36.849925705794966,
+          "description": "RSI in buy zone (36.8)"
+        },
+        "support": {
+          "score": 20,
+          "support_level": 116.3,
+          "distance_percent": 1.6337059329320773,
+          "description": "At support level (1.6% above)"
+        },
+        "trend": {
+          "score": 0,
+          "sma_3": 121.8,
+          "sma_7": 123.74285714285715,
+          "up_days": 0,
+          "description": "No uptrend"
+        },
+        "momentum": {
+          "score": 0,
+          "momentum_percent": -5.816733067729082,
+          "description": "Negative momentum (-5.8%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-03",
+      "market": "KRW-CTC",
+      "score": 65,
+      "buy_price": 528.7,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.777520154838127,
+          "description": "Volume surge 3x (3.8x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 47.135664716287955,
+          "description": "RSI in buy zone (47.1)"
+        },
+        "support": {
+          "score": 15,
+          "support_level": 510.2,
+          "distance_percent": 3.6260290082320767,
+          "description": "Near support (3.6% above)"
+        },
+        "trend": {
+          "score": 5,
+          "sma_3": 522.1,
+          "sma_7": 531.5142857142857,
+          "up_days": 1,
+          "description": "Recent bounce (1 days)"
+        },
+        "momentum": {
+          "score": 0,
+          "momentum_percent": -4.0297694681430265,
+          "description": "Negative momentum (-4.0%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-03",
+      "market": "KRW-MOC",
+      "score": 65,
+      "buy_price": 86.63,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.5751208584323453,
+          "description": "Volume surge 3x (3.6x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 49.47491248541422,
+          "description": "RSI in buy zone (49.5)"
+        },
+        "support": {
+          "score": 10,
+          "support_level": 82.86,
+          "distance_percent": 4.549843108858311,
+          "description": "Close to support (4.5% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 92.09666666666665,
+          "sma_7": 90.94000000000001,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 0,
+          "momentum_percent": -3.087593690569421,
+          "description": "Negative momentum (-3.1%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-LSK",
+      "score": 65,
+      "buy_price": 1252.0,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.827034981092061,
+          "description": "Strong volume increase (2.8x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 56.85814771395076,
+          "description": "RSI moderate (56.9)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 996.5,
+          "distance_percent": 25.639739086803814,
+          "description": "Far from support (25.6% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 1200.6666666666667,
+          "sma_7": 1132.0,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 12.387791741472173,
+          "description": "Very strong momentum (+12.4%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-BORA",
+      "score": 70,
+      "buy_price": 138.6,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.5966125733276637,
+          "description": "Volume increase (1.6x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 40.828402366863905,
+          "description": "RSI in buy zone (40.8)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 115.2,
+          "distance_percent": 20.312499999999993,
+          "description": "Far from support (20.3% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 131.8,
+          "sma_7": 125.75714285714285,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 11.057692307692307,
+          "description": "Very strong momentum (+11.1%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-PUNDIX",
+      "score": 60,
+      "buy_price": 590.3,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 2.103360559315151,
+          "description": "Volume increase (2.1x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 59.549913444893235,
+          "description": "RSI moderate (59.5)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 474.5,
+          "distance_percent": 24.40463645943097,
+          "description": "Far from support (24.4% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 568.0,
+          "sma_7": 535.1285714285715,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 11.714610143830427,
+          "description": "Very strong momentum (+11.7%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-BLAST",
+      "score": 70,
+      "buy_price": 13.02,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 8.736024677365211,
+          "description": "Volume surge 3x (8.7x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 50.708540788969756,
+          "description": "RSI moderate (50.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 9.917,
+          "distance_percent": 31.289704547746293,
+          "description": "Far from support (31.3% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 12.423333333333332,
+          "sma_7": 11.402857142857142,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 19.12168344007319,
+          "description": "Very strong momentum (+19.1%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-POWR",
+      "score": 67,
+      "buy_price": 316.0,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.547877391858323,
+          "description": "Volume surge 3x (3.5x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 55.31506849315068,
+          "description": "RSI moderate (55.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 251.0,
+          "distance_percent": 25.89641434262948,
+          "description": "Far from support (25.9% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 306.8,
+          "sma_7": 289.7,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 9.951287404314552,
+          "description": "Strong momentum (+10.0%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-G",
+      "score": 67,
+      "buy_price": 44.81,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 6.254280428907584,
+          "description": "Volume surge 3x (6.3x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 57.285180572851814,
+          "description": "RSI moderate (57.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 37.25,
+          "distance_percent": 20.295302013422827,
+          "description": "Far from support (20.3% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 43.05666666666667,
+          "sma_7": 40.96,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 9.828431372549034,
+          "description": "Strong momentum (+9.8%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-IOST",
+      "score": 65,
+      "buy_price": 7.497,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.719995449617452,
+          "description": "Strong volume increase (2.7x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 53.23777120865636,
+          "description": "RSI moderate (53.2)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 5.789,
+          "distance_percent": 29.504232164449824,
+          "description": "Far from support (29.5% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 7.168666666666667,
+          "sma_7": 6.701142857142857,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 12.146596858638748,
+          "description": "Very strong momentum (+12.1%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-AWE",
+      "score": 67,
+      "buy_price": 62.22,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 2.047521478188431,
+          "description": "Volume increase (2.0x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 49.47403388329089,
+          "description": "RSI in buy zone (49.5)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 52.7,
+          "distance_percent": 18.06451612903225,
+          "description": "Far from support (18.1% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 60.53,
+          "sma_7": 58.07571428571429,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 7.964601769911497,
+          "description": "Strong momentum (+8.0%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-SAND",
+      "score": 65,
+      "buy_price": 402.0,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.8567783006988847,
+          "description": "Strong volume increase (2.9x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 56.60377358490566,
+          "description": "RSI moderate (56.6)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 312.0,
+          "distance_percent": 28.846153846153843,
+          "description": "Far from support (28.8% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 384.3333333333333,
+          "sma_7": 358.14285714285717,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 13.881019830028329,
+          "description": "Very strong momentum (+13.9%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-W",
+      "score": 75,
+      "buy_price": 370.2,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.3633610030402132,
+          "description": "Strong volume increase (2.4x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 48.974943052391794,
+          "description": "RSI in buy zone (49.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 267.0,
+          "distance_percent": 38.651685393258425,
+          "description": "Far from support (38.7% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 354.1666666666667,
+          "sma_7": 325.2142857142857,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 14.365152919369786,
+          "description": "Very strong momentum (+14.4%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-IMX",
+      "score": 62,
+      "buy_price": 1809.0,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.865821434096063,
+          "description": "Strong volume increase (2.9x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 50.328074828982274,
+          "description": "RSI moderate (50.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 1425.0,
+          "distance_percent": 26.94736842105263,
+          "description": "Far from support (26.9% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 1761.3333333333333,
+          "sma_7": 1657.7142857142858,
+          "up_days": 2,
+          "description": "Strong uptrend (2 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 6.914893617021277,
+          "description": "Strong momentum (+6.9%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-SC",
+      "score": 62,
+      "buy_price": 6.92,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.954804426757419,
+          "description": "Strong volume increase (3.0x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 54.29716692710102,
+          "description": "RSI moderate (54.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 5.67,
+          "distance_percent": 22.045855379188716,
+          "description": "Far from support (22.0% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 6.6819999999999995,
+          "sma_7": 6.349285714285714,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 9.701965757767915,
+          "description": "Strong momentum (+9.7%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-HIVE",
+      "score": 70,
+      "buy_price": 281.8,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.746329746208189,
+          "description": "Volume surge 3x (3.7x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 55.38609728688394,
+          "description": "RSI moderate (55.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 229.0,
+          "distance_percent": 23.05676855895197,
+          "description": "Far from support (23.1% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 273.1666666666667,
+          "sma_7": 257.35714285714283,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.16419077404222,
+          "description": "Very strong momentum (+10.2%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-XLM",
+      "score": 70,
+      "buy_price": 150.0,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.933779030151278,
+          "description": "Volume surge 3x (3.9x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 56.29335976214075,
+          "description": "RSI moderate (56.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 124.5,
+          "distance_percent": 20.481927710843372,
+          "description": "Far from support (20.5% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 144.26666666666665,
+          "sma_7": 137.58571428571426,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 12.023898431665417,
+          "description": "Very strong momentum (+12.0%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-GLM",
+      "score": 62,
+      "buy_price": 465.7,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.346121004529471,
+          "description": "Strong volume increase (2.3x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 55.90501223601921,
+          "description": "RSI moderate (55.9)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 367.5,
+          "distance_percent": 26.721088435374146,
+          "description": "Far from support (26.7% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 450.3666666666666,
+          "sma_7": 424.24285714285713,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 9.783121169259783,
+          "description": "Strong momentum (+9.8%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-MANA",
+      "score": 65,
+      "buy_price": 485.0,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.559452163221269,
+          "description": "Strong volume increase (2.6x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 56.29139072847683,
+          "description": "RSI moderate (56.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 360.0,
+          "distance_percent": 34.72222222222222,
+          "description": "Far from support (34.7% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 456.0,
+          "sma_7": 420.0,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 17.718446601941746,
+          "description": "Very strong momentum (+17.7%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-GRS",
+      "score": 70,
+      "buy_price": 525.0,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.3962858735956747,
+          "description": "Volume surge 3x (3.4x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 59.3235039028621,
+          "description": "RSI moderate (59.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 410.0,
+          "distance_percent": 28.04878048780488,
+          "description": "Far from support (28.0% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 504.3333333333333,
+          "sma_7": 471.85714285714283,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 14.628820960698691,
+          "description": "Very strong momentum (+14.6%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-GRT",
+      "score": 60,
+      "buy_price": 247.0,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.9973375734740373,
+          "description": "Volume increase (2.0x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 59.4059405940594,
+          "description": "RSI moderate (59.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 179.0,
+          "distance_percent": 37.988826815642454,
+          "description": "Far from support (38.0% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 237.66666666666666,
+          "sma_7": 216.71428571428572,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 15.96244131455399,
+          "description": "Very strong momentum (+16.0%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-ZRO",
+      "score": 60,
+      "buy_price": 5347.0,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.9743197224946794,
+          "description": "Volume increase (2.0x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 57.39649172643988,
+          "description": "RSI moderate (57.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 4090.0,
+          "distance_percent": 30.73349633251834,
+          "description": "Far from support (30.7% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 5223.0,
+          "sma_7": 4861.0,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.589451913133402,
+          "description": "Very strong momentum (+10.6%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-GMT",
+      "score": 70,
+      "buy_price": 203.2,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.8983671305998608,
+          "description": "Volume increase (1.9x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 49.39846882974845,
+          "description": "RSI in buy zone (49.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 160.4,
+          "distance_percent": 26.683291770573554,
+          "description": "Far from support (26.7% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 195.33333333333334,
+          "sma_7": 183.75714285714284,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.554951033732305,
+          "description": "Very strong momentum (+10.6%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-TFUEL",
+      "score": 67,
+      "buy_price": 83.51,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.5784205722038336,
+          "description": "Volume surge 3x (3.6x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 58.574514038876885,
+          "description": "RSI moderate (58.6)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 66.6,
+          "distance_percent": 25.39039039039041,
+          "description": "Far from support (25.4% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 80.19333333333333,
+          "sma_7": 75.97571428571428,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 9.867122747006972,
+          "description": "Strong momentum (+9.9%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-ELF",
+      "score": 77,
+      "buy_price": 525.0,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.385161782630319,
+          "description": "Volume surge 3x (3.4x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 47.960308710033075,
+          "description": "RSI in buy zone (48.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 444.0,
+          "distance_percent": 18.243243243243242,
+          "description": "Far from support (18.2% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 508.3333333333333,
+          "sma_7": 488.14285714285717,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 7.581967213114754,
+          "description": "Strong momentum (+7.6%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-SXP",
+      "score": 62,
+      "buy_price": 428.2,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.7054025372960804,
+          "description": "Strong volume increase (2.7x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 59.08228393996894,
+          "description": "RSI moderate (59.1)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 300.1,
+          "distance_percent": 42.68577140953014,
+          "description": "Far from support (42.7% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 426.90000000000003,
+          "sma_7": 399.37142857142857,
+          "up_days": 2,
+          "description": "Strong uptrend (2 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 8.901322482197354,
+          "description": "Strong momentum (+8.9%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-MINA",
+      "score": 60,
+      "buy_price": 824.0,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 2.024986360514277,
+          "description": "Volume increase (2.0x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 50.70603337612323,
+          "description": "RSI moderate (50.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 618.0,
+          "distance_percent": 33.33333333333333,
+          "description": "Far from support (33.3% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 788.0,
+          "sma_7": 732.8571428571429,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 12.414733969986358,
+          "description": "Very strong momentum (+12.4%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-MOC",
+      "score": 65,
+      "buy_price": 102.0,
+      "signals": {
+        "volume": {
+          "score": 5,
+          "volume_ratio": 1.2286773597703373,
+          "description": "Slight volume increase (1.2x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 44.25992229755467,
+          "description": "RSI in buy zone (44.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 82.86,
+          "distance_percent": 23.099203475742218,
+          "description": "Far from support (23.1% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 98.26333333333332,
+          "sma_7": 93.03285714285713,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 11.94029850746268,
+          "description": "Very strong momentum (+11.9%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-XEC",
+      "score": 70,
+      "buy_price": 0.05465,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.561801798968592,
+          "description": "Volume surge 3x (3.6x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 58.555627846454115,
+          "description": "RSI moderate (58.6)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 0.042,
+          "distance_percent": 30.119047619047606,
+          "description": "Far from support (30.1% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 0.05203,
+          "sma_7": 0.048752857142857146,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 11.987704918032774,
+          "description": "Very strong momentum (+12.0%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-GAME2",
+      "score": 70,
+      "buy_price": 4.688,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.86636626377074,
+          "description": "Volume surge 3x (3.9x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 59.45386843194042,
+          "description": "RSI moderate (59.5)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 3.8,
+          "distance_percent": 23.36842105263158,
+          "description": "Far from support (23.4% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 4.546666666666667,
+          "sma_7": 4.264857142857143,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 12.449028544015356,
+          "description": "Very strong momentum (+12.4%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-BSV",
+      "score": 65,
+      "buy_price": 82910.0,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.5005912980120284,
+          "description": "Strong volume increase (2.5x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 55.8110656303178,
+          "description": "RSI moderate (55.8)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 61600.0,
+          "distance_percent": 34.59415584415584,
+          "description": "Far from support (34.6% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 77630.0,
+          "sma_7": 72054.28571428571,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 16.0879305516662,
+          "description": "Very strong momentum (+16.1%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-ONT",
+      "score": 65,
+      "buy_price": 278.2,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.900361162696842,
+          "description": "Strong volume increase (2.9x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 59.747545582047685,
+          "description": "RSI moderate (59.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 215.3,
+          "distance_percent": 29.215048769159303,
+          "description": "Far from support (29.2% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 267.7333333333333,
+          "sma_7": 250.38571428571427,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 11.637239165329055,
+          "description": "Very strong momentum (+11.6%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-POLYX",
+      "score": 60,
+      "buy_price": 358.7,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.6439541638259523,
+          "description": "Volume increase (1.6x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 58.02866335185727,
+          "description": "RSI moderate (58.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 269.5,
+          "distance_percent": 33.09833024118738,
+          "description": "Far from support (33.1% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 345.76666666666665,
+          "sma_7": 318.19999999999993,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 15.1155327342747,
+          "description": "Very strong momentum (+15.1%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-17",
+      "market": "KRW-HBAR",
+      "score": 80,
+      "buy_price": 127.2,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 6.66511677892286,
+          "description": "Volume surge 3x (6.7x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 44.896873707227726,
+          "description": "RSI in buy zone (44.9)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 58.09,
+          "distance_percent": 118.9705629196075,
+          "description": "Far from support (119.0% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 118.56666666666668,
+          "sma_7": 100.59428571428573,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 51.1047754811119,
+          "description": "Very strong momentum (+51.1%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-17",
+      "market": "KRW-SAND",
+      "score": 70,
+      "buy_price": 493.0,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 4.858415505597102,
+          "description": "Volume surge 3x (4.9x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 44.680851063829785,
+          "description": "RSI in buy zone (44.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 312.0,
+          "distance_percent": 58.01282051282052,
+          "description": "Far from support (58.0% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 486.0,
+          "sma_7": 443.7142857142857,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 22.332506203473944,
+          "description": "Very strong momentum (+22.3%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-WAXP",
+      "score": 70,
+      "buy_price": 73.6,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.4219386331307997,
+          "description": "Volume surge 3x (3.4x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 58.82257908171507,
+          "description": "RSI moderate (58.8)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 39.26,
+          "distance_percent": 87.46816097809474,
+          "description": "Far from support (87.5% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 66.63666666666667,
+          "sma_7": 62.442857142857136,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 28.987031195233072,
+          "description": "Very strong momentum (+29.0%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-LSK",
+      "score": 67,
+      "buy_price": 1591.0,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.8445815534918146,
+          "description": "Volume increase (1.8x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 48.03092534428606,
+          "description": "RSI in buy zone (48.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 1002.0,
+          "distance_percent": 58.78243512974052,
+          "description": "Far from support (58.8% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 1530.0,
+          "sma_7": 1493.5714285714287,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 9.422283356258596,
+          "description": "Strong momentum (+9.4%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-PUNDIX",
+      "score": 65,
+      "buy_price": 747.1,
+      "signals": {
+        "volume": {
+          "score": 5,
+          "volume_ratio": 1.4424873404463265,
+          "description": "Slight volume increase (1.4x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 46.02609727164887,
+          "description": "RSI in buy zone (46.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 481.1,
+          "distance_percent": 55.28996050717107,
+          "description": "Far from support (55.3% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 705.6666666666666,
+          "sma_7": 691.5,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 13.145539906103298,
+          "description": "Very strong momentum (+13.1%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-HUNT",
+      "score": 60,
+      "buy_price": 542.0,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 1.0063858480814922,
+          "description": "No volume surge (1.0x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 46.76784710511525,
+          "description": "RSI in buy zone (46.8)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 358.2,
+          "distance_percent": 51.31211613623674,
+          "description": "Far from support (51.3% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 518.0333333333333,
+          "sma_7": 494.45714285714286,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 16.15945135019288,
+          "description": "Very strong momentum (+16.2%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-EGLD",
+      "score": 60,
+      "buy_price": 54280.0,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.563095450316645,
+          "description": "Volume increase (1.6x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 56.39284315005877,
+          "description": "RSI moderate (56.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 30670.0,
+          "distance_percent": 76.98076296054776,
+          "description": "Far from support (77.0% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 50540.0,
+          "sma_7": 46114.28571428572,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 33.03921568627451,
+          "description": "Very strong momentum (+33.0%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-IOST",
+      "score": 80,
+      "buy_price": 10.35,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 4.441634341407658,
+          "description": "Volume surge 3x (4.4x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 48.880721683929174,
+          "description": "RSI in buy zone (48.9)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 5.883,
+          "distance_percent": 75.93064762876082,
+          "description": "Far from support (75.9% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 9.831333333333333,
+          "sma_7": 9.283285714285713,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 20.531035285897286,
+          "description": "Very strong momentum (+20.5%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-POL",
+      "score": 70,
+      "buy_price": 802.0,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.12323879946287,
+          "description": "Volume surge 3x (3.1x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 58.59375,
+          "description": "RSI moderate (58.6)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 405.0,
+          "distance_percent": 98.0246913580247,
+          "description": "Far from support (98.0% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 761.0,
+          "sma_7": 682.7142857142857,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 31.260229132569556,
+          "description": "Very strong momentum (+31.3%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-CVC",
+      "score": 60,
+      "buy_price": 216.0,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.8344375841205421,
+          "description": "No volume surge (0.8x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 39.01496861419604,
+          "description": "RSI in buy zone (39.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 158.6,
+          "distance_percent": 36.191677175283736,
+          "description": "Far from support (36.2% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 206.4333333333333,
+          "sma_7": 201.71428571428572,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.996916752312439,
+          "description": "Very strong momentum (+11.0%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-T",
+      "score": 70,
+      "buy_price": 44.0,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 2.2028883066226688,
+          "description": "Volume increase (2.2x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 47.08777686628385,
+          "description": "RSI in buy zone (47.1)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 26.66,
+          "distance_percent": 65.04126031507876,
+          "description": "Far from support (65.0% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 40.71666666666667,
+          "sma_7": 39.71142857142858,
+          "up_days": 2,
+          "description": "Strong uptrend (2 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 14.19672982091876,
+          "description": "Very strong momentum (+14.2%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-W",
+      "score": 60,
+      "buy_price": 399.5,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.6761848336412812,
+          "description": "No volume surge (0.7x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 46.99264387710947,
+          "description": "RSI in buy zone (47.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 273.4,
+          "distance_percent": 46.12289685442576,
+          "description": "Far from support (46.1% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 368.7,
+          "sma_7": 349.85714285714283,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 28.168110362528076,
+          "description": "Very strong momentum (+28.2%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-ARK",
+      "score": 60,
+      "buy_price": 920.0,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.33697764763587484,
+          "description": "No volume surge (0.3x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 42.33193277310924,
+          "description": "RSI in buy zone (42.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 577.2,
+          "distance_percent": 59.39015939015938,
+          "description": "Far from support (59.4% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 871.4333333333334,
+          "sma_7": 850.4428571428572,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 15.490836053226209,
+          "description": "Very strong momentum (+15.5%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-HIVE",
+      "score": 60,
+      "buy_price": 397.4,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.6345696691676459,
+          "description": "No volume surge (0.6x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 47.703072710678434,
+          "description": "RSI in buy zone (47.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 230.4,
+          "distance_percent": 72.48263888888887,
+          "description": "Far from support (72.5% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 363.79999999999995,
+          "sma_7": 349.34285714285716,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 22.540857230958977,
+          "description": "Very strong momentum (+22.5%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-CBK",
+      "score": 60,
+      "buy_price": 1130.0,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.2572540412880407,
+          "description": "No volume surge (0.3x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 49.371541015865205,
+          "description": "RSI in buy zone (49.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 673.7,
+          "distance_percent": 67.73044381772301,
+          "description": "Far from support (67.7% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 1099.6666666666667,
+          "sma_7": 1053.857142857143,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 12.326043737574553,
+          "description": "Very strong momentum (+12.3%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-TT",
+      "score": 70,
+      "buy_price": 5.761,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.9404628910398178,
+          "description": "Volume increase (1.9x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 43.855944295416926,
+          "description": "RSI in buy zone (43.9)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 4.01,
+          "distance_percent": 43.665835411471335,
+          "description": "Far from support (43.7% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 5.69,
+          "sma_7": 5.464142857142858,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 11.582413325585897,
+          "description": "Very strong momentum (+11.6%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-STORJ",
+      "score": 65,
+      "buy_price": 812.2,
+      "signals": {
+        "volume": {
+          "score": 5,
+          "volume_ratio": 1.2553452987300846,
+          "description": "Slight volume increase (1.3x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 49.628071229994745,
+          "description": "RSI in buy zone (49.6)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 564.8,
+          "distance_percent": 43.8031161473088,
+          "description": "Far from support (43.8% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 772.3666666666667,
+          "sma_7": 734.842857142857,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 18.638621092608826,
+          "description": "Very strong momentum (+18.6%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-CKB",
+      "score": 60,
+      "buy_price": 19.7,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.6975561487295071,
+          "description": "No volume surge (0.7x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 46.666666666666664,
+          "description": "RSI in buy zone (46.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 15.9,
+          "distance_percent": 23.899371069182383,
+          "description": "Far from support (23.9% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 19.206666666666667,
+          "sma_7": 18.822857142857146,
+          "up_days": 2,
+          "description": "Strong uptrend (2 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.736368746486793,
+          "description": "Very strong momentum (+10.7%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-MASK",
+      "score": 60,
+      "buy_price": 4612.0,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.5077039999965715,
+          "description": "No volume surge (0.5x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 37.24983860555197,
+          "description": "RSI in buy zone (37.2)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 3560.0,
+          "distance_percent": 29.55056179775281,
+          "description": "Far from support (29.6% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 4454.0,
+          "sma_7": 4289.142857142857,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 12.077764277035238,
+          "description": "Very strong momentum (+12.1%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-STEEM",
+      "score": 60,
+      "buy_price": 338.1,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.5050504405076542,
+          "description": "No volume surge (0.5x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 48.23747680890537,
+          "description": "RSI in buy zone (48.2)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 208.1,
+          "distance_percent": 62.46996636232582,
+          "description": "Far from support (62.5% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 321.6666666666667,
+          "sma_7": 310.2428571428572,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 15.039128955427033,
+          "description": "Very strong momentum (+15.0%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-MED",
+      "score": 60,
+      "buy_price": 15.6,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.5950937039427138,
+          "description": "No volume surge (0.6x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 45.524296675191806,
+          "description": "RSI in buy zone (45.5)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 10.43,
+          "distance_percent": 49.56855225311601,
+          "description": "Far from support (49.6% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 14.806666666666667,
+          "sma_7": 14.301428571428572,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 14.959469417833452,
+          "description": "Very strong momentum (+15.0%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-ORBS",
+      "score": 60,
+      "buy_price": 46.07,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.950789667675611,
+          "description": "No volume surge (1.0x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 45.5401165396683,
+          "description": "RSI in buy zone (45.5)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 31.34,
+          "distance_percent": 47.000638162093175,
+          "description": "Far from support (47.0% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 44.28,
+          "sma_7": 42.75,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 13.221921848119939,
+          "description": "Very strong momentum (+13.2%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-STG",
+      "score": 60,
+      "buy_price": 485.0,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.19213131557618915,
+          "description": "No volume surge (0.2x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 40.05167958656331,
+          "description": "RSI in buy zone (40.1)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 339.0,
+          "distance_percent": 43.067846607669615,
+          "description": "Far from support (43.1% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 467.0,
+          "sma_7": 453.57142857142856,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 13.317757009345794,
+          "description": "Very strong momentum (+13.3%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-QKC",
+      "score": 60,
+      "buy_price": 14.6,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.7259632481547414,
+          "description": "No volume surge (0.7x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 39.3258426966292,
+          "description": "RSI in buy zone (39.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 10.7,
+          "distance_percent": 36.44859813084113,
+          "description": "Far from support (36.4% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 14.053333333333333,
+          "sma_7": 13.738571428571428,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.606060606060609,
+          "description": "Very strong momentum (+10.6%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-META",
+      "score": 60,
+      "buy_price": 49.73,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.21846946043897708,
+          "description": "No volume surge (0.2x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 48.36911067744633,
+          "description": "RSI in buy zone (48.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 31.61,
+          "distance_percent": 57.32363176210059,
+          "description": "Far from support (57.3% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 47.72666666666667,
+          "sma_7": 46.005714285714284,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 14.849884526558894,
+          "description": "Very strong momentum (+14.8%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-ONG",
+      "score": 70,
+      "buy_price": 556.7,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.655420347479798,
+          "description": "Volume increase (1.7x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 46.34905434522385,
+          "description": "RSI in buy zone (46.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 361.9,
+          "distance_percent": 53.82702403979002,
+          "description": "Far from support (53.8% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 528.5333333333334,
+          "sma_7": 508.61428571428576,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 16.70859538784068,
+          "description": "Very strong momentum (+16.7%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-ONT",
+      "score": 60,
+      "buy_price": 364.3,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.8108291023459724,
+          "description": "Volume increase (1.8x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 56.08188123836916,
+          "description": "RSI moderate (56.1)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 219.2,
+          "distance_percent": 66.19525547445257,
+          "description": "Far from support (66.2% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 349.76666666666665,
+          "sma_7": 331.65714285714284,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 19.796119697467933,
+          "description": "Very strong momentum (+19.8%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-POLYX",
+      "score": 60,
+      "buy_price": 477.4,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.71682937976759,
+          "description": "Volume increase (1.7x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 57.9081291013794,
+          "description": "RSI moderate (57.9)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 273.9,
+          "distance_percent": 74.29718875502009,
+          "description": "Far from support (74.3% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 472.8,
+          "sma_7": 455.2714285714286,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 14.319923371647498,
+          "description": "Very strong momentum (+14.3%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-12-01",
+      "market": "KRW-MASK",
+      "score": 62,
+      "buy_price": 5255.0,
+      "signals": {
+        "volume": {
+          "score": 5,
+          "volume_ratio": 1.331340598539514,
+          "description": "Slight volume increase (1.3x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 47.49034749034749,
+          "description": "RSI in buy zone (47.5)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 3885.0,
+          "distance_percent": 35.26383526383526,
+          "description": "Far from support (35.3% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 5195.666666666667,
+          "sma_7": 4972.285714285715,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 7.113738279657563,
+          "description": "Strong momentum (+7.1%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-12-01",
+      "market": "KRW-BIGTIME",
+      "score": 62,
+      "buy_price": 235.1,
+      "signals": {
+        "volume": {
+          "score": 5,
+          "volume_ratio": 1.2870216726431194,
+          "description": "Slight volume increase (1.3x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 45.27046572172403,
+          "description": "RSI in buy zone (45.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 180.1,
+          "distance_percent": 30.53858967240422,
+          "description": "Far from support (30.5% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 232.4333333333333,
+          "sma_7": 223.5,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 8.440959409594088,
+          "description": "Strong momentum (+8.4%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    },
+    {
+      "date": "2024-12-08",
+      "market": "KRW-ZRX",
+      "score": 70,
+      "buy_price": 1067.0,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 4.566033605936169,
+          "description": "Volume surge 3x (4.6x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 58.025899713898504,
+          "description": "RSI moderate (58.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 565.8,
+          "distance_percent": 88.58253799929305,
+          "description": "Far from support (88.6% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 1059.6666666666667,
+          "sma_7": 967.7571428571428,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 14.27653421869979,
+          "description": "Very strong momentum (+14.3%)"
+        }
+      },
+      "recommendation": "strong_buy"
+    }
+  ],
+  "results": [
+    {
+      "date": "2024-09-01",
+      "market": "KRW-BORA",
+      "score": 65,
+      "buy_price": 112.4,
+      "sell_price": 110.2,
+      "return_pct": -1.9572953736654828,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 4.551513724883505,
+          "description": "Volume surge 3x (4.6x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 50.0,
+          "description": "RSI in buy zone (50.0)"
+        },
+        "support": {
+          "score": 20,
+          "support_level": 112.1,
+          "distance_percent": 0.2676181980374767,
+          "description": "At support level (0.3% above)"
+        },
+        "trend": {
+          "score": 0,
+          "sma_3": 115.96666666666665,
+          "sma_7": 119.64285714285714,
+          "up_days": 0,
+          "description": "No uptrend"
+        },
+        "momentum": {
+          "score": 0,
+          "momentum_percent": -11.005542359461593,
+          "description": "Negative momentum (-11.0%)"
+        }
+      }
+    },
+    {
+      "date": "2024-09-08",
+      "market": "KRW-SUI",
+      "score": 70,
+      "buy_price": 1275.0,
+      "sell_price": 1255.0,
+      "return_pct": -1.5686274509803921,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 2.0086308724554893,
+          "description": "Volume increase (2.0x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 48.96242288278182,
+          "description": "RSI in buy zone (49.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 1011.0,
+          "distance_percent": 26.112759643916917,
+          "description": "Far from support (26.1% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 1210.0,
+          "sma_7": 1135.7142857142858,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 16.014558689717926,
+          "description": "Very strong momentum (+16.0%)"
+        }
+      }
+    },
+    {
+      "date": "2024-09-15",
+      "market": "KRW-ATH",
+      "score": 80,
+      "buy_price": 78.2,
+      "sell_price": 79.5,
+      "return_pct": 1.6624040920716077,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 6.668014126206909,
+          "description": "Volume surge 3x (6.7x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 47.69479132045013,
+          "description": "RSI in buy zone (47.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 57.65,
+          "distance_percent": 35.64614050303557,
+          "description": "Far from support (35.6% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 76.27,
+          "sma_7": 71.26714285714284,
+          "up_days": 2,
+          "description": "Strong uptrend (2 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 15.90336445827776,
+          "description": "Very strong momentum (+15.9%)"
+        }
+      }
+    },
+    {
+      "date": "2024-09-15",
+      "market": "KRW-STG",
+      "score": 72,
+      "buy_price": 406.3,
+      "sell_price": 430.3,
+      "return_pct": 5.906965296578883,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 5.739220322047783,
+          "description": "Volume surge 3x (5.7x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 44.50395307319563,
+          "description": "RSI in buy zone (44.5)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 342.8,
+          "distance_percent": 18.52392065344224,
+          "description": "Far from support (18.5% above)"
+        },
+        "trend": {
+          "score": 15,
+          "sma_3": 397.06666666666666,
+          "sma_7": 389.4857142857142,
+          "up_days": 1,
+          "description": "Uptrend (1 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 8.260058619770849,
+          "description": "Strong momentum (+8.3%)"
+        }
+      }
+    },
+    {
+      "date": "2024-09-15",
+      "market": "KRW-META",
+      "score": 68,
+      "buy_price": 33.8,
+      "sell_price": 34.6,
+      "return_pct": 2.3668639053254568,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 8.874180367602499,
+          "description": "Volume surge 3x (8.9x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 45.05238649592547,
+          "description": "RSI in buy zone (45.1)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 29.97,
+          "distance_percent": 12.779446112779441,
+          "description": "Far from support (12.8% above)"
+        },
+        "trend": {
+          "score": 15,
+          "sma_3": 33.5,
+          "sma_7": 33.002857142857145,
+          "up_days": 1,
+          "description": "Uptrend (1 days)"
+        },
+        "momentum": {
+          "score": 8,
+          "momentum_percent": 2.7667984189723214,
+          "description": "Positive momentum (+2.8%)"
+        }
+      }
+    },
+    {
+      "date": "2024-09-15",
+      "market": "KRW-MOC",
+      "score": 63,
+      "buy_price": 74.5,
+      "sell_price": 76.45,
+      "return_pct": 2.617449664429534,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 21.078848196527254,
+          "description": "Volume surge 3x (21.1x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 49.39573720061526,
+          "description": "RSI in buy zone (49.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 65.93,
+          "distance_percent": 12.998634915819798,
+          "description": "Far from support (13.0% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 75.89666666666666,
+          "sma_7": 74.23857142857142,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 8,
+          "momentum_percent": 2.7586206896551726,
+          "description": "Positive momentum (+2.8%)"
+        }
+      }
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-LSK",
+      "score": 60,
+      "buy_price": 1204.0,
+      "sell_price": 1231.0,
+      "return_pct": 2.2425249169435215,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 4.380625118710109,
+          "description": "Volume surge 3x (4.4x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 53.35533553355336,
+          "description": "RSI moderate (53.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 968.8,
+          "distance_percent": 24.27745664739885,
+          "description": "Far from support (24.3% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 1229.3333333333333,
+          "sma_7": 1143.4285714285713,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.054844606946983,
+          "description": "Very strong momentum (+10.1%)"
+        }
+      }
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-PUNDIX",
+      "score": 60,
+      "buy_price": 572.3,
+      "sell_price": 571.6,
+      "return_pct": -0.1223134719552563,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 36.21901228700631,
+          "description": "Volume surge 3x (36.2x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 58.70389085396663,
+          "description": "RSI moderate (58.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 468.0,
+          "distance_percent": 22.286324786324776,
+          "description": "Far from support (22.3% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 596.6999999999999,
+          "sma_7": 545.6571428571428,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 12.701851122489158,
+          "description": "Very strong momentum (+12.7%)"
+        }
+      }
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-BEAM",
+      "score": 65,
+      "buy_price": 22.97,
+      "sell_price": 22.67,
+      "return_pct": -1.3060513713539275,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 5.586005227824839,
+          "description": "Volume surge 3x (5.6x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 55.59210526315789,
+          "description": "RSI moderate (55.6)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 15.4,
+          "distance_percent": 49.15584415584415,
+          "description": "Far from support (49.2% above)"
+        },
+        "trend": {
+          "score": 15,
+          "sma_3": 22.236666666666665,
+          "sma_7": 21.044285714285714,
+          "up_days": 1,
+          "description": "Uptrend (1 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.485810485810484,
+          "description": "Very strong momentum (+10.5%)"
+        }
+      }
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-HBAR",
+      "score": 67,
+      "buy_price": 72.06,
+      "sell_price": 78.34,
+      "return_pct": 8.714959755759091,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 4.653168141593521,
+          "description": "Volume surge 3x (4.7x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 46.04983416957224,
+          "description": "RSI in buy zone (46.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 62.77,
+          "distance_percent": 14.800063724709252,
+          "description": "Far from support (14.8% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 72.56333333333333,
+          "sma_7": 69.75714285714285,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 5.9861744374172785,
+          "description": "Strong momentum (+6.0%)"
+        }
+      }
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-POWR",
+      "score": 60,
+      "buy_price": 292.5,
+      "sell_price": 294.8,
+      "return_pct": 0.7863247863247902,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 17.216974333109004,
+          "description": "Volume surge 3x (17.2x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 56.34715025906734,
+          "description": "RSI moderate (56.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 228.3,
+          "distance_percent": 28.120893561103806,
+          "description": "Far from support (28.1% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 298.09999999999997,
+          "sma_7": 277.11428571428576,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 11.471036585365864,
+          "description": "Very strong momentum (+11.5%)"
+        }
+      }
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-ARK",
+      "score": 60,
+      "buy_price": 610.4,
+      "sell_price": 562.3,
+      "return_pct": -7.880078636959375,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 115.06986207331785,
+          "description": "Volume surge 3x (115.1x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 51.59415971394517,
+          "description": "RSI moderate (51.6)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 367.5,
+          "distance_percent": 66.09523809523809,
+          "description": "Far from support (66.1% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 676.5333333333333,
+          "sma_7": 533.0714285714286,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 43.1855500821018,
+          "description": "Very strong momentum (+43.2%)"
+        }
+      }
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-HIVE",
+      "score": 67,
+      "buy_price": 266.7,
+      "sell_price": 271.4,
+      "return_pct": 1.7622797150356164,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 19.264571174998327,
+          "description": "Volume surge 3x (19.3x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 48.710257948410295,
+          "description": "RSI in buy zone (48.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 214.5,
+          "distance_percent": 24.33566433566433,
+          "description": "Far from support (24.3% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 270.4,
+          "sma_7": 254.2,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 7.932011331444758,
+          "description": "Strong momentum (+7.9%)"
+        }
+      }
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-CBK",
+      "score": 60,
+      "buy_price": 795.7,
+      "sell_price": 816.5,
+      "return_pct": 2.6140505215533434,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 2.1315022819882583,
+          "description": "Volume increase (2.1x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 57.89175938148224,
+          "description": "RSI moderate (57.9)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 611.1,
+          "distance_percent": 30.207821960399283,
+          "description": "Far from support (30.2% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 783.1,
+          "sma_7": 742.9571428571428,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 11.755617977528097,
+          "description": "Very strong momentum (+11.8%)"
+        }
+      }
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-STORJ",
+      "score": 67,
+      "buy_price": 546.3,
+      "sell_price": 581.9,
+      "return_pct": 6.516565989383127,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.3048675710202047,
+          "description": "Volume surge 3x (3.3x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 47.982551799345686,
+          "description": "RSI in buy zone (48.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 426.0,
+          "distance_percent": 28.2394366197183,
+          "description": "Far from support (28.2% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 556.3666666666667,
+          "sma_7": 529.2857142857143,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 8.69478710704336,
+          "description": "Strong momentum (+8.7%)"
+        }
+      }
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-STEEM",
+      "score": 60,
+      "buy_price": 252.0,
+      "sell_price": 256.7,
+      "return_pct": 1.8650793650793605,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 9.232983741035662,
+          "description": "Volume surge 3x (9.2x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 55.46558704453442,
+          "description": "RSI moderate (55.5)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 202.2,
+          "distance_percent": 24.629080118694368,
+          "description": "Far from support (24.6% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 254.66666666666666,
+          "sma_7": 238.40000000000003,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.817941952506594,
+          "description": "Very strong momentum (+10.8%)"
+        }
+      }
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-ORBS",
+      "score": 65,
+      "buy_price": 37.5,
+      "sell_price": 34.95,
+      "return_pct": -6.799999999999992,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.939601425426322,
+          "description": "Strong volume increase (2.9x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 59.748427672955934,
+          "description": "RSI moderate (59.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 28.71,
+          "distance_percent": 30.61650992685475,
+          "description": "Far from support (30.6% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 35.76666666666666,
+          "sma_7": 33.142857142857146,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 19.655392469687303,
+          "description": "Very strong momentum (+19.7%)"
+        }
+      }
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-SXP",
+      "score": 60,
+      "buy_price": 345.9,
+      "sell_price": 348.4,
+      "return_pct": 0.7227522405319456,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 151.53645462160284,
+          "description": "Volume surge 3x (151.5x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 59.80675255442025,
+          "description": "RSI moderate (59.8)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 241.1,
+          "distance_percent": 43.467440895893816,
+          "description": "Far from support (43.5% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 369.3,
+          "sma_7": 335.6142857142857,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 23.403496254013547,
+          "description": "Very strong momentum (+23.4%)"
+        }
+      }
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-ONT",
+      "score": 60,
+      "buy_price": 255.7,
+      "sell_price": 266.9,
+      "return_pct": 4.380132968322249,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 19.30202157672806,
+          "description": "Volume surge 3x (19.3x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 58.44559585492227,
+          "description": "RSI moderate (58.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 207.0,
+          "distance_percent": 23.52657004830917,
+          "description": "Far from support (23.5% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 261.3666666666667,
+          "sma_7": 243.91428571428568,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.310612597066427,
+          "description": "Very strong momentum (+10.3%)"
+        }
+      }
+    },
+    {
+      "date": "2024-09-22",
+      "market": "KRW-ICX",
+      "score": 60,
+      "buy_price": 191.1,
+      "sell_price": 202.2,
+      "return_pct": 5.808477237048662,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 12.280208778412856,
+          "description": "Volume surge 3x (12.3x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 53.710937499999986,
+          "description": "RSI moderate (53.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 153.0,
+          "distance_percent": 24.901960784313722,
+          "description": "Far from support (24.9% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 192.9333333333333,
+          "sma_7": 182.04285714285714,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.080645161290324,
+          "description": "Very strong momentum (+10.1%)"
+        }
+      }
+    },
+    {
+      "date": "2024-09-29",
+      "market": "KRW-DOGE",
+      "score": 60,
+      "buy_price": 163.0,
+      "sell_price": 141.0,
+      "return_pct": -13.496932515337424,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.227732723075127,
+          "description": "Volume surge 3x (3.2x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 53.36076817558295,
+          "description": "RSI moderate (53.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 133.0,
+          "distance_percent": 22.55639097744361,
+          "description": "Far from support (22.6% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 164.96666666666667,
+          "sma_7": 155.1142857142857,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 12.258953168044085,
+          "description": "Very strong momentum (+12.3%)"
+        }
+      }
+    },
+    {
+      "date": "2024-09-29",
+      "market": "KRW-ZRX",
+      "score": 64,
+      "buy_price": 471.6,
+      "sell_price": 408.2,
+      "return_pct": -13.443596268023756,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 6.083555357856892,
+          "description": "Volume surge 3x (6.1x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 36.565096952908604,
+          "description": "RSI in buy zone (36.6)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 368.0,
+          "distance_percent": 28.152173913043484,
+          "description": "Far from support (28.2% above)"
+        },
+        "trend": {
+          "score": 15,
+          "sma_3": 474.9666666666667,
+          "sma_7": 465.3142857142857,
+          "up_days": 1,
+          "description": "Uptrend (1 days)"
+        },
+        "momentum": {
+          "score": 4,
+          "momentum_percent": 1.4411701441170244,
+          "description": "Slight positive (1.4%)"
+        }
+      }
+    },
+    {
+      "date": "2024-10-06",
+      "market": "KRW-MOC",
+      "score": 60,
+      "buy_price": 92.13,
+      "sell_price": 89.58,
+      "return_pct": -2.7678280690328854,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.1591840931760536,
+          "description": "No volume surge (0.2x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 40.964737888458714,
+          "description": "RSI in buy zone (41.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 74.42,
+          "distance_percent": 23.797366299381878,
+          "description": "Far from support (23.8% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 90.19666666666667,
+          "sma_7": 87.13571428571429,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.893115069812225,
+          "description": "Very strong momentum (+10.9%)"
+        }
+      }
+    },
+    {
+      "date": "2024-10-06",
+      "market": "KRW-XEC",
+      "score": 62,
+      "buy_price": 0.04808,
+      "sell_price": 0.04461,
+      "return_pct": -7.2171381031614,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.9328724093259462,
+          "description": "Volume increase (1.9x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 47.29907773386033,
+          "description": "RSI in buy zone (47.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 0.04006,
+          "distance_percent": 20.0199700449326,
+          "description": "Far from support (20.0% above)"
+        },
+        "trend": {
+          "score": 15,
+          "sma_3": 0.04818666666666666,
+          "sma_7": 0.04674714285714286,
+          "up_days": 1,
+          "description": "Uptrend (1 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 5.647110525159296,
+          "description": "Strong momentum (+5.6%)"
+        }
+      }
+    },
+    {
+      "date": "2024-10-13",
+      "market": "KRW-BLUR",
+      "score": 60,
+      "buy_price": 337.0,
+      "sell_price": 325.0,
+      "return_pct": -3.5608308605341246,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 1.1034846450811406,
+          "description": "No volume surge (1.1x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 43.22545255074055,
+          "description": "RSI in buy zone (43.2)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 255.7,
+          "distance_percent": 31.795072350410642,
+          "description": "Far from support (31.8% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 319.53333333333336,
+          "sma_7": 308.6,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 16.367403314917116,
+          "description": "Very strong momentum (+16.4%)"
+        }
+      }
+    },
+    {
+      "date": "2024-10-13",
+      "market": "KRW-CHZ",
+      "score": 62,
+      "buy_price": 101.3,
+      "sell_price": 104.1,
+      "return_pct": 2.7640671273445183,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 5.693056727841341,
+          "description": "Volume surge 3x (5.7x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 58.13235747982895,
+          "description": "RSI moderate (58.1)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 78.12,
+          "distance_percent": 29.672299027137726,
+          "description": "Far from support (29.7% above)"
+        },
+        "trend": {
+          "score": 15,
+          "sma_3": 96.58666666666666,
+          "sma_7": 94.39285714285714,
+          "up_days": 1,
+          "description": "Uptrend (1 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 6.073298429319369,
+          "description": "Strong momentum (+6.1%)"
+        }
+      }
+    },
+    {
+      "date": "2024-10-13",
+      "market": "KRW-MINA",
+      "score": 70,
+      "buy_price": 777.0,
+      "sell_price": 775.0,
+      "return_pct": -0.2574002574002574,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 2.2460797506288848,
+          "description": "Volume increase (2.2x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 45.302574389836174,
+          "description": "RSI in buy zone (45.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 638.4,
+          "distance_percent": 21.710526315789476,
+          "description": "Far from support (21.7% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 731.2999999999998,
+          "sma_7": 708.4999999999999,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 16.21298235118157,
+          "description": "Very strong momentum (+16.2%)"
+        }
+      }
+    },
+    {
+      "date": "2024-10-27",
+      "market": "KRW-AUCTION",
+      "score": 64,
+      "buy_price": 18300.0,
+      "sell_price": 18290.0,
+      "return_pct": -0.0546448087431694,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 7.330266289224033,
+          "description": "Volume surge 3x (7.3x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 48.62681744749597,
+          "description": "RSI in buy zone (48.6)"
+        },
+        "support": {
+          "score": 10,
+          "support_level": 17320.0,
+          "distance_percent": 5.658198614318707,
+          "description": "Close to support (5.7% above)"
+        },
+        "trend": {
+          "score": 5,
+          "sma_3": 18170.0,
+          "sma_7": 18380.0,
+          "up_days": 1,
+          "description": "Recent bounce (1 days)"
+        },
+        "momentum": {
+          "score": 4,
+          "momentum_percent": 0.16420361247947454,
+          "description": "Slight positive (0.2%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-03",
+      "market": "KRW-MOC",
+      "score": 65,
+      "buy_price": 86.63,
+      "sell_price": 91.12,
+      "return_pct": 5.182962022394101,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.5751208584323453,
+          "description": "Volume surge 3x (3.6x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 49.47491248541422,
+          "description": "RSI in buy zone (49.5)"
+        },
+        "support": {
+          "score": 10,
+          "support_level": 82.86,
+          "distance_percent": 4.549843108858311,
+          "description": "Close to support (4.5% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 92.09666666666665,
+          "sma_7": 90.94000000000001,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 0,
+          "momentum_percent": -3.087593690569421,
+          "description": "Negative momentum (-3.1%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-BORA",
+      "score": 70,
+      "buy_price": 138.6,
+      "sell_price": 154.6,
+      "return_pct": 11.544011544011545,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.5966125733276637,
+          "description": "Volume increase (1.6x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 40.828402366863905,
+          "description": "RSI in buy zone (40.8)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 115.2,
+          "distance_percent": 20.312499999999993,
+          "description": "Far from support (20.3% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 131.8,
+          "sma_7": 125.75714285714285,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 11.057692307692307,
+          "description": "Very strong momentum (+11.1%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-PUNDIX",
+      "score": 60,
+      "buy_price": 590.3,
+      "sell_price": 621.3,
+      "return_pct": 5.251566999830596,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 2.103360559315151,
+          "description": "Volume increase (2.1x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 59.549913444893235,
+          "description": "RSI moderate (59.5)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 474.5,
+          "distance_percent": 24.40463645943097,
+          "description": "Far from support (24.4% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 568.0,
+          "sma_7": 535.1285714285715,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 11.714610143830427,
+          "description": "Very strong momentum (+11.7%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-BLAST",
+      "score": 70,
+      "buy_price": 13.02,
+      "sell_price": 12.87,
+      "return_pct": -1.1520737327188968,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 8.736024677365211,
+          "description": "Volume surge 3x (8.7x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 50.708540788969756,
+          "description": "RSI moderate (50.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 9.917,
+          "distance_percent": 31.289704547746293,
+          "description": "Far from support (31.3% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 12.423333333333332,
+          "sma_7": 11.402857142857142,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 19.12168344007319,
+          "description": "Very strong momentum (+19.1%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-POWR",
+      "score": 67,
+      "buy_price": 316.0,
+      "sell_price": 339.6,
+      "return_pct": 7.468354430379755,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.547877391858323,
+          "description": "Volume surge 3x (3.5x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 55.31506849315068,
+          "description": "RSI moderate (55.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 251.0,
+          "distance_percent": 25.89641434262948,
+          "description": "Far from support (25.9% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 306.8,
+          "sma_7": 289.7,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 9.951287404314552,
+          "description": "Strong momentum (+10.0%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-G",
+      "score": 67,
+      "buy_price": 44.81,
+      "sell_price": 42.8,
+      "return_pct": -4.485605891542078,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 6.254280428907584,
+          "description": "Volume surge 3x (6.3x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 57.285180572851814,
+          "description": "RSI moderate (57.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 37.25,
+          "distance_percent": 20.295302013422827,
+          "description": "Far from support (20.3% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 43.05666666666667,
+          "sma_7": 40.96,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 9.828431372549034,
+          "description": "Strong momentum (+9.8%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-IOST",
+      "score": 65,
+      "buy_price": 7.497,
+      "sell_price": 7.755,
+      "return_pct": 3.441376550620248,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.719995449617452,
+          "description": "Strong volume increase (2.7x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 53.23777120865636,
+          "description": "RSI moderate (53.2)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 5.789,
+          "distance_percent": 29.504232164449824,
+          "description": "Far from support (29.5% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 7.168666666666667,
+          "sma_7": 6.701142857142857,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 12.146596858638748,
+          "description": "Very strong momentum (+12.1%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-AWE",
+      "score": 67,
+      "buy_price": 62.22,
+      "sell_price": 65.31,
+      "return_pct": 4.966248794599813,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 2.047521478188431,
+          "description": "Volume increase (2.0x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 49.47403388329089,
+          "description": "RSI in buy zone (49.5)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 52.7,
+          "distance_percent": 18.06451612903225,
+          "description": "Far from support (18.1% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 60.53,
+          "sma_7": 58.07571428571429,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 7.964601769911497,
+          "description": "Strong momentum (+8.0%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-SAND",
+      "score": 65,
+      "buy_price": 402.0,
+      "sell_price": 403.0,
+      "return_pct": 0.24875621890547264,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.8567783006988847,
+          "description": "Strong volume increase (2.9x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 56.60377358490566,
+          "description": "RSI moderate (56.6)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 312.0,
+          "distance_percent": 28.846153846153843,
+          "description": "Far from support (28.8% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 384.3333333333333,
+          "sma_7": 358.14285714285717,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 13.881019830028329,
+          "description": "Very strong momentum (+13.9%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-W",
+      "score": 75,
+      "buy_price": 370.2,
+      "sell_price": 347.5,
+      "return_pct": -6.131820637493244,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.3633610030402132,
+          "description": "Strong volume increase (2.4x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 48.974943052391794,
+          "description": "RSI in buy zone (49.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 267.0,
+          "distance_percent": 38.651685393258425,
+          "description": "Far from support (38.7% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 354.1666666666667,
+          "sma_7": 325.2142857142857,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 14.365152919369786,
+          "description": "Very strong momentum (+14.4%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-IMX",
+      "score": 62,
+      "buy_price": 1809.0,
+      "sell_price": 1766.0,
+      "return_pct": -2.377003869541183,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.865821434096063,
+          "description": "Strong volume increase (2.9x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 50.328074828982274,
+          "description": "RSI moderate (50.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 1425.0,
+          "distance_percent": 26.94736842105263,
+          "description": "Far from support (26.9% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 1761.3333333333333,
+          "sma_7": 1657.7142857142858,
+          "up_days": 2,
+          "description": "Strong uptrend (2 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 6.914893617021277,
+          "description": "Strong momentum (+6.9%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-SC",
+      "score": 62,
+      "buy_price": 6.92,
+      "sell_price": 7.222,
+      "return_pct": 4.36416184971099,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.954804426757419,
+          "description": "Strong volume increase (3.0x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 54.29716692710102,
+          "description": "RSI moderate (54.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 5.67,
+          "distance_percent": 22.045855379188716,
+          "description": "Far from support (22.0% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 6.6819999999999995,
+          "sma_7": 6.349285714285714,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 9.701965757767915,
+          "description": "Strong momentum (+9.7%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-HIVE",
+      "score": 70,
+      "buy_price": 281.8,
+      "sell_price": 362.7,
+      "return_pct": 28.708303761532996,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.746329746208189,
+          "description": "Volume surge 3x (3.7x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 55.38609728688394,
+          "description": "RSI moderate (55.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 229.0,
+          "distance_percent": 23.05676855895197,
+          "description": "Far from support (23.1% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 273.1666666666667,
+          "sma_7": 257.35714285714283,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.16419077404222,
+          "description": "Very strong momentum (+10.2%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-XLM",
+      "score": 70,
+      "buy_price": 150.0,
+      "sell_price": 176.5,
+      "return_pct": 17.666666666666668,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.933779030151278,
+          "description": "Volume surge 3x (3.9x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 56.29335976214075,
+          "description": "RSI moderate (56.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 124.5,
+          "distance_percent": 20.481927710843372,
+          "description": "Far from support (20.5% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 144.26666666666665,
+          "sma_7": 137.58571428571426,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 12.023898431665417,
+          "description": "Very strong momentum (+12.0%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-GLM",
+      "score": 62,
+      "buy_price": 465.7,
+      "sell_price": 493.2,
+      "return_pct": 5.905089113162981,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.346121004529471,
+          "description": "Strong volume increase (2.3x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 55.90501223601921,
+          "description": "RSI moderate (55.9)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 367.5,
+          "distance_percent": 26.721088435374146,
+          "description": "Far from support (26.7% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 450.3666666666666,
+          "sma_7": 424.24285714285713,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 9.783121169259783,
+          "description": "Strong momentum (+9.8%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-MANA",
+      "score": 65,
+      "buy_price": 485.0,
+      "sell_price": 477.0,
+      "return_pct": -1.6494845360824744,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.559452163221269,
+          "description": "Strong volume increase (2.6x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 56.29139072847683,
+          "description": "RSI moderate (56.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 360.0,
+          "distance_percent": 34.72222222222222,
+          "description": "Far from support (34.7% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 456.0,
+          "sma_7": 420.0,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 17.718446601941746,
+          "description": "Very strong momentum (+17.7%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-GRS",
+      "score": 70,
+      "buy_price": 525.0,
+      "sell_price": 585.0,
+      "return_pct": 11.428571428571429,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.3962858735956747,
+          "description": "Volume surge 3x (3.4x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 59.3235039028621,
+          "description": "RSI moderate (59.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 410.0,
+          "distance_percent": 28.04878048780488,
+          "description": "Far from support (28.0% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 504.3333333333333,
+          "sma_7": 471.85714285714283,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 14.628820960698691,
+          "description": "Very strong momentum (+14.6%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-GRT",
+      "score": 60,
+      "buy_price": 247.0,
+      "sell_price": 257.0,
+      "return_pct": 4.048582995951417,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.9973375734740373,
+          "description": "Volume increase (2.0x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 59.4059405940594,
+          "description": "RSI moderate (59.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 179.0,
+          "distance_percent": 37.988826815642454,
+          "description": "Far from support (38.0% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 237.66666666666666,
+          "sma_7": 216.71428571428572,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 15.96244131455399,
+          "description": "Very strong momentum (+16.0%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-ZRO",
+      "score": 60,
+      "buy_price": 5347.0,
+      "sell_price": 5188.0,
+      "return_pct": -2.973630072938096,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.9743197224946794,
+          "description": "Volume increase (2.0x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 57.39649172643988,
+          "description": "RSI moderate (57.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 4090.0,
+          "distance_percent": 30.73349633251834,
+          "description": "Far from support (30.7% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 5223.0,
+          "sma_7": 4861.0,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.589451913133402,
+          "description": "Very strong momentum (+10.6%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-GMT",
+      "score": 70,
+      "buy_price": 203.2,
+      "sell_price": 201.2,
+      "return_pct": -0.984251968503937,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.8983671305998608,
+          "description": "Volume increase (1.9x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 49.39846882974845,
+          "description": "RSI in buy zone (49.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 160.4,
+          "distance_percent": 26.683291770573554,
+          "description": "Far from support (26.7% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 195.33333333333334,
+          "sma_7": 183.75714285714284,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.554951033732305,
+          "description": "Very strong momentum (+10.6%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-TFUEL",
+      "score": 67,
+      "buy_price": 83.51,
+      "sell_price": 85.3,
+      "return_pct": 2.1434558735480684,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.5784205722038336,
+          "description": "Volume surge 3x (3.6x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 58.574514038876885,
+          "description": "RSI moderate (58.6)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 66.6,
+          "distance_percent": 25.39039039039041,
+          "description": "Far from support (25.4% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 80.19333333333333,
+          "sma_7": 75.97571428571428,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 9.867122747006972,
+          "description": "Strong momentum (+9.9%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-ELF",
+      "score": 77,
+      "buy_price": 525.0,
+      "sell_price": 537.0,
+      "return_pct": 2.2857142857142856,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.385161782630319,
+          "description": "Volume surge 3x (3.4x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 47.960308710033075,
+          "description": "RSI in buy zone (48.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 444.0,
+          "distance_percent": 18.243243243243242,
+          "description": "Far from support (18.2% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 508.3333333333333,
+          "sma_7": 488.14285714285717,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 7.581967213114754,
+          "description": "Strong momentum (+7.6%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-SXP",
+      "score": 62,
+      "buy_price": 428.2,
+      "sell_price": 487.1,
+      "return_pct": 13.755254553946763,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.7054025372960804,
+          "description": "Strong volume increase (2.7x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 59.08228393996894,
+          "description": "RSI moderate (59.1)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 300.1,
+          "distance_percent": 42.68577140953014,
+          "description": "Far from support (42.7% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 426.90000000000003,
+          "sma_7": 399.37142857142857,
+          "up_days": 2,
+          "description": "Strong uptrend (2 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 8.901322482197354,
+          "description": "Strong momentum (+8.9%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-MINA",
+      "score": 60,
+      "buy_price": 824.0,
+      "sell_price": 928.0,
+      "return_pct": 12.62135922330097,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 2.024986360514277,
+          "description": "Volume increase (2.0x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 50.70603337612323,
+          "description": "RSI moderate (50.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 618.0,
+          "distance_percent": 33.33333333333333,
+          "description": "Far from support (33.3% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 788.0,
+          "sma_7": 732.8571428571429,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 12.414733969986358,
+          "description": "Very strong momentum (+12.4%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-MOC",
+      "score": 65,
+      "buy_price": 102.0,
+      "sell_price": 109.5,
+      "return_pct": 7.352941176470589,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 5,
+          "volume_ratio": 1.2286773597703373,
+          "description": "Slight volume increase (1.2x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 44.25992229755467,
+          "description": "RSI in buy zone (44.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 82.86,
+          "distance_percent": 23.099203475742218,
+          "description": "Far from support (23.1% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 98.26333333333332,
+          "sma_7": 93.03285714285713,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 11.94029850746268,
+          "description": "Very strong momentum (+11.9%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-XEC",
+      "score": 70,
+      "buy_price": 0.05465,
+      "sell_price": 0.0625,
+      "return_pct": 14.364135407136327,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.561801798968592,
+          "description": "Volume surge 3x (3.6x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 58.555627846454115,
+          "description": "RSI moderate (58.6)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 0.042,
+          "distance_percent": 30.119047619047606,
+          "description": "Far from support (30.1% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 0.05203,
+          "sma_7": 0.048752857142857146,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 11.987704918032774,
+          "description": "Very strong momentum (+12.0%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-GAME2",
+      "score": 70,
+      "buy_price": 4.688,
+      "sell_price": 5.034,
+      "return_pct": 7.380546075085327,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.86636626377074,
+          "description": "Volume surge 3x (3.9x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 59.45386843194042,
+          "description": "RSI moderate (59.5)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 3.8,
+          "distance_percent": 23.36842105263158,
+          "description": "Far from support (23.4% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 4.546666666666667,
+          "sma_7": 4.264857142857143,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 12.449028544015356,
+          "description": "Very strong momentum (+12.4%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-BSV",
+      "score": 65,
+      "buy_price": 82910.0,
+      "sell_price": 91870.0,
+      "return_pct": 10.806899047159572,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.5005912980120284,
+          "description": "Strong volume increase (2.5x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 55.8110656303178,
+          "description": "RSI moderate (55.8)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 61600.0,
+          "distance_percent": 34.59415584415584,
+          "description": "Far from support (34.6% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 77630.0,
+          "sma_7": 72054.28571428571,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 16.0879305516662,
+          "description": "Very strong momentum (+16.1%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-10",
+      "market": "KRW-ONT",
+      "score": 65,
+      "buy_price": 278.2,
+      "sell_price": 289.3,
+      "return_pct": 3.9899352983465217,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 15,
+          "volume_ratio": 2.900361162696842,
+          "description": "Strong volume increase (2.9x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 59.747545582047685,
+          "description": "RSI moderate (59.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 215.3,
+          "distance_percent": 29.215048769159303,
+          "description": "Far from support (29.2% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 267.7333333333333,
+          "sma_7": 250.38571428571427,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 11.637239165329055,
+          "description": "Very strong momentum (+11.6%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-17",
+      "market": "KRW-HBAR",
+      "score": 80,
+      "buy_price": 127.2,
+      "sell_price": 171.8,
+      "return_pct": 35.06289308176101,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 6.66511677892286,
+          "description": "Volume surge 3x (6.7x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 44.896873707227726,
+          "description": "RSI in buy zone (44.9)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 58.09,
+          "distance_percent": 118.9705629196075,
+          "description": "Far from support (119.0% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 118.56666666666668,
+          "sma_7": 100.59428571428573,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 51.1047754811119,
+          "description": "Very strong momentum (+51.1%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-17",
+      "market": "KRW-SAND",
+      "score": 70,
+      "buy_price": 493.0,
+      "sell_price": 472.0,
+      "return_pct": -4.259634888438134,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 4.858415505597102,
+          "description": "Volume surge 3x (4.9x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 44.680851063829785,
+          "description": "RSI in buy zone (44.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 312.0,
+          "distance_percent": 58.01282051282052,
+          "description": "Far from support (58.0% above)"
+        },
+        "trend": {
+          "score": 10,
+          "sma_3": 486.0,
+          "sma_7": 443.7142857142857,
+          "up_days": 0,
+          "description": "Slight uptrend"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 22.332506203473944,
+          "description": "Very strong momentum (+22.3%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-WAXP",
+      "score": 70,
+      "buy_price": 73.6,
+      "sell_price": 77.36,
+      "return_pct": 5.10869565217392,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.4219386331307997,
+          "description": "Volume surge 3x (3.4x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 58.82257908171507,
+          "description": "RSI moderate (58.8)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 39.26,
+          "distance_percent": 87.46816097809474,
+          "description": "Far from support (87.5% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 66.63666666666667,
+          "sma_7": 62.442857142857136,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 28.987031195233072,
+          "description": "Very strong momentum (+29.0%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-LSK",
+      "score": 67,
+      "buy_price": 1591.0,
+      "sell_price": 1770.0,
+      "return_pct": 11.25078566939032,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.8445815534918146,
+          "description": "Volume increase (1.8x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 48.03092534428606,
+          "description": "RSI in buy zone (48.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 1002.0,
+          "distance_percent": 58.78243512974052,
+          "description": "Far from support (58.8% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 1530.0,
+          "sma_7": 1493.5714285714287,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 9.422283356258596,
+          "description": "Strong momentum (+9.4%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-PUNDIX",
+      "score": 65,
+      "buy_price": 747.1,
+      "sell_price": 816.5,
+      "return_pct": 9.28925177352429,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 5,
+          "volume_ratio": 1.4424873404463265,
+          "description": "Slight volume increase (1.4x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 46.02609727164887,
+          "description": "RSI in buy zone (46.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 481.1,
+          "distance_percent": 55.28996050717107,
+          "description": "Far from support (55.3% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 705.6666666666666,
+          "sma_7": 691.5,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 13.145539906103298,
+          "description": "Very strong momentum (+13.1%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-HUNT",
+      "score": 60,
+      "buy_price": 542.0,
+      "sell_price": 597.7,
+      "return_pct": 10.276752767527682,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 1.0063858480814922,
+          "description": "No volume surge (1.0x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 46.76784710511525,
+          "description": "RSI in buy zone (46.8)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 358.2,
+          "distance_percent": 51.31211613623674,
+          "description": "Far from support (51.3% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 518.0333333333333,
+          "sma_7": 494.45714285714286,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 16.15945135019288,
+          "description": "Very strong momentum (+16.2%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-EGLD",
+      "score": 60,
+      "buy_price": 54280.0,
+      "sell_price": 53800.0,
+      "return_pct": -0.8843036109064112,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.563095450316645,
+          "description": "Volume increase (1.6x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 56.39284315005877,
+          "description": "RSI moderate (56.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 30670.0,
+          "distance_percent": 76.98076296054776,
+          "description": "Far from support (77.0% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 50540.0,
+          "sma_7": 46114.28571428572,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 33.03921568627451,
+          "description": "Very strong momentum (+33.0%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-IOST",
+      "score": 80,
+      "buy_price": 10.35,
+      "sell_price": 11.11,
+      "return_pct": 7.3429951690821245,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 4.441634341407658,
+          "description": "Volume surge 3x (4.4x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 48.880721683929174,
+          "description": "RSI in buy zone (48.9)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 5.883,
+          "distance_percent": 75.93064762876082,
+          "description": "Far from support (75.9% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 9.831333333333333,
+          "sma_7": 9.283285714285713,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 20.531035285897286,
+          "description": "Very strong momentum (+20.5%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-POL",
+      "score": 70,
+      "buy_price": 802.0,
+      "sell_price": 807.0,
+      "return_pct": 0.6234413965087282,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 3.12323879946287,
+          "description": "Volume surge 3x (3.1x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 58.59375,
+          "description": "RSI moderate (58.6)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 405.0,
+          "distance_percent": 98.0246913580247,
+          "description": "Far from support (98.0% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 761.0,
+          "sma_7": 682.7142857142857,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 31.260229132569556,
+          "description": "Very strong momentum (+31.3%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-CVC",
+      "score": 60,
+      "buy_price": 216.0,
+      "sell_price": 244.2,
+      "return_pct": 13.05555555555555,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.8344375841205421,
+          "description": "No volume surge (0.8x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 39.01496861419604,
+          "description": "RSI in buy zone (39.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 158.6,
+          "distance_percent": 36.191677175283736,
+          "description": "Far from support (36.2% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 206.4333333333333,
+          "sma_7": 201.71428571428572,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.996916752312439,
+          "description": "Very strong momentum (+11.0%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-T",
+      "score": 70,
+      "buy_price": 44.0,
+      "sell_price": 46.98,
+      "return_pct": 6.772727272727265,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 2.2028883066226688,
+          "description": "Volume increase (2.2x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 47.08777686628385,
+          "description": "RSI in buy zone (47.1)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 26.66,
+          "distance_percent": 65.04126031507876,
+          "description": "Far from support (65.0% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 40.71666666666667,
+          "sma_7": 39.71142857142858,
+          "up_days": 2,
+          "description": "Strong uptrend (2 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 14.19672982091876,
+          "description": "Very strong momentum (+14.2%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-W",
+      "score": 60,
+      "buy_price": 399.5,
+      "sell_price": 417.7,
+      "return_pct": 4.555694618272838,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.6761848336412812,
+          "description": "No volume surge (0.7x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 46.99264387710947,
+          "description": "RSI in buy zone (47.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 273.4,
+          "distance_percent": 46.12289685442576,
+          "description": "Far from support (46.1% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 368.7,
+          "sma_7": 349.85714285714283,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 28.168110362528076,
+          "description": "Very strong momentum (+28.2%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-ARK",
+      "score": 60,
+      "buy_price": 920.0,
+      "sell_price": 981.7,
+      "return_pct": 6.70652173913044,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.33697764763587484,
+          "description": "No volume surge (0.3x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 42.33193277310924,
+          "description": "RSI in buy zone (42.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 577.2,
+          "distance_percent": 59.39015939015938,
+          "description": "Far from support (59.4% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 871.4333333333334,
+          "sma_7": 850.4428571428572,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 15.490836053226209,
+          "description": "Very strong momentum (+15.5%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-HIVE",
+      "score": 60,
+      "buy_price": 397.4,
+      "sell_price": 421.2,
+      "return_pct": 5.988928032209364,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.6345696691676459,
+          "description": "No volume surge (0.6x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 47.703072710678434,
+          "description": "RSI in buy zone (47.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 230.4,
+          "distance_percent": 72.48263888888887,
+          "description": "Far from support (72.5% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 363.79999999999995,
+          "sma_7": 349.34285714285716,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 22.540857230958977,
+          "description": "Very strong momentum (+22.5%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-CBK",
+      "score": 60,
+      "buy_price": 1130.0,
+      "sell_price": 1203.0,
+      "return_pct": 6.460176991150443,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.2572540412880407,
+          "description": "No volume surge (0.3x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 49.371541015865205,
+          "description": "RSI in buy zone (49.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 673.7,
+          "distance_percent": 67.73044381772301,
+          "description": "Far from support (67.7% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 1099.6666666666667,
+          "sma_7": 1053.857142857143,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 12.326043737574553,
+          "description": "Very strong momentum (+12.3%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-TT",
+      "score": 70,
+      "buy_price": 5.761,
+      "sell_price": 6.675,
+      "return_pct": 15.865301162992532,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.9404628910398178,
+          "description": "Volume increase (1.9x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 43.855944295416926,
+          "description": "RSI in buy zone (43.9)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 4.01,
+          "distance_percent": 43.665835411471335,
+          "description": "Far from support (43.7% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 5.69,
+          "sma_7": 5.464142857142858,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 11.582413325585897,
+          "description": "Very strong momentum (+11.6%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-STORJ",
+      "score": 65,
+      "buy_price": 812.2,
+      "sell_price": 871.7,
+      "return_pct": 7.325781827136173,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 5,
+          "volume_ratio": 1.2553452987300846,
+          "description": "Slight volume increase (1.3x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 49.628071229994745,
+          "description": "RSI in buy zone (49.6)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 564.8,
+          "distance_percent": 43.8031161473088,
+          "description": "Far from support (43.8% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 772.3666666666667,
+          "sma_7": 734.842857142857,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 18.638621092608826,
+          "description": "Very strong momentum (+18.6%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-CKB",
+      "score": 60,
+      "buy_price": 19.7,
+      "sell_price": 21.1,
+      "return_pct": 7.106598984771585,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.6975561487295071,
+          "description": "No volume surge (0.7x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 46.666666666666664,
+          "description": "RSI in buy zone (46.7)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 15.9,
+          "distance_percent": 23.899371069182383,
+          "description": "Far from support (23.9% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 19.206666666666667,
+          "sma_7": 18.822857142857146,
+          "up_days": 2,
+          "description": "Strong uptrend (2 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.736368746486793,
+          "description": "Very strong momentum (+10.7%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-MASK",
+      "score": 60,
+      "buy_price": 4612.0,
+      "sell_price": 4906.0,
+      "return_pct": 6.374674761491761,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.5077039999965715,
+          "description": "No volume surge (0.5x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 37.24983860555197,
+          "description": "RSI in buy zone (37.2)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 3560.0,
+          "distance_percent": 29.55056179775281,
+          "description": "Far from support (29.6% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 4454.0,
+          "sma_7": 4289.142857142857,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 12.077764277035238,
+          "description": "Very strong momentum (+12.1%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-STEEM",
+      "score": 60,
+      "buy_price": 338.1,
+      "sell_price": 370.0,
+      "return_pct": 9.435078379177751,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.5050504405076542,
+          "description": "No volume surge (0.5x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 48.23747680890537,
+          "description": "RSI in buy zone (48.2)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 208.1,
+          "distance_percent": 62.46996636232582,
+          "description": "Far from support (62.5% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 321.6666666666667,
+          "sma_7": 310.2428571428572,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 15.039128955427033,
+          "description": "Very strong momentum (+15.0%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-MED",
+      "score": 60,
+      "buy_price": 15.6,
+      "sell_price": 18.46,
+      "return_pct": 18.33333333333334,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.5950937039427138,
+          "description": "No volume surge (0.6x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 45.524296675191806,
+          "description": "RSI in buy zone (45.5)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 10.43,
+          "distance_percent": 49.56855225311601,
+          "description": "Far from support (49.6% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 14.806666666666667,
+          "sma_7": 14.301428571428572,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 14.959469417833452,
+          "description": "Very strong momentum (+15.0%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-ORBS",
+      "score": 60,
+      "buy_price": 46.07,
+      "sell_price": 50.6,
+      "return_pct": 9.832863034512702,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.950789667675611,
+          "description": "No volume surge (1.0x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 45.5401165396683,
+          "description": "RSI in buy zone (45.5)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 31.34,
+          "distance_percent": 47.000638162093175,
+          "description": "Far from support (47.0% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 44.28,
+          "sma_7": 42.75,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 13.221921848119939,
+          "description": "Very strong momentum (+13.2%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-STG",
+      "score": 60,
+      "buy_price": 485.0,
+      "sell_price": 535.0,
+      "return_pct": 10.309278350515463,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.19213131557618915,
+          "description": "No volume surge (0.2x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 40.05167958656331,
+          "description": "RSI in buy zone (40.1)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 339.0,
+          "distance_percent": 43.067846607669615,
+          "description": "Far from support (43.1% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 467.0,
+          "sma_7": 453.57142857142856,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 13.317757009345794,
+          "description": "Very strong momentum (+13.3%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-QKC",
+      "score": 60,
+      "buy_price": 14.6,
+      "sell_price": 19.29,
+      "return_pct": 32.12328767123287,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.7259632481547414,
+          "description": "No volume surge (0.7x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 39.3258426966292,
+          "description": "RSI in buy zone (39.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 10.7,
+          "distance_percent": 36.44859813084113,
+          "description": "Far from support (36.4% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 14.053333333333333,
+          "sma_7": 13.738571428571428,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 10.606060606060609,
+          "description": "Very strong momentum (+10.6%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-META",
+      "score": 60,
+      "buy_price": 49.73,
+      "sell_price": 56.65,
+      "return_pct": 13.915141765533887,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 0,
+          "volume_ratio": 0.21846946043897708,
+          "description": "No volume surge (0.2x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 48.36911067744633,
+          "description": "RSI in buy zone (48.4)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 31.61,
+          "distance_percent": 57.32363176210059,
+          "description": "Far from support (57.3% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 47.72666666666667,
+          "sma_7": 46.005714285714284,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 14.849884526558894,
+          "description": "Very strong momentum (+14.8%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-ONG",
+      "score": 70,
+      "buy_price": 556.7,
+      "sell_price": 594.2,
+      "return_pct": 6.736123585414046,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.655420347479798,
+          "description": "Volume increase (1.7x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 46.34905434522385,
+          "description": "RSI in buy zone (46.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 361.9,
+          "distance_percent": 53.82702403979002,
+          "description": "Far from support (53.8% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 528.5333333333334,
+          "sma_7": 508.61428571428576,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 16.70859538784068,
+          "description": "Very strong momentum (+16.7%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-ONT",
+      "score": 60,
+      "buy_price": 364.3,
+      "sell_price": 381.3,
+      "return_pct": 4.666483667307164,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.8108291023459724,
+          "description": "Volume increase (1.8x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 56.08188123836916,
+          "description": "RSI moderate (56.1)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 219.2,
+          "distance_percent": 66.19525547445257,
+          "description": "Far from support (66.2% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 349.76666666666665,
+          "sma_7": 331.65714285714284,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 19.796119697467933,
+          "description": "Very strong momentum (+19.8%)"
+        }
+      }
+    },
+    {
+      "date": "2024-11-24",
+      "market": "KRW-POLYX",
+      "score": 60,
+      "buy_price": 477.4,
+      "sell_price": 526.9,
+      "return_pct": 10.368663594470046,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 10,
+          "volume_ratio": 1.71682937976759,
+          "description": "Volume increase (1.7x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 57.9081291013794,
+          "description": "RSI moderate (57.9)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 273.9,
+          "distance_percent": 74.29718875502009,
+          "description": "Far from support (74.3% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 472.8,
+          "sma_7": 455.2714285714286,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 14.319923371647498,
+          "description": "Very strong momentum (+14.3%)"
+        }
+      }
+    },
+    {
+      "date": "2024-12-01",
+      "market": "KRW-MASK",
+      "score": 62,
+      "buy_price": 5255.0,
+      "sell_price": 5865.0,
+      "return_pct": 11.607992388201712,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 5,
+          "volume_ratio": 1.331340598539514,
+          "description": "Slight volume increase (1.3x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 47.49034749034749,
+          "description": "RSI in buy zone (47.5)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 3885.0,
+          "distance_percent": 35.26383526383526,
+          "description": "Far from support (35.3% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 5195.666666666667,
+          "sma_7": 4972.285714285715,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 7.113738279657563,
+          "description": "Strong momentum (+7.1%)"
+        }
+      }
+    },
+    {
+      "date": "2024-12-01",
+      "market": "KRW-BIGTIME",
+      "score": 62,
+      "buy_price": 235.1,
+      "sell_price": 310.9,
+      "return_pct": 32.24159931943853,
+      "success": true,
+      "signals": {
+        "volume": {
+          "score": 5,
+          "volume_ratio": 1.2870216726431194,
+          "description": "Slight volume increase (1.3x)"
+        },
+        "rsi": {
+          "score": 25,
+          "rsi": 45.27046572172403,
+          "description": "RSI in buy zone (45.3)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 180.1,
+          "distance_percent": 30.53858967240422,
+          "description": "Far from support (30.5% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 232.4333333333333,
+          "sma_7": 223.5,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 12,
+          "momentum_percent": 8.440959409594088,
+          "description": "Strong momentum (+8.4%)"
+        }
+      }
+    },
+    {
+      "date": "2024-12-08",
+      "market": "KRW-ZRX",
+      "score": 70,
+      "buy_price": 1067.0,
+      "sell_price": 887.0,
+      "return_pct": -16.869728209934394,
+      "success": false,
+      "signals": {
+        "volume": {
+          "score": 20,
+          "volume_ratio": 4.566033605936169,
+          "description": "Volume surge 3x (4.6x)"
+        },
+        "rsi": {
+          "score": 15,
+          "rsi": 58.025899713898504,
+          "description": "RSI moderate (58.0)"
+        },
+        "support": {
+          "score": 0,
+          "support_level": 565.8,
+          "distance_percent": 88.58253799929305,
+          "description": "Far from support (88.6% above)"
+        },
+        "trend": {
+          "score": 20,
+          "sma_3": 1059.6666666666667,
+          "sma_7": 967.7571428571428,
+          "up_days": 3,
+          "description": "Strong uptrend (3 days)"
+        },
+        "momentum": {
+          "score": 15,
+          "momentum_percent": 14.27653421869979,
+          "description": "Very strong momentum (+14.3%)"
+        }
+      }
+    }
+  ],
+  "summary": {
+    "total_trades": 88,
+    "winning_trades": 65,
+    "losing_trades": 23,
+    "win_rate": 73.86,
+    "avg_return": 5.14,
+    "avg_win": 8.53,
+    "avg_loss": -4.44,
+    "best_trade": {
+      "market": "KRW-HBAR",
+      "return": 35.06
+    },
+    "worst_trade": {
+      "market": "KRW-ZRX",
+      "return": -16.87
+    }
+  }
+}
