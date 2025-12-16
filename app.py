@@ -124,28 +124,12 @@ CONFIG = load_config()
 # Logging Setup
 # ============================================================================
 
-def setup_logging():
-    """Configure structured logging for the application"""
-    log_dir = CONFIG['paths']['logs']
-    os.makedirs(log_dir, exist_ok=True)
+# Import enhanced logging service
+from backend.services.logging_service import setup_logging as setup_enhanced_logging
 
-    log_file = os.path.join(log_dir, f'coinpulse_{datetime.now().strftime("%Y%m%d")}.log')
-
-    logging.basicConfig(
-        level=logging.DEBUG if CONFIG['server']['debug'] else logging.INFO,
-        format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
-        handlers=[
-            logging.FileHandler(log_file, encoding='utf-8'),
-            logging.StreamHandler()
-        ]
-    )
-
-    logger = logging.getLogger(__name__)
-    logger.info(f"Logging initialized - Log file: {log_file}")
-    return logger
-
-
-logger = setup_logging()
+# Note: setup_enhanced_logging will be called after app creation
+# to have access to app instance
+logger = logging.getLogger(__name__)
 
 
 # ============================================================================
@@ -169,11 +153,17 @@ app.config['DATABASE_URL'] = CONFIG['database']['url']
 # CORS setup
 cors_origins = CONFIG['cors']['origins']
 CORS(app, origins=cors_origins, supports_credentials=True)
-logger.info(f"CORS enabled for origins: {cors_origins}")
+
+# Enhanced logging setup (must be done after app creation)
+setup_enhanced_logging(app)
 
 # Performance middleware (gzip compression, caching, logging)
 from backend.middleware.performance import setup_performance_middleware
 setup_performance_middleware(app)
+
+# Security middleware (rate limiting, security headers, input validation)
+from backend.middleware.security import setup_security_middleware
+setup_security_middleware(app)
 
 # ============================================================================
 # WebSocket (SocketIO) Setup - Phase 3
@@ -403,6 +393,20 @@ def init_background_services():
         logger.info("Subscription renewal scheduler started (daily check at 00:00 KST)")
     except Exception as e:
         logger.error(f"Failed to start subscription renewal scheduler: {e}")
+
+    # Initialize backup scheduler (Production Stabilization)
+    try:
+        from backend.services.backup_scheduler import start_backup_scheduler
+
+        backup_scheduler = start_backup_scheduler()
+
+        # Store reference for later use
+        app.backup_scheduler = backup_scheduler
+
+        backup_time = os.getenv('BACKUP_TIME', '02:00')
+        logger.info(f"Database backup scheduler started (daily backup at {backup_time})")
+    except Exception as e:
+        logger.error(f"Failed to start backup scheduler: {e}")
 
 
 # ============================================================================
