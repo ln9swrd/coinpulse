@@ -56,7 +56,7 @@ class Subscription(Base):
     Subscription model
     Represents a user's subscription to a plan
     """
-    __tablename__ = 'subscriptions'
+    __tablename__ = 'user_subscriptions'
     __table_args__ = {'extend_existing': True}
 
     # Primary key
@@ -88,7 +88,6 @@ class Subscription(Base):
     updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    transactions = relationship("Transaction", back_populates="subscription", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Subscription(id={self.id}, user_id={self.user_id}, plan={self.plan.value}, status={self.status.value})>"
@@ -142,7 +141,7 @@ class Transaction(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
 
     # Foreign keys
-    subscription_id = Column(Integer, ForeignKey('subscriptions.id', ondelete='CASCADE'), nullable=True, index=True)
+    subscription_id = Column(Integer, ForeignKey('user_subscriptions.id', ondelete='CASCADE'), nullable=True, index=True)
     user_id = Column(Integer, nullable=False, index=True)
 
     # Transaction details
@@ -174,7 +173,6 @@ class Transaction(Base):
     processed_at = Column(DateTime, nullable=True)
 
     # Relationships
-    subscription = relationship("Subscription", back_populates="transactions")
 
     def __repr__(self):
         return f"<Transaction(id={self.id}, transaction_id={self.transaction_id}, status={self.status.value}, amount={self.amount})>"
