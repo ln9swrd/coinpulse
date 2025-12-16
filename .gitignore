@@ -58,7 +58,23 @@ config.json.backup
 test_*.py
 test_*.html
 temp_*.json
+temp_*.txt
 *_sample.json
+test_results_*.json
+test_output.txt
+
+# API 테스트 응답 파일
+*_response.json
+api_test_*.json
+market_response.json
+
+# 거래 데이터 파일 (런타임 생성)
+active_positions.json
+position_history.json
+all_executions.json
+
+# DigitalOcean 배포 설정
+.do/
 
 # Windows
 Thumbs.db
