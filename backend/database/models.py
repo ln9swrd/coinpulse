@@ -394,6 +394,7 @@ class User(Base):
     email_verifications = relationship('EmailVerification', back_populates='user', cascade='all, delete-orphan')
     password_resets = relationship('PasswordReset', back_populates='user', cascade='all, delete-orphan')
     user_api_keys = relationship('UserAPIKey', back_populates='user', cascade='all, delete-orphan')
+    billing_keys = relationship('BillingKey', back_populates='user', cascade='all, delete-orphan')
 
     def to_dict(self, include_sensitive=False):
         """
@@ -762,3 +763,59 @@ class UserAPIKey(Base):
 
     def __repr__(self):
         return f"<UserAPIKey(id={self.id}, user_id={self.user_id}, name='{self.key_name}')>"
+
+
+class BillingKey(Base):
+    """
+    Billing Key model for Toss Payments recurring payments.
+
+    Stores billing keys for automatic subscription renewals.
+    """
+    __tablename__ = 'billing_keys'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
+    customer_key = Column(String(100), unique=True, nullable=False, index=True, comment='Toss Payments customer key')
+    billing_key = Column(String(100), nullable=False, comment='Toss Payments billing key')
+
+    # Card Information (from billing_data)
+    card_company = Column(String(50), comment='Card issuer company')
+    card_number = Column(String(20), comment='Masked card number')
+    card_type = Column(String(20), comment='신용/체크')
+
+    # Billing Data (raw JSON)
+    billing_data = Column(JSON, comment='Complete billing data from Toss Payments')
+
+    # Status
+    status = Column(String(20), default='active', index=True, comment='active/inactive/expired')
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow, comment='Billing key creation time')
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, comment='Last update time')
+    last_used_at = Column(DateTime, nullable=True, comment='Last payment execution')
+
+    # Relationship
+    user = relationship('User', back_populates='billing_keys')
+
+    # Indexes
+    __table_args__ = (
+        Index('idx_user_status', 'user_id', 'status'),
+    )
+
+    def to_dict(self):
+        """Convert model instance to dictionary."""
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'customer_key': self.customer_key,
+            'billing_key': self.billing_key[:8] + '...' if self.billing_key else None,  # Masked
+            'card_company': self.card_company,
+            'card_number': self.card_number,
+            'card_type': self.card_type,
+            'status': self.status,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'last_used_at': self.last_used_at.isoformat() if self.last_used_at else None
+        }
+
+    def __repr__(self):
+        return f"<BillingKey(id={self.id}, user_id={self.user_id}, customer_key='{self.customer_key}')>"
