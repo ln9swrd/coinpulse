@@ -21,12 +21,12 @@ class EmailService:
         self.smtp_port = int(os.getenv('SMTP_PORT', '587'))
         self.smtp_user = os.getenv('SMTP_USER', '')
         self.smtp_password = os.getenv('SMTP_PASSWORD', '')
-        self.from_email = os.getenv('FROM_EMAIL', 'noreply@coinpulse.com')
-        self.from_name = os.getenv('FROM_NAME', 'CoinPulse')
+        self.from_email = os.getenv('FROM_EMAIL', 'noreply@sinsi.ai')
+        self.from_name = os.getenv('FROM_NAME', '코인펄스')
 
         # Check if in production mode
         self.is_production = os.getenv('ENVIRONMENT', 'development') == 'production'
-        self.base_url = os.getenv('BASE_URL', 'http://localhost:8080')
+        self.base_url = os.getenv('BASE_URL', 'https://coinpulse.sinsi.ai')
 
     def send_email(self, to_email: str, subject: str, html_body: str, text_body: Optional[str] = None) -> bool:
         """
