@@ -53,20 +53,50 @@
                     ⚠️ 베타 테스트 진행 중 | 신용카드 등록 불필요
                 </p>
             </div>
-            <!-- Image removed - files not available
+            <!-- SVG Illustration -->
             <div class="hero-visual">
-                <div class="dashboard-preview">
-                    <img src="images/dashboard-preview.png" alt="코인펄스 대시보드" />
-                </div>
+                <svg width="500" height="400" viewBox="0 0 500 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Trading Chart Background -->
+                    <rect x="50" y="50" width="400" height="300" rx="12" fill="#1a1a2e" stroke="#00ff88" stroke-width="2"/>
+
+                    <!-- Chart Grid -->
+                    <line x1="50" y1="100" x2="450" y2="100" stroke="#333" stroke-width="1" opacity="0.3"/>
+                    <line x1="50" y1="150" x2="450" y2="150" stroke="#333" stroke-width="1" opacity="0.3"/>
+                    <line x1="50" y1="200" x2="450" y2="200" stroke="#333" stroke-width="1" opacity="0.3"/>
+                    <line x1="50" y1="250" x2="450" y2="250" stroke="#333" stroke-width="1" opacity="0.3"/>
+                    <line x1="50" y1="300" x2="450" y2="300" stroke="#333" stroke-width="1" opacity="0.3"/>
+
+                    <!-- Uptrend Line -->
+                    <path d="M 70 280 L 120 250 L 170 230 L 220 200 L 270 180 L 320 150 L 370 120 L 420 100"
+                          stroke="#00ff88" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+                    <!-- Moving Average Line -->
+                    <path d="M 70 290 L 120 270 L 170 250 L 220 230 L 270 210 L 320 180 L 370 150 L 420 130"
+                          stroke="#ffaa00" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.7"/>
+
+                    <!-- Buy/Sell Markers -->
+                    <circle cx="170" cy="230" r="6" fill="#00ff88" opacity="0.8"/>
+                    <text x="165" y="220" fill="#00ff88" font-size="12" font-weight="bold">BUY</text>
+
+                    <circle cx="320" cy="150" r="6" fill="#ff4444" opacity="0.8"/>
+                    <text x="315" y="140" fill="#ff4444" font-size="12" font-weight="bold">SELL</text>
+
+                    <!-- Profit Indicator -->
+                    <text x="360" y="85" fill="#00ff88" font-size="18" font-weight="bold">+24.5%</text>
+
+                    <!-- Robot Icon -->
+                    <g transform="translate(390, 20)">
+                        <rect x="0" y="0" width="40" height="40" rx="8" fill="#00ff88" opacity="0.2"/>
+                        <circle cx="12" cy="15" r="3" fill="#00ff88"/>
+                        <circle cx="28" cy="15" r="3" fill="#00ff88"/>
+                        <path d="M 10 25 Q 20 30 30 25" stroke="#00ff88" stroke-width="2" fill="none"/>
+                    </g>
+                </svg>
             </div>
-            -->
         </div>
     </section>
-    <!-- Stats Section - 실제 데이터 기반 -->
-    <!-- Features Section -->
-    <section id="features" class="features">
-        <div class="container">
-            <div class="section-header">
+    <!-- Stats Section - Temporarily Hidden -->
+    <!--
     <section class="stats">
         <div class="container">
             <div class="stats-grid">
@@ -89,6 +119,11 @@
             </div>
         </div>
     </section>
+    -->
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
                 <h2>핵심 기능</h2>
                 <p>검증된 기술적 분석 지표를 활용한 자동매매 보조 시스템</p>
             </div>
@@ -146,11 +181,11 @@
                 <div class="feature-card">
                     <div class="feature-icon">🔒</div>
                     <h3>안전한 보안</h3>
-                    <p>API 키는 암호화되어 안전하게 보관되며, 출금 권한은 요구하지 않습니다.</p>
+                    <p>API 키는 암호화되어 안전하게 보관되며, 출금 권한은 절대 요구하지 않습니다.</p>
                     <ul class="feature-list">
                         <li>API 키 암호화 저장</li>
-                        <li>읽기/거래 권한만 사용</li>
-                        <li>출금 권한 불필요</li>
+                        <li>거래 권한만 사용</li>
+                        <li>출금 권한 절대 불필요</li>
                     </ul>
                 </div>
             </div>
@@ -230,8 +265,8 @@
                 </div>
             </div>
             <div class="pricing-note">
-                <p>💳 모든 결제는 Toss Payments를 통해 안전하게 처리됩니다</p>
                 <p>⚠️ 베타 테스트 기간 중 요금제는 정식 출시 후 변경될 수 있습니다</p>
+                <p>💰 현재 계좌이체로 결제가 가능합니다</p>
             </div>
         </div>
     </section>
@@ -251,7 +286,7 @@
                 <div class="step-card">
                     <div class="step-number">2</div>
                     <h3>API 연결</h3>
-                    <p>업비트 API 키를 안전하게 연결합니다. 읽기/거래 권한만 필요하며, 출금 권한은 사용하지 않습니다.</p>
+                    <p>업비트에서 발급받은 API 키를 안전하게 연결합니다. 거래 권한만 필요하며, 출금 권한은 절대 사용하지 않습니다.</p>
                 </div>
                 <div class="step-card">
                     <div class="step-number">3</div>
@@ -342,9 +377,11 @@
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2024 코인펄스. All rights reserved.</p>
-                <p class="disclaimer">
-                    ⚠️ <strong>투자 위험 고지</strong>: 암호화폐 거래는 높은 위험을 수반하며 원금 손실 가능성이 있습니다. 
-                    과거 수익률이 미래 수익을 보장하지 않으며, 투자 전 충분한 검토가 필요합니다. 
+            </div>
+            <div class="disclaimer-box" style="max-width: 900px; margin: 30px auto; padding: 25px; background: rgba(255, 68, 68, 0.1); border: 2px solid #ff4444; border-radius: 12px; text-align: center;">
+                <p style="margin: 0; line-height: 1.8; color: #fff;">
+                    ⚠️ <strong style="color: #ff4444;">투자 위험 고지</strong>: 암호화폐 거래는 높은 위험을 수반하며 원금 손실 가능성이 있습니다.
+                    과거 수익률이 미래 수익을 보장하지 않으며, 투자 전 충분한 검토가 필요합니다.
                     본 서비스는 자동매매 보조 도구이며, 최종 투자 결정과 그에 따른 책임은 사용자 본인에게 있습니다.
                     본 서비스는 현재 베타 테스트 단계이며, 정식 출시 전까지 기능 및 요금제가 변경될 수 있습니다.
                 </p>
