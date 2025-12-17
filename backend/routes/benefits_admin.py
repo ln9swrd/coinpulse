@@ -4,9 +4,10 @@ User Benefits Admin API Routes
 """
 from flask import Blueprint, request, jsonify
 from datetime import datetime, timedelta
-from backend.database import db
+from backend.database.connection import get_db_session
 from backend.models.user_benefit import UserBenefit
 from backend.middleware.auth import admin_required
+from sqlalchemy import func, text
 import secrets
 
 benefits_admin_bp = Blueprint('benefits_admin', __name__, url_prefix='/api/admin/benefits')
@@ -15,22 +16,23 @@ benefits_admin_bp = Blueprint('benefits_admin', __name__, url_prefix='/api/admin
 @admin_required
 def get_benefits():
     """혜택 목록 조회 (필터링 가능)"""
+    session = get_db_session()
     try:
         category = request.args.get('category')
         status = request.args.get('status')
         email = request.args.get('email')
-        
-        query = UserBenefit.query
-        
+
+        query = session.query(UserBenefit)
+
         if category:
             query = query.filter_by(category=category)
         if status:
             query = query.filter_by(status=status)
         if email:
             query = query.filter_by(email=email)
-        
+
         benefits = query.order_by(UserBenefit.created_at.desc()).all()
-        
+
         return jsonify({
             'success': True,
             'benefits': [b.to_dict() for b in benefits],
@@ -38,26 +40,29 @@ def get_benefits():
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()
 
 @benefits_admin_bp.route('', methods=['POST'])
 @admin_required
 def create_benefit():
     """새 혜택 생성"""
+    session = get_db_session()
     try:
         data = request.json
-        
+
         # 코드 자동 생성 (제공되지 않은 경우)
         code = data.get('code')
         if not code and data.get('category') == 'coupon':
             code = f"COUP-{secrets.token_hex(4).upper()}"
-        
+
         # 종료일 계산
         end_date = None
         if 'duration_days' in data:
             end_date = datetime.utcnow() + timedelta(days=int(data['duration_days']))
         elif 'end_date' in data:
             end_date = datetime.fromisoformat(data['end_date'].replace('Z', '+00:00'))
-        
+
         # 혜택 생성
         benefit = UserBenefit(
             email=data['email'],
@@ -76,99 +81,108 @@ def create_benefit():
             notes=data.get('notes', ''),
             status='active'
         )
-        
-        db.session.add(benefit)
-        db.session.commit()
-        
+
+        session.add(benefit)
+        session.commit()
+
         return jsonify({
             'success': True,
             'benefit': benefit.to_dict(),
             'message': 'Benefit created successfully'
         })
     except Exception as e:
-        db.session.rollback()
+        session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()
 
 @benefits_admin_bp.route('/<int:benefit_id>', methods=['PUT'])
 @admin_required
 def update_benefit(benefit_id):
     """혜택 수정"""
+    session = get_db_session()
     try:
-        benefit = UserBenefit.query.get(benefit_id)
+        benefit = session.query(UserBenefit).filter_by(id=benefit_id).first()
         if not benefit:
             return jsonify({'success': False, 'error': 'Benefit not found'}), 404
-        
+
         data = request.json
-        
+
         # 업데이트 가능한 필드
         updatable_fields = [
             'title', 'description', 'notes', 'status',
             'benefit_value', 'usage_limit', 'priority',
             'stackable', 'applicable_to'
         ]
-        
+
         for field in updatable_fields:
             if field in data:
                 setattr(benefit, field, data[field])
-        
+
         if 'end_date' in data:
             benefit.end_date = datetime.fromisoformat(data['end_date'].replace('Z', '+00:00'))
-        
-        db.session.commit()
-        
+
+        session.commit()
+
         return jsonify({
             'success': True,
             'benefit': benefit.to_dict(),
             'message': 'Benefit updated successfully'
         })
     except Exception as e:
-        db.session.rollback()
+        session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()
 
 @benefits_admin_bp.route('/<int:benefit_id>', methods=['DELETE'])
 @admin_required
 def delete_benefit(benefit_id):
     """혜택 삭제"""
+    session = get_db_session()
     try:
-        benefit = UserBenefit.query.get(benefit_id)
+        benefit = session.query(UserBenefit).filter_by(id=benefit_id).first()
         if not benefit:
             return jsonify({'success': False, 'error': 'Benefit not found'}), 404
-        
-        db.session.delete(benefit)
-        db.session.commit()
-        
+
+        session.delete(benefit)
+        session.commit()
+
         return jsonify({
             'success': True,
             'message': 'Benefit deleted successfully'
         })
     except Exception as e:
-        db.session.rollback()
+        session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()
 
 @benefits_admin_bp.route('/bulk', methods=['POST'])
 @admin_required
 def bulk_create_benefits():
     """대량 혜택 생성 (프로모션용)"""
+    session = get_db_session()
     try:
         data = request.json
         emails = data.get('emails', [])
-        
+
         if not emails:
             return jsonify({'success': False, 'error': 'No emails provided'}), 400
-        
+
         created = []
-        
+
         for email in emails:
             # 코드 생성
             code = None
             if data.get('generate_codes'):
                 code = f"{data.get('code_prefix', 'PROMO')}-{secrets.token_hex(4).upper()}"
-            
+
             # 종료일 계산
             end_date = None
             if 'duration_days' in data:
                 end_date = datetime.utcnow() + timedelta(days=int(data['duration_days']))
-            
+
             benefit = UserBenefit(
                 email=email,
                 category=data.get('category', 'promotion'),
@@ -183,12 +197,12 @@ def bulk_create_benefits():
                 description=data.get('description', ''),
                 status='active'
             )
-            
-            db.session.add(benefit)
+
+            session.add(benefit)
             created.append(benefit)
-        
-        db.session.commit()
-        
+
+        session.commit()
+
         return jsonify({
             'success': True,
             'created_count': len(created),
@@ -196,50 +210,56 @@ def bulk_create_benefits():
             'message': f'{len(created)} benefits created successfully'
         })
     except Exception as e:
-        db.session.rollback()
+        session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()
 
 @benefits_admin_bp.route('/expire', methods=['POST'])
 @admin_required
 def expire_benefits():
     """만료된 혜택 일괄 처리"""
+    session = get_db_session()
     try:
         # SQL 함수 실행
-        result = db.session.execute(db.text("SELECT expire_user_benefits()"))
+        result = session.execute(text("SELECT expire_user_benefits()"))
         expired_count = result.scalar()
-        db.session.commit()
-        
+        session.commit()
+
         return jsonify({
             'success': True,
             'expired_count': expired_count,
             'message': f'{expired_count} benefits expired'
         })
     except Exception as e:
-        db.session.rollback()
+        session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()
 
 @benefits_admin_bp.route('/stats', methods=['GET'])
 @admin_required
 def get_benefit_stats():
     """혜택 통계"""
+    session = get_db_session()
     try:
-        total = UserBenefit.query.count()
-        active = UserBenefit.query.filter_by(status='active').count()
-        used = UserBenefit.query.filter_by(status='used').count()
-        expired = UserBenefit.query.filter_by(status='expired').count()
-        
+        total = session.query(UserBenefit).count()
+        active = session.query(UserBenefit).filter_by(status='active').count()
+        used = session.query(UserBenefit).filter_by(status='used').count()
+        expired = session.query(UserBenefit).filter_by(status='expired').count()
+
         # 카테고리별
-        by_category = db.session.query(
+        by_category = session.query(
             UserBenefit.category,
-            db.func.count(UserBenefit.id)
+            func.count(UserBenefit.id)
         ).group_by(UserBenefit.category).all()
-        
+
         # 타입별
-        by_type = db.session.query(
+        by_type = session.query(
             UserBenefit.benefit_type,
-            db.func.count(UserBenefit.id)
+            func.count(UserBenefit.id)
         ).group_by(UserBenefit.benefit_type).all()
-        
+
         return jsonify({
             'success': True,
             'stats': {
@@ -253,18 +273,21 @@ def get_benefit_stats():
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()
 
 @benefits_admin_bp.route('/user/<email>', methods=['GET'])
 @admin_required
 def get_user_benefits(email):
     """특정 사용자의 모든 혜택 조회"""
+    session = get_db_session()
     try:
-        benefits = UserBenefit.query.filter_by(email=email).all()
-        active_benefits = UserBenefit.get_active_benefits(email)
-        
+        benefits = session.query(UserBenefit).filter_by(email=email).all()
+        active_benefits = UserBenefit.get_active_benefits(email, session)
+
         # 적용 가능한 총 할인율
-        total_discount = UserBenefit.calculate_total_discount(email)
-        
+        total_discount = UserBenefit.calculate_total_discount(email, session)
+
         return jsonify({
             'success': True,
             'email': email,
@@ -278,3 +301,5 @@ def get_user_benefits(email):
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()

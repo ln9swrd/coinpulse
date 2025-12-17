@@ -3,7 +3,7 @@ Plan Configuration Admin API Routes
 요금제 설정 관리 API
 """
 from flask import Blueprint, request, jsonify
-from backend.database import db
+from backend.database.connection import get_db_session
 from backend.models.plan_config import PlanConfig
 from backend.middleware.auth import admin_required
 
@@ -13,14 +13,15 @@ plan_admin_bp = Blueprint('plan_admin', __name__, url_prefix='/api/admin/plans')
 @admin_required
 def get_plans():
     """모든 플랜 조회 (관리자)"""
+    session = get_db_session()
     try:
         include_inactive = request.args.get('include_inactive', 'false').lower() == 'true'
-        
+
         if include_inactive:
-            plans = PlanConfig.query.order_by(PlanConfig.display_order.asc()).all()
+            plans = session.query(PlanConfig).order_by(PlanConfig.display_order.asc()).all()
         else:
-            plans = PlanConfig.get_active_plans()
-        
+            plans = PlanConfig.get_active_plans(session)
+
         return jsonify({
             'success': True,
             'plans': [p.to_dict() for p in plans],
@@ -28,42 +29,48 @@ def get_plans():
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()
 
 @plan_admin_bp.route('/<plan_code>', methods=['GET'])
 def get_plan(plan_code):
     """특정 플랜 조회 (공개 - 인증 불필요)"""
+    session = get_db_session()
     try:
-        plan = PlanConfig.get_plan_by_code(plan_code)
-        
+        plan = PlanConfig.get_plan_by_code(plan_code, session)
+
         if not plan:
             return jsonify({'success': False, 'error': 'Plan not found'}), 404
-        
+
         if not plan.is_visible:
             return jsonify({'success': False, 'error': 'Plan not available'}), 403
-        
+
         return jsonify({
             'success': True,
             'plan': plan.to_dict()
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()
 
 @plan_admin_bp.route('', methods=['POST'])
 @admin_required
 def create_plan():
     """새 플랜 생성"""
+    session = get_db_session()
     try:
         data = request.json
-        
+
         # 필수 필드 체크
         if 'plan_code' not in data or 'plan_name' not in data:
             return jsonify({'success': False, 'error': 'Missing required fields'}), 400
-        
+
         # 중복 체크
-        existing = PlanConfig.get_plan_by_code(data['plan_code'])
+        existing = PlanConfig.get_plan_by_code(data['plan_code'], session)
         if existing:
             return jsonify({'success': False, 'error': 'Plan code already exists'}), 400
-        
+
         # 플랜 생성
         plan = PlanConfig(
             plan_code=data['plan_code'],
@@ -98,30 +105,33 @@ def create_plan():
             badge_text=data.get('badge_text'),
             cta_text=data.get('cta_text')
         )
-        
-        db.session.add(plan)
-        db.session.commit()
-        
+
+        session.add(plan)
+        session.commit()
+
         return jsonify({
             'success': True,
             'plan': plan.to_dict(),
             'message': 'Plan created successfully'
         }), 201
     except Exception as e:
-        db.session.rollback()
+        session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()
 
 @plan_admin_bp.route('/<int:plan_id>', methods=['PUT'])
 @admin_required
 def update_plan(plan_id):
     """플랜 수정"""
+    session = get_db_session()
     try:
-        plan = PlanConfig.query.get(plan_id)
+        plan = session.query(PlanConfig).filter_by(id=plan_id).first()
         if not plan:
             return jsonify({'success': False, 'error': 'Plan not found'}), 404
-        
+
         data = request.json
-        
+
         # 업데이트 가능한 필드
         updatable_fields = [
             'plan_name', 'plan_name_ko', 'description', 'display_order',
@@ -134,50 +144,56 @@ def update_plan(plan_id):
             'white_labeling', 'sla_guarantee', 'custom_development',
             'is_active', 'is_featured', 'is_visible', 'badge_text', 'cta_text'
         ]
-        
+
         for field in updatable_fields:
             if field in data:
                 setattr(plan, field, data[field])
-        
-        db.session.commit()
-        
+
+        session.commit()
+
         return jsonify({
             'success': True,
             'plan': plan.to_dict(),
             'message': 'Plan updated successfully'
         })
     except Exception as e:
-        db.session.rollback()
+        session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()
 
 @plan_admin_bp.route('/<int:plan_id>', methods=['DELETE'])
 @admin_required
 def delete_plan(plan_id):
     """플랜 삭제 (실제로는 비활성화)"""
+    session = get_db_session()
     try:
-        plan = PlanConfig.query.get(plan_id)
+        plan = session.query(PlanConfig).filter_by(id=plan_id).first()
         if not plan:
             return jsonify({'success': False, 'error': 'Plan not found'}), 404
-        
+
         # 소프트 삭제 (비활성화)
         plan.is_active = False
         plan.is_visible = False
-        db.session.commit()
-        
+        session.commit()
+
         return jsonify({
             'success': True,
             'message': 'Plan deactivated successfully'
         })
     except Exception as e:
-        db.session.rollback()
+        session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()
 
 @plan_admin_bp.route('/public', methods=['GET'])
 def get_public_plans():
     """공개 플랜 목록 (인증 불필요)"""
+    session = get_db_session()
     try:
-        plans = PlanConfig.get_active_plans()
-        
+        plans = PlanConfig.get_active_plans(session)
+
         return jsonify({
             'success': True,
             'plans': [p.to_dict() for p in plans],
@@ -185,13 +201,16 @@ def get_public_plans():
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()
 
 @plan_admin_bp.route('/compare', methods=['GET'])
 def compare_plans():
     """플랜 비교표 데이터 (인증 불필요)"""
+    session = get_db_session()
     try:
-        plans = PlanConfig.get_active_plans()
-        
+        plans = PlanConfig.get_active_plans(session)
+
         # 비교표용 데이터 구조
         comparison = []
         for plan in plans:
@@ -235,44 +254,50 @@ def compare_plans():
                 },
                 'cta': plan.cta_text
             })
-        
+
         return jsonify({
             'success': True,
             'comparison': comparison
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()
 
 @plan_admin_bp.route('/check-limit', methods=['POST'])
 def check_feature_limit():
     """기능 제한 체크 (사용자용)"""
+    session = get_db_session()
     try:
         data = request.json
         plan_code = data.get('plan_code')
         feature = data.get('feature')  # 'coins', 'strategies', 'trades', 'watchlists'
         current_count = data.get('current_count', 0)
-        
+
         if not plan_code or not feature:
             return jsonify({'success': False, 'error': 'Missing required fields'}), 400
-        
-        plan = PlanConfig.get_plan_by_code(plan_code)
+
+        plan = PlanConfig.get_plan_by_code(plan_code, session)
         if not plan:
             return jsonify({'success': False, 'error': 'Plan not found'}), 404
-        
+
         # Mock subscription object
         class MockSubscription:
             def __init__(self, plan_code):
                 self.plan = plan_code
-        
+
         result = PlanConfig.check_feature_limit(
             MockSubscription(plan_code),
             feature,
-            current_count
+            current_count,
+            session
         )
-        
+
         return jsonify({
             'success': True,
             'limit_check': result
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()
