@@ -53,45 +53,11 @@
                     ⚠️ 베타 테스트 진행 중 | 신용카드 등록 불필요
                 </p>
             </div>
-            <!-- SVG Illustration -->
+            <!-- Hero Image - Unsplash (Free to use) -->
             <div class="hero-visual">
-                <svg width="500" height="400" viewBox="0 0 500 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Trading Chart Background -->
-                    <rect x="50" y="50" width="400" height="300" rx="12" fill="#1a1a2e" stroke="#00ff88" stroke-width="2"/>
-
-                    <!-- Chart Grid -->
-                    <line x1="50" y1="100" x2="450" y2="100" stroke="#333" stroke-width="1" opacity="0.3"/>
-                    <line x1="50" y1="150" x2="450" y2="150" stroke="#333" stroke-width="1" opacity="0.3"/>
-                    <line x1="50" y1="200" x2="450" y2="200" stroke="#333" stroke-width="1" opacity="0.3"/>
-                    <line x1="50" y1="250" x2="450" y2="250" stroke="#333" stroke-width="1" opacity="0.3"/>
-                    <line x1="50" y1="300" x2="450" y2="300" stroke="#333" stroke-width="1" opacity="0.3"/>
-
-                    <!-- Uptrend Line -->
-                    <path d="M 70 280 L 120 250 L 170 230 L 220 200 L 270 180 L 320 150 L 370 120 L 420 100"
-                          stroke="#00ff88" stroke-width="3" fill="none" stroke-linecap="round"/>
-
-                    <!-- Moving Average Line -->
-                    <path d="M 70 290 L 120 270 L 170 250 L 220 230 L 270 210 L 320 180 L 370 150 L 420 130"
-                          stroke="#ffaa00" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.7"/>
-
-                    <!-- Buy/Sell Markers -->
-                    <circle cx="170" cy="230" r="6" fill="#00ff88" opacity="0.8"/>
-                    <text x="165" y="220" fill="#00ff88" font-size="12" font-weight="bold">BUY</text>
-
-                    <circle cx="320" cy="150" r="6" fill="#ff4444" opacity="0.8"/>
-                    <text x="315" y="140" fill="#ff4444" font-size="12" font-weight="bold">SELL</text>
-
-                    <!-- Profit Indicator -->
-                    <text x="360" y="85" fill="#00ff88" font-size="18" font-weight="bold">+24.5%</text>
-
-                    <!-- Robot Icon -->
-                    <g transform="translate(390, 20)">
-                        <rect x="0" y="0" width="40" height="40" rx="8" fill="#00ff88" opacity="0.2"/>
-                        <circle cx="12" cy="15" r="3" fill="#00ff88"/>
-                        <circle cx="28" cy="15" r="3" fill="#00ff88"/>
-                        <path d="M 10 25 Q 20 30 30 25" stroke="#00ff88" stroke-width="2" fill="none"/>
-                    </g>
-                </svg>
+                <img src="https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=600&h=450&fit=crop&q=80"
+                     alt="암호화폐 트레이딩 차트"
+                     style="width: 100%; max-width: 600px; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,255,136,0.3);">
             </div>
         </div>
     </section>
@@ -268,6 +234,37 @@
                 <p>⚠️ 베타 테스트 기간 중 요금제는 정식 출시 후 변경될 수 있습니다</p>
                 <p>💰 현재 계좌이체로 결제가 가능합니다</p>
             </div>
+
+            <!-- 요금제 상세 설명 -->
+            <div style="max-width: 900px; margin: 60px auto; padding: 40px; background: rgba(255,255,255,0.05); border-radius: 12px;">
+                <h3 style="text-align: center; margin-bottom: 30px; color: var(--primary-color);">요금제 상세 안내</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; font-size: 14px; line-height: 1.8;">
+                    <div>
+                        <h4 style="color: var(--primary-color); margin-bottom: 10px;">📊 코인 모니터링 개수</h4>
+                        <p>동시에 추적 가능한 암호화폐 수를 의미합니다. 무료는 1개, 프리미엄 3개, 프로 5개까지 설정할 수 있습니다.</p>
+                    </div>
+                    <div>
+                        <h4 style="color: var(--primary-color); margin-bottom: 10px;">🤖 자동매매 전략</h4>
+                        <p>동시에 실행 가능한 자동매매 전략의 수입니다. 서버 리소스 관리를 위해 요금제별로 제한됩니다.</p>
+                    </div>
+                    <div>
+                        <h4 style="color: var(--primary-color); margin-bottom: 10px;">💾 데이터 내보내기</h4>
+                        <p>거래 내역과 분석 데이터를 CSV/JSON 파일로 다운로드할 수 있습니다.</p>
+                    </div>
+                    <div>
+                        <h4 style="color: var(--primary-color); margin-bottom: 10px;">🔌 API 접근</h4>
+                        <p>RESTful API를 통해 외부 프로그램이나 커스텀 도구와 연동할 수 있습니다.</p>
+                    </div>
+                    <div>
+                        <h4 style="color: var(--primary-color); margin-bottom: 10px;">💬 지원 수준</h4>
+                        <p><strong>커뮤니티</strong>: Discord 채널 / <strong>이메일</strong>: 24-48시간 답변 / <strong>우선</strong>: 12시간 내 답변 / <strong>전담</strong>: 1:1 전용 상담사</p>
+                    </div>
+                    <div>
+                        <h4 style="color: var(--primary-color); margin-bottom: 10px;">🎁 무료 체험</h4>
+                        <p>7일간 프리미엄 기능을 무료로 체험할 수 있습니다. 신용카드 등록 불필요합니다.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
     <!-- How It Works -->
@@ -282,16 +279,25 @@
                     <div class="step-number">1</div>
                     <h3>계정 생성</h3>
                     <p>이메일로 간단하게 가입하고 7일 무료 체험을 시작하세요. 신용카드 등록이 필요 없습니다.</p>
+                    <a href="signup.html" style="display: inline-block; margin-top: 15px; color: var(--primary-color); text-decoration: none; font-weight: 600;">
+                        지금 가입하기 →
+                    </a>
                 </div>
                 <div class="step-card">
                     <div class="step-number">2</div>
                     <h3>API 연결</h3>
                     <p>업비트에서 발급받은 API 키를 안전하게 연결합니다. 거래 권한만 필요하며, 출금 권한은 절대 사용하지 않습니다.</p>
+                    <a href="docs.html#api-setup" style="display: inline-block; margin-top: 15px; color: var(--primary-color); text-decoration: none; font-weight: 600;">
+                        API 설정 가이드 →
+                    </a>
                 </div>
                 <div class="step-card">
                     <div class="step-number">3</div>
                     <h3>전략 설정</h3>
                     <p>원하는 코인과 거래 전략을 선택하면 자동으로 시작됩니다. 언제든지 설정을 변경할 수 있습니다.</p>
+                    <a href="docs.html#auto-trading" style="display: inline-block; margin-top: 15px; color: var(--primary-color); text-decoration: none; font-weight: 600;">
+                        전략 가이드 보기 →
+                    </a>
                 </div>
             </div>
         </div>

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시작 가이드 - 코인펄스</title>
+    <link rel="stylesheet" href="css/landing.css">
+    <style>
+        body {
+            min-height: 100vh;
+        }
+        .tutorial-container {
+            max-width: 1200px;
+            margin: 80px auto;
+            padding: 40px;
+        }
+        .tutorial-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .tutorial-header h1 {
+            font-size: 36px;
+            margin-bottom: 15px;
+        }
+        .tutorial-header p {
+            font-size: 18px;
+            color: var(--text-secondary);
+        }
+        .tutorial-section {
+            margin-bottom: 80px;
+        }
+        .tutorial-section h2 {
+            font-size: 28px;
+            margin-bottom: 30px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .step-badge {
+            background: var(--primary-color);
+            color: var(--background-dark);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+        }
+        .tutorial-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+        @media (max-width: 768px) {
+            .tutorial-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        .tutorial-text {
+            padding: 30px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+        }
+        .tutorial-text h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        .tutorial-text ol, .tutorial-text ul {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+        .tutorial-text li {
+            margin-bottom: 12px;
+            line-height: 1.8;
+        }
+        .tutorial-text .note {
+            background: rgba(0,255,136,0.1);
+            border-left: 4px solid var(--primary-color);
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .tutorial-text .warning {
+            background: rgba(255,68,68,0.1);
+            border-left: 4px solid #ff4444;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .tutorial-visual {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 30px;
+            border: 2px solid rgba(0,255,136,0.2);
+        }
+        .mock-screen {
+            background: #0a0e27;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .mock-input {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            width: 100%;
+            font-family: inherit;
+        }
+        .mock-button {
+            background: var(--primary-color);
+            color: var(--background-dark);
+            padding: 12px 24px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+        .mock-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .screenshot-placeholder {
+            background: linear-gradient(135deg, #1a1f3a 0%, #0a0e27 100%);
+            border: 2px dashed rgba(0,255,136,0.3);
+            border-radius: 8px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        .api-key-example {
+            font-family: 'Courier New', monospace;
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .dashboard-preview {
+            background: #0a0e27;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        .dashboard-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        .stat-value {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1 class="logo"><a href="index.html" style="color: var(--primary-color); text-decoration: none;">코인펄스</a></h1>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html">홈</a>
+                <a href="docs.html">가이드</a>
+                <a href="faq.html">FAQ</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="tutorial-container">
+        <div class="tutorial-header">
+            <h1>코인펄스 시작 가이드</h1>
+            <p>3단계로 자동매매를 시작하는 방법을 알려드립니다</p>
+        </div>
+
+        <!-- Step 1: 계정 생성 -->
+        <div class="tutorial-section">
+            <h2><span class="step-badge">1</span>계정 생성</h2>
+            <div class="tutorial-content">
+                <div class="tutorial-text">
+                    <h3>📝 가입 절차</h3>
+                    <ol>
+                        <li><strong>회원가입 페이지 접속</strong><br>
+                        코인펄스 홈페이지에서 "시작하기" 버튼 클릭</li>
+
+                        <li><strong>이메일 주소 입력</strong><br>
+                        유효한 이메일 주소를 입력합니다 (인증 메일을 받을 수 있는 주소)</li>
+
+                        <li><strong>비밀번호 설정</strong><br>
+                        8자 이상, 영문+숫자+특수문자 조합으로 안전한 비밀번호를 만듭니다</li>
+
+                        <li><strong>이메일 인증</strong><br>
+                        받은 인증 메일의 링크를 클릭하여 계정을 활성화합니다</li>
+
+                        <li><strong>7일 무료 체험 시작</strong><br>
+                        신용카드 등록 없이 바로 프리미엄 기능을 사용할 수 있습니다</li>
+                    </ol>
+
+                    <div class="note">
+                        <strong>💡 알아두세요</strong><br>
+                        • 신용카드 등록이 필요 없습니다<br>
+                        • 7일 후 자동 결제되지 않습니다<br>
+                        • 체험 기간 중 언제든 해지 가능합니다
+                    </div>
+                </div>
+
+                <div class="tutorial-visual">
+                    <h3 style="margin-bottom: 20px; color: var(--primary-color);">🖥️ 회원가입 화면</h3>
+                    <div class="mock-screen">
+                        <label class="mock-label">이메일 주소</label>
+                        <input type="email" class="mock-input" placeholder="example@email.com" readonly>
+
+                        <label class="mock-label">비밀번호</label>
+                        <input type="password" class="mock-input" placeholder="8자 이상 (영문+숫자+특수문자)" readonly>
+
+                        <label class="mock-label">비밀번호 확인</label>
+                        <input type="password" class="mock-input" placeholder="비밀번호 재입력" readonly>
+
+                        <button class="mock-button" style="margin-top: 20px;">7일 무료 체험 시작</button>
+                    </div>
+                    <p style="text-align: center; color: var(--text-secondary); font-size: 14px; margin-top: 15px;">
+                        ✓ 신용카드 등록 불필요
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: API 연결 -->
+        <div class="tutorial-section">
+            <h2><span class="step-badge">2</span>업비트 API 연결</h2>
+            <div class="tutorial-content">
+                <div class="tutorial-text">
+                    <h3>🔑 API 키 발급 방법</h3>
+                    <ol>
+                        <li><strong>업비트 로그인</strong><br>
+                        업비트 웹사이트 (upbit.com)에 로그인합니다</li>
+
+                        <li><strong>고객센터 → Open API 관리 메뉴</strong><br>
+                        상단 메뉴에서 "고객센터 → Open API 관리"를 클릭합니다</li>
+
+                        <li><strong>Open API 키 발급</strong><br>
+                        "Open API 키 발급" 버튼을 클릭합니다</li>
+
+                        <li><strong>권한 설정</strong><br>
+                        • ✅ 자산 조회<br>
+                        • ✅ 주문 조회<br>
+                        • ✅ 주문하기<br>
+                        • ❌ 출금 (체크 해제 필수!)</li>
+
+                        <li><strong>Access Key와 Secret Key 복사</strong><br>
+                        발급된 키를 안전한 곳에 복사해둡니다</li>
+
+                        <li><strong>코인펄스에 등록</strong><br>
+                        대시보드의 "API 설정" 메뉴에서 키를 등록합니다</li>
+                    </ol>
+
+                    <div class="warning">
+                        <strong>⚠️ 보안 주의사항</strong><br>
+                        • 출금 권한은 절대 체크하지 마세요<br>
+                        • API 키는 다른 사람과 공유하지 마세요<br>
+                        • 주기적으로 키를 재발급하세요
+                    </div>
+                </div>
+
+                <div class="tutorial-visual">
+                    <h3 style="margin-bottom: 20px; color: var(--primary-color);">🔐 API 키 등록 화면</h3>
+                    <div class="mock-screen">
+                        <label class="mock-label">Access Key</label>
+                        <input type="text" class="mock-input" placeholder="예: aBcD1234EfGh5678..." readonly>
+
+                        <label class="mock-label">Secret Key</label>
+                        <input type="password" class="mock-input" placeholder="예: xYz9876WvUt5432..." readonly>
+
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(255,68,68,0.1); border-radius: 6px;">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" disabled style="width: 20px; height: 20px;">
+                                <span>출금 권한 제외 확인 (필수)</span>
+                            </label>
+                        </div>
+
+                        <button class="mock-button">API 키 저장</button>
+                    </div>
+
+                    <div class="api-key-example">
+                        <strong>✓ 올바른 권한 설정:</strong><br>
+                        [✓] 자산 조회<br>
+                        [✓] 주문 조회<br>
+                        [✓] 주문하기<br>
+                        [✗] 출금
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: 전략 설정 -->
+        <div class="tutorial-section">
+            <h2><span class="step-badge">3</span>자동매매 전략 설정</h2>
+            <div class="tutorial-content">
+                <div class="tutorial-text">
+                    <h3>⚙️ 전략 설정 방법</h3>
+                    <ol>
+                        <li><strong>대시보드 접속</strong><br>
+                        로그인 후 대시보드 메뉴로 이동합니다</li>
+
+                        <li><strong>모니터링할 코인 선택</strong><br>
+                        BTC, ETH, XRP 등 원하는 암호화폐를 선택합니다<br>
+                        (무료 체험: 1개, 프리미엄: 3개, 프로: 5개)</li>
+
+                        <li><strong>기술적 지표 설정</strong><br>
+                        • 이동평균선 (MA20, MA60, MA200)<br>
+                        • RSI (상대강도지수)<br>
+                        • MACD (이동평균 수렴확산)<br>
+                        • 볼린저 밴드</li>
+
+                        <li><strong>매매 조건 설정</strong><br>
+                        • 매수 조건: RSI < 30, 골든크로스 등<br>
+                        • 매도 조건: RSI > 70, 데드크로스 등<br>
+                        • 손절/익절 비율 설정</li>
+
+                        <li><strong>투자 금액 설정</strong><br>
+                        코인당 투자할 금액을 설정합니다 (최소 5,000원)</li>
+
+                        <li><strong>자동매매 시작</strong><br>
+                        "자동매매 시작" 버튼을 클릭하면 24시간 모니터링이 시작됩니다</li>
+                    </ol>
+
+                    <div class="note">
+                        <strong>💡 초보자 추천 설정</strong><br>
+                        • 코인: BTC 또는 ETH (변동성 낮음)<br>
+                        • 투자금: 총 자산의 10% 이하<br>
+                        • 손절: -5%, 익절: +10%<br>
+                        • 지표: RSI + MA20/60 조합
+                    </div>
+                </div>
+
+                <div class="tutorial-visual">
+                    <h3 style="margin-bottom: 20px; color: var(--primary-color);">📊 전략 설정 화면</h3>
+                    <div class="mock-screen">
+                        <label class="mock-label">모니터링 코인</label>
+                        <select class="mock-input" disabled>
+                            <option>BTC (비트코인)</option>
+                        </select>
+
+                        <label class="mock-label">투자 금액 (KRW)</label>
+                        <input type="number" class="mock-input" placeholder="예: 100000" readonly>
+
+                        <label class="mock-label">손절 비율 (%)</label>
+                        <input type="number" class="mock-input" value="-5" readonly>
+
+                        <label class="mock-label">익절 비율 (%)</label>
+                        <input type="number" class="mock-input" value="10" readonly>
+
+                        <button class="mock-button" style="margin-top: 20px;">자동매매 시작</button>
+                    </div>
+
+                    <div class="dashboard-preview">
+                        <h4 style="margin-bottom: 15px; color: var(--primary-color); font-size: 14px;">실시간 모니터링 대시보드</h4>
+                        <div class="dashboard-stat">
+                            <span class="stat-label">현재 포지션</span>
+                            <span class="stat-value">보유 중</span>
+                        </div>
+                        <div class="dashboard-stat">
+                            <span class="stat-label">수익률</span>
+                            <span class="stat-value" style="color: #00ff88;">+8.5%</span>
+                        </div>
+                        <div class="dashboard-stat">
+                            <span class="stat-label">총 거래</span>
+                            <span class="stat-value">12회</span>
+                        </div>
+                        <div class="dashboard-stat">
+                            <span class="stat-label">승률</span>
+                            <span class="stat-value">75%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 추가 도움말 -->
+        <div style="background: rgba(0,255,136,0.05); border: 2px solid var(--primary-color); border-radius: 12px; padding: 40px; text-align: center; margin-top: 60px;">
+            <h2 style="margin-bottom: 20px;">🎉 설정 완료!</h2>
+            <p style="font-size: 18px; color: var(--text-secondary); margin-bottom: 30px;">
+                이제 코인펄스가 24시간 시장을 모니터링하며<br>
+                설정한 조건에 따라 자동으로 매매를 실행합니다
+            </p>
+            <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                <a href="dashboard.html" class="btn-primary-large">대시보드 가기</a>
+                <a href="docs.html" class="btn-secondary-large">상세 가이드 보기</a>
+                <a href="faq.html" class="btn-secondary-large">FAQ 보기</a>
+            </div>
+        </div>
+
+        <!-- 자주 묻는 질문 -->
+        <div style="margin-top: 80px;">
+            <h2 style="text-align: center; margin-bottom: 40px;">자주 묻는 질문</h2>
+            <div style="display: grid; gap: 20px; max-width: 800px; margin: 0 auto;">
+                <div style="background: rgba(255,255,255,0.05); padding: 25px; border-radius: 8px;">
+                    <h3 style="color: var(--primary-color); margin-bottom: 10px;">Q. API 키를 잘못 입력하면 어떻게 되나요?</h3>
+                    <p style="color: var(--text-secondary);">A. 연결 테스트가 실패하며 거래가 시작되지 않습니다. 언제든 다시 입력할 수 있습니다.</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 25px; border-radius: 8px;">
+                    <h3 style="color: var(--primary-color); margin-bottom: 10px;">Q. 자동매매 중에도 수동으로 거래할 수 있나요?</h3>
+                    <p style="color: var(--text-secondary);">A. 네, 가능합니다. 다만 자동매매와 수동 거래가 겹치지 않도록 주의하세요.</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 25px; border-radius: 8px;">
+                    <h3 style="color: var(--primary-color); margin-bottom: 10px;">Q. 언제든지 자동매매를 중지할 수 있나요?</h3>
+                    <p style="color: var(--text-secondary);">A. 네, 대시보드에서 "중지" 버튼을 클릭하면 즉시 중지됩니다. 보유 중인 코인은 그대로 유지됩니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer style="background: #1a1a2e; border-top: 1px solid #333; padding: 40px 20px; margin-top: 80px;">
+        <div style="max-width: 1200px; margin: 0 auto; text-align: center; color: #888;">
+            <p>&copy; 2024 코인펄스. All rights reserved.</p>
+            <div style="margin-top: 20px;">
+                <a href="index.html" style="color: #888; margin: 0 10px;">홈</a>
+                <a href="terms.html" style="color: #888; margin: 0 10px;">이용약관</a>
+                <a href="privacy.html" style="color: #888; margin: 0 10px;">개인정보처리방침</a>
+                <a href="contact.html" style="color: #888; margin: 0 10px;">문의하기</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
