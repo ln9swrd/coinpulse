@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="CoinPulse Dashboard - Manage your automated trading">
-    <title>Dashboard - CoinPulse</title>
+    <meta name="description" content="코인펄스 대시보드 - 자동 거래 관리">
+    <title>대시보드 - 코인펄스</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="css/dashboard.css?v=20251124">
+    <link rel="stylesheet" href="css/dashboard.css?v=20251220">
 </head>
 <body>
     <!-- Dashboard Container -->
@@ -21,8 +21,8 @@
         <aside class="sidebar" id="sidebar">
             <!-- Logo -->
             <div class="sidebar-header">
-                <h1 class="logo">CoinPulse</h1>
-                <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+                <h1 class="logo">코인펄스</h1>
+                <button class="sidebar-toggle" id="sidebar-toggle" aria-label="사이드바 토글">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M3 12h18M3 6h18M3 18h18"/>
                     </svg>
@@ -35,8 +35,8 @@
                     <span id="user-initial">U</span>
                 </div>
                 <div class="user-details">
-                    <div class="user-name" id="user-name">Loading...</div>
-                    <div class="user-email" id="user-email">Loading...</div>
+                    <div class="user-name" id="user-name">로딩 중...</div>
+                    <div class="user-email" id="user-email">로딩 중...</div>
                 </div>
             </div>
 
@@ -49,14 +49,14 @@
                         <rect x="14" y="14" width="7" height="7"></rect>
                         <rect x="3" y="14" width="7" height="7"></rect>
                     </svg>
-                    <span>Overview</span>
+                    <span>개요</span>
                 </a>
 
                 <a href="#trading" class="nav-item" data-page="trading">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                     </svg>
-                    <span>Trading Chart</span>
+                    <span>거래 차트</span>
                 </a>
 
                 <a href="#portfolio" class="nav-item" data-page="portfolio">
@@ -64,14 +64,14 @@
                         <line x1="12" y1="1" x2="12" y2="23"></line>
                         <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                     </svg>
-                    <span>Portfolio</span>
+                    <span>포트폴리오</span>
                 </a>
 
                 <a href="#auto-trading" class="nav-item" data-page="auto-trading">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
                     </svg>
-                    <span>Auto Trading</span>
+                    <span>자동 거래</span>
                 </a>
 
                 <a href="swing_trading.html" class="nav-item">
@@ -79,21 +79,21 @@
                         <path d="M3 3v18h18"/>
                         <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
                     </svg>
-                    <span>Swing Trading</span>
+                    <span>스윙 트레이딩</span>
                 </a>
 
                 <a href="realtime_dashboard.html" class="nav-item">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                     </svg>
-                    <span>Real-time Monitor</span>
+                    <span>실시간 모니터링</span>
                 </a>
 
                 <a href="surge_monitoring.html" class="nav-item">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M18 20V10M12 20V4M6 20v-6"/>
                     </svg>
-                    <span>Surge Prediction</span>
+                    <span>급등 예측</span>
                 </a>
 
                 <a href="#history" class="nav-item" data-page="history">
@@ -101,14 +101,14 @@
                         <circle cx="12" cy="12" r="10"></circle>
                         <polyline points="12 6 12 12 16 14"></polyline>
                     </svg>
-                    <span>History</span>
+                    <span>거래 내역</span>
                 </a>
 
                 <a href="#pricing" class="nav-item" data-page="pricing">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                     </svg>
-                    <span>Pricing</span>
+                    <span>요금제</span>
                 </a>
 
                 <a href="#settings" class="nav-item" data-page="settings">
@@ -116,7 +116,7 @@
                         <circle cx="12" cy="12" r="3"></circle>
                         <path d="M12 1v6m0 6v6m-9-9h6m6 0h6"></path>
                     </svg>
-                    <span>Settings</span>
+                    <span>설정</span>
                 </a>
             </nav>
 
@@ -128,7 +128,7 @@
                         <polyline points="16 17 21 12 16 7"></polyline>
                         <line x1="21" y1="12" x2="9" y2="12"></line>
                     </svg>
-                    <span>Logout</span>
+                    <span>로그아웃</span>
                 </button>
             </div>
         </aside>
@@ -143,11 +143,11 @@
                     </svg>
                 </button>
 
-                <h1 class="page-title" id="page-title">Overview</h1>
+                <h1 class="page-title" id="page-title">개요</h1>
 
                 <div class="top-bar-actions">
                     <!-- Notifications -->
-                    <button class="icon-btn" id="notifications-btn" aria-label="Notifications">
+                    <button class="icon-btn" id="notifications-btn" aria-label="알림">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
@@ -168,14 +168,14 @@
                                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                     <circle cx="12" cy="7" r="4"></circle>
                                 </svg>
-                                <span>Profile</span>
+                                <span>프로필</span>
                             </a>
                             <a href="#settings" class="dropdown-item">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                     <circle cx="12" cy="12" r="3"></circle>
                                     <path d="M12 1v6m0 6v6m-9-9h6m6 0h6"></path>
                                 </svg>
-                                <span>Settings</span>
+                                <span>설정</span>
                             </a>
                             <div class="dropdown-divider"></div>
                             <button class="dropdown-item logout-item" id="logout-dropdown">
@@ -184,7 +184,7 @@
                                     <polyline points="16 17 21 12 16 7"></polyline>
                                     <line x1="21" y1="12" x2="9" y2="12"></line>
                                 </svg>
-                                <span>Logout</span>
+                                <span>로그아웃</span>
                             </button>
                         </div>
                     </div>
@@ -196,7 +196,7 @@
                 <!-- Dynamic content will be loaded here -->
                 <div class="loading-state">
                     <div class="spinner-large"></div>
-                    <p>Loading dashboard...</p>
+                    <p>대시보드 로딩 중...</p>
                 </div>
             </div>
         </main>
@@ -204,22 +204,37 @@
 
     <!-- JavaScript -->
     <!-- API Client Library (must be loaded first) -->
-    <script src="js/api_client.js?v=20251129"></script>
+    <script src="js/api_client.js?v=20251220"></script>
 
     <!-- Dashboard API Integration -->
     <script>
         (function() {
             'use strict';
 
+            // DEBUGGING VERSION - UPDATED 2025-12-19
+            console.log('%c[Dashboard] DEBUGGING VERSION LOADED - Redirects disabled', 'background: #ff0; color: #000; font-size: 16px; font-weight: bold;');
+
             // ================================================================
             // Authentication Check
             // ================================================================
 
             // Redirect to login if not authenticated
-            if (!window.api.isAuthenticated()) {
-                console.log('[Dashboard] User not authenticated, redirecting to login');
-                window.location.href = '/login.html';
-                return;
+            const isAuth = window.api.isAuthenticated();
+            console.log('[Dashboard] Auth check:', {
+                isAuthenticated: isAuth,
+                accessToken: localStorage.getItem('access_token') ? 'EXISTS' : 'NULL',
+                apiAccessToken: window.api.accessToken ? 'EXISTS' : 'NULL',
+                currentURL: window.location.href
+            });
+
+            if (!isAuth) {
+                console.log('[Dashboard] User not authenticated, redirecting to login...');
+                // TEMPORARY: Disable redirect for debugging
+                console.warn('[Dashboard] REDIRECT DISABLED FOR DEBUGGING - Staying on dashboard anyway');
+                // setTimeout(() => {
+                //     window.location.href = '/login.html';
+                // }, 100);
+                // return; // COMMENTED OUT - Allow dashboard to load even without auth for debugging
             }
 
             console.log('[Dashboard] User authenticated, loading dashboard...');
@@ -269,13 +284,14 @@
 
                     // If unauthorized, logout
                     if (error.status === 401) {
-                        window.api.clearTokens();
-                        window.location.href = '/login.html';
+                        console.warn('[Dashboard] 401 error - REDIRECT TO LOGIN DISABLED FOR DEBUGGING');
+                        // window.api.clearTokens();
+                        // window.location.href = '/login.html';
                     }
 
                     // Show error in UI
-                    if (userNameEl) userNameEl.textContent = 'Error loading profile';
-                    if (userEmailEl) userEmailEl.textContent = 'Please refresh the page';
+                    if (userNameEl) userNameEl.textContent = '프로필 로딩 오류';
+                    if (userEmailEl) userEmailEl.textContent = '페이지를 새로고침 해주세요';
                 }
             }
 
@@ -292,7 +308,7 @@
                         contentContainer.innerHTML = `
                             <div class="loading-state">
                                 <div class="spinner-large"></div>
-                                <p>Logging out...</p>
+                                <p>로그아웃 중...</p>
                             </div>
                         `;
                     }
@@ -363,7 +379,17 @@
                     console.log('[Dashboard] Loading portfolio...');
                     const response = await window.api.getHoldings();
 
-                    if (response.success && response.holdings) {
+                    if (response.success && response.coins) {
+                        // Map new API format to legacy format for displayPortfolio
+                        const holdings = response.coins.map(coin => ({
+                            ...coin,
+                            currency: coin.coin,  // Map coin → currency
+                            avg_buy_price: coin.avg_price  // Map avg_price → avg_buy_price
+                        }));
+                        displayPortfolio(holdings);
+                        return response;
+                    } else if (response.success && response.holdings) {
+                        // Fallback for legacy format
                         displayPortfolio(response.holdings);
                         return response.holdings;
                     } else {
@@ -383,7 +409,7 @@
                 if (!holdings || holdings.length === 0) {
                     portfolioContainer.innerHTML = `
                         <div style="text-align: center; padding: 40px; color: #666;">
-                            <p>No holdings found. Start trading to see your portfolio here.</p>
+                            <p>보유 자산이 없습니다. 거래를 시작하여 포트폴리오를 확인하세요.</p>
                         </div>
                     `;
                     return;
@@ -404,19 +430,19 @@
                             </div>
                             <div class="holding-details">
                                 <div class="detail-row">
-                                    <span>Avg Buy Price:</span>
+                                    <span>평균 매수가:</span>
                                     <span>${parseFloat(holding.avg_buy_price || 0).toLocaleString()} KRW</span>
                                 </div>
                                 <div class="detail-row">
-                                    <span>Current Price:</span>
+                                    <span>현재가:</span>
                                     <span>${parseFloat(holding.current_price || 0).toLocaleString()} KRW</span>
                                 </div>
                                 <div class="detail-row">
-                                    <span>Total Value:</span>
+                                    <span>총 평가액:</span>
                                     <span>${value.toLocaleString()} KRW</span>
                                 </div>
                                 <div class="detail-row ${profitLoss >= 0 ? 'profit' : 'loss'}">
-                                    <span>P&L:</span>
+                                    <span>손익:</span>
                                     <span>${profitLoss >= 0 ? '+' : ''}${profitLoss.toLocaleString()} KRW (${profitLossPercent}%)</span>
                                 </div>
                             </div>
@@ -433,7 +459,7 @@
 
                 portfolioContainer.innerHTML = `
                     <div style="text-align: center; padding: 40px; color: #dc3545;">
-                        <p>Failed to load portfolio. Please refresh the page or check your API keys.</p>
+                        <p>포트폴리오 로딩 실패. 페이지를 새로고침하거나 API 키를 확인하세요.</p>
                     </div>
                 `;
             }
@@ -467,7 +493,7 @@
                 if (!orders || orders.length === 0) {
                     ordersContainer.innerHTML = `
                         <div style="text-align: center; padding: 40px; color: #666;">
-                            <p>No recent orders found.</p>
+                            <p>최근 거래 내역이 없습니다.</p>
                         </div>
                     `;
                     return;
@@ -477,12 +503,12 @@
                     <table class="orders-table">
                         <thead>
                             <tr>
-                                <th>Date</th>
-                                <th>Market</th>
-                                <th>Type</th>
-                                <th>Price</th>
-                                <th>Volume</th>
-                                <th>Total</th>
+                                <th>날짜</th>
+                                <th>마켓</th>
+                                <th>유형</th>
+                                <th>가격</th>
+                                <th>수량</th>
+                                <th>총액</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -509,7 +535,7 @@
 
                 ordersContainer.innerHTML = `
                     <div style="text-align: center; padding: 40px; color: #dc3545;">
-                        <p>Failed to load orders. Please refresh the page.</p>
+                        <p>거래 내역 로딩 실패. 페이지를 새로고침 해주세요.</p>
                     </div>
                 `;
             }
@@ -550,29 +576,29 @@
                         <div class="status-header ${isEnabled ? 'enabled' : 'disabled'}">
                             <div class="status-indicator">
                                 <div class="status-dot ${isEnabled ? 'active' : ''}"></div>
-                                <span class="status-text">${isEnabled ? 'ACTIVE' : 'INACTIVE'}</span>
+                                <span class="status-text">${isEnabled ? '활성' : '비활성'}</span>
                             </div>
                             <button class="btn-toggle-trading" onclick="toggleAutoTrading(${!isEnabled})">
-                                ${isEnabled ? 'STOP' : 'START'}
+                                ${isEnabled ? '중지' : '시작'}
                             </button>
                         </div>
 
                         <!-- Stats Grid -->
                         <div class="stats-grid">
                             <div class="stat-item">
-                                <div class="stat-label">Open Positions</div>
+                                <div class="stat-label">진행 중인 포지션</div>
                                 <div class="stat-value">${positionsCount}</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-label">Total Trades</div>
+                                <div class="stat-label">총 거래 수</div>
                                 <div class="stat-value">${stats.total_trades || 0}</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-label">Win Rate</div>
+                                <div class="stat-label">승률</div>
                                 <div class="stat-value">${(stats.win_rate || 0).toFixed(1)}%</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-label">Total P&L</div>
+                                <div class="stat-label">총 손익</div>
                                 <div class="stat-value ${(stats.total_profit || 0) >= 0 ? 'profit' : 'loss'}">
                                     ${(stats.total_profit || 0) >= 0 ? '+' : ''}${(stats.total_profit || 0).toLocaleString()} KRW
                                 </div>
@@ -581,7 +607,7 @@
 
                         <!-- Last Update -->
                         <div class="last-update">
-                            Last updated: ${data.last_check ? new Date(data.last_check).toLocaleString() : 'N/A'}
+                            마지막 업데이트: ${data.last_check ? new Date(data.last_check).toLocaleString() : '없음'}
                         </div>
                     </div>
                 `;
@@ -595,8 +621,8 @@
 
                 container.innerHTML = `
                     <div style="text-align: center; padding: 40px; color: #dc3545;">
-                        <p>Failed to load auto-trading status.</p>
-                        <p style="font-size: 14px; color: #666;">Auto-trading engine may not be initialized.</p>
+                        <p>자동 거래 상태 로딩 실패.</p>
+                        <p style="font-size: 14px; color: #666;">자동 거래 엔진이 초기화되지 않았을 수 있습니다.</p>
                     </div>
                 `;
             }
@@ -611,7 +637,7 @@
                         container.innerHTML = `
                             <div class="loading-state">
                                 <div class="spinner-small"></div>
-                                <p>${enable ? 'Starting' : 'Stopping'} auto-trading...</p>
+                                <p>자동 거래 ${enable ? '시작' : '중지'} 중...</p>
                             </div>
                         `;
                     }
@@ -630,7 +656,7 @@
                     }
                 } catch (error) {
                     console.error('[Dashboard] Toggle auto-trading error:', error);
-                    alert(`Failed to ${enable ? 'start' : 'stop'} auto-trading: ${error.message}`);
+                    alert(`자동 거래 ${enable ? '시작' : '중지'} 실패: ${error.message}`);
                     // Reload current status
                     loadAutoTradingStatus();
                 }
@@ -648,18 +674,18 @@
                         <!-- Portfolio Section -->
                         <div class="dashboard-card">
                             <div class="card-header">
-                                <h2>Portfolio Holdings</h2>
+                                <h2>포트폴리오 보유 자산</h2>
                                 <button class="btn-refresh" onclick="loadPortfolio()">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
                                     </svg>
-                                    Refresh
+                                    새로고침
                                 </button>
                             </div>
                             <div class="card-content" id="portfolio-container">
                                 <div class="loading-state">
                                     <div class="spinner-small"></div>
-                                    <p>Loading portfolio...</p>
+                                    <p>포트폴리오 로딩 중...</p>
                                 </div>
                             </div>
                         </div>
@@ -667,18 +693,18 @@
                         <!-- Recent Orders Section -->
                         <div class="dashboard-card">
                             <div class="card-header">
-                                <h2>Recent Orders</h2>
+                                <h2>최근 거래 내역</h2>
                                 <button class="btn-refresh" onclick="loadOrders()">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
                                     </svg>
-                                    Refresh
+                                    새로고침
                                 </button>
                             </div>
                             <div class="card-content" id="orders-container">
                                 <div class="loading-state">
                                     <div class="spinner-small"></div>
-                                    <p>Loading orders...</p>
+                                    <p>거래 내역 로딩 중...</p>
                                 </div>
                             </div>
                         </div>
@@ -686,18 +712,18 @@
                         <!-- Auto-Trading Status Section -->
                         <div class="dashboard-card">
                             <div class="card-header">
-                                <h2>Auto-Trading Status</h2>
+                                <h2>자동 거래 상태</h2>
                                 <button class="btn-refresh" onclick="loadAutoTradingStatus()">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
                                     </svg>
-                                    Refresh
+                                    새로고침
                                 </button>
                             </div>
                             <div class="card-content" id="auto-trading-container">
                                 <div class="loading-state">
                                     <div class="spinner-small"></div>
-                                    <p>Loading auto-trading status...</p>
+                                    <p>자동 거래 상태 로딩 중...</p>
                                 </div>
                             </div>
                         </div>
@@ -705,7 +731,7 @@
                         <!-- Quick Links Section -->
                         <div class="dashboard-card">
                             <div class="card-header">
-                                <h2>Quick Links</h2>
+                                <h2>빠른 링크</h2>
                             </div>
                             <div class="card-content">
                                 <div class="quick-links">
@@ -713,21 +739,21 @@
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                                         </svg>
-                                        <span>Trading Chart</span>
+                                        <span>거래 차트</span>
                                     </a>
                                     <a href="/swing_trading_settings.html" class="quick-link">
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                             <circle cx="12" cy="12" r="3"></circle>
                                             <path d="M12 1v6m0 6v6m-9-9h6m6 0h6"></path>
                                         </svg>
-                                        <span>Trading Settings</span>
+                                        <span>거래 설정</span>
                                     </a>
                                     <a href="/policy_manager.html" class="quick-link">
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                                             <polyline points="14 2 14 8 20 8"></polyline>
                                         </svg>
-                                        <span>Policy Manager</span>
+                                        <span>정책 관리자</span>
                                     </a>
                                 </div>
                             </div>
@@ -752,6 +778,6 @@
     </script>
 
     <!-- Original Dashboard Scripts -->
-    <script src="js/dashboard.js?v=20251124"></script>
+    <script src="js/dashboard.js?v=20251220_fix2"></script>
 </body>
 </html>

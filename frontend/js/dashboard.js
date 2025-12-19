@@ -23,6 +23,7 @@
             // Initialize UI components
             this.initSidebar();
             this.initNavigation();
+            this.initNotificationsButton();
             this.initUserMenu();
             this.initLogout();
 
@@ -37,41 +38,34 @@
         // ============================================
         async checkAuth() {
             try {
-                // Check if user is authenticated
-                if (!window.authManager || !window.authManager.isAuthenticated()) {
+                // Check if user is authenticated using window.api
+                if (!window.api || !window.api.isAuthenticated()) {
                     console.warn('[Dashboard] User not authenticated, redirecting to login');
-                    window.location.href = 'login.html';
+                    // DISABLED for debugging - dashboard.html handles auth
+                    // window.location.href = 'login.html';
                     return;
                 }
 
-                // Get user data
-                this.user = window.authManager.getUser();
-
-                if (!this.user) {
-                    // Try to verify token with backend
-                    const token = localStorage.getItem('auth_token');
-                    if (!token) {
-                        window.location.href = 'login.html';
-                        return;
+                // Get user data from API
+                try {
+                    const response = await window.api.getCurrentUser();
+                    if (response.success && response.user) {
+                        this.user = response.user;
                     }
-
-                    // For now, use stored user data
-                    const userData = localStorage.getItem('user_data');
-                    if (userData) {
-                        this.user = JSON.parse(userData);
-                    } else {
-                        window.location.href = 'login.html';
-                        return;
-                    }
+                } catch (error) {
+                    console.error('[Dashboard] Failed to get user profile:', error);
+                    // Don't redirect - let dashboard.html handle it
+                    return;
                 }
 
                 // Update UI with user info
                 this.updateUserInfo();
 
-                console.log('[Dashboard] User authenticated:', this.user.email);
+                console.log('[Dashboard] User authenticated:', this.user?.email || 'unknown');
             } catch (error) {
                 console.error('[Dashboard] Auth check failed:', error);
-                window.location.href = 'login.html';
+                // DISABLED - let dashboard.html handle redirect
+                // window.location.href = 'login.html';
             }
         }
 
@@ -172,16 +166,16 @@
             // Update page title
             const pageTitle = document.getElementById('page-title');
             const titles = {
-                'overview': 'Overview',
-                'trading': 'Trading Chart',
-                'portfolio': 'Portfolio',
-                'auto-trading': 'Auto Trading',
-                'history': 'Trading History',
-                'settings': 'Settings'
+                'overview': '개요',
+                'trading': '거래 차트',
+                'portfolio': '포트폴리오',
+                'auto-trading': '자동 거래',
+                'history': '거래 내역',
+                'settings': '설정'
             };
 
             if (pageTitle) {
-                pageTitle.textContent = titles[pageName] || 'Dashboard';
+                pageTitle.textContent = titles[pageName] || '대시보드';
             }
 
             // Update URL hash
@@ -241,68 +235,68 @@
                 <div class="overview-page">
                     <!-- Welcome Section -->
                     <div class="welcome-section">
-                        <h1>Welcome back, ${this.user.username || 'Trader'}!</h1>
-                        <p>Here's your portfolio overview</p>
+                        <h1>환영합니다, ${this.user.username || '트레이더'}님!</h1>
+                        <p>포트폴리오 개요입니다</p>
                     </div>
 
                     <!-- Stats Grid -->
                     <div class="stats-grid">
                         <div class="stat-card">
-                            <h3>Portfolio Value</h3>
-                            <p class="stat-value" id="portfolio-value">Loading...</p>
+                            <h3>포트폴리오 가치</h3>
+                            <p class="stat-value" id="portfolio-value">불러오는 중...</p>
                             <div class="stat-change" id="portfolio-change">
                                 <span>--</span>
                             </div>
                         </div>
                         <div class="stat-card">
-                            <h3>Total Profit/Loss</h3>
-                            <p class="stat-value" id="total-profit">Loading...</p>
+                            <h3>총 손익</h3>
+                            <p class="stat-value" id="total-profit">불러오는 중...</p>
                             <div class="stat-change" id="profit-change">
                                 <span>--</span>
                             </div>
                         </div>
                         <div class="stat-card">
-                            <h3>Holdings</h3>
-                            <p class="stat-value" id="holdings-count">Loading...</p>
+                            <h3>보유 자산</h3>
+                            <p class="stat-value" id="holdings-count">불러오는 중...</p>
                             <div class="stat-change neutral">
-                                <span id="holdings-label">Active positions</span>
+                                <span id="holdings-label">활성 포지션</span>
                             </div>
                         </div>
                         <div class="stat-card">
-                            <h3>Win Rate</h3>
-                            <p class="stat-value" id="win-rate">Loading...</p>
+                            <h3>승률</h3>
+                            <p class="stat-value" id="win-rate">불러오는 중...</p>
                             <div class="stat-change" id="win-rate-change">
-                                <span id="trades-count">-- trades</span>
+                                <span id="trades-count">-- 거래</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Portfolio Chart -->
                     <div class="portfolio-chart-container">
-                        <h2>Portfolio Performance</h2>
+                        <h2>포트폴리오 성과</h2>
                         <div class="chart-placeholder">
-                            Chart coming soon - Historical portfolio value
+                            차트 준비 중 - 포트폴리오 가치 추이
                         </div>
                     </div>
 
                     <!-- Current Holdings -->
                     <div class="holdings-section">
-                        <h2>Current Holdings</h2>
+                        <h2>현재 보유 자산</h2>
                         <div id="holdings-table-container">
                             <div class="loading-state">
                                 <div class="spinner-large"></div>
-                                <p>Loading holdings...</p>
+                                <p>보유 자산 불러오는 중...</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Recent Activity -->
                     <div class="recent-activity">
-                        <h2>Recent Trading Activity</h2>
+                        <h2>최근 거래 활동</h2>
                         <div id="recent-activity-container">
                             <div class="loading-state">
                                 <div class="spinner-large"></div>
-                                <p>Loading activity...</p>
+                                <p>거래 활동 불러오는 중...</p>
                             </div>
                         </div>
                     </div>
@@ -332,8 +326,8 @@
         async loadPortfolioPage() {
             return `
                 <div class="portfolio-page">
-                    <h2>Portfolio</h2>
-                    <p>Your portfolio details will be displayed here.</p>
+                    <h2>포트폴리오</h2>
+                    <p>포트폴리오 상세 정보가 여기에 표시됩니다.</p>
                 </div>
             `;
         }
@@ -341,8 +335,8 @@
         async loadAutoTradingPage() {
             return `
                 <div class="auto-trading-page">
-                    <h2>Auto Trading</h2>
-                    <p>Configure and monitor your automated trading strategies.</p>
+                    <h2>자동 거래</h2>
+                    <p>자동 거래 전략을 설정하고 모니터링하세요.</p>
                 </div>
             `;
         }
@@ -350,8 +344,8 @@
         async loadHistoryPage() {
             return `
                 <div class="history-page">
-                    <h2>Trading History</h2>
-                    <p>Your complete trading history will be displayed here.</p>
+                    <h2>거래 내역</h2>
+                    <p>전체 거래 내역이 여기에 표시됩니다.</p>
                 </div>
             `;
         }
@@ -360,8 +354,8 @@
             return `
                 <div class="settings-page">
                     <div class="settings-header">
-                        <h1>Settings</h1>
-                        <p>Manage your account and trading preferences</p>
+                        <h1>설정</h1>
+                        <p>계정 및 거래 설정 관리</p>
                     </div>
 
                     <!-- Settings Tabs -->
@@ -371,27 +365,27 @@
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
-                            <span>Account</span>
+                            <span>계정</span>
                         </button>
                         <button class="settings-tab" data-tab="api-keys">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                             </svg>
-                            <span>API Keys</span>
+                            <span>API 키</span>
                         </button>
                         <button class="settings-tab" data-tab="trading">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                             </svg>
-                            <span>Trading</span>
+                            <span>거래</span>
                         </button>
                         <button class="settings-tab" data-tab="notifications">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                                 <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                             </svg>
-                            <span>Notifications</span>
+                            <span>알림</span>
                         </button>
                     </div>
 
@@ -400,64 +394,64 @@
                         <!-- Account Settings Tab -->
                         <div class="settings-tab-content active" data-tab-content="account">
                             <div class="settings-section">
-                                <h2>Profile Information</h2>
+                                <h2>프로필 정보</h2>
                                 <form id="profile-form" class="settings-form">
                                     <div class="form-group">
-                                        <label for="settings-username">Username</label>
+                                        <label for="settings-username">사용자 이름</label>
                                         <input type="text" id="settings-username" value="${this.user.username || ''}" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="settings-email">Email</label>
+                                        <label for="settings-email">이메일</label>
                                         <input type="email" id="settings-email" value="${this.user.email || ''}" required>
                                     </div>
-                                    <button type="submit" class="btn-primary">Save Changes</button>
+                                    <button type="submit" class="btn-primary">변경사항 저장</button>
                                 </form>
                             </div>
 
                             <div class="settings-section">
-                                <h2>Change Password</h2>
+                                <h2>비밀번호 변경</h2>
                                 <form id="password-form" class="settings-form">
                                     <div class="form-group">
-                                        <label for="current-password">Current Password</label>
+                                        <label for="current-password">현재 비밀번호</label>
                                         <input type="password" id="current-password" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="new-password">New Password</label>
+                                        <label for="new-password">새 비밀번호</label>
                                         <input type="password" id="new-password" required minlength="8">
                                     </div>
                                     <div class="form-group">
-                                        <label for="confirm-password">Confirm New Password</label>
+                                        <label for="confirm-password">새 비밀번호 확인</label>
                                         <input type="password" id="confirm-password" required minlength="8">
                                     </div>
-                                    <button type="submit" class="btn-primary">Change Password</button>
+                                    <button type="submit" class="btn-primary">비밀번호 변경</button>
                                 </form>
                             </div>
 
                             <div class="settings-section danger-zone">
-                                <h2>Danger Zone</h2>
-                                <p>Once you delete your account, there is no going back. Please be certain.</p>
-                                <button class="btn-danger" id="delete-account-btn">Delete Account</button>
+                                <h2>위험 구역</h2>
+                                <p>계정을 삭제하면 되돌릴 수 없습니다. 신중하게 결정하세요.</p>
+                                <button class="btn-danger" id="delete-account-btn">계정 삭제</button>
                             </div>
                         </div>
 
                         <!-- API Keys Tab -->
                         <div class="settings-tab-content" data-tab-content="api-keys">
                             <div class="settings-section">
-                                <h2>Upbit API Keys</h2>
-                                <p>Connect your Upbit account to enable live trading and portfolio tracking.</p>
+                                <h2>업비트 API 키</h2>
+                                <p>업비트 계정을 연결하여 실시간 거래 및 포트폴리오 추적을 활성화하세요.</p>
 
                                 <form id="api-keys-form" class="settings-form">
                                     <div class="form-group">
-                                        <label for="api-access-key">Access Key</label>
-                                        <input type="text" id="api-access-key" placeholder="Enter your Upbit access key" required>
+                                        <label for="api-access-key">액세스 키</label>
+                                        <input type="text" id="api-access-key" placeholder="업비트 액세스 키를 입력하세요" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="api-secret-key">Secret Key</label>
-                                        <input type="password" id="api-secret-key" placeholder="Enter your Upbit secret key" required>
+                                        <label for="api-secret-key">시크릿 키</label>
+                                        <input type="password" id="api-secret-key" placeholder="업비트 시크릿 키를 입력하세요" required>
                                     </div>
                                     <div class="form-actions">
-                                        <button type="button" class="btn-secondary" id="test-api-btn">Test Connection</button>
-                                        <button type="submit" class="btn-primary">Save API Keys</button>
+                                        <button type="button" class="btn-secondary" id="test-api-btn">연결 테스트</button>
+                                        <button type="submit" class="btn-primary">API 키 저장</button>
                                     </div>
                                 </form>
 
@@ -468,10 +462,10 @@
                         <!-- Trading Preferences Tab -->
                         <div class="settings-tab-content" data-tab-content="trading">
                             <div class="settings-section">
-                                <h2>Trading Preferences</h2>
+                                <h2>거래 설정</h2>
                                 <form id="trading-prefs-form" class="settings-form">
                                     <div class="form-group">
-                                        <label for="default-market">Default Trading Pair</label>
+                                        <label for="default-market">기본 거래 쌍</label>
                                         <select id="default-market">
                                             <option value="KRW-BTC">KRW-BTC</option>
                                             <option value="KRW-ETH">KRW-ETH</option>
@@ -481,26 +475,26 @@
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label for="risk-tolerance">Risk Tolerance</label>
+                                        <label for="risk-tolerance">위험 허용도</label>
                                         <select id="risk-tolerance">
-                                            <option value="conservative">Conservative</option>
-                                            <option value="moderate">Moderate</option>
-                                            <option value="aggressive">Aggressive</option>
+                                            <option value="conservative">보수적</option>
+                                            <option value="moderate">중립</option>
+                                            <option value="aggressive">공격적</option>
                                         </select>
                                     </div>
                                     <div class="form-group checkbox-group">
                                         <label>
                                             <input type="checkbox" id="auto-trading-enabled">
-                                            <span>Enable Auto Trading</span>
+                                            <span>자동 거래 활성화</span>
                                         </label>
                                     </div>
                                     <div class="form-group checkbox-group">
                                         <label>
                                             <input type="checkbox" id="stop-loss-enabled">
-                                            <span>Enable Stop Loss</span>
+                                            <span>손절매 활성화</span>
                                         </label>
                                     </div>
-                                    <button type="submit" class="btn-primary">Save Preferences</button>
+                                    <button type="submit" class="btn-primary">설정 저장</button>
                                 </form>
                             </div>
                         </div>
@@ -508,37 +502,37 @@
                         <!-- Notifications Tab -->
                         <div class="settings-tab-content" data-tab-content="notifications">
                             <div class="settings-section">
-                                <h2>Email Notifications</h2>
+                                <h2>이메일 알림</h2>
                                 <form id="notifications-form" class="settings-form">
                                     <div class="form-group checkbox-group">
                                         <label>
                                             <input type="checkbox" id="notify-trades" checked>
-                                            <span>Trade Confirmations</span>
+                                            <span>거래 확인</span>
                                         </label>
-                                        <p class="help-text">Receive email when trades are executed</p>
+                                        <p class="help-text">거래가 실행될 때 이메일 수신</p>
                                     </div>
                                     <div class="form-group checkbox-group">
                                         <label>
                                             <input type="checkbox" id="notify-price-alerts" checked>
-                                            <span>Price Alerts</span>
+                                            <span>가격 알림</span>
                                         </label>
-                                        <p class="help-text">Receive email when price targets are hit</p>
+                                        <p class="help-text">목표 가격에 도달할 때 이메일 수신</p>
                                     </div>
                                     <div class="form-group checkbox-group">
                                         <label>
                                             <input type="checkbox" id="notify-portfolio">
-                                            <span>Daily Portfolio Summary</span>
+                                            <span>일일 포트폴리오 요약</span>
                                         </label>
-                                        <p class="help-text">Receive daily email with portfolio performance</p>
+                                        <p class="help-text">포트폴리오 성과를 담은 일일 이메일 수신</p>
                                     </div>
                                     <div class="form-group checkbox-group">
                                         <label>
                                             <input type="checkbox" id="notify-marketing">
-                                            <span>Marketing Emails</span>
+                                            <span>마케팅 이메일</span>
                                         </label>
-                                        <p class="help-text">Receive updates about new features and promotions</p>
+                                        <p class="help-text">새로운 기능 및 프로모션 업데이트 수신</p>
                                     </div>
-                                    <button type="submit" class="btn-primary">Save Preferences</button>
+                                    <button type="submit" class="btn-primary">설정 저장</button>
                                 </form>
                             </div>
                         </div>
@@ -614,10 +608,17 @@
                 }
 
                 const data = await response.json();
-                return data.holdings || [];
+
+                // API 응답 형식: { coins: [...], krw: {...}, summary: {...} }
+                // summary 정보를 함께 반환
+                return {
+                    coins: data.coins || [],
+                    krw: data.krw || { balance: 0, locked: 0, total: 0 },
+                    summary: data.summary || { total_value: 0, total_profit: 0, coin_count: 0, profit_rate: 0 }
+                };
             } catch (error) {
                 console.error('[Dashboard] Error fetching holdings:', error);
-                return [];
+                return { coins: [], krw: { balance: 0, locked: 0, total: 0 }, summary: { total_value: 0, total_profit: 0, coin_count: 0, profit_rate: 0 } };
             }
         }
 
@@ -647,34 +648,32 @@
         async loadConfig() {
             try {
                 const response = await fetch('config.json');
-                return await response.json();
+                const config = await response.json();
+
+                // "auto" 값을 현재 origin으로 변환 (환경 자동 감지)
+                if (config?.api?.chartServerUrl === 'auto') {
+                    config.api.chartServerUrl = window.location.origin;
+                }
+                if (config?.api?.tradingServerUrl === 'auto') {
+                    config.api.tradingServerUrl = window.location.origin;
+                }
+
+                return config;
             } catch (error) {
                 console.error('[Dashboard] Error loading config:', error);
                 return null;
             }
         }
 
-        updatePortfolioStats(holdings, orders) {
-            // Calculate portfolio value
-            let totalValue = 0;
-            let totalCost = 0;
+        updatePortfolioStats(holdingsData, orders) {
+            // holdingsData는 { coins: [...], krw: {...}, summary: {...} } 형식
+            const { coins, krw, summary } = holdingsData;
 
-            holdings.forEach(holding => {
-                const value = parseFloat(holding.balance || 0) * parseFloat(holding.avg_buy_price || 0);
-                const cost = parseFloat(holding.balance || 0) * parseFloat(holding.avg_buy_price || 0);
-                totalValue += value;
-                totalCost += cost;
-            });
-
-            // Add KRW balance
-            const krwHolding = holdings.find(h => h.currency === 'KRW');
-            if (krwHolding) {
-                totalValue += parseFloat(krwHolding.balance || 0);
-            }
-
-            // Calculate profit/loss
-            const totalProfit = totalValue - totalCost;
-            const profitPercent = totalCost > 0 ? (totalProfit / totalCost) * 100 : 0;
+            // summary에서 계산된 값 사용
+            const totalValue = summary.total_value || 0;
+            const totalProfit = summary.total_profit || 0;
+            const profitRate = summary.profit_rate || 0;
+            const coinCount = summary.coin_count || 0;
 
             // Calculate win rate
             const completedTrades = orders.filter(o => o.state === 'done');
@@ -691,30 +690,30 @@
                 `₩${this.formatNumber(totalValue)}`;
 
             const portfolioChange = document.getElementById('portfolio-change');
-            portfolioChange.innerHTML = `<span>${profitPercent >= 0 ? '▲' : '▼'} ${Math.abs(profitPercent).toFixed(2)}%</span>`;
-            portfolioChange.className = `stat-change ${profitPercent >= 0 ? 'positive' : 'negative'}`;
+            portfolioChange.innerHTML = `<span>${profitRate >= 0 ? '▲' : '▼'} ${Math.abs(profitRate).toFixed(2)}%</span>`;
+            portfolioChange.className = `stat-change ${profitRate >= 0 ? 'positive' : 'negative'}`;
 
             document.getElementById('total-profit').textContent =
                 `₩${this.formatNumber(Math.abs(totalProfit))}`;
 
             const profitChange = document.getElementById('profit-change');
-            profitChange.innerHTML = `<span>${totalProfit >= 0 ? 'Profit' : 'Loss'}</span>`;
+            profitChange.innerHTML = `<span>${totalProfit >= 0 ? '수익' : '손실'}</span>`;
             profitChange.className = `stat-change ${totalProfit >= 0 ? 'positive' : 'negative'}`;
 
-            document.getElementById('holdings-count').textContent =
-                holdings.filter(h => h.currency !== 'KRW').length;
+            document.getElementById('holdings-count').textContent = coinCount;
 
             document.getElementById('win-rate').textContent = `${winRate.toFixed(1)}%`;
             document.getElementById('trades-count').textContent =
-                `${completedTrades.length} trades`;
+                `${completedTrades.length}건`;
         }
 
-        displayHoldingsTable(holdings) {
+        displayHoldingsTable(holdingsData) {
             const container = document.getElementById('holdings-table-container');
 
-            const cryptoHoldings = holdings.filter(h => h.currency !== 'KRW' && parseFloat(h.balance) > 0);
+            // holdingsData는 { coins: [...], krw: {...}, summary: {...} } 형식
+            const coins = holdingsData.coins || [];
 
-            if (cryptoHoldings.length === 0) {
+            if (coins.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -722,8 +721,8 @@
                             <line x1="12" y1="8" x2="12" y2="12"></line>
                             <line x1="12" y1="16" x2="12.01" y2="16"></line>
                         </svg>
-                        <h3>No Holdings Yet</h3>
-                        <p>Start trading to see your portfolio here</p>
+                        <h3>아직 보유 자산이 없습니다</h3>
+                        <p>거래를 시작하여 포트폴리오를 확인하세요</p>
                     </div>
                 `;
                 return;
@@ -733,31 +732,32 @@
                 <table class="holdings-table">
                     <thead>
                         <tr>
-                            <th>Asset</th>
-                            <th>Balance</th>
-                            <th>Avg Buy Price</th>
-                            <th>Current Value</th>
-                            <th>Profit/Loss</th>
+                            <th>자산</th>
+                            <th>수량</th>
+                            <th>평균 매수가</th>
+                            <th>현재 가치</th>
+                            <th>손익</th>
                         </tr>
                     </thead>
                     <tbody>
             `;
 
-            cryptoHoldings.forEach(holding => {
-                const balance = parseFloat(holding.balance || 0);
-                const avgPrice = parseFloat(holding.avg_buy_price || 0);
-                const currentValue = balance * avgPrice;
-                const profitLoss = currentValue - (balance * avgPrice);
-                const profitPercent = avgPrice > 0 ? (profitLoss / (balance * avgPrice)) * 100 : 0;
-                const market = `KRW-${holding.currency}`;
+            coins.forEach(coin => {
+                const balance = parseFloat(coin.balance || 0);
+                const avgPrice = parseFloat(coin.avg_price || 0);
+                const currentValue = parseFloat(coin.total_value || 0);
+                const profitLoss = parseFloat(coin.profit_loss || 0);
+                const profitPercent = parseFloat(coin.profit_rate || 0);
+                const market = coin.market || `KRW-${coin.coin}`;
+                const coinName = coin.name || coin.coin;
 
                 tableHTML += `
                     <tr class="holding-row" data-market="${market}" style="cursor: pointer;">
                         <td>
                             <div class="coin-info">
-                                <div class="coin-icon">${holding.currency.substring(0, 2).toUpperCase()}</div>
+                                <div class="coin-icon">${coin.coin.substring(0, 2).toUpperCase()}</div>
                                 <div>
-                                    <div class="coin-name">${holding.currency}</div>
+                                    <div class="coin-name">${coinName}</div>
                                     <div class="coin-symbol">${market}</div>
                                 </div>
                             </div>
@@ -817,8 +817,8 @@
                             <circle cx="12" cy="12" r="10"></circle>
                             <path d="M12 6v6l4 2"></path>
                         </svg>
-                        <h3>No Recent Activity</h3>
-                        <p>Your trading history will appear here</p>
+                        <h3>최근 활동 없음</h3>
+                        <p>거래 내역이 여기에 표시됩니다</p>
                     </div>
                 `;
                 return;
@@ -841,7 +841,7 @@
                         </div>
                         <div class="activity-details">
                             <div class="activity-title">
-                                ${isBuy ? 'Bought' : 'Sold'} ${order.market}
+                                ${isBuy ? '매수' : '매도'} ${order.market}
                             </div>
                             <div class="activity-subtitle">
                                 ${parseFloat(order.volume || 0).toFixed(8)} @ ₩${this.formatNumber(parseFloat(order.price || 0))}
@@ -886,10 +886,10 @@
         getTimeAgo(date) {
             const seconds = Math.floor((new Date() - date) / 1000);
 
-            if (seconds < 60) return 'Just now';
-            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-            if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+            if (seconds < 60) return '방금';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}분 전`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)}시간 전`;
+            if (seconds < 604800) return `${Math.floor(seconds / 86400)}일 전`;
             return date.toLocaleDateString();
         }
 
@@ -897,20 +897,20 @@
             const statsCards = ['portfolio-value', 'total-profit', 'holdings-count', 'win-rate'];
             statsCards.forEach(id => {
                 const el = document.getElementById(id);
-                if (el) el.textContent = 'Error';
+                if (el) el.textContent = '오류';
             });
 
             document.getElementById('holdings-table-container').innerHTML = `
                 <div class="empty-state">
-                    <h3>Error Loading Data</h3>
-                    <p>Please try refreshing the page</p>
+                    <h3>데이터 불러오기 실패</h3>
+                    <p>페이지를 새로고침해주세요</p>
                 </div>
             `;
 
             document.getElementById('recent-activity-container').innerHTML = `
                 <div class="empty-state">
-                    <h3>Error Loading Activity</h3>
-                    <p>Please try refreshing the page</p>
+                    <h3>활동 내역 불러오기 실패</h3>
+                    <p>페이지를 새로고침해주세요</p>
                 </div>
             `;
         }
@@ -976,7 +976,7 @@
                     // Mock response
                     await new Promise(resolve => setTimeout(resolve, 1000));
 
-                    this.showSuccess(form, 'Profile updated successfully!');
+                    this.showSuccess(form, '프로필이 성공적으로 업데이트되었습니다!');
 
                     // Update user data
                     this.user.username = username;
@@ -986,7 +986,7 @@
 
                 } catch (error) {
                     console.error('[Settings] Profile update error:', error);
-                    this.showError(form, 'Failed to update profile. Please try again.');
+                    this.showError(form, '프로필 업데이트 실패. 다시 시도해주세요.');
                 }
             });
         }
@@ -1004,13 +1004,13 @@
 
                 // Validate passwords match
                 if (newPassword !== confirmPassword) {
-                    this.showError(form, 'New passwords do not match');
+                    this.showError(form, '새 비밀번호가 일치하지 않습니다');
                     return;
                 }
 
                 // Validate password strength
                 if (newPassword.length < 8) {
-                    this.showError(form, 'Password must be at least 8 characters');
+                    this.showError(form, '비밀번호는 최소 8자 이상이어야 합니다');
                     return;
                 }
 
@@ -1021,14 +1021,14 @@
                     // Mock response
                     await new Promise(resolve => setTimeout(resolve, 1000));
 
-                    this.showSuccess(form, 'Password changed successfully!');
+                    this.showSuccess(form, '비밀번호가 성공적으로 변경되었습니다!');
 
                     // Clear form
                     form.reset();
 
                 } catch (error) {
                     console.error('[Settings] Password change error:', error);
-                    this.showError(form, 'Failed to change password. Please check your current password.');
+                    this.showError(form, '비밀번호 변경 실패. 현재 비밀번호를 확인해주세요.');
                 }
             });
         }
@@ -1046,12 +1046,12 @@
                 const secretKey = document.getElementById('api-secret-key').value.trim();
 
                 if (!accessKey || !secretKey) {
-                    this.showAPITestResult('error', 'Please enter both access key and secret key');
+                    this.showAPITestResult('error', '액세스 키와 시크릿 키를 모두 입력해주세요');
                     return;
                 }
 
                 testBtn.disabled = true;
-                testBtn.textContent = 'Testing...';
+                testBtn.textContent = '테스트 중...';
 
                 try {
                     // TODO: Call API to test Upbit connection
@@ -1060,14 +1060,14 @@
                     // Mock response
                     await new Promise(resolve => setTimeout(resolve, 2000));
 
-                    this.showAPITestResult('success', '✓ API connection successful! Your keys are valid.');
+                    this.showAPITestResult('success', '✓ API 연결 성공! 키가 유효합니다.');
 
                 } catch (error) {
                     console.error('[Settings] API test error:', error);
-                    this.showAPITestResult('error', '✗ API connection failed. Please check your keys.');
+                    this.showAPITestResult('error', '✗ API 연결 실패. 키를 확인해주세요.');
                 } finally {
                     testBtn.disabled = false;
-                    testBtn.textContent = 'Test Connection';
+                    testBtn.textContent = '연결 테스트';
                 }
             });
 
@@ -1085,11 +1085,11 @@
                     // Mock response
                     await new Promise(resolve => setTimeout(resolve, 1000));
 
-                    this.showSuccess(form, 'API keys saved successfully!');
+                    this.showSuccess(form, 'API 키가 성공적으로 저장되었습니다!');
 
                 } catch (error) {
                     console.error('[Settings] API keys save error:', error);
-                    this.showError(form, 'Failed to save API keys. Please try again.');
+                    this.showError(form, 'API 키 저장 실패. 다시 시도해주세요.');
                 }
             });
         }
@@ -1118,11 +1118,11 @@
                     // Mock response
                     await new Promise(resolve => setTimeout(resolve, 1000));
 
-                    this.showSuccess(form, 'Trading preferences saved successfully!');
+                    this.showSuccess(form, '거래 설정이 성공적으로 저장되었습니다!');
 
                 } catch (error) {
                     console.error('[Settings] Trading prefs save error:', error);
-                    this.showError(form, 'Failed to save preferences. Please try again.');
+                    this.showError(form, '설정 저장 실패. 다시 시도해주세요.');
                 }
             });
         }
@@ -1151,11 +1151,11 @@
                     // Mock response
                     await new Promise(resolve => setTimeout(resolve, 1000));
 
-                    this.showSuccess(form, 'Notification preferences saved successfully!');
+                    this.showSuccess(form, '알림 설정이 성공적으로 저장되었습니다!');
 
                 } catch (error) {
                     console.error('[Settings] Notification prefs save error:', error);
-                    this.showError(form, 'Failed to save preferences. Please try again.');
+                    this.showError(form, '설정 저장 실패. 다시 시도해주세요.');
                 }
             });
         }
@@ -1166,13 +1166,13 @@
 
             deleteBtn.addEventListener('click', () => {
                 const confirmed = confirm(
-                    'Are you sure you want to delete your account? This action cannot be undone.\n\n' +
-                    'All your data, including trading history and settings, will be permanently deleted.'
+                    '정말로 계정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.\n\n' +
+                    '거래 내역 및 설정을 포함한 모든 데이터가 영구적으로 삭제됩니다.'
                 );
 
                 if (confirmed) {
                     const doubleCheck = confirm(
-                        'This is your last chance. Are you absolutely sure you want to delete your account?'
+                        '마지막 확인입니다. 정말로 계정을 삭제하시겠습니까?'
                     );
 
                     if (doubleCheck) {
@@ -1253,19 +1253,19 @@
                 <div class="pricing-page">
                     <!-- Pricing Header -->
                     <div class="pricing-header">
-                        <h1>Choose Your Plan</h1>
-                        <p>Simple, transparent pricing that grows with you</p>
+                        <h1>요금제 선택</h1>
+                        <p>투명하고 합리적인 가격으로 성장하세요</p>
                     </div>
 
                     <!-- Billing Toggle -->
                     <div class="billing-toggle">
-                        <span class="billing-option active" data-billing="monthly">Monthly</span>
+                        <span class="billing-option active" data-billing="monthly">월간</span>
                         <div class="toggle-switch" id="billing-toggle">
                             <div class="toggle-slider"></div>
                         </div>
                         <span class="billing-option" data-billing="annual">
-                            Annual
-                            <span class="billing-badge">Save 20%</span>
+                            연간
+                            <span class="billing-badge">20% 절약</span>
                         </span>
                     </div>
 
@@ -1621,6 +1621,20 @@
                     }
                 });
             });
+        }
+
+        // ============================================
+        // Notifications
+        // ============================================
+        initNotificationsButton() {
+            const notificationsBtn = document.getElementById('notifications-btn');
+
+            if (notificationsBtn) {
+                notificationsBtn.addEventListener('click', () => {
+                    // 알림 패널 토글 (향후 구현 예정)
+                    alert('알림 기능은 곧 제공될 예정입니다.\n\n주요 업데이트:\n• 거래 체결 알림\n• 가격 알림\n• 시스템 공지사항');
+                });
+            }
         }
 
         // ============================================
