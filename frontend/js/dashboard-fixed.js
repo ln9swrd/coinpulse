@@ -859,7 +859,7 @@
 
                 // Display holdings table
                 console.log('[DEBUG] Calling displayHoldingsTable...');
-                this.displayHoldingsTable(holdingsData);
+                await this.displayHoldingsTable(holdingsData);
 
                 // Display portfolio performance
                 console.log('[DEBUG] Displaying portfolio performance...');
@@ -1016,23 +1016,36 @@
             }
         }
 
-        displayHoldingsTable(holdingsData) {
+        async displayHoldingsTable(holdingsData) {
             console.log('[DEBUG] displayHoldingsTable called');
             console.log('[DEBUG] holdingsData:', holdingsData);
             console.log('[DEBUG] holdingsData.coins:', holdingsData?.coins);
             console.log('[DEBUG] holdingsData.coins length:', holdingsData?.coins?.length);
 
-            // Try both container IDs (overview page and portfolio page)
-            let container = document.getElementById('holdings-table-container');
-            if (!container) {
-                container = document.getElementById('portfolio-holdings-table');
+            // Try to find container with retry logic
+            let container = null;
+            let attempts = 0;
+            const maxAttempts = 10;
+
+            while (!container && attempts < maxAttempts) {
+                // Try both container IDs (overview page and portfolio page)
+                container = document.getElementById('holdings-table-container');
+                if (!container) {
+                    container = document.getElementById('portfolio-holdings-table');
+                }
+
+                if (!container) {
+                    attempts++;
+                    console.log(`[DEBUG] Container not found, retry ${attempts}/${maxAttempts}`);
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                }
             }
 
             console.log('[DEBUG] container found:', !!container);
             console.log('[DEBUG] container element:', container);
 
             if (!container) {
-                console.warn('[Dashboard] No holdings table container found');
+                console.warn('[Dashboard] No holdings table container found after retries');
                 return;
             }
 
@@ -1406,7 +1419,7 @@
                 });
 
                 // Display holdings table
-                this.displayHoldingsTable({ coins: coins, krw: {}, summary: {} });
+                await this.displayHoldingsTable({ coins: coins, krw: {}, summary: {} });
 
             } catch (error) {
                 console.error('[Dashboard] Failed to load portfolio:', error);
