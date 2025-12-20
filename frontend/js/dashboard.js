@@ -323,9 +323,192 @@
         async loadPortfolioPage() {
             return `
                 <div class="portfolio-page">
-                    <h2>포트폴리오</h2>
-                    <p>포트폴리오 상세 정보가 여기에 표시됩니다.</p>
+                    <div class="page-header">
+                        <h2>포트폴리오 성과</h2>
+                        <button class="btn-refresh" onclick="window.dashboardApp.refreshPortfolioData()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                            </svg>
+                            새로고침
+                        </button>
+                    </div>
+
+                    <!-- Summary Cards -->
+                    <div id="portfolio-summary" class="portfolio-summary">
+                        <div class="loading-state">
+                            <div class="spinner-small"></div>
+                            <p>포트폴리오 데이터 로딩 중...</p>
+                        </div>
+                    </div>
+
+                    <!-- Holdings Table -->
+                    <div class="dashboard-card" style="margin-top: 24px;">
+                        <div class="card-header">
+                            <h3>보유 자산 상세</h3>
+                        </div>
+                        <div class="card-content" id="portfolio-holdings-table">
+                            <div class="loading-state">
+                                <div class="spinner-small"></div>
+                                <p>보유 자산 로딩 중...</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                <style>
+                    .portfolio-page {
+                        padding: 24px;
+                    }
+
+                    .page-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 24px;
+                    }
+
+                    .page-header h2 {
+                        margin: 0;
+                        font-size: 28px;
+                        font-weight: 700;
+                        color: #1a1a1a;
+                    }
+
+                    .btn-refresh {
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        padding: 10px 20px;
+                        background: white;
+                        border: 1px solid #e0e0e0;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-size: 14px;
+                        font-weight: 500;
+                        color: #333;
+                        transition: all 0.2s;
+                    }
+
+                    .btn-refresh:hover {
+                        background: #f5f5f5;
+                        border-color: #d0d0d0;
+                    }
+
+                    .portfolio-summary {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                        gap: 20px;
+                        margin-bottom: 24px;
+                    }
+
+                    .summary-card {
+                        background: white;
+                        border: 1px solid #e0e0e0;
+                        border-radius: 12px;
+                        padding: 24px;
+                        transition: all 0.2s;
+                    }
+
+                    .summary-card:hover {
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                        transform: translateY(-2px);
+                    }
+
+                    .summary-card-label {
+                        font-size: 14px;
+                        color: #666;
+                        margin-bottom: 8px;
+                    }
+
+                    .summary-card-value {
+                        font-size: 32px;
+                        font-weight: 700;
+                        color: #1a1a1a;
+                        margin-bottom: 8px;
+                    }
+
+                    .summary-card-value.profit {
+                        color: #10b981;
+                    }
+
+                    .summary-card-value.loss {
+                        color: #ef4444;
+                    }
+
+                    .summary-card-change {
+                        font-size: 14px;
+                        font-weight: 600;
+                    }
+
+                    .summary-card-change.profit {
+                        color: #10b981;
+                    }
+
+                    .summary-card-change.loss {
+                        color: #ef4444;
+                    }
+
+                    .holdings-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                    }
+
+                    .holdings-table th {
+                        text-align: left;
+                        padding: 12px;
+                        background: #f8f9fa;
+                        font-weight: 600;
+                        font-size: 14px;
+                        color: #333;
+                        border-bottom: 2px solid #e0e0e0;
+                    }
+
+                    .holdings-table td {
+                        padding: 16px 12px;
+                        border-bottom: 1px solid #f0f0f0;
+                        font-size: 14px;
+                    }
+
+                    .holdings-table tr:hover {
+                        background: #f8f9fa;
+                    }
+
+                    .coin-name {
+                        font-weight: 600;
+                        color: #1a1a1a;
+                    }
+
+                    .profit-cell {
+                        font-weight: 600;
+                        color: #10b981;
+                    }
+
+                    .loss-cell {
+                        font-weight: 600;
+                        color: #ef4444;
+                    }
+
+                    .loading-state {
+                        text-align: center;
+                        padding: 60px 20px;
+                        color: #666;
+                    }
+
+                    .spinner-small {
+                        border: 3px solid #f3f3f3;
+                        border-top: 3px solid #667eea;
+                        border-radius: 50%;
+                        width: 40px;
+                        height: 40px;
+                        animation: spin 1s linear infinite;
+                        margin: 0 auto 16px;
+                    }
+
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                </style>
             `;
         }
 
@@ -999,9 +1182,214 @@
             `;
         }
 
-        initPortfolioPage() {
-            // Fetch and display portfolio data
+        async initPortfolioPage() {
             console.log('[Dashboard] Portfolio page initialized');
+            await this.loadPortfolioData();
+        }
+
+        async loadPortfolioData() {
+            const summaryContainer = document.getElementById('portfolio-summary');
+            const tableContainer = document.getElementById('portfolio-holdings-table');
+
+            if (!summaryContainer || !tableContainer) return;
+
+            // Check if user has API keys
+            const currentUser = await this.getCurrentUser();
+            if (!currentUser || !currentUser.has_upbit_keys) {
+                const emptyStateHTML = `
+                    <div style="text-align: center; padding: 60px 20px; grid-column: 1 / -1;">
+                        <div style="font-size: 64px; margin-bottom: 20px;">🔑</div>
+                        <h3 style="margin: 0 0 12px 0; color: #333; font-size: 20px; font-weight: 600;">
+                            업비트 API 키가 등록되지 않았습니다
+                        </h3>
+                        <p style="margin: 0 0 24px 0; color: #666; font-size: 14px; line-height: 1.6;">
+                            포트폴리오 성과를 확인하려면<br>
+                            업비트 API 키를 먼저 등록해주세요.
+                        </p>
+                        <button onclick="window.dashboardApp.showPage('settings')" style="
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: white;
+                            border: none;
+                            padding: 12px 32px;
+                            border-radius: 8px;
+                            font-size: 15px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.2s;
+                            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+                        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(102, 126, 234, 0.5)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)';">
+                            API 키 등록하기
+                        </button>
+                    </div>
+                `;
+                summaryContainer.innerHTML = emptyStateHTML;
+                tableContainer.innerHTML = emptyStateHTML;
+                return;
+            }
+
+            try {
+                // Fetch holdings data
+                const response = await window.api.getHoldings();
+
+                if (!response.success) {
+                    throw new Error(response.error || 'Failed to fetch holdings');
+                }
+
+                const coins = response.coins || [];
+
+                // Calculate summary statistics
+                let totalValue = 0;
+                let totalInvested = 0;
+
+                coins.forEach(coin => {
+                    const value = parseFloat(coin.total_value || 0);
+                    const invested = parseFloat(coin.balance || 0) * parseFloat(coin.avg_price || 0);
+                    totalValue += value;
+                    totalInvested += invested;
+                });
+
+                const totalProfit = totalValue - totalInvested;
+                const totalProfitRate = totalInvested > 0 ? (totalProfit / totalInvested * 100) : 0;
+
+                // Display summary cards
+                this.displayPortfolioSummary({
+                    totalValue,
+                    totalInvested,
+                    totalProfit,
+                    totalProfitRate,
+                    coinsCount: coins.length
+                });
+
+                // Display holdings table
+                this.displayHoldingsTable(coins);
+
+            } catch (error) {
+                console.error('[Dashboard] Failed to load portfolio:', error);
+                summaryContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #dc3545; grid-column: 1 / -1;">
+                        <p>포트폴리오 로딩 실패. 페이지를 새로고침하거나 API 키를 확인하세요.</p>
+                    </div>
+                `;
+                tableContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #dc3545;">
+                        <p>데이터를 불러올 수 없습니다.</p>
+                    </div>
+                `;
+            }
+        }
+
+        displayPortfolioSummary(data) {
+            const container = document.getElementById('portfolio-summary');
+            if (!container) return;
+
+            const { totalValue, totalInvested, totalProfit, totalProfitRate, coinsCount } = data;
+
+            container.innerHTML = `
+                <div class="summary-card">
+                    <div class="summary-card-label">총 자산 가치</div>
+                    <div class="summary-card-value">
+                        ₩${totalValue.toLocaleString('ko-KR', { maximumFractionDigits: 0 })}
+                    </div>
+                    <div class="summary-card-change">
+                        보유 코인: ${coinsCount}개
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-card-label">총 투자금</div>
+                    <div class="summary-card-value">
+                        ₩${totalInvested.toLocaleString('ko-KR', { maximumFractionDigits: 0 })}
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-card-label">총 손익</div>
+                    <div class="summary-card-value ${totalProfit >= 0 ? 'profit' : 'loss'}">
+                        ${totalProfit >= 0 ? '+' : ''}₩${totalProfit.toLocaleString('ko-KR', { maximumFractionDigits: 0 })}
+                    </div>
+                    <div class="summary-card-change ${totalProfitRate >= 0 ? 'profit' : 'loss'}">
+                        ${totalProfitRate >= 0 ? '+' : ''}${totalProfitRate.toFixed(2)}%
+                    </div>
+                </div>
+            `;
+        }
+
+        displayHoldingsTable(coins) {
+            const container = document.getElementById('portfolio-holdings-table');
+            if (!container) return;
+
+            if (!coins || coins.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <p>보유 자산이 없습니다.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let tableHTML = `
+                <table class="holdings-table">
+                    <thead>
+                        <tr>
+                            <th>코인</th>
+                            <th>보유량</th>
+                            <th>평균 매수가</th>
+                            <th>현재가</th>
+                            <th>평가액</th>
+                            <th>손익</th>
+                            <th>수익률</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            coins.forEach(coin => {
+                const balance = parseFloat(coin.balance || 0);
+                const avgPrice = parseFloat(coin.avg_price || 0);
+                const currentPrice = parseFloat(coin.current_price || 0);
+                const totalValue = parseFloat(coin.total_value || 0);
+                const profitLoss = parseFloat(coin.profit_loss || 0);
+                const profitRate = parseFloat(coin.profit_rate || 0);
+                const coinName = coin.name || coin.coin;
+
+                tableHTML += `
+                    <tr>
+                        <td class="coin-name">${coinName}</td>
+                        <td>${balance.toFixed(8)}</td>
+                        <td>₩${avgPrice.toLocaleString('ko-KR', { maximumFractionDigits: 0 })}</td>
+                        <td>₩${currentPrice.toLocaleString('ko-KR', { maximumFractionDigits: 0 })}</td>
+                        <td>₩${totalValue.toLocaleString('ko-KR', { maximumFractionDigits: 0 })}</td>
+                        <td class="${profitLoss >= 0 ? 'profit-cell' : 'loss-cell'}">
+                            ${profitLoss >= 0 ? '+' : ''}₩${profitLoss.toLocaleString('ko-KR', { maximumFractionDigits: 0 })}
+                        </td>
+                        <td class="${profitRate >= 0 ? 'profit-cell' : 'loss-cell'}">
+                            ${profitRate >= 0 ? '+' : ''}${profitRate.toFixed(2)}%
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = tableHTML;
+        }
+
+        async refreshPortfolioData() {
+            console.log('[Dashboard] Refreshing portfolio data...');
+            await this.loadPortfolioData();
+        }
+
+        async getCurrentUser() {
+            try {
+                const response = await window.api.getCurrentUser();
+                return response.success ? response.user : null;
+            } catch (error) {
+                console.error('[Dashboard] Failed to get current user:', error);
+                return null;
+            }
         }
 
         initSettingsPage() {
