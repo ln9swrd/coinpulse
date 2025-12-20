@@ -1400,7 +1400,7 @@
                 });
 
                 // Display holdings table
-                this.displayHoldingsTable(coins);
+                this.displayHoldingsTable({ coins: coins, krw: {}, summary: {} });
 
             } catch (error) {
                 console.error('[Dashboard] Failed to load portfolio:', error);
@@ -1453,68 +1453,6 @@
             `;
         }
 
-        displayHoldingsTable(coins) {
-            const container = document.getElementById('portfolio-holdings-table');
-            if (!container) return;
-
-            if (!coins || coins.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: #666;">
-                        <p>보유 자산이 없습니다.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            let tableHTML = `
-                <table class="holdings-table">
-                    <thead>
-                        <tr>
-                            <th>코인</th>
-                            <th>보유량</th>
-                            <th>평균 매수가</th>
-                            <th>현재가</th>
-                            <th>평가액</th>
-                            <th>손익</th>
-                            <th>수익률</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-
-            coins.forEach(coin => {
-                const balance = parseFloat(coin.balance || 0);
-                const avgPrice = parseFloat(coin.avg_price || 0);
-                const currentPrice = parseFloat(coin.current_price || 0);
-                const totalValue = parseFloat(coin.total_value || 0);
-                const profitLoss = parseFloat(coin.profit_loss || 0);
-                const profitRate = parseFloat(coin.profit_rate || 0);
-                const coinName = coin.name || coin.coin;
-
-                tableHTML += `
-                    <tr>
-                        <td class="coin-name">${coinName}</td>
-                        <td>${balance.toFixed(8)}</td>
-                        <td>₩${avgPrice.toLocaleString('ko-KR', { maximumFractionDigits: 0 })}</td>
-                        <td>₩${currentPrice.toLocaleString('ko-KR', { maximumFractionDigits: 0 })}</td>
-                        <td>₩${totalValue.toLocaleString('ko-KR', { maximumFractionDigits: 0 })}</td>
-                        <td class="${profitLoss >= 0 ? 'profit-cell' : 'loss-cell'}">
-                            ${profitLoss >= 0 ? '+' : ''}₩${profitLoss.toLocaleString('ko-KR', { maximumFractionDigits: 0 })}
-                        </td>
-                        <td class="${profitRate >= 0 ? 'profit-cell' : 'loss-cell'}">
-                            ${profitRate >= 0 ? '+' : ''}${profitRate.toFixed(2)}%
-                        </td>
-                    </tr>
-                `;
-            });
-
-            tableHTML += `
-                    </tbody>
-                </table>
-            `;
-
-            container.innerHTML = tableHTML;
-        }
 
         async refreshPortfolioData() {
             console.log('[Dashboard] Refreshing portfolio data...');
