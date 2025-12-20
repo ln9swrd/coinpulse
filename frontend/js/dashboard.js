@@ -952,26 +952,43 @@
                 ? (winningTrades.length / completedTrades.length) * 100
                 : 0;
 
-            // Update DOM
-            document.getElementById('portfolio-value').textContent =
-                `₩${this.formatNumber(totalValue)}`;
+            // Update DOM with null checks
+            const portfolioValueEl = document.getElementById('portfolio-value');
+            if (portfolioValueEl) {
+                portfolioValueEl.textContent = `₩${this.formatNumber(totalValue)}`;
+            }
 
             const portfolioChange = document.getElementById('portfolio-change');
-            portfolioChange.innerHTML = `<span>${profitRate >= 0 ? '▲' : '▼'} ${Math.abs(profitRate).toFixed(2)}%</span>`;
-            portfolioChange.className = `stat-change ${profitRate >= 0 ? 'positive' : 'negative'}`;
+            if (portfolioChange) {
+                portfolioChange.innerHTML = `<span>${profitRate >= 0 ? '▲' : '▼'} ${Math.abs(profitRate).toFixed(2)}%</span>`;
+                portfolioChange.className = `stat-change ${profitRate >= 0 ? 'positive' : 'negative'}`;
+            }
 
-            document.getElementById('total-profit').textContent =
-                `₩${this.formatNumber(Math.abs(totalProfit))}`;
+            const totalProfitEl = document.getElementById('total-profit');
+            if (totalProfitEl) {
+                totalProfitEl.textContent = `₩${this.formatNumber(Math.abs(totalProfit))}`;
+            }
 
             const profitChange = document.getElementById('profit-change');
-            profitChange.innerHTML = `<span>${totalProfit >= 0 ? '수익' : '손실'}</span>`;
-            profitChange.className = `stat-change ${totalProfit >= 0 ? 'positive' : 'negative'}`;
+            if (profitChange) {
+                profitChange.innerHTML = `<span>${totalProfit >= 0 ? '수익' : '손실'}</span>`;
+                profitChange.className = `stat-change ${totalProfit >= 0 ? 'positive' : 'negative'}`;
+            }
 
-            document.getElementById('holdings-count').textContent = coinCount;
+            const holdingsCountEl = document.getElementById('holdings-count');
+            if (holdingsCountEl) {
+                holdingsCountEl.textContent = coinCount;
+            }
 
-            document.getElementById('win-rate').textContent = `${winRate.toFixed(1)}%`;
-            document.getElementById('trades-count').textContent =
-                `${completedTrades.length}건`;
+            const winRateEl = document.getElementById('win-rate');
+            if (winRateEl) {
+                winRateEl.textContent = `${winRate.toFixed(1)}%`;
+            }
+
+            const tradesCountEl = document.getElementById('trades-count');
+            if (tradesCountEl) {
+                tradesCountEl.textContent = `${completedTrades.length}건`;
+            }
         }
 
         displayHoldingsTable(holdingsData) {
@@ -1141,13 +1158,8 @@
         }
 
         formatNumber(num) {
-            if (num >= 1000000) {
-                return (num / 1000000).toFixed(2) + 'M';
-            } else if (num >= 1000) {
-                return (num / 1000).toFixed(2) + 'K';
-            } else {
-                return num.toFixed(0);
-            }
+            // Format as full Korean Won with comma separators, no decimals
+            return Math.round(num).toLocaleString('ko-KR');
         }
 
         getTimeAgo(date) {
@@ -1167,19 +1179,25 @@
                 if (el) el.textContent = '오류';
             });
 
-            document.getElementById('holdings-table-container').innerHTML = `
-                <div class="empty-state">
-                    <h3>데이터 불러오기 실패</h3>
-                    <p>페이지를 새로고침해주세요</p>
-                </div>
-            `;
+            const holdingsContainer = document.getElementById('holdings-table-container');
+            if (holdingsContainer) {
+                holdingsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <h3>데이터 불러오기 실패</h3>
+                        <p>페이지를 새로고침해주세요</p>
+                    </div>
+                `;
+            }
 
-            document.getElementById('recent-activity-container').innerHTML = `
-                <div class="empty-state">
-                    <h3>활동 내역 불러오기 실패</h3>
-                    <p>페이지를 새로고침해주세요</p>
-                </div>
-            `;
+            const activityContainer = document.getElementById('recent-activity-container');
+            if (activityContainer) {
+                activityContainer.innerHTML = `
+                    <div class="empty-state">
+                        <h3>활동 내역 불러오기 실패</h3>
+                        <p>페이지를 새로고침해주세요</p>
+                    </div>
+                `;
+            }
         }
 
         async initPortfolioPage() {
