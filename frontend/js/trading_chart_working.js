@@ -306,6 +306,16 @@ class WorkingTradingChart {
             this.drawingTools.loadDrawings();
         }
 
+        // 수동 주문 패널 업데이트
+        if (this.updateOrderPanelCoin) {
+            console.log('[Working] Updating manual order panel for new coin');
+            this.updateOrderPanelCoin();
+        }
+        if (this.updateAvailableBalances) {
+            console.log('[Working] Updating available balances for new coin');
+            this.updateAvailableBalances();
+        }
+
         console.log(`[Working] Coin changed to ${market}`);
     }
 

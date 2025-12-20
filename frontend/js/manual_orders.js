@@ -110,14 +110,16 @@ WorkingTradingChart.prototype.updateOrderPanelCoin = function() {
     const currentPrice = document.getElementById('order-current-price');
 
     if (coinSymbol) {
-        const symbol = this.selectedMarket?.replace('KRW-', '') || 'XRP';
+        const symbol = this.currentMarket?.replace('KRW-', '') || 'BTC';
         coinSymbol.textContent = symbol;
+        console.log('[ManualOrders] Updated coin symbol to:', symbol);
     }
 
     if (currentPrice && this.chartData && this.chartData.length > 0) {
         const latestCandle = this.chartData[this.chartData.length - 1];
         const price = latestCandle.close;
         currentPrice.textContent = price.toLocaleString() + '원';
+        console.log('[ManualOrders] Updated current price to:', price.toLocaleString());
     }
 };
 
@@ -140,7 +142,7 @@ WorkingTradingChart.prototype.submitBuyOrder = async function() {
         return;
     }
 
-    const market = this.selectedMarket || 'KRW-XRP';
+    const market = this.currentMarket || 'KRW-BTC';
 
     try {
         const response = await fetch('http://localhost:8081/api/trading/order', {
@@ -197,7 +199,7 @@ WorkingTradingChart.prototype.submitSellOrder = async function() {
         return;
     }
 
-    const market = this.selectedMarket || 'KRW-XRP';
+    const market = this.currentMarket || 'KRW-BTC';
 
     try {
         const response = await fetch('http://localhost:8081/api/trading/order', {
@@ -325,7 +327,7 @@ WorkingTradingChart.prototype.updateAvailableBalances = async function() {
         }
 
         // Get current coin holding for selling
-        const market = this.selectedMarket || 'KRW-XRP';
+        const market = this.currentMarket || 'KRW-BTC';
         const holdingsResponse = await fetch('http://localhost:8081/api/holdings');
         const holdingsResult = await holdingsResponse.json();
 
