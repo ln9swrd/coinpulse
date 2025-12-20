@@ -100,11 +100,22 @@ class APIHandler {
     // 공통 API 호출 메서드
     async makeRequest(url, options = {}) {
         try {
+            // JWT 토큰을 localStorage에서 가져오기
+            const accessToken = localStorage.getItem('access_token');
+
+            // 헤더 구성
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+
+            // JWT 토큰이 있으면 Authorization 헤더 추가
+            if (accessToken) {
+                headers['Authorization'] = `Bearer ${accessToken}`;
+            }
+
             const response = await fetch(url, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...options.headers
-                },
+                headers,
                 ...options
             });
 
