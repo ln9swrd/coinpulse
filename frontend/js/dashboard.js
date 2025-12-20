@@ -880,7 +880,7 @@
 
                 const response = await fetch(`${apiUrl}/api/holdings`, {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
                     }
                 });
 
@@ -910,7 +910,7 @@
 
                 const response = await fetch(`${apiUrl}/api/orders?limit=50`, {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
                     }
                 });
 
@@ -2283,7 +2283,8 @@
                     await window.authManager.logout();
                 } else {
                     // Fallback: clear local storage
-                    localStorage.removeItem('auth_token');
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('refresh_token');
                     localStorage.removeItem('user_data');
                     localStorage.removeItem('remember_me');
                 }
