@@ -362,11 +362,11 @@ class CoinPulseAPI {
      */
     async getAutoTradingStatus() {
         // Get current user to extract user_id
-        const user = await this.getCurrentUser();
-        if (!user || !user.id) {
+        const response = await this.getCurrentUser();
+        if (!response || !response.user || !response.user.id) {
             throw new Error('User not authenticated');
         }
-        return this.get(`/api/auto-trading/status/${user.id}`);
+        return this.get(`/api/auto-trading/status/${response.user.id}`);
     }
 
     // ========================================================================
