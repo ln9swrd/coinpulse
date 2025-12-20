@@ -132,49 +132,81 @@ class APIHandler {
 
     // 차트 데이터 API
     async getCandles(timeframe, market, count = 200, unit = null, to = null) {
-        // API_CONFIG가 로드되었는지 확인
-        if (!API_CONFIG.chartServer || !API_CONFIG.endpoints) {
-            throw new Error('API configuration not loaded yet');
-        }
-        
-        const params = { market, count };
-        if (unit) params.unit = unit;
-        if (to) params.to = to;
+        try {
+            // API_CONFIG가 로드되었는지 확인
+            if (!API_CONFIG.chartServer || !API_CONFIG.endpoints) {
+                throw new Error('API configuration not loaded yet');
+            }
 
-        const url = `${API_CONFIG.chartServer}${API_CONFIG.endpoints.chart.candles[timeframe]}`;
-        const cacheKey = this.getCacheKey(url, params);
-        
-        const cached = this.getFromCache(cacheKey);
-        if (cached) {
-            return cached;
-        }
+            const params = { market, count };
+            if (unit) params.unit = unit;
+            if (to) params.to = to;
 
-        const queryString = new URLSearchParams(params).toString();
-        const fullUrl = `${url}?${queryString}`;
-        
-        const data = await this.makeRequest(fullUrl);
-        this.setCache(cacheKey, data);
-        
-        return data;
+            const url = `${API_CONFIG.chartServer}${API_CONFIG.endpoints.chart.candles[timeframe]}`;
+            const cacheKey = this.getCacheKey(url, params);
+
+            const cached = this.getFromCache(cacheKey);
+            if (cached) {
+                return cached;
+            }
+
+            const queryString = new URLSearchParams(params).toString();
+            const fullUrl = `${url}?${queryString}`;
+
+            const data = await this.makeRequest(fullUrl);
+
+            // Wrap response for consistency with other methods
+            const response = {
+                success: true,
+                data: data
+            };
+
+            this.setCache(cacheKey, response);
+            console.log('[API] Candles loaded:', data.length, 'candles for', market);
+
+            return response;
+        } catch (error) {
+            console.error('[API] getCandles failed:', error);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
     }
 
     async getMarketList() {
-        if (!API_CONFIG.chartServer || !API_CONFIG.endpoints) {
-            throw new Error('API configuration not loaded yet');
-        }
-        
-        const url = `${API_CONFIG.chartServer}${API_CONFIG.endpoints.chart.market}`;
-        const cacheKey = this.getCacheKey(url);
-        
-        const cached = this.getFromCache(cacheKey);
-        if (cached) {
-            return cached;
-        }
+        try {
+            if (!API_CONFIG.chartServer || !API_CONFIG.endpoints) {
+                throw new Error('API configuration not loaded yet');
+            }
 
-        const data = await this.makeRequest(url);
-        this.setCache(cacheKey, data);
-        
-        return data;
+            const url = `${API_CONFIG.chartServer}${API_CONFIG.endpoints.chart.market}`;
+            const cacheKey = this.getCacheKey(url);
+
+            const cached = this.getFromCache(cacheKey);
+            if (cached) {
+                return cached;
+            }
+
+            const data = await this.makeRequest(url);
+
+            // Wrap response for consistency
+            const response = {
+                success: true,
+                data: data
+            };
+
+            this.setCache(cacheKey, response);
+            console.log('[API] Market list loaded:', data.length, 'markets');
+
+            return response;
+        } catch (error) {
+            console.error('[API] getMarketList failed:', error);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
     }
 
     // 거래 API
