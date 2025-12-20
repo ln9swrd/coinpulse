@@ -374,7 +374,8 @@ def setup_security_middleware(app):
             response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
 
         # X-Frame-Options (clickjacking protection)
-        response.headers['X-Frame-Options'] = 'DENY'
+        # SAMEORIGIN allows framing within same domain (for trading chart iframe)
+        response.headers['X-Frame-Options'] = 'SAMEORIGIN'
 
         # X-Content-Type-Options (MIME sniffing protection)
         response.headers['X-Content-Type-Options'] = 'nosniff'
