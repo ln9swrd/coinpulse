@@ -2311,13 +2311,13 @@
                     if (plan === 'free') {
                         alert('이미 무료 플랜을 사용 중입니다.');
                     } else if (plan === 'basic') {
-                        // TODO: Redirect to checkout page
+                        // Redirect to payment guide page
                         console.log('[Pricing] Upgrading to Basic');
-                        alert('Basic 업그레이드 기능이 곧 제공됩니다!\n결제 페이지로 이동합니다.');
+                        window.location.href = `/payment_guide.html?plan=basic&billing=monthly`;
                     } else if (plan === 'pro') {
-                        // TODO: Redirect to checkout page
+                        // Redirect to payment guide page
                         console.log('[Pricing] Upgrading to Pro');
-                        alert('Pro 업그레이드 기능이 곧 제공됩니다!\n결제 페이지로 이동합니다.');
+                        window.location.href = `/payment_guide.html?plan=pro&billing=monthly`;
                     }
                 });
             });

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>입금 확인 제출 - CoinPulse</title>
+    <link rel="stylesheet" href="css/integrated.css">
+    <script src="js/api_client.js?v=20251221"></script>
+    <style>
+        .confirm-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 28px;
+        }
+
+        .header p {
+            margin: 0;
+            color: #666;
+            font-size: 16px;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group label .required {
+            color: #e53e3e;
+            margin-left: 4px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 6px;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .plan-summary-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .plan-summary-box h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .plan-summary-box .detail {
+            display: flex;
+            justify-content: space-between;
+            margin: 6px 0;
+            font-size: 14px;
+        }
+
+        .plan-summary-box .detail strong {
+            color: #667eea;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .cancel-btn {
+            width: 100%;
+            padding: 15px;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        .cancel-btn:hover {
+            background: #f8f9fa;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message {
+            background: #e6ffe6;
+            color: #2d7a2d;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+
+        .success-message h3 {
+            margin: 0 0 10px 0;
+            color: #2d7a2d;
+        }
+
+        .datetime-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .confirm-container {
+                padding: 15px;
+                margin: 20px auto;
+            }
+
+            .datetime-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="confirm-container">
+        <div class="header">
+            <h1>입금 확인 제출</h1>
+            <p>입금하신 정보를 정확히 입력해 주세요</p>
+        </div>
+
+        <div class="form-card">
+            <!-- 플랜 요약 -->
+            <div class="plan-summary-box">
+                <h3>선택하신 플랜</h3>
+                <div class="detail">
+                    <span>플랜</span>
+                    <strong id="summary-plan">Pro 플랜</strong>
+                </div>
+                <div class="detail">
+                    <span>결제 주기</span>
+                    <strong id="summary-billing">월간</strong>
+                </div>
+                <div class="detail">
+                    <span>금액</span>
+                    <strong id="summary-amount">₩99,000</strong>
+                </div>
+            </div>
+
+            <!-- 에러 메시지 -->
+            <div class="error-message" id="error-message"></div>
+
+            <!-- 성공 메시지 -->
+            <div class="success-message" id="success-message">
+                <h3>✅ 입금 확인이 제출되었습니다</h3>
+                <p>관리자 확인 후 이메일로 안내드리겠습니다.<br>보통 1-2시간 이내에 처리됩니다.</p>
+                <button class="submit-btn" onclick="goToDashboard()" style="margin-top: 20px;">
+                    대시보드로 이동
+                </button>
+            </div>
+
+            <!-- 입금 확인 폼 -->
+            <form id="confirmation-form">
+                <div class="form-group">
+                    <label for="user-name">
+                        이름<span class="required">*</span>
+                    </label>
+                    <input type="text" id="user-name" name="user_name" required
+                           placeholder="홍길동">
+                </div>
+
+                <div class="form-group">
+                    <label for="user-phone">
+                        연락처
+                    </label>
+                    <input type="tel" id="user-phone" name="user_phone"
+                           placeholder="010-1234-5678">
+                    <small>입금 확인 관련 연락이 필요할 경우에만 사용됩니다</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="depositor-name">
+                        입금자명<span class="required">*</span>
+                    </label>
+                    <input type="text" id="depositor-name" name="depositor_name" required
+                           placeholder="홍길동">
+                    <small>은행 이체 시 입력한 이름 (통장에 표시되는 이름)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="transfer-date">
+                        입금 일시<span class="required">*</span>
+                    </label>
+                    <div class="datetime-group">
+                        <input type="date" id="transfer-date" name="transfer_date" required>
+                        <input type="time" id="transfer-time" name="transfer_time" required>
+                    </div>
+                    <small>정확한 입금 시간을 선택해 주세요</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="bank-name">
+                        출금 은행
+                    </label>
+                    <select id="bank-name" name="bank_name">
+                        <option value="">선택 (선택사항)</option>
+                        <option value="KB국민은행">KB국민은행</option>
+                        <option value="신한은행">신한은행</option>
+                        <option value="우리은행">우리은행</option>
+                        <option value="하나은행">하나은행</option>
+                        <option value="NH농협은행">NH농협은행</option>
+                        <option value="기업은행">기업은행</option>
+                        <option value="SC제일은행">SC제일은행</option>
+                        <option value="카카오뱅크">카카오뱅크</option>
+                        <option value="토스뱅크">토스뱅크</option>
+                        <option value="케이뱅크">케이뱅크</option>
+                        <option value="기타">기타</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">
+                        추가 메모
+                    </label>
+                    <textarea id="notes" name="notes"
+                              placeholder="입금과 관련된 추가 정보가 있다면 입력해 주세요 (선택사항)"></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submit-btn">
+                    입금 확인 제출
+                </button>
+
+                <button type="button" class="cancel-btn" onclick="window.history.back()">
+                    취소
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // URL 파라미터에서 플랜 정보 읽기
+        const urlParams = new URLSearchParams(window.location.search);
+        const plan = urlParams.get('plan') || 'pro';
+        const billing = urlParams.get('billing') || 'monthly';
+        const amount = parseInt(urlParams.get('amount')) || 99000;
+
+        // 플랜 정보 표시
+        const planNames = {
+            'basic': 'Basic 플랜',
+            'pro': 'Pro 플랜'
+        };
+
+        const billingNames = {
+            'monthly': '월간',
+            'annual': '연간'
+        };
+
+        document.getElementById('summary-plan').textContent = planNames[plan] || 'Pro 플랜';
+        document.getElementById('summary-billing').textContent = billingNames[billing] || '월간';
+        document.getElementById('summary-amount').textContent = `₩${amount.toLocaleString()}`;
+
+        // 오늘 날짜를 기본값으로 설정
+        const today = new Date();
+        const dateStr = today.toISOString().split('T')[0];
+        const timeStr = today.toTimeString().slice(0, 5);
+        document.getElementById('transfer-date').value = dateStr;
+        document.getElementById('transfer-time').value = timeStr;
+
+        // 폼 제출
+        document.getElementById('confirmation-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submit-btn');
+            const errorMsg = document.getElementById('error-message');
+            const successMsg = document.getElementById('success-message');
+            const form = document.getElementById('confirmation-form');
+
+            // 버튼 비활성화
+            submitBtn.disabled = true;
+            submitBtn.textContent = '제출 중...';
+            errorMsg.style.display = 'none';
+
+            try {
+                // 폼 데이터 수집
+                const transferDate = document.getElementById('transfer-date').value;
+                const transferTime = document.getElementById('transfer-time').value;
+                const transferDateTime = `${transferDate}T${transferTime}:00`;
+
+                const data = {
+                    user_name: document.getElementById('user-name').value,
+                    user_phone: document.getElementById('user-phone').value,
+                    plan: plan,
+                    billing_period: billing,
+                    amount: amount,
+                    depositor_name: document.getElementById('depositor-name').value,
+                    transfer_date: transferDateTime,
+                    bank_name: document.getElementById('bank-name').value,
+                    notes: document.getElementById('notes').value
+                };
+
+                // API 클라이언트가 로드될 때까지 대기
+                if (!window.api) {
+                    let attempts = 0;
+                    while (!window.api && attempts < 50) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        attempts++;
+                    }
+                }
+
+                if (!window.api) {
+                    throw new Error('API 클라이언트를 로드할 수 없습니다.');
+                }
+
+                // API 호출
+                const response = await window.api.post('/api/payment-confirm/submit', data);
+
+                if (response.success) {
+                    // 성공 - 폼 숨기고 성공 메시지 표시
+                    form.style.display = 'none';
+                    successMsg.style.display = 'block';
+
+                    // 5초 후 자동으로 대시보드로 이동
+                    setTimeout(() => {
+                        goToDashboard();
+                    }, 5000);
+                } else {
+                    throw new Error(response.error || '제출에 실패했습니다.');
+                }
+
+            } catch (error) {
+                console.error('Payment confirmation error:', error);
+                errorMsg.textContent = `오류: ${error.message}`;
+                errorMsg.style.display = 'block';
+
+                submitBtn.disabled = false;
+                submitBtn.textContent = '입금 확인 제출';
+            }
+        });
+
+        function goToDashboard() {
+            window.location.href = '/dashboard.html';
+        }
+    </script>
+</body>
+</html>
