@@ -107,7 +107,9 @@ class RateLimiter:
         """
         # Exclude static files and HTML pages from rate limiting
         static_extensions = ('.html', '.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.eot')
-        if path.endswith(static_extensions) or path.startswith('/static/') or path.startswith('/frontend/'):
+        # Remove query parameters for checking
+        path_without_query = path.split('?')[0]
+        if path_without_query.endswith(static_extensions) or path_without_query.startswith('/static/') or path_without_query.startswith('/frontend/'):
             return True, 0
 
         # Check if IP is blocked
@@ -132,6 +134,8 @@ class RateLimiter:
         else:
             # Calculate retry after
             retry_after = int(limit_config['window'] / limit_config['requests'])
+            # Log rate limit info for debugging
+            print(f"[RateLimit] BLOCKED: {identifier} - Path: {path} - Tokens: {tokens:.2f} - Limit: {limit_config}")
             return False, retry_after
 
     def block_ip(self, ip, duration_seconds=3600):
