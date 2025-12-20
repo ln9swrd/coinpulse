@@ -385,34 +385,43 @@ class DataLoader {
                 // Update KRW Balance Section
                 if (response.krw) {
                     const krw = response.krw;
+                    const balance = krw.balance || krw || 0;
+                    const locked = krw.locked || 0;
+                    const total = krw.total || balance;
                     document.getElementById('krw-balance').textContent =
-                        `${krw.balance.toLocaleString()} KRW`;
+                        `${balance.toLocaleString()} KRW`;
                     document.getElementById('krw-locked').textContent =
-                        `${krw.locked.toLocaleString()} KRW`;
+                        `${locked.toLocaleString()} KRW`;
                     document.getElementById('krw-total').textContent =
-                        `${krw.total.toLocaleString()} KRW`;
-                    console.log('[Working] KRW balance updated:', krw);
+                        `${total.toLocaleString()} KRW`;
+                    console.log('[Working] KRW balance updated:', { balance, locked, total });
                 }
     
                 // Update Portfolio Summary Section
                 if (response.summary) {
                     const summary = response.summary;
+                    const totalValue = summary.total_value_krw || summary.total_value || 0;
+                    const cryptoValue = summary.total_crypto_value || (totalValue - (response.krw || 0)) || 0;
+                    const totalProfit = summary.total_profit_loss_krw || summary.total_profit || 0;
+                    const profitRate = summary.total_profit_rate || summary.profit_rate || 0;
+                    const coinCount = summary.coin_count || 0;
+
                     document.getElementById('summary-total-value').textContent =
-                        `${summary.total_value.toLocaleString()} KRW`;
+                        `${totalValue.toLocaleString()} KRW`;
                     document.getElementById('summary-crypto-value').textContent =
-                        `${summary.total_crypto_value.toLocaleString()} KRW`;
-    
+                        `${cryptoValue.toLocaleString()} KRW`;
+
                     const profitEl = document.getElementById('summary-profit');
-                    profitEl.textContent = `${summary.total_profit >= 0 ? '+' : ''}${summary.total_profit.toLocaleString()} KRW`;
-                    profitEl.className = `summary-item-value ${summary.total_profit >= 0 ? 'profit' : 'loss'}`;
-    
+                    profitEl.textContent = `${totalProfit >= 0 ? '+' : ''}${totalProfit.toLocaleString()} KRW`;
+                    profitEl.className = `summary-item-value ${totalProfit >= 0 ? 'profit' : 'loss'}`;
+
                     const profitRateEl = document.getElementById('summary-profit-rate');
-                    profitRateEl.textContent = `${summary.profit_rate >= 0 ? '+' : ''}${summary.profit_rate.toFixed(2)}%`;
-                    profitRateEl.className = `summary-item-value ${summary.profit_rate >= 0 ? 'profit' : 'loss'}`;
-    
+                    profitRateEl.textContent = `${profitRate >= 0 ? '+' : ''}${profitRate.toFixed(2)}%`;
+                    profitRateEl.className = `summary-item-value ${profitRate >= 0 ? 'profit' : 'loss'}`;
+
                     document.getElementById('summary-coin-count').textContent =
-                        `${summary.coin_count} coins`;
-                    console.log('[Working] Portfolio summary updated:', summary);
+                        `${coinCount} coins`;
+                    console.log('[Working] Portfolio summary updated:', { totalValue, cryptoValue, totalProfit, profitRate, coinCount });
                 }
     
                 // 서버 응답 처리: 여러 형태 지원

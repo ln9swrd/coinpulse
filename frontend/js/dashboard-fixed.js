@@ -216,7 +216,7 @@
                 contentContainer.innerHTML = content;
 
                 // Wait for DOM to update before initializing scripts
-                await new Promise(resolve => setTimeout(resolve, 0));
+                await new Promise(resolve => setTimeout(resolve, 100));
 
                 // Initialize page-specific scripts
                 this.initPageScripts(pageName);
