@@ -1022,12 +1022,17 @@
             console.log('[DEBUG] holdingsData.coins:', holdingsData?.coins);
             console.log('[DEBUG] holdingsData.coins length:', holdingsData?.coins?.length);
 
-            const container = document.getElementById('holdings-table-container');
+            // Try both container IDs (overview page and portfolio page)
+            let container = document.getElementById('holdings-table-container');
+            if (!container) {
+                container = document.getElementById('portfolio-holdings-table');
+            }
+
             console.log('[DEBUG] container found:', !!container);
             console.log('[DEBUG] container element:', container);
 
             if (!container) {
-                console.warn('[Dashboard] holdings-table-container not found');
+                console.warn('[Dashboard] No holdings table container found');
                 return;
             }
 
