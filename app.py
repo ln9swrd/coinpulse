@@ -42,6 +42,7 @@ from backend.routes.suspension_admin import suspension_admin_bp  # ✅ Re-enable
 from backend.routes.plan_admin import plan_admin_bp  # Plan configuration management
 from backend.routes.stats_routes import stats_bp  # Statistics API
 from backend.routes.surge_routes import surge_bp  # Surge prediction MVP (81.25% accuracy)
+from backend.routes.monitoring_routes import monitoring_bp  # Signal scheduler monitoring
 from backend.routes.scheduler_admin import scheduler_admin_bp  # Subscription scheduler admin
 from backend.routes.upbit_proxy_routes import upbit_proxy_bp  # Upbit API proxy for chart data
 from backend.routes.subscription_admin import subscription_admin_bp  # Admin subscription management
@@ -211,6 +212,7 @@ def register_blueprints():
         (plan_admin_bp, None),  # Plan admin (already has /api/admin/plans prefix)
         (stats_bp, None),  # Statistics API (already has /api/stats prefix)
         (surge_bp, '/api'),  # Surge prediction API (81.25% backtest accuracy)
+        (monitoring_bp, '/api/monitoring'),  # Signal scheduler monitoring
         (scheduler_admin_bp, '/api/admin'),  # Subscription renewal scheduler admin
         (upbit_proxy_bp, None),  # Upbit API proxy (already has /api/upbit prefix)
         (subscription_admin_bp, None),  # Admin subscription management (already has /api/admin/subscriptions prefix)
