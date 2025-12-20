@@ -124,6 +124,13 @@ class RateLimiter:
         if path_without_query in auth_get_endpoints:
             return True, 0
 
+        # Exclude auto-trading GET endpoints (dynamic paths with user_id)
+        if path_without_query.startswith('/api/auto-trading/status/') or \
+           path_without_query.startswith('/api/auto-trading/config/') or \
+           path_without_query.startswith('/api/auto-trading/positions/') or \
+           path_without_query.startswith('/api/auto-trading/history/'):
+            return True, 0
+
         # Check if IP is blocked
         if identifier in self.blocked_ips:
             block_until = self.blocked_ips[identifier]
