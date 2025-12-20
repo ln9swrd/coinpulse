@@ -341,11 +341,23 @@ class CoinPulseAPI {
 
     /**
      * Start auto trading
-     * @param {Object} config
+     * @param {Object} config - Optional configuration (budget, positions, etc.)
      * @returns {Promise<Object>}
      */
-    async startAutoTrading(config) {
-        return this.post('/api/auto-trading/start', config);
+    async startAutoTrading(config = {}) {
+        // Get current user to extract user_id
+        const userResponse = await this.getCurrentUser();
+        if (!userResponse || !userResponse.user || !userResponse.user.id) {
+            throw new Error('User not authenticated');
+        }
+
+        const userId = userResponse.user.id;
+        const updateData = {
+            auto_trading_enabled: true,
+            ...config
+        };
+
+        return this.put(`/api/auto-trading/config/${userId}`, updateData);
     }
 
     /**
@@ -353,7 +365,18 @@ class CoinPulseAPI {
      * @returns {Promise<Object>}
      */
     async stopAutoTrading() {
-        return this.post('/api/auto-trading/stop');
+        // Get current user to extract user_id
+        const userResponse = await this.getCurrentUser();
+        if (!userResponse || !userResponse.user || !userResponse.user.id) {
+            throw new Error('User not authenticated');
+        }
+
+        const userId = userResponse.user.id;
+        const updateData = {
+            auto_trading_enabled: false
+        };
+
+        return this.put(`/api/auto-trading/config/${userId}`, updateData);
     }
 
     /**
@@ -367,6 +390,60 @@ class CoinPulseAPI {
             throw new Error('User not authenticated');
         }
         return this.get(`/api/auto-trading/status/${response.user.id}`);
+    }
+
+    /**
+     * Get auto trading configuration
+     * @returns {Promise<Object>}
+     */
+    async getAutoTradingConfig() {
+        // Get current user to extract user_id
+        const response = await this.getCurrentUser();
+        if (!response || !response.user || !response.user.id) {
+            throw new Error('User not authenticated');
+        }
+        return this.get(`/api/auto-trading/config/${response.user.id}`);
+    }
+
+    /**
+     * Update auto trading configuration
+     * @param {Object} config - Configuration to update
+     * @returns {Promise<Object>}
+     */
+    async updateAutoTradingConfig(config) {
+        // Get current user to extract user_id
+        const response = await this.getCurrentUser();
+        if (!response || !response.user || !response.user.id) {
+            throw new Error('User not authenticated');
+        }
+        return this.put(`/api/auto-trading/config/${response.user.id}`, config);
+    }
+
+    /**
+     * Get open trading positions
+     * @returns {Promise<Object>}
+     */
+    async getAutoTradingPositions() {
+        // Get current user to extract user_id
+        const response = await this.getCurrentUser();
+        if (!response || !response.user || !response.user.id) {
+            throw new Error('User not authenticated');
+        }
+        return this.get(`/api/auto-trading/positions/${response.user.id}`);
+    }
+
+    /**
+     * Get auto trading history
+     * @param {number} limit - Number of records to fetch
+     * @returns {Promise<Object>}
+     */
+    async getAutoTradingHistory(limit = 50) {
+        // Get current user to extract user_id
+        const response = await this.getCurrentUser();
+        if (!response || !response.user || !response.user.id) {
+            throw new Error('User not authenticated');
+        }
+        return this.get(`/api/auto-trading/history/${response.user.id}`, { limit });
     }
 
     // ========================================================================

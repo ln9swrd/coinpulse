@@ -12,34 +12,44 @@ class AutoTradingController {
     constructor() {
         this.holdingsAutoEnabled = false;
         this.activeAutoEnabled = false;
-        this.tradingServerUrl = '';
         this.pollingInterval = null;
-        this.setupConfig();
+        this.apiClient = null;
+        this.init();
     }
 
     /**
-     * Load configuration from config.json
+     * Initialize the controller
      */
-    async setupConfig() {
-        try {
-            const response = await fetch('config.json');
-            const config = await response.json();
-            this.tradingServerUrl = config.api.tradingServerUrl || 'http://localhost:8081';
-            console.log('[AutoTrading] Config loaded:', this.tradingServerUrl);
+    async init() {
+        // Wait for API client to be available
+        await this.waitForAPIClient();
 
-            // Setup event listeners after config is loaded
-            this.setupEventListeners();
+        // Setup event listeners
+        this.setupEventListeners();
 
-            // Load initial status
-            await this.loadCurrentStatus();
+        // Load initial status
+        await this.loadCurrentStatus();
 
-            // Start polling for status updates
-            this.startPolling();
-        } catch (error) {
-            console.error('[AutoTrading] Failed to load config:', error);
-            // Use default
-            this.tradingServerUrl = 'http://localhost:8081';
-            this.setupEventListeners();
+        // Start polling for status updates
+        this.startPolling();
+    }
+
+    /**
+     * Wait for API client to be initialized
+     */
+    async waitForAPIClient() {
+        let attempts = 0;
+        while (!window.api && attempts < 50) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+        }
+
+        if (window.api) {
+            this.apiClient = window.api;
+            console.log('[AutoTrading] API client ready');
+        } else {
+            console.error('[AutoTrading] API client not available');
+            throw new Error('API client not initialized');
         }
     }
 
@@ -71,17 +81,16 @@ class AutoTradingController {
      */
     async loadCurrentStatus() {
         try {
-            const response = await fetch(`${this.tradingServerUrl}/api/trading/status`);
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
+            const response = await this.apiClient.getAutoTradingStatus();
+            console.log('[AutoTrading] Current status:', response);
+
+            if (response.success) {
+                // Update UI with current status
+                this.holdingsAutoEnabled = response.auto_trading_enabled || false;
+                this.updateButtonStatus('holdings-status', this.holdingsAutoEnabled);
+            } else {
+                throw new Error(response.error || 'Failed to load status');
             }
-
-            const data = await response.json();
-            console.log('[AutoTrading] Current status:', data);
-
-            // Update UI with current status
-            this.holdingsAutoEnabled = data.auto_trading_enabled || false;
-            this.updateButtonStatus('holdings-status', this.holdingsAutoEnabled);
 
         } catch (error) {
             console.error('[AutoTrading] Failed to load status:', error);
@@ -97,25 +106,21 @@ class AutoTradingController {
         console.log('[AutoTrading] Toggling holdings auto to:', newState);
 
         try {
-            const response = await fetch(`${this.tradingServerUrl}/api/trading/enable`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({enabled: newState})
-            });
+            const response = newState
+                ? await this.apiClient.startAutoTrading()
+                : await this.apiClient.stopAutoTrading();
 
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
+            if (response.success) {
+                this.holdingsAutoEnabled = newState;
+                this.updateButtonStatus('holdings-status', this.holdingsAutoEnabled);
+                console.log('[AutoTrading] Holdings auto-trading', this.holdingsAutoEnabled ? 'enabled' : 'disabled');
+            } else {
+                throw new Error(response.error || 'Failed to toggle auto-trading');
             }
-
-            const data = await response.json();
-            this.holdingsAutoEnabled = data.enabled;
-            this.updateButtonStatus('holdings-status', this.holdingsAutoEnabled);
-
-            console.log('[AutoTrading] Holdings auto-trading', this.holdingsAutoEnabled ? 'enabled' : 'disabled');
 
         } catch (error) {
             console.error('[AutoTrading] Failed to toggle holdings auto:', error);
-            alert('Failed to toggle auto-trading. Check if trading server is running on port 8081.');
+            alert(`자동 거래 ${newState ? '시작' : '중지'} 실패: ${error.message}`);
         }
     }
 
@@ -126,28 +131,24 @@ class AutoTradingController {
         const newState = !this.activeAutoEnabled;
         console.log('[AutoTrading] Toggling active auto to:', newState);
 
-        // For now, this uses same backend as holdings
-        // In future, could have separate endpoint for active trading
         try {
-            const response = await fetch(`${this.tradingServerUrl}/api/trading/enable`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({enabled: newState, mode: 'active'})
-            });
+            // For now, this uses same backend as holdings
+            // In future, could have separate endpoint for active trading
+            const response = newState
+                ? await this.apiClient.startAutoTrading()
+                : await this.apiClient.stopAutoTrading();
 
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
+            if (response.success) {
+                this.activeAutoEnabled = newState;
+                this.updateButtonStatus('active-status', this.activeAutoEnabled);
+                console.log('[AutoTrading] Active auto-trading', this.activeAutoEnabled ? 'enabled' : 'disabled');
+            } else {
+                throw new Error(response.error || 'Failed to toggle auto-trading');
             }
-
-            const data = await response.json();
-            this.activeAutoEnabled = data.enabled;
-            this.updateButtonStatus('active-status', this.activeAutoEnabled);
-
-            console.log('[AutoTrading] Active auto-trading', this.activeAutoEnabled ? 'enabled' : 'disabled');
 
         } catch (error) {
             console.error('[AutoTrading] Failed to toggle active auto:', error);
-            alert('Failed to toggle active auto-trading. Check if trading server is running on port 8081.');
+            alert(`활성 자동 거래 ${newState ? '시작' : '중지'} 실패: ${error.message}`);
         }
     }
 
@@ -178,20 +179,18 @@ class AutoTradingController {
      */
     async showPolicySettings() {
         try {
-            console.log('[AutoTrading] Loading policies...');
-            const response = await fetch(`${this.tradingServerUrl}/api/trading/policies`);
+            console.log('[AutoTrading] Loading auto-trading config...');
+            const response = await this.apiClient.getAutoTradingConfig();
 
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
+            if (response.success) {
+                console.log('[AutoTrading] Current config:', response.config);
+                // Policy modal UI handles this now - no alert needed
+            } else {
+                throw new Error(response.error || 'Failed to load config');
             }
 
-            const policies = await response.json();
-            console.log('[AutoTrading] Current policies:', policies);
-
-            // Policy modal UI handles this now - no alert needed
-
         } catch (error) {
-            console.error('[AutoTrading] Failed to load policies:', error);
+            console.error('[AutoTrading] Failed to load config:', error);
             // Policy modal UI handles errors - no alert needed
         }
     }
