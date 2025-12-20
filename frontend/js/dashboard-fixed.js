@@ -2307,15 +2307,16 @@
                     const plan = button.getAttribute('data-plan');
 
                     if (plan === 'free') {
-                        alert('You are already on the Free plan.');
+                        alert('이미 무료 플랜을 사용 중입니다.');
                     } else if (plan === 'premium') {
                         // TODO: Redirect to checkout page
                         console.log('[Pricing] Upgrading to Premium');
-                        alert('Premium upgrade coming soon! This will redirect to the payment page.');
+                        alert('Premium 업그레이드 기능이 곧 제공됩니다!\n결제 페이지로 이동합니다.');
                     } else if (plan === 'pro') {
-                        // TODO: Redirect to checkout page
-                        console.log('[Pricing] Upgrading to Pro');
-                        alert('Pro upgrade coming soon! This will redirect to the payment page.');
+                        // Pro plan maps to "enterprise" in backend
+                        // TODO: Redirect to checkout page with plan=enterprise
+                        console.log('[Pricing] Upgrading to Pro (backend: enterprise)');
+                        alert('Pro 업그레이드 기능이 곧 제공됩니다!\n결제 페이지로 이동합니다.');
                     }
                 });
             });

@@ -212,8 +212,8 @@ PLAN_PRICING = {
         BillingPeriod.ANNUAL: 470400  # 20% discount
     },
     SubscriptionPlan.ENTERPRISE: {
-        BillingPeriod.MONTHLY: None,  # Custom pricing
-        BillingPeriod.ANNUAL: None    # Custom pricing
+        BillingPeriod.MONTHLY: 99000,  # Pro plan (public name)
+        BillingPeriod.ANNUAL: 950400   # 20% discount
     }
 }
 
