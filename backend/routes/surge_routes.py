@@ -9,12 +9,14 @@ Candle data and ticker information are publicly available.
 from flask import Blueprint, jsonify
 from backend.common import UpbitAPI
 from backend.services.surge_predictor import SurgePredictor
+from backend.services.market_filter_service import MarketFilter
 import time
 
 surge_bp = Blueprint('surge', __name__)
 
 # Initialize with public API (no authentication)
 upbit_api = UpbitAPI(None, None)  # Public API only
+market_filter = MarketFilter()
 
 # Config from backtest
 SURGE_CONFIG = {
@@ -30,15 +32,28 @@ SURGE_CONFIG = {
 
 predictor = SurgePredictor(SURGE_CONFIG)
 
-# Popular coins (from backtest)
-POPULAR_COINS = [
-    'KRW-XRP', 'KRW-ADA', 'KRW-DOGE', 'KRW-AVAX', 'KRW-SHIB',
-    'KRW-DOT', 'KRW-MATIC', 'KRW-SOL', 'KRW-LINK', 'KRW-BCH',
-    'KRW-NEAR', 'KRW-XLM', 'KRW-ALGO', 'KRW-ATOM', 'KRW-ETC',
-    'KRW-VET', 'KRW-ICP', 'KRW-FIL', 'KRW-HBAR', 'KRW-APT',
-    'KRW-SAND', 'KRW-MANA', 'KRW-AXS', 'KRW-AAVE', 'KRW-EOS',
-    'KRW-THETA', 'KRW-XTZ', 'KRW-EGLD', 'KRW-BSV', 'KRW-ZIL'
-]
+# Dynamic market list (top 50 by volume, excluding caution)
+def get_monitored_markets():
+    """
+    실시간 거래량 상위 50개 코인 조회 (투자유의 제외)
+
+    Returns:
+        list: 마켓 코드 리스트
+    """
+    try:
+        markets = market_filter.get_top_coins_by_volume(count=50, exclude_caution=True)
+        return markets if markets else []
+    except Exception as e:
+        print(f"[Surge] Error getting monitored markets: {e}")
+        # Fallback to popular coins
+        return [
+            'KRW-XRP', 'KRW-ADA', 'KRW-DOGE', 'KRW-AVAX', 'KRW-SHIB',
+            'KRW-DOT', 'KRW-MATIC', 'KRW-SOL', 'KRW-LINK', 'KRW-BCH',
+            'KRW-NEAR', 'KRW-XLM', 'KRW-ALGO', 'KRW-ATOM', 'KRW-ETC',
+            'KRW-VET', 'KRW-ICP', 'KRW-FIL', 'KRW-HBAR', 'KRW-APT',
+            'KRW-SAND', 'KRW-MANA', 'KRW-AXS', 'KRW-AAVE', 'KRW-EOS',
+            'KRW-THETA', 'KRW-XTZ', 'KRW-EGLD', 'KRW-BSV', 'KRW-ZIL'
+        ]
 
 
 @surge_bp.route('/surge-candidates', methods=['GET'])
@@ -62,15 +77,21 @@ def get_surge_candidates():
                 "avg_return": 19.12,
                 "total_trades": 16
             },
+            "monitored_markets": 50,
             "timestamp": "2025-12-13T10:00:00"
         }
     """
     try:
         print("[Surge] Analyzing candidates...")
+
+        # Get dynamic market list (top 50 by volume)
+        monitored_markets = get_monitored_markets()
+        print(f"[Surge] Monitoring {len(monitored_markets)} markets")
+
         candidates = []
 
-        # Analyze all popular coins
-        for market in POPULAR_COINS:
+        # Analyze all monitored coins
+        for market in monitored_markets:
             try:
                 # Get candle data (30 days) - PUBLIC API
                 candle_data = upbit_api.get_candles_days(market=market, count=30)
@@ -119,6 +140,7 @@ def get_surge_candidates():
                 'total_trades': 16,
                 'period': '2024-11-13 ~ 2024-12-07'
             },
+            'monitored_markets': len(monitored_markets),
             'timestamp': time.strftime('%Y-%m-%dT%H:%M:%S'),
             'count': len(candidates)
         })
