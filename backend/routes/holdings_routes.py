@@ -83,6 +83,12 @@ def get_holdings():
                 except:
                     current_price = avg_buy_price  # Fallback
 
+                # Handle None values
+                if current_price is None or current_price == 0:
+                    current_price = avg_buy_price if avg_buy_price else 0
+                if avg_buy_price is None:
+                    avg_buy_price = 0
+
                 total_balance = balance + locked
                 current_value = total_balance * current_price
                 invested_value = total_balance * avg_buy_price
