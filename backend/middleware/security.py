@@ -112,6 +112,11 @@ class RateLimiter:
         if path_without_query.endswith(static_extensions) or path_without_query.startswith('/static/') or path_without_query.startswith('/frontend/'):
             return True, 0
 
+        # Exclude auth GET endpoints (already secured by JWT tokens)
+        auth_get_endpoints = ['/api/auth/me', '/api/auth/check', '/api/user/plan']
+        if path_without_query in auth_get_endpoints:
+            return True, 0
+
         # Check if IP is blocked
         if identifier in self.blocked_ips:
             block_until = self.blocked_ips[identifier]
