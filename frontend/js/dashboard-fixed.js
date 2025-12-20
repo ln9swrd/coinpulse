@@ -1063,7 +1063,7 @@
                             <th>자산</th>
                             <th>수량</th>
                             <th>평균 매수가</th>
-                            <th>현재 가치</th>
+                            <th>현재가</th>
                             <th>손익</th>
                         </tr>
                     </thead>
@@ -1073,6 +1073,7 @@
             coins.forEach(coin => {
                 const balance = parseFloat(coin.balance || 0);
                 const avgPrice = parseFloat(coin.avg_price || 0);
+                const currentPrice = parseFloat(coin.current_price || 0);
                 const currentValue = parseFloat(coin.total_value || 0);
                 const profitLoss = parseFloat(coin.profit_loss || 0);
                 const profitPercent = parseFloat(coin.profit_rate || 0);
@@ -1100,7 +1101,7 @@
                         </td>
                         <td>${balance.toFixed(8)}</td>
                         <td>₩${this.formatNumber(avgPrice)}</td>
-                        <td>₩${this.formatNumber(currentValue)}</td>
+                        <td>₩${this.formatNumber(currentPrice)}</td>
                         <td>
                             <div class="stat-change ${profitLoss >= 0 ? 'positive' : 'negative'}">
                                 ${profitLoss >= 0 ? '▲' : '▼'} ₩${this.formatNumber(Math.abs(profitLoss))}
