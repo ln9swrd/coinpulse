@@ -215,6 +215,9 @@
 
                 contentContainer.innerHTML = content;
 
+                // Wait for DOM to update before initializing scripts
+                await new Promise(resolve => setTimeout(resolve, 0));
+
                 // Initialize page-specific scripts
                 this.initPageScripts(pageName);
 
@@ -1005,6 +1008,10 @@
 
         displayHoldingsTable(holdingsData) {
             const container = document.getElementById('holdings-table-container');
+            if (!container) {
+                console.warn('[Dashboard] holdings-table-container not found');
+                return;
+            }
 
             // holdingsData는 { coins: [...], krw: {...}, summary: {...} } 형식
             const coins = holdingsData.coins || [];
@@ -1113,6 +1120,10 @@
 
         displayRecentActivity(orders) {
             const container = document.getElementById('recent-activity-container');
+            if (!container) {
+                console.warn('[Dashboard] recent-activity-container not found');
+                return;
+            }
 
             if (!orders || orders.length === 0) {
                 container.innerHTML = `
