@@ -13,7 +13,7 @@ import jwt
 # Add backend to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from database.connection import get_session
+from database.connection import get_db_session
 from models.subscription_models import (
     Subscription, SubscriptionPlan, SubscriptionStatus,
     BillingPeriod, PLAN_PRICING
@@ -99,7 +99,7 @@ def get_user_subscription(user_id):
     }
     """
     try:
-        session = get_session()
+        session = get_db_session()
 
         subscription = session.query(Subscription).filter(
             Subscription.user_id == user_id
@@ -160,7 +160,7 @@ def extend_subscription(user_id):
         days = data['days']
         reason = data.get('reason', 'Admin extension')
 
-        session = get_session()
+        session = get_db_session()
 
         # Get current subscription
         subscription = session.query(Subscription).filter(
@@ -248,7 +248,7 @@ def change_user_plan(user_id):
                 'error': f'Invalid plan or billing period: {new_plan_str}, {billing_period_str}'
             }), 400
 
-        session = get_session()
+        session = get_db_session()
 
         # Get current subscription
         subscription = session.query(Subscription).filter(
@@ -360,7 +360,7 @@ def set_custom_period(user_id):
                 'error': 'End date must be after start date'
             }), 400
 
-        session = get_session()
+        session = get_db_session()
 
         # Get current subscription
         subscription = session.query(Subscription).filter(
@@ -426,7 +426,7 @@ def admin_cancel_subscription(user_id):
         reason = data.get('reason', 'Admin cancellation')
         immediate = data.get('immediate', False)
 
-        session = get_session()
+        session = get_db_session()
 
         subscription = session.query(Subscription).filter(
             Subscription.user_id == user_id,
@@ -496,7 +496,7 @@ def get_subscription_stats():
     }
     """
     try:
-        session = get_session()
+        session = get_db_session()
 
         # Total subscriptions
         total_subs = session.query(Subscription).count()

@@ -13,7 +13,7 @@ import jwt
 # Add backend to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from database.connection import get_session
+from database.connection import get_db_session
 from models.plan_features import UserFeatureOverride, PLAN_FEATURES, get_user_features
 from models.subscription_models import Subscription
 
@@ -100,7 +100,7 @@ def get_user_features_endpoint(user_id):
     }
     """
     try:
-        session = get_session()
+        session = get_db_session()
 
         # Get user subscription
         subscription = session.query(Subscription).filter(
@@ -188,7 +188,7 @@ def set_feature_override(user_id):
                     'error': f'Invalid expires_at format: {str(e)}'
                 }), 400
 
-        session = get_session()
+        session = get_db_session()
 
         # Check if override already exists
         override = session.query(UserFeatureOverride).filter(
@@ -253,7 +253,7 @@ def delete_feature_override(user_id):
     }
     """
     try:
-        session = get_session()
+        session = get_db_session()
 
         override = session.query(UserFeatureOverride).filter(
             UserFeatureOverride.user_id == user_id
@@ -338,7 +338,7 @@ def list_all_overrides():
         limit = request.args.get('limit', 50, type=int)
         offset = request.args.get('offset', 0, type=int)
 
-        session = get_session()
+        session = get_db_session()
 
         # Get total count
         total = session.query(UserFeatureOverride).count()
