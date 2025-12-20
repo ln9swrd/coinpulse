@@ -106,7 +106,7 @@ class RateLimiter:
             (allowed: bool, retry_after: int)
         """
         # Exclude static files and HTML pages from rate limiting
-        static_extensions = ('.html', '.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.eot')
+        static_extensions = ('.html', '.css', '.js', '.json', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.eot')
         # Remove query parameters for checking
         path_without_query = path.split('?')[0]
         if path_without_query.endswith(static_extensions) or path_without_query.startswith('/static/') or path_without_query.startswith('/frontend/'):
