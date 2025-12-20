@@ -10,6 +10,7 @@ from flask import Blueprint, jsonify
 from backend.common import UpbitAPI
 from backend.services.surge_predictor import SurgePredictor
 from backend.services.market_filter_service import MarketFilter
+from backend.services.signal_generation_service import signal_generator
 import time
 
 surge_bp = Blueprint('surge', __name__)
@@ -128,6 +129,15 @@ def get_surge_candidates():
 
         print(f"[Surge] Found {len(candidates)} candidates")
 
+        # Auto-generate signals for high-confidence predictions (score >= 80)
+        high_confidence_candidates = [c for c in candidates if c['score'] >= 80]
+
+        signal_generation_result = None
+        if high_confidence_candidates:
+            print(f"[Surge] Generating signals for {len(high_confidence_candidates)} high-confidence predictions...")
+            signal_generation_result = signal_generator.batch_generate_from_candidates(high_confidence_candidates)
+            print(f"[Surge] Generated {signal_generation_result['generated']} signals, distributed to {signal_generation_result['distributed_total']} users")
+
         # Return results
         return jsonify({
             'success': True,
@@ -142,7 +152,9 @@ def get_surge_candidates():
             },
             'monitored_markets': len(monitored_markets),
             'timestamp': time.strftime('%Y-%m-%dT%H:%M:%S'),
-            'count': len(candidates)
+            'count': len(candidates),
+            'signals_generated': signal_generation_result['generated'] if signal_generation_result else 0,
+            'signals_distributed_to': signal_generation_result['distributed_total'] if signal_generation_result else 0
         })
 
     except Exception as e:
