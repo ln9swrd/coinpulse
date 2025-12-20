@@ -489,8 +489,11 @@ def get_profile():
                     'code': 'USER_NOT_FOUND'
                 }), 404
 
+            # Check if API keys should be included (for settings page)
+            include_api_keys = request.args.get('include_api_keys', 'false').lower() == 'true'
+
             # Get user data with has_upbit_keys field
-            user_data = user.to_dict(include_sensitive=True)
+            user_data = user.to_dict(include_sensitive=True, include_api_keys=include_api_keys)
 
             return jsonify({
                 'success': True,

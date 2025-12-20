@@ -439,12 +439,18 @@
 
                                 <form id="api-keys-form" class="settings-form">
                                     <div class="form-group">
-                                        <label for="api-access-key">액세스 키</label>
+                                        <label for="api-access-key">
+                                            액세스 키
+                                            <button type="button" id="edit-access-key-btn" class="btn-link" style="display: none; margin-left: 10px; font-size: 12px;">변경</button>
+                                        </label>
                                         <input type="text" id="api-access-key" placeholder="업비트 액세스 키를 입력하세요" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="api-secret-key">시크릿 키</label>
                                         <input type="password" id="api-secret-key" placeholder="업비트 시크릿 키를 입력하세요" required>
+                                        <small style="color: var(--text-muted); font-size: 12px; margin-top: 5px; display: block;">
+                                            보안상 시크릿 키는 마스킹 처리되어 표시됩니다
+                                        </small>
                                     </div>
                                     <div class="form-actions">
                                         <button type="button" class="btn-secondary" id="test-api-btn">연결 테스트</button>
@@ -1030,12 +1036,60 @@
             });
         }
 
-        initAPIKeysForm() {
+        async initAPIKeysForm() {
             const form = document.getElementById('api-keys-form');
             const testBtn = document.getElementById('test-api-btn');
             const resultDiv = document.getElementById('api-test-result');
+            const accessKeyInput = document.getElementById('api-access-key');
+            const secretKeyInput = document.getElementById('api-secret-key');
 
             if (!form || !testBtn) return;
+
+            // Load existing API keys
+            try {
+                console.log('[Settings] Loading API keys...');
+                const response = await fetch('/api/auth/me?include_api_keys=true', {
+                    headers: {
+                        'Authorization': `Bearer ${window.api.accessToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.user) {
+                        const editBtn = document.getElementById('edit-access-key-btn');
+
+                        // Display access key (if exists)
+                        if (data.user.upbit_access_key) {
+                            accessKeyInput.value = data.user.upbit_access_key;
+                            accessKeyInput.setAttribute('readonly', 'readonly');
+                            accessKeyInput.style.backgroundColor = 'var(--input-disabled-bg, #f5f5f5)';
+
+                            // Show edit button
+                            if (editBtn) {
+                                editBtn.style.display = 'inline-block';
+                                editBtn.addEventListener('click', () => {
+                                    accessKeyInput.removeAttribute('readonly');
+                                    accessKeyInput.style.backgroundColor = '';
+                                    accessKeyInput.focus();
+                                    editBtn.style.display = 'none';
+                                    console.log('[Settings] Access key edit mode enabled');
+                                });
+                            }
+
+                            console.log('[Settings] Access key loaded');
+                        }
+
+                        // Display masked secret key as placeholder
+                        if (data.user.upbit_secret_key_masked) {
+                            secretKeyInput.placeholder = `저장된 키: ${data.user.upbit_secret_key_masked} (변경하려면 새 키 입력)`;
+                            console.log('[Settings] Secret key masked displayed');
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('[Settings] Failed to load API keys:', error);
+            }
 
             // Test API connection
             testBtn.addEventListener('click', async () => {

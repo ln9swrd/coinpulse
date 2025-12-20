@@ -396,12 +396,13 @@ class User(Base):
     user_api_keys = relationship('UserAPIKey', back_populates='user', cascade='all, delete-orphan')
     billing_keys = relationship('BillingKey', back_populates='user', cascade='all, delete-orphan')
 
-    def to_dict(self, include_sensitive=False):
+    def to_dict(self, include_sensitive=False, include_api_keys=False):
         """
         Convert model instance to dictionary.
 
         Args:
             include_sensitive: Whether to include sensitive information
+            include_api_keys: Whether to include API keys (with secret key masked)
 
         Returns:
             dict: User data
@@ -424,6 +425,16 @@ class User(Base):
 
         if include_sensitive:
             data['has_upbit_keys'] = bool(self.upbit_access_key and self.upbit_secret_key)
+
+        # Include API keys if requested (for settings page)
+        if include_api_keys:
+            data['upbit_access_key'] = self.upbit_access_key if self.upbit_access_key else None
+            # Mask secret key for security (show only last 4 characters)
+            if self.upbit_secret_key:
+                secret_key = self.upbit_secret_key
+                data['upbit_secret_key_masked'] = '****' + secret_key[-4:] if len(secret_key) > 4 else '****'
+            else:
+                data['upbit_secret_key_masked'] = None
 
         return data
 
