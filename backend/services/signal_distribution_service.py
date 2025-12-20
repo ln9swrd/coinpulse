@@ -21,10 +21,12 @@ class SignalDistributor:
     2. 월간 사용량 추적
     3. 보너스 알림 표시
     4. 우선순위 관리 (Enterprise > Pro > Basic > Free)
+    5. Telegram 알림 전송 (optional)
     """
 
-    def __init__(self):
+    def __init__(self, telegram_bot=None):
         self.session = None
+        self.telegram_bot = telegram_bot
 
     def get_monthly_usage(self, user_id):
         """
@@ -213,6 +215,10 @@ class SignalDistributor:
             if len(distributed_users) > 5:
                 print(f"  ... and {len(distributed_users) - 5} more")
 
+            # Send Telegram notifications (if telegram_bot is available)
+            if self.telegram_bot and distributed_users:
+                self._send_telegram_notifications(signal, distributed_users)
+
             return {
                 'distributed_count': len(distributed_users),
                 'users': distributed_users,
@@ -334,6 +340,59 @@ class SignalDistributor:
         """
         current_usage = self.get_monthly_usage(user_id)
         return PlanLimits.get_usage_stats(plan, current_usage)
+
+    def _send_telegram_notifications(self, signal, distributed_users):
+        """
+        Send Telegram notifications to users
+
+        Args:
+            signal: TradingSignal object
+            distributed_users: List of user dicts with telegram_chat_id
+        """
+        try:
+            import asyncio
+            from backend.models.user import User
+
+            print(f"[SignalDistributor] Sending Telegram notifications to {len(distributed_users)} users...")
+
+            session = get_db_session()
+
+            notification_count = 0
+            for user_info in distributed_users:
+                try:
+                    # Get user's telegram_chat_id from database
+                    user = session.query(User).filter(User.id == user_info['user_id']).first()
+
+                    if not user or not hasattr(user, 'telegram_chat_id') or not user.telegram_chat_id:
+                        continue
+
+                    # Prepare signal data for telegram notification
+                    signal_data = {
+                        'telegram_chat_id': user.telegram_chat_id,
+                        'signal_id': signal.signal_id,
+                        'market': signal.market,
+                        'confidence': signal.confidence,
+                        'entry_price': signal.entry_price,
+                        'target_price': signal.target_price,
+                        'stop_loss': signal.stop_loss,
+                        'reason': signal.reason,
+                        'is_bonus': user_info.get('is_bonus', False)
+                    }
+
+                    # Send notification (async)
+                    asyncio.create_task(self.telegram_bot.send_signal_notification(signal_data))
+                    notification_count += 1
+
+                except Exception as e:
+                    print(f"[SignalDistributor] Failed to send Telegram notification to user {user_info['user_id']}: {e}")
+
+            session.close()
+
+            if notification_count > 0:
+                print(f"[SignalDistributor] Telegram notifications queued for {notification_count} users")
+
+        except Exception as e:
+            print(f"[SignalDistributor] Error sending Telegram notifications: {e}")
 
 
 # 전역 인스턴스

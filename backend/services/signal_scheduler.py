@@ -12,7 +12,7 @@ import time
 from backend.common import UpbitAPI
 from backend.services.surge_predictor import SurgePredictor
 from backend.services.market_filter_service import MarketFilter
-from backend.services.signal_generation_service import signal_generator
+from backend.services.signal_generation_service import signal_generator, SignalGenerator
 
 
 class SignalScheduler:
@@ -22,12 +22,16 @@ class SignalScheduler:
     Tasks:
     1. Surge Analysis + Signal Generation (every 15 minutes)
     2. Signal Expiry Cleanup (every 30 minutes)
+    3. Telegram Notifications (if telegram_bot provided)
     """
 
-    def __init__(self):
+    def __init__(self, telegram_bot=None):
         self.scheduler = BackgroundScheduler()
         self.upbit_api = UpbitAPI(None, None)  # Public API only
         self.market_filter = MarketFilter()
+
+        # Use SignalGenerator with telegram_bot if provided
+        self.signal_generator = SignalGenerator(telegram_bot=telegram_bot) if telegram_bot else signal_generator
 
         # Config from backtest
         SURGE_CONFIG = {
@@ -101,7 +105,7 @@ class SignalScheduler:
 
             # Generate signals for high-confidence candidates
             if candidates:
-                result = signal_generator.batch_generate_from_candidates(candidates)
+                result = self.signal_generator.batch_generate_from_candidates(candidates)
                 print(f"\n[Scheduler] Signal generation complete:")
                 print(f"  - Signals generated: {result['generated']}")
                 print(f"  - Users notified: {result['distributed_total']}")
@@ -125,7 +129,7 @@ class SignalScheduler:
         """
         try:
             print(f"\n[Scheduler] Cleaning up expired signals - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-            expired_count = signal_generator.expire_old_signals()
+            expired_count = self.signal_generator.expire_old_signals()
 
             if expired_count > 0:
                 print(f"[Scheduler] Expired {expired_count} old signals")

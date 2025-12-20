@@ -31,8 +31,8 @@ class SignalGenerator:
     TARGET_PROFIT_RATIO = 0.05     # 목표 수익률: 5%
     STOP_LOSS_RATIO = -0.02        # 손절 비율: -2%
 
-    def __init__(self):
-        self.distributor = SignalDistributor()
+    def __init__(self, telegram_bot=None):
+        self.distributor = SignalDistributor(telegram_bot=telegram_bot)
 
     def generate_signal_from_surge(self, market, surge_analysis, current_price):
         """

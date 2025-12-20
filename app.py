@@ -450,20 +450,8 @@ def init_background_services():
     except Exception as e:
         logger.error(f"Failed to start backup scheduler: {e}")
 
-    # Initialize signal generation scheduler (Phase 5 - Auto Trading)
-    try:
-        from backend.services.signal_scheduler import signal_scheduler
-
-        signal_scheduler.start()
-
-        # Store reference for later use
-        app.signal_scheduler = signal_scheduler
-
-        logger.info("Signal generation scheduler started (surge analysis every 15 minutes)")
-    except Exception as e:
-        logger.error(f"Failed to start signal scheduler: {e}")
-
     # Initialize Telegram alert bot (Optional - requires TELEGRAM_BOT_TOKEN)
+    telegram_bot = None
     try:
         telegram_token = os.getenv('TELEGRAM_BOT_TOKEN')
         if telegram_token:
@@ -516,6 +504,25 @@ def init_background_services():
             logger.info("TELEGRAM_BOT_TOKEN not set - Telegram alerts disabled")
     except Exception as e:
         logger.error(f"Failed to start Telegram services: {e}")
+
+    # Initialize signal generation scheduler (Phase 5 - Auto Trading)
+    # NOTE: Must be initialized AFTER Telegram bot to enable signal notifications
+    try:
+        from backend.services.signal_scheduler import SignalScheduler
+
+        # Create scheduler with telegram_bot (if available)
+        signal_scheduler = SignalScheduler(telegram_bot=telegram_bot)
+        signal_scheduler.start()
+
+        # Store reference for later use
+        app.signal_scheduler = signal_scheduler
+
+        if telegram_bot:
+            logger.info("Signal generation scheduler started with Telegram notifications (surge analysis every 15 minutes)")
+        else:
+            logger.info("Signal generation scheduler started without Telegram notifications (surge analysis every 15 minutes)")
+    except Exception as e:
+        logger.error(f"Failed to start signal scheduler: {e}")
 
 
 # ============================================================================

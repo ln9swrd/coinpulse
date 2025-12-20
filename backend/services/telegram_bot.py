@@ -196,6 +196,82 @@ KRW-XLM: +110.51% (2024-11-20)
             parse_mode='Markdown'
         )
 
+    async def send_signal_notification(self, signal_data: Dict):
+        """
+        Send trading signal notification to a specific user
+
+        Args:
+            signal_data: Signal data
+                {
+                    "telegram_chat_id": 123456,
+                    "signal_id": "SIGNAL-20251221-001",
+                    "market": "KRW-XRP",
+                    "confidence": 85,
+                    "entry_price": 650,
+                    "target_price": 682,
+                    "stop_loss": 637,
+                    "reason": "...",
+                    "is_bonus": False
+                }
+        """
+        if not self.bot:
+            logger.warning("[TelegramBot] Bot not initialized, skipping signal notification")
+            return
+
+        chat_id = signal_data.get('telegram_chat_id')
+        if not chat_id:
+            logger.warning("[TelegramBot] No telegram_chat_id provided")
+            return
+
+        # Format signal message
+        market = signal_data['market']
+        confidence = signal_data['confidence']
+        entry_price = signal_data['entry_price']
+        target_price = signal_data['target_price']
+        stop_loss = signal_data['stop_loss']
+        reason = signal_data.get('reason', 'High-confidence surge prediction')
+        is_bonus = signal_data.get('is_bonus', False)
+
+        # Calculate expected return
+        expected_return = ((target_price - entry_price) / entry_price) * 100
+
+        # Emoji based on confidence
+        confidence_emoji = "🔥" if confidence >= 85 else "⚡"
+        bonus_text = "🎁 *BONUS SIGNAL*\n\n" if is_bonus else ""
+
+        signal_message = f"""
+{bonus_text}{confidence_emoji} *Trading Signal Alert*
+
+*Market*: {market}
+*Confidence*: {confidence}%
+
+*Entry Price*: KRW {entry_price:,}
+*Target Price*: KRW {target_price:,}
+*Stop Loss*: KRW {stop_loss:,}
+
+*Expected Return*: +{expected_return:.2f}%
+
+*Reason*: {reason}
+
+*Valid Until*: 4 hours from now
+
+🌐 *View Chart*
+https://coinpulse.sinsi.ai/trading_chart.html?market={market}
+
+⚠️ This is not investment advice.
+All trading decisions and risks are your own.
+        """
+
+        try:
+            await self.bot.send_message(
+                chat_id=chat_id,
+                text=signal_message,
+                parse_mode='Markdown'
+            )
+            logger.info(f"[TelegramBot] Signal notification sent to {chat_id}: {market} ({confidence}%)")
+        except Exception as e:
+            logger.error(f"[TelegramBot] Failed to send signal notification to {chat_id}: {e}")
+
     async def send_surge_alert(self, candidate: Dict):
         """
         Send surge alert to all subscribers
