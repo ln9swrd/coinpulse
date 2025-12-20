@@ -642,14 +642,27 @@ class DataLoader {
             }
         }
 
+        /**
+         * Load trading history for modal display (skip chart_actions)
+         */
+        async loadTradingHistoryForModal(forceRefresh = false) {
+            console.log('[DataLoader] loadTradingHistoryForModal called (for modal display)');
+            // Skip chart_actions and go directly to modal display logic
+            await this.loadTradingHistoryImpl(forceRefresh);
+        }
+
         async loadTradingHistory(forceRefresh = false) {
             // Use ChartActions module if available
             if (this.chart.chartActions) {
                 await this.chart.chartActions.loadTradingHistory(forceRefresh);
                 return;
             }
-    
+
             // Fallback to original implementation
+            await this.loadTradingHistoryImpl(forceRefresh);
+        }
+
+        async loadTradingHistoryImpl(forceRefresh = false) {
             try {
                 console.log(`[DataLoader] Loading trading history for ${this.chart.currentMarket}... (forceRefresh: ${forceRefresh})`);
 

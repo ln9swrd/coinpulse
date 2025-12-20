@@ -1468,12 +1468,13 @@ function showHistoryModal() {
         }
 
         // 거래내역 새로고침 (강제 갱신)
-        if (window.workingChart) {
+        if (window.workingChart && window.workingChart.dataLoader) {
             console.log('[Modal] Loading trading history for modal (force refresh)');
             console.log('[Modal] Current market:', window.workingChart.currentMarket);
-            window.workingChart.loadTradingHistory(true);
+            // Call dataLoader directly to display in modal
+            window.workingChart.dataLoader.loadTradingHistoryForModal(true);
         } else {
-            console.error('[Modal] window.workingChart is not available!');
+            console.error('[Modal] window.workingChart or dataLoader is not available!');
         }
     } else {
         console.error('[Modal] history-modal element not found!');
