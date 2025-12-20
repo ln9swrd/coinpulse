@@ -273,7 +273,7 @@
                         <h2>포트폴리오 성과</h2>
                         <div class="chart-placeholder" style="padding: 40px; text-align: center; background: white; border: 1px solid #e0e0e0; border-radius: 12px;">
                             <p style="margin: 0 0 16px 0; color: #666;">상세한 포트폴리오 성과는 포트폴리오 페이지에서 확인하세요</p>
-                            <button onclick="window.dashboardApp.showPage('portfolio')" style="
+                            <button onclick="window.dashboardApp.loadPage('portfolio')" style="
                                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                                 color: white;
                                 border: none;
@@ -1238,7 +1238,7 @@
                             포트폴리오 성과를 확인하려면<br>
                             업비트 API 키를 먼저 등록해주세요.
                         </p>
-                        <button onclick="window.dashboardApp.showPage('settings')" style="
+                        <button onclick="window.dashboardApp.loadPage('settings')" style="
                             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                             color: white;
                             border: none;
@@ -2303,7 +2303,7 @@
     // 2. Initialize Dashboard
     // ============================================
     document.addEventListener('DOMContentLoaded', () => {
-        window.dashboardManager = new DashboardManager();
+        window.dashboardApp = new DashboardManager();
     });
 
 })();

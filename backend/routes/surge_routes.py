@@ -2,17 +2,19 @@
 급등 예측 API 라우트
 
 검증된 알고리즘 (81.25% 적중률)으로 실시간 급등 후보 코인 제공
+
+NOTE: This service uses PUBLIC Upbit API (no authentication needed).
+Candle data and ticker information are publicly available.
 """
 from flask import Blueprint, jsonify
-from backend.common import UpbitAPI, load_api_keys
+from backend.common import UpbitAPI
 from backend.services.surge_predictor import SurgePredictor
 import time
 
 surge_bp = Blueprint('surge', __name__)
 
-# Initialize
-access_key, secret_key = load_api_keys()
-upbit_api = UpbitAPI(access_key, secret_key)
+# Initialize with public API (no authentication)
+upbit_api = UpbitAPI(None, None)  # Public API only
 
 # Config from backtest
 SURGE_CONFIG = {
@@ -42,7 +44,7 @@ POPULAR_COINS = [
 @surge_bp.route('/surge-candidates', methods=['GET'])
 def get_surge_candidates():
     """
-    급등 예측 후보 코인 목록
+    급등 예측 후보 코인 목록 (PUBLIC - No auth required)
 
     Returns:
         {
@@ -64,12 +66,13 @@ def get_surge_candidates():
         }
     """
     try:
+        print("[Surge] Analyzing candidates...")
         candidates = []
 
         # Analyze all popular coins
         for market in POPULAR_COINS:
             try:
-                # Get candle data (30 days)
+                # Get candle data (30 days) - PUBLIC API
                 candle_data = upbit_api.get_candles_days(market=market, count=30)
                 if not candle_data or len(candle_data) < 20:
                     continue
@@ -96,11 +99,13 @@ def get_surge_candidates():
                 time.sleep(0.1)
 
             except Exception as e:
-                print(f"[SurgeAPI] Error analyzing {market}: {e}")
+                print(f"[Surge] Error analyzing {market}: {e}")
                 continue
 
         # Sort by score (highest first)
         candidates.sort(key=lambda x: x['score'], reverse=True)
+
+        print(f"[Surge] Found {len(candidates)} candidates")
 
         # Return results
         return jsonify({
@@ -119,6 +124,7 @@ def get_surge_candidates():
         })
 
     except Exception as e:
+        print(f"[Surge] Error: {e}")
         return jsonify({
             'success': False,
             'error': str(e)
@@ -128,7 +134,7 @@ def get_surge_candidates():
 @surge_bp.route('/surge-analysis/<market>', methods=['GET'])
 def get_surge_analysis(market):
     """
-    특정 코인의 급등 예측 상세 분석
+    특정 코인의 급등 예측 상세 분석 (PUBLIC - No auth required)
 
     Args:
         market: 코인 마켓 (예: KRW-BTC)
@@ -149,7 +155,9 @@ def get_surge_analysis(market):
         }
     """
     try:
-        # Get candle data
+        print(f"[Surge] Analyzing {market}...")
+
+        # Get candle data - PUBLIC API
         candle_data = upbit_api.get_candles_days(market=market, count=30)
         if not candle_data or len(candle_data) < 20:
             return jsonify({
@@ -168,6 +176,8 @@ def get_surge_analysis(market):
         # Analyze
         analysis = predictor.analyze_coin(market, candle_data, current_price)
 
+        print(f"[Surge] {market}: score={analysis['score']}, recommendation={analysis['recommendation']}")
+
         return jsonify({
             'success': True,
             'market': market,
@@ -179,6 +189,7 @@ def get_surge_analysis(market):
         })
 
     except Exception as e:
+        print(f"[Surge] Error: {e}")
         return jsonify({
             'success': False,
             'error': str(e)
@@ -188,7 +199,7 @@ def get_surge_analysis(market):
 @surge_bp.route('/surge-backtest-results', methods=['GET'])
 def get_backtest_results():
     """
-    백테스트 검증 결과 상세 정보
+    백테스트 검증 결과 상세 정보 (PUBLIC - No auth required)
 
     Returns:
         {
@@ -199,6 +210,8 @@ def get_backtest_results():
         }
     """
     try:
+        print("[Surge] Loading backtest results...")
+
         # Load backtest results
         import json
         with open('docs/backtest_results/multi_date_backtest.json', 'r', encoding='utf-8') as f:
@@ -229,6 +242,8 @@ def get_backtest_results():
         best_trades = sorted_results[:5]
         worst_trades = sorted_results[-5:]
 
+        print(f"[Surge] Backtest results: {len(all_results)} trades")
+
         return jsonify({
             'success': True,
             'summary': summary,
@@ -239,6 +254,7 @@ def get_backtest_results():
         })
 
     except Exception as e:
+        print(f"[Surge] Error: {e}")
         return jsonify({
             'success': False,
             'error': str(e)

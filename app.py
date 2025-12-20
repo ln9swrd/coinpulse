@@ -24,13 +24,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Import backend common modules
-from backend.common import UpbitAPI, load_api_keys
+from backend.common import UpbitAPI
 from backend.services import ChartService, HoldingsService
 
 # Import all route blueprints
 from backend.routes.auth_routes import auth_bp
 from backend.routes.user_routes import user_bp  # User API routes (plan, profile)
-from backend.routes.holdings_routes import holdings_bp, init_holdings_routes
+from backend.routes.holdings_routes import holdings_bp
 from backend.routes.auto_trading_routes import auto_trading_bp
 from backend.routes.subscription_routes import subscription_bp  # ✅ Re-enabled
 from backend.routes.payment import payment_bp  # Payment routes
@@ -188,20 +188,7 @@ logger.info("WebSocket (SocketIO) initialized")
 
 def register_blueprints():
     """Register all route blueprints"""
-    # Initialize holdings routes with dependencies
-    try:
-        access_key, secret_key = load_api_keys()
-        if access_key and secret_key:
-            upbit_api = UpbitAPI(access_key, secret_key)
-        else:
-            upbit_api = None
-            logger.warning("API keys not configured - holdings API will use fallback mode")
-
-        holdings_service = HoldingsService(upbit_api)
-        init_holdings_routes(CONFIG, upbit_api, holdings_service)
-        logger.info("Holdings routes initialized successfully")
-    except Exception as e:
-        logger.error(f"Failed to initialize holdings routes: {e}")
+    # NOTE: Holdings routes now use user-specific API keys from database (no global initialization needed)
 
     blueprints = [
         (auth_bp, '/api/auth'),
@@ -416,28 +403,11 @@ def init_background_services():
     except Exception as e:
         logger.error(f"Failed to start WebSocket service: {e}")
 
-    # Initialize background order sync
-    try:
-        from backend.services.background_sync import BackgroundSyncScheduler
-
-        # Load API keys
-        access_key, secret_key = load_api_keys()
-        if not access_key or not secret_key:
-            logger.warning("API keys not configured - background sync disabled")
-        else:
-            # Create UpbitAPI instance
-            upbit_api = UpbitAPI(access_key, secret_key)
-
-            # Create and start background sync scheduler
-            sync_scheduler = BackgroundSyncScheduler(upbit_api, sync_interval_seconds=300)
-            sync_scheduler.start()
-
-            # Store reference for later use (e.g., manual sync endpoint)
-            app.sync_scheduler = sync_scheduler
-
-            logger.info("Background order sync started (5 minute interval)")
-    except Exception as e:
-        logger.error(f"Failed to start background order sync: {e}")
+    # Background order sync is DISABLED for multi-user architecture
+    # NOTE: Orders now use database-first strategy with per-user API keys.
+    # Each user's orders are synced on-demand when they access /api/orders.
+    # To re-enable, BackgroundSyncScheduler needs refactoring to loop through all users.
+    logger.info("Background order sync: DISABLED (multi-user mode, database-first strategy)")
 
     # Initialize subscription renewal scheduler (Phase 8)
     try:

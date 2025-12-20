@@ -1,71 +1,144 @@
 """
-Auto Trading API Routes
+Auto Trading API Routes (USER-SPECIFIC)
 
 Provides API endpoints for auto-trading policy management and execution.
+
+IMPORTANT: All routes use user-specific Upbit API keys from database.
+Each user has their own trading engine instance.
 """
 
 import sys
 import os
-from flask import Blueprint, request, jsonify, g
+from flask import Blueprint, request, jsonify
 from datetime import datetime
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 from backend.database import get_db_session, UserConfig, SwingTradingLog
-from backend.common import load_api_keys, UpbitAPI
 from backend.services.enhanced_auto_trading_engine import EnhancedAutoTradingEngine
 from backend.middleware.auth_middleware import require_auth
+from backend.middleware.user_api_keys import get_user_upbit_api, get_user_from_token
 
 
 # Create blueprint
 auto_trading_bp = Blueprint('auto_trading', __name__)
 
-# Global instances
-upbit_api = None
-trading_engine = None
 
+@auto_trading_bp.route('/auto-trading/status/<int:user_id>', methods=['GET'])
+@require_auth
+def get_auto_trading_status(user_id):
+    """
+    Get auto-trading status for a user (USER-SPECIFIC)
 
-def init_auto_trading():
-    """Initialize auto trading engine."""
-    global upbit_api, trading_engine
-
+    Returns:
+        {
+            "auto_trading_enabled": true/false,
+            "open_positions_count": 3,
+            "statistics": {...}
+        }
+    """
     try:
-        access_key, secret_key = load_api_keys()
-        if access_key and secret_key:
-            upbit_api = UpbitAPI(access_key, secret_key)
-            trading_engine = EnhancedAutoTradingEngine(upbit_api)
-            print("[AutoTradingRoutes] Auto trading engine initialized")
-        else:
-            print("[AutoTradingRoutes] WARNING: API keys not configured")
+        # Verify user authorization
+        current_user_id = get_user_from_token()
+        if current_user_id != user_id:
+            return jsonify({
+                "success": False,
+                "error": "Unauthorized"
+            }), 403
+
+        session = get_db_session()
+        try:
+            # Get user config
+            config = session.query(UserConfig).filter_by(user_id=user_id).first()
+
+            if not config:
+                return jsonify({
+                    "success": True,
+                    "auto_trading_enabled": False,
+                    "open_positions_count": 0,
+                    "statistics": {
+                        "total_trades": 0,
+                        "win_rate": 0,
+                        "total_profit": 0
+                    }
+                })
+
+            # Get statistics from trading logs
+            logs = session.query(SwingTradingLog).filter_by(user_id=user_id).all()
+
+            total_trades = len(logs)
+            winning_trades = [log for log in logs if log.profit_loss and log.profit_loss > 0]
+            win_rate = (len(winning_trades) / total_trades * 100) if total_trades > 0 else 0
+            total_profit = sum([log.profit_loss for log in logs if log.profit_loss]) if logs else 0
+
+            # Count open positions
+            open_positions = [log for log in logs if log.status == 'active']
+
+            print(f"[AutoTrading] User {user_id}: {len(open_positions)} open positions, win_rate={win_rate:.1f}%")
+
+            return jsonify({
+                "success": True,
+                "auto_trading_enabled": config.auto_trading_enabled,
+                "open_positions_count": len(open_positions),
+                "statistics": {
+                    "total_trades": total_trades,
+                    "win_rate": win_rate,
+                    "total_profit": total_profit
+                },
+                "last_check": datetime.now().isoformat()
+            })
+
+        finally:
+            session.close()
+
     except Exception as e:
-        print(f"[AutoTradingRoutes] ERROR initializing: {e}")
+        print(f"[AutoTrading] Error: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
 
 @auto_trading_bp.route('/auto-trading/config/<int:user_id>', methods=['GET'])
+@require_auth
 def get_user_config(user_id):
     """
-    Get auto-trading configuration for a user.
-
-    Args:
-        user_id: User ID
-
-    Returns:
-        JSON with user configuration
+    Get auto-trading configuration for a user (USER-SPECIFIC)
     """
     try:
+        # Verify user authorization
+        current_user_id = get_user_from_token()
+        if current_user_id != user_id:
+            return jsonify({
+                "success": False,
+                "error": "Unauthorized"
+            }), 403
+
         session = get_db_session()
         try:
             config = session.query(UserConfig).filter_by(user_id=user_id).first()
 
             if not config:
+                # Return default config
                 return jsonify({
-                    "status": "error",
-                    "message": "User configuration not found"
-                }), 404
+                    "success": True,
+                    "config": {
+                        "auto_trading_enabled": False,
+                        "total_budget_krw": 1000000,
+                        "budget_per_position_krw": 100000,
+                        "max_concurrent_positions": 3,
+                        "monitored_coins": [],
+                        "stop_loss_min": 0.03,
+                        "take_profit_min": 0.08,
+                        "emergency_stop_loss": 0.03,
+                        "holding_period_days": 3,
+                        "force_sell_after_period": False
+                    }
+                })
 
             return jsonify({
-                "status": "success",
+                "success": True,
                 "config": config.to_dict()
             })
 
@@ -73,47 +146,32 @@ def get_user_config(user_id):
             session.close()
 
     except Exception as e:
-        print(f"[AutoTradingRoutes] ERROR getting config: {e}")
+        print(f"[AutoTrading] Error getting config: {e}")
         return jsonify({
-            "status": "error",
-            "message": str(e)
+            "success": False,
+            "error": str(e)
         }), 500
 
 
-@auto_trading_bp.route('/auto-trading/config/<int:user_id>', methods=['POST'])
+@auto_trading_bp.route('/auto-trading/config/<int:user_id>', methods=['POST', 'PUT'])
+@require_auth
 def save_user_config(user_id):
     """
-    Save or update auto-trading configuration for a user.
-
-    Request body:
-    {
-        "auto_trading_enabled": true,
-        "total_budget_krw": 100000,
-        "budget_per_position_krw": 10000,
-        "max_concurrent_positions": 3,
-        "monitored_coins": ["KRW-BTC", "KRW-ETH"],
-        "stop_loss_min": 0.03,
-        "take_profit_min": 0.08,
-        "emergency_stop_loss": 0.03,
-        "holding_period_days": 3,
-        "force_sell_after_period": false
-    }
-
-    Returns:
-        JSON with save result
+    Save or update auto-trading configuration (USER-SPECIFIC)
     """
     try:
-        data = request.get_json()
-
-        if not data:
+        # Verify user authorization
+        current_user_id = get_user_from_token()
+        if current_user_id != user_id:
             return jsonify({
-                "status": "error",
-                "message": "No data provided"
-            }), 400
+                "success": False,
+                "error": "Unauthorized"
+            }), 403
+
+        data = request.get_json()
 
         session = get_db_session()
         try:
-            # Get or create config
             config = session.query(UserConfig).filter_by(user_id=user_id).first()
 
             if not config:
@@ -131,7 +189,7 @@ def save_user_config(user_id):
             if 'max_concurrent_positions' in data:
                 config.max_concurrent_positions = data['max_concurrent_positions']
             if 'monitored_coins' in data:
-                config.monitored_coins = data['monitored_coins']
+                config.monitored_coins = ','.join(data['monitored_coins']) if isinstance(data['monitored_coins'], list) else data['monitored_coins']
             if 'stop_loss_min' in data:
                 config.stop_loss_min = data['stop_loss_min']
             if 'take_profit_min' in data:
@@ -143,460 +201,203 @@ def save_user_config(user_id):
             if 'force_sell_after_period' in data:
                 config.force_sell_after_period = data['force_sell_after_period']
 
-            config.updated_at = datetime.utcnow()
+            config.updated_at = datetime.now()
 
             session.commit()
 
+            print(f"[AutoTrading] User {user_id}: Config saved")
+
             return jsonify({
-                "status": "success",
-                "message": "Configuration saved",
+                "success": True,
+                "message": "Configuration saved successfully",
                 "config": config.to_dict()
             })
 
-        except Exception as e:
-            session.rollback()
-            raise e
         finally:
             session.close()
 
     except Exception as e:
-        print(f"[AutoTradingRoutes] ERROR saving config: {e}")
-        return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 500
-
-
-@auto_trading_bp.route('/auto-trading/status', methods=['GET'])
-@require_auth
-def get_current_user_trading_status():
-    """
-    Get current authenticated user's auto-trading status.
-
-    Headers:
-        Authorization: Bearer <access_token>
-
-    Returns:
-        JSON with status information
-    """
-    user_id = g.user_id
-    return _get_trading_status_impl(user_id)
-
-
-def _get_trading_status_impl(user_id):
-    """
-    Internal implementation for getting trading status.
-
-    Args:
-        user_id: User ID
-
-    Returns:
-        JSON response with status information
-    """
-    try:
-        if not trading_engine:
-            return jsonify({
-                "success": False,
-                "error": "Trading engine not initialized",
-                "auto_trading_enabled": False,
-                "open_positions_count": 0,
-                "statistics": {}
-            }), 200  # Return 200 with disabled status instead of 503
-
-        # Get user config
-        config = trading_engine.get_user_config(user_id)
-        if not config:
-            # User exists but no config yet - return default disabled state
-            return jsonify({
-                "success": True,
-                "auto_trading_enabled": False,
-                "open_positions_count": 0,
-                "open_positions": [],
-                "statistics": {
-                    "total_trades": 0,
-                    "profitable_trades": 0,
-                    "win_rate": 0,
-                    "total_profit": 0
-                },
-                "last_check": datetime.utcnow().isoformat()
-            }), 200
-
-        # Get open positions
-        open_positions = trading_engine.position_tracker.get_open_positions(user_id)
-
-        # Get statistics
-        stats = trading_engine.get_user_statistics(user_id)
-
-        return jsonify({
-            "success": True,
-            "auto_trading_enabled": config.get('auto_trading_enabled', False),
-            "open_positions_count": len(open_positions),
-            "open_positions": open_positions,
-            "statistics": stats,
-            "last_check": datetime.utcnow().isoformat()
-        }), 200
-
-    except Exception as e:
-        print(f"[AutoTradingRoutes] ERROR getting status: {e}")
+        print(f"[AutoTrading] Error saving config: {e}")
         return jsonify({
             "success": False,
-            "error": str(e),
-            "auto_trading_enabled": False,
-            "open_positions_count": 0,
-            "statistics": {}
+            "error": str(e)
         }), 500
 
 
-@auto_trading_bp.route('/auto-trading/status/<int:user_id>', methods=['GET'])
-def get_trading_status(user_id):
+@auto_trading_bp.route('/auto-trading/execute/<int:user_id>', methods=['POST'])
+@require_auth
+def execute_auto_trading(user_id):
     """
-    Get current auto-trading status for a user (legacy endpoint).
+    Execute auto-trading cycle for a user (USER-SPECIFIC)
 
-    Args:
-        user_id: User ID
-
-    Returns:
-        JSON with status information
-    """
-    return _get_trading_status_impl(user_id)
-
-
-@auto_trading_bp.route('/auto-trading/start/<int:user_id>', methods=['POST'])
-def start_auto_trading(user_id):
-    """
-    Start auto-trading for a user (enable flag).
-
-    Returns:
-        JSON with result
+    This creates a trading engine instance with user's API keys and runs one cycle.
     """
     try:
+        # Verify user authorization
+        current_user_id = get_user_from_token()
+        if current_user_id != user_id:
+            return jsonify({
+                "success": False,
+                "error": "Unauthorized"
+            }), 403
+
+        # Get user-specific Upbit API
+        user_upbit_api = get_user_upbit_api()
+
+        if not user_upbit_api:
+            return jsonify({
+                "success": False,
+                "error": "Upbit API keys not configured. Please add your API keys in Settings.",
+                "error_code": "NO_API_KEYS"
+            }), 400
+
+        # Get user config
         session = get_db_session()
         try:
             config = session.query(UserConfig).filter_by(user_id=user_id).first()
 
-            if not config:
+            if not config or not config.auto_trading_enabled:
                 return jsonify({
-                    "status": "error",
-                    "message": "User configuration not found"
-                }), 404
+                    "success": False,
+                    "error": "Auto-trading is not enabled"
+                }), 400
 
-            config.auto_trading_enabled = True
-            config.updated_at = datetime.utcnow()
-            session.commit()
+            # Create user-specific trading engine
+            trading_engine = EnhancedAutoTradingEngine(user_upbit_api)
+
+            # Execute one trading cycle
+            result = trading_engine.run_cycle(config)
+
+            print(f"[AutoTrading] User {user_id}: Cycle executed - {result}")
 
             return jsonify({
-                "status": "success",
-                "message": "Auto-trading started",
-                "user_id": user_id
+                "success": True,
+                "result": result,
+                "timestamp": datetime.now().isoformat()
             })
 
         finally:
             session.close()
 
     except Exception as e:
-        print(f"[AutoTradingRoutes] ERROR starting auto-trading: {e}")
+        print(f"[AutoTrading] Error executing: {e}")
         return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 500
-
-
-@auto_trading_bp.route('/auto-trading/stop/<int:user_id>', methods=['POST'])
-def stop_auto_trading(user_id):
-    """
-    Stop auto-trading for a user (disable flag).
-
-    Returns:
-        JSON with result
-    """
-    try:
-        session = get_db_session()
-        try:
-            config = session.query(UserConfig).filter_by(user_id=user_id).first()
-
-            if not config:
-                return jsonify({
-                    "status": "error",
-                    "message": "User configuration not found"
-                }), 404
-
-            config.auto_trading_enabled = False
-            config.updated_at = datetime.utcnow()
-            session.commit()
-
-            return jsonify({
-                "status": "success",
-                "message": "Auto-trading stopped",
-                "user_id": user_id
-            })
-
-        finally:
-            session.close()
-
-    except Exception as e:
-        print(f"[AutoTradingRoutes] ERROR stopping auto-trading: {e}")
-        return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 500
-
-
-@auto_trading_bp.route('/auto-trading/run-cycle/<int:user_id>', methods=['POST'])
-def run_trading_cycle(user_id):
-    """
-    Manually trigger one auto-trading cycle for a user.
-
-    Returns:
-        JSON with cycle results
-    """
-    try:
-        if not trading_engine:
-            return jsonify({
-                "status": "error",
-                "message": "Trading engine not initialized"
-            }), 503
-
-        # Run cycle
-        result = trading_engine.run_auto_trading_cycle(user_id)
-
-        return jsonify(result)
-
-    except Exception as e:
-        print(f"[AutoTradingRoutes] ERROR running cycle: {e}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 500
-
-
-@auto_trading_bp.route('/auto-trading/logs/<int:user_id>', methods=['GET'])
-def get_trading_logs(user_id):
-    """
-    Get trading logs for a user.
-
-    Query parameters:
-        - limit: Maximum number of logs (default: 50)
-        - offset: Offset for pagination (default: 0)
-
-    Returns:
-        JSON with logs
-    """
-    try:
-        limit = request.args.get('limit', 50, type=int)
-        offset = request.args.get('offset', 0, type=int)
-
-        session = get_db_session()
-        try:
-            logs = session.query(SwingTradingLog).filter_by(user_id=user_id)\
-                .order_by(SwingTradingLog.log_time.desc())\
-                .limit(limit)\
-                .offset(offset)\
-                .all()
-
-            total_count = session.query(SwingTradingLog).filter_by(user_id=user_id).count()
-
-            return jsonify({
-                "status": "success",
-                "logs": [log.to_dict() for log in logs],
-                "total_count": total_count,
-                "limit": limit,
-                "offset": offset
-            })
-
-        finally:
-            session.close()
-
-    except Exception as e:
-        print(f"[AutoTradingRoutes] ERROR getting logs: {e}")
-        return jsonify({
-            "status": "error",
-            "message": str(e)
+            "success": False,
+            "error": str(e)
         }), 500
 
 
 @auto_trading_bp.route('/auto-trading/positions/<int:user_id>', methods=['GET'])
-def get_user_positions(user_id):
+@require_auth
+def get_open_positions(user_id):
     """
-    Get all positions (open and closed) for a user.
-
-    Returns:
-        JSON with positions
+    Get all open positions for a user (USER-SPECIFIC)
     """
     try:
-        if not trading_engine:
+        # Verify user authorization
+        current_user_id = get_user_from_token()
+        if current_user_id != user_id:
             return jsonify({
-                "status": "error",
-                "message": "Trading engine not initialized"
-            }), 503
+                "success": False,
+                "error": "Unauthorized"
+            }), 403
 
-        open_positions = trading_engine.position_tracker.get_open_positions(user_id)
-        statistics = trading_engine.position_tracker.get_statistics(user_id)
+        session = get_db_session()
+        try:
+            positions = session.query(SwingTradingLog).filter_by(
+                user_id=user_id,
+                status='active'
+            ).all()
 
-        return jsonify({
-            "status": "success",
-            "open_positions": open_positions,
-            "statistics": statistics
-        })
+            positions_data = []
+            for pos in positions:
+                positions_data.append({
+                    'id': pos.id,
+                    'market': pos.market,
+                    'entry_price': float(pos.entry_price) if pos.entry_price else 0,
+                    'quantity': float(pos.quantity) if pos.quantity else 0,
+                    'current_value': float(pos.current_value) if pos.current_value else 0,
+                    'profit_loss': float(pos.profit_loss) if pos.profit_loss else 0,
+                    'profit_rate': float(pos.profit_rate) if pos.profit_rate else 0,
+                    'entry_date': pos.entry_date.isoformat() if pos.entry_date else None,
+                    'holding_days': (datetime.now() - pos.entry_date).days if pos.entry_date else 0
+                })
+
+            print(f"[AutoTrading] User {user_id}: {len(positions_data)} open positions")
+
+            return jsonify({
+                "success": True,
+                "positions": positions_data,
+                "count": len(positions_data)
+            })
+
+        finally:
+            session.close()
 
     except Exception as e:
-        print(f"[AutoTradingRoutes] ERROR getting positions: {e}")
+        print(f"[AutoTrading] Error: {e}")
         return jsonify({
-            "status": "error",
-            "message": str(e)
+            "success": False,
+            "error": str(e)
         }), 500
 
 
 @auto_trading_bp.route('/auto-trading/history/<int:user_id>', methods=['GET'])
+@require_auth
 def get_trading_history(user_id):
     """
-    Get trading history (closed positions) for a user.
-
-    Args:
-        user_id: User ID
-
-    Returns:
-        JSON with trading history
+    Get trading history for a user (USER-SPECIFIC)
     """
     try:
-        from backend.database.models import SwingPositionHistory
+        # Verify user authorization
+        current_user_id = get_user_from_token()
+        if current_user_id != user_id:
+            return jsonify({
+                "success": False,
+                "error": "Unauthorized"
+            }), 403
+
+        limit = request.args.get('limit', 50, type=int)
 
         session = get_db_session()
         try:
-            history = session.query(SwingPositionHistory).filter_by(
+            logs = session.query(SwingTradingLog).filter_by(
                 user_id=user_id
-            ).order_by(SwingPositionHistory.sell_time.desc()).limit(50).all()
+            ).order_by(SwingTradingLog.entry_date.desc()).limit(limit).all()
+
+            history_data = []
+            for log in logs:
+                history_data.append({
+                    'id': log.id,
+                    'market': log.market,
+                    'status': log.status,
+                    'entry_price': float(log.entry_price) if log.entry_price else 0,
+                    'exit_price': float(log.exit_price) if log.exit_price else 0,
+                    'quantity': float(log.quantity) if log.quantity else 0,
+                    'profit_loss': float(log.profit_loss) if log.profit_loss else 0,
+                    'profit_rate': float(log.profit_rate) if log.profit_rate else 0,
+                    'entry_date': log.entry_date.isoformat() if log.entry_date else None,
+                    'exit_date': log.exit_date.isoformat() if log.exit_date else None
+                })
+
+            print(f"[AutoTrading] User {user_id}: {len(history_data)} history records")
 
             return jsonify({
                 "success": True,
-                "history": [h.to_dict() for h in history]
+                "history": history_data,
+                "count": len(history_data)
             })
 
         finally:
             session.close()
 
     except Exception as e:
-        print(f"[AutoTradingRoutes] ERROR getting history: {e}")
+        print(f"[AutoTrading] Error: {e}")
         return jsonify({
             "success": False,
             "error": str(e)
         }), 500
 
 
-@auto_trading_bp.route('/auto-trading/stats/<int:user_id>', methods=['GET'])
-def get_trading_stats(user_id):
-    """
-    Get trading statistics for a user.
-
-    Args:
-        user_id: User ID
-
-    Returns:
-        JSON with statistics
-    """
-    try:
-        from backend.database.models import SwingPosition, SwingPositionHistory
-
-        session = get_db_session()
-        try:
-            # Get active positions count
-            active_positions = session.query(SwingPosition).filter_by(
-                user_id=user_id,
-                status='open'
-            ).count()
-
-            # Get closed positions
-            closed_positions = session.query(SwingPositionHistory).filter_by(
-                user_id=user_id
-            ).all()
-
-            # Calculate statistics
-            total_trades = len(closed_positions)
-            winning_trades = len([p for p in closed_positions if p.profit_loss > 0])
-            win_rate = (winning_trades / total_trades * 100) if total_trades > 0 else 0
-
-            total_profit = sum(p.profit_loss for p in closed_positions)
-            total_investment = sum(p.buy_amount for p in closed_positions)
-            total_profit_percent = (total_profit / total_investment * 100) if total_investment > 0 else 0
-
-            return jsonify({
-                "success": True,
-                "stats": {
-                    "active_positions": active_positions,
-                    "total_trades": total_trades,
-                    "winning_trades": winning_trades,
-                    "losing_trades": total_trades - winning_trades,
-                    "win_rate": win_rate,
-                    "total_profit": total_profit,
-                    "total_profit_percent": total_profit_percent
-                }
-            })
-
-        finally:
-            session.close()
-
-    except Exception as e:
-        print(f"[AutoTradingRoutes] ERROR getting stats: {e}")
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
-
-
-@auto_trading_bp.route('/auto-trading/toggle/<int:user_id>', methods=['POST'])
-def toggle_auto_trading(user_id):
-    """
-    Toggle auto-trading on/off for a user.
-
-    Args:
-        user_id: User ID
-
-    Request Body:
-        {
-            "enabled": true/false
-        }
-
-    Returns:
-        JSON with success status
-    """
-    try:
-        data = request.json
-        enabled = data.get('enabled', False)
-
-        session = get_db_session()
-        try:
-            config = session.query(UserConfig).filter_by(user_id=user_id).first()
-
-            if not config:
-                # Create default config
-                config = UserConfig(
-                    user_id=user_id,
-                    trading_enabled=enabled
-                )
-                session.add(config)
-            else:
-                config.trading_enabled = enabled
-                config.updated_at = datetime.utcnow()
-
-            session.commit()
-
-            return jsonify({
-                "success": True,
-                "message": f"Auto trading {'enabled' if enabled else 'disabled'} for user {user_id}",
-                "enabled": enabled
-            })
-
-        finally:
-            session.close()
-
-    except Exception as e:
-        print(f"[AutoTradingRoutes] ERROR toggling auto trading: {e}")
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
-
-
-# Initialize when module is loaded
-init_auto_trading()
+# NOTE: init_auto_trading() is NO LONGER needed
+# Each user gets their own trading engine instance per request
