@@ -9,7 +9,7 @@ Handles API endpoints for:
 IMPORTANT: All routes use user-specific Upbit API keys from database.
 """
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, g
 import requests
 import datetime
 from datetime import timezone
@@ -113,7 +113,8 @@ def get_holdings():
         total_profit_loss_krw = total_value_krw - total_invested_krw - krw_balance
         total_profit_rate = (total_profit_loss_krw / total_invested_krw * 100) if total_invested_krw > 0 else 0
 
-        user_id = get_user_from_token()
+        # Get user_id from Flask g object (set by @require_auth decorator)
+        user_id = g.user_id
         print(f"[Holdings] User {user_id}: {len(coins)} coins, ₩{total_value_krw:,.0f}")
 
         return jsonify({
@@ -209,7 +210,8 @@ def get_account_balance():
                         'avg_buy_price': avg_buy_price
                     })
 
-        user_id = get_user_from_token()
+        # Get user_id from Flask g object (set by @require_auth decorator)
+        user_id = g.user_id
         print(f"[Balance] User {user_id}: KRW ₩{krw_balance:,.0f}, {len(coin_balances)} coins")
 
         return jsonify({
@@ -249,7 +251,8 @@ def get_orders():
     use_api = request.args.get('use_api', 'false').lower() == 'true'
     order_by = request.args.get('order_by', 'desc')
 
-    user_id = get_user_from_token()
+    # Get user_id from Flask g object (set by @require_auth decorator)
+    user_id = g.user_id
 
     try:
         print(f"[Orders] User {user_id}: market={market}, limit={limit}")

@@ -9,7 +9,7 @@ Each user has their own trading engine instance.
 
 import sys
 import os
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, g
 from datetime import datetime
 
 # Add project root to path
@@ -40,7 +40,7 @@ def get_auto_trading_status(user_id):
     """
     try:
         # Verify user authorization
-        current_user_id = get_user_from_token()
+        current_user_id = g.user_id
         if current_user_id != user_id:
             return jsonify({
                 "success": False,
@@ -108,7 +108,7 @@ def get_user_config(user_id):
     """
     try:
         # Verify user authorization
-        current_user_id = get_user_from_token()
+        current_user_id = g.user_id
         if current_user_id != user_id:
             return jsonify({
                 "success": False,
@@ -161,7 +161,7 @@ def save_user_config(user_id):
     """
     try:
         # Verify user authorization
-        current_user_id = get_user_from_token()
+        current_user_id = g.user_id
         if current_user_id != user_id:
             return jsonify({
                 "success": False,
@@ -234,7 +234,7 @@ def execute_auto_trading(user_id):
     """
     try:
         # Verify user authorization
-        current_user_id = get_user_from_token()
+        current_user_id = g.user_id
         if current_user_id != user_id:
             return jsonify({
                 "success": False,
@@ -295,7 +295,7 @@ def get_open_positions(user_id):
     """
     try:
         # Verify user authorization
-        current_user_id = get_user_from_token()
+        current_user_id = g.user_id
         if current_user_id != user_id:
             return jsonify({
                 "success": False,
@@ -350,7 +350,7 @@ def get_trading_history(user_id):
     """
     try:
         # Verify user authorization
-        current_user_id = get_user_from_token()
+        current_user_id = g.user_id
         if current_user_id != user_id:
             return jsonify({
                 "success": False,
