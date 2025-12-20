@@ -36,9 +36,9 @@ class ExecutionStatus(enum.Enum):
 
 class TradingSignal(Base):
     """
-    거래 시그널 (중앙에서 생성)
+    자동매매 시그널 (중앙에서 생성, 사용자에게 배포)
     """
-    __tablename__ = 'trading_signals'
+    __tablename__ = 'auto_trading_signals'
 
     id = Column(Integer, primary_key=True)
     signal_id = Column(String(50), unique=True, nullable=False)  # 고유 ID
@@ -68,9 +68,9 @@ class TradingSignal(Base):
 
     # 인덱스
     __table_args__ = (
-        Index('idx_trading_signals_market', 'market'),
-        Index('idx_trading_signals_created_at', 'created_at'),
-        Index('idx_trading_signals_status', 'status'),
+        Index('idx_auto_trading_signals_market', 'market'),
+        Index('idx_auto_trading_signals_created_at', 'created_at'),
+        Index('idx_auto_trading_signals_status', 'status'),
     )
 
     def to_dict(self):
@@ -139,7 +139,7 @@ class UserSignalHistory(Base):
 
     # 외래 키
     user_id = Column(Integer, nullable=False)
-    signal_id = Column(Integer, ForeignKey('trading_signals.id'), nullable=False)
+    signal_id = Column(Integer, ForeignKey('auto_trading_signals.id'), nullable=False)
 
     # 수신 정보
     received_at = Column(DateTime, default=datetime.utcnow, nullable=False)
