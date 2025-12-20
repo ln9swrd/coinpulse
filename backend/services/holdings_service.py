@@ -49,7 +49,7 @@ class HoldingsService:
             accounts = self.upbit_api.get_accounts()
             if not accounts:
                 print("[HoldingsService] Unable to get account information")
-                return self.get_fallback_holdings_data()
+                return self.get_fallback_holdings_data(legacy_format)
 
             print(f"[HoldingsService] Account retrieval successful: {len(accounts)} accounts")
 

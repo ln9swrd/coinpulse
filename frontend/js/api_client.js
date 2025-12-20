@@ -74,7 +74,10 @@ class CoinPulseAPI {
      * @returns {boolean}
      */
     isAuthenticated() {
-        return this.accessToken !== null;
+        // Always check localStorage for latest token state
+        const token = this.getAccessToken();
+        this.accessToken = token; // Update cached value
+        return token !== null && token !== '';
     }
 
     // ========================================================================

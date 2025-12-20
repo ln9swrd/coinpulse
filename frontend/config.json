@@ -1,7 +1,7 @@
 {
   "api": {
-    "chartServerUrl": "https://coinpulse.sinsi.ai",
-    "tradingServerUrl": "https://coinpulse.sinsi.ai",
+    "chartServerUrl": "auto",
+    "tradingServerUrl": "auto",
     "upbitUrl": "https://api.upbit.com",
     "maxDataCount": 200,
     "endpoints": {

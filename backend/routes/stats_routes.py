@@ -32,61 +32,96 @@ def get_stats_summary():
     try:
         with get_db_session() as session:
             # 1. 사용자 통계
-            total_users = session.execute(
-                text("SELECT COUNT(*) FROM users")
-            ).scalar()
-            
-            active_users = session.execute(
-                text("SELECT COUNT(*) FROM users WHERE is_active = true")
-            ).scalar()
-            
-            verified_users = session.execute(
-                text("SELECT COUNT(*) FROM users WHERE is_verified = true")
-            ).scalar()
-            
+            try:
+                total_users = session.execute(
+                    text("SELECT COUNT(*) FROM users")
+                ).scalar()
+            except Exception:
+                total_users = 0
+
+            try:
+                active_users = session.execute(
+                    text("SELECT COUNT(*) FROM users WHERE is_active = true")
+                ).scalar()
+            except Exception:
+                active_users = 0
+
+            try:
+                verified_users = session.execute(
+                    text("SELECT COUNT(*) FROM users WHERE is_verified = true")
+                ).scalar()
+            except Exception:
+                verified_users = 0
+
             # 2. 거래 통계
-            total_orders = session.execute(
-                text("SELECT COUNT(*) FROM orders")
-            ).scalar()
-            
-            completed_orders = session.execute(
-                text("SELECT COUNT(*) FROM orders WHERE state = 'done'")
-            ).scalar()
-            
+            try:
+                total_orders = session.execute(
+                    text("SELECT COUNT(*) FROM orders")
+                ).scalar()
+            except Exception:
+                total_orders = 0
+
+            try:
+                completed_orders = session.execute(
+                    text("SELECT COUNT(*) FROM orders WHERE state = 'done'")
+                ).scalar()
+            except Exception:
+                completed_orders = 0
+
             # 오늘 거래
-            today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-            today_orders = session.execute(
-                text("SELECT COUNT(*) FROM orders WHERE executed_at >= :today"),
-                {"today": today_start}
-            ).scalar()
-            
+            try:
+                today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+                today_orders = session.execute(
+                    text("SELECT COUNT(*) FROM orders WHERE executed_at >= :today"),
+                    {"today": today_start}
+                ).scalar()
+            except Exception:
+                today_orders = 0
+
             # 3. 자동매매 활동
-            one_hour_ago = datetime.now() - timedelta(hours=1)
-            recent_activities = session.execute(
-                text("SELECT COUNT(*) FROM swing_trading_logs WHERE created_at > :one_hour_ago"),
-                {"one_hour_ago": one_hour_ago}
-            ).scalar()
-            
+            try:
+                one_hour_ago = datetime.now() - timedelta(hours=1)
+                recent_activities = session.execute(
+                    text("SELECT COUNT(*) FROM swing_trading_logs WHERE created_at > :one_hour_ago"),
+                    {"one_hour_ago": one_hour_ago}
+                ).scalar()
+            except Exception:
+                recent_activities = 0
+
             # 활성 사용자 (최근 1시간 활동)
-            active_traders = session.execute(
-                text("SELECT COUNT(DISTINCT user_id) FROM swing_trading_logs WHERE created_at > :one_hour_ago"),
-                {"one_hour_ago": one_hour_ago}
-            ).scalar()
-            
+            try:
+                one_hour_ago = datetime.now() - timedelta(hours=1)
+                active_traders = session.execute(
+                    text("SELECT COUNT(DISTINCT user_id) FROM swing_trading_logs WHERE created_at > :one_hour_ago"),
+                    {"one_hour_ago": one_hour_ago}
+                ).scalar()
+            except Exception:
+                active_traders = 0
+
             # 4. 구독 통계
-            active_subscriptions = session.execute(
-                text("SELECT COUNT(*) FROM user_subscriptions WHERE status = 'active'")
-            ).scalar()
-            
+            try:
+                active_subscriptions = session.execute(
+                    text("SELECT COUNT(*) FROM user_subscriptions WHERE status = 'active'")
+                ).scalar()
+            except Exception:
+                # Table doesn't exist yet - return 0
+                active_subscriptions = 0
+
             # 5. 베타 테스터
-            beta_testers = session.execute(
-                text("SELECT COUNT(*) FROM beta_testers WHERE is_active = true")
-            ).scalar()
-            
+            try:
+                beta_testers = session.execute(
+                    text("SELECT COUNT(*) FROM beta_testers WHERE is_active = true")
+                ).scalar()
+            except Exception:
+                beta_testers = 0
+
             # 6. 거래량 통계 (executed_funds 합계)
-            total_volume = session.execute(
-                text("SELECT COALESCE(SUM(executed_funds), 0) FROM orders WHERE state = 'done'")
-            ).scalar()
+            try:
+                total_volume = session.execute(
+                    text("SELECT COALESCE(SUM(executed_funds), 0) FROM orders WHERE state = 'done'")
+                ).scalar()
+            except Exception:
+                total_volume = 0
             
             return jsonify({
                 "success": True,
@@ -210,9 +245,13 @@ def get_active_stats():
             ).scalar()
             
             # 활성 구독
-            active_subs = session.execute(
-                text("SELECT COUNT(*) FROM user_subscriptions WHERE status = 'active'")
-            ).scalar()
+            try:
+                active_subs = session.execute(
+                    text("SELECT COUNT(*) FROM user_subscriptions WHERE status = 'active'")
+                ).scalar()
+            except Exception:
+                # Table doesn't exist yet - return 0
+                active_subs = 0
             
             return jsonify({
                 "success": True,

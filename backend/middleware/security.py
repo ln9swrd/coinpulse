@@ -34,23 +34,28 @@ class RateLimiter:
         # Blocked IPs: {ip: block_until_timestamp}
         self.blocked_ips = {}
 
-        # Rate limit configuration
-        self.limits = {
-            # Default: 60 requests per minute
-            'default': {'requests': 60, 'window': 60},
+        # Check if running in development mode
+        is_dev = os.getenv('DEBUG_MODE', 'true').lower() == 'true'
 
-            # Authentication: 5 login attempts per minute
-            'auth': {'requests': 5, 'window': 60},
-
-            # API endpoints: 30 requests per minute
-            'api': {'requests': 30, 'window': 60},
-
-            # Trading: 10 requests per minute
-            'trading': {'requests': 10, 'window': 60},
-
-            # Admin: 20 requests per minute
-            'admin': {'requests': 20, 'window': 60}
-        }
+        # Rate limit configuration (relaxed in development)
+        if is_dev:
+            self.limits = {
+                # Development: Extremely relaxed limits (거의 무제한)
+                'default': {'requests': 10000, 'window': 60},
+                'auth': {'requests': 10000, 'window': 60},  # 개발환경: 거의 무제한
+                'api': {'requests': 10000, 'window': 60},
+                'trading': {'requests': 10000, 'window': 60},
+                'admin': {'requests': 10000, 'window': 60}
+            }
+        else:
+            self.limits = {
+                # Production: Strict limits
+                'default': {'requests': 60, 'window': 60},
+                'auth': {'requests': 5, 'window': 60},  # 5 login attempts per minute
+                'api': {'requests': 30, 'window': 60},
+                'trading': {'requests': 10, 'window': 60},
+                'admin': {'requests': 20, 'window': 60}
+            }
 
     def _get_limit_for_path(self, path):
         """Determine rate limit based on request path"""
@@ -262,8 +267,16 @@ def setup_security_middleware(app):
         if request.path in ['/health', '/health/live', '/health/ready']:
             return
 
-        # 1. Rate limiting
-        allowed, retry_after = _rate_limiter.is_allowed(client_ip, request.path)
+        # Skip rate limiting in development mode (DEBUG_MODE=true)
+        import os
+        if os.getenv('DEBUG_MODE', 'true').lower() == 'true':
+            # Development: Skip rate limiting completely
+            allowed = True
+            retry_after = 0
+        else:
+            # Production: Apply rate limiting
+            # 1. Rate limiting
+            allowed, retry_after = _rate_limiter.is_allowed(client_ip, request.path)
 
         if not allowed:
             # Log rate limit exceeded
@@ -287,7 +300,9 @@ def setup_security_middleware(app):
             }), 429
 
         # 2. Input validation (for POST/PUT requests)
-        if request.method in ['POST', 'PUT', 'PATCH']:
+        # Skip validation for OAuth endpoints (they contain JWT tokens which look suspicious)
+        oauth_paths = ['/api/auth/google-login', '/api/auth/kakao-login']
+        if request.method in ['POST', 'PUT', 'PATCH'] and request.path not in oauth_paths:
             if request.is_json:
                 try:
                     data = request.get_json()

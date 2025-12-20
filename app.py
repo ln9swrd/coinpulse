@@ -30,7 +30,7 @@ from backend.services import ChartService, HoldingsService
 # Import all route blueprints
 from backend.routes.auth_routes import auth_bp
 from backend.routes.user_routes import user_bp  # User API routes (plan, profile)
-from backend.routes.holdings_routes import holdings_bp
+from backend.routes.holdings_routes import holdings_bp, init_holdings_routes
 from backend.routes.auto_trading_routes import auto_trading_bp
 from backend.routes.subscription_routes import subscription_bp  # ✅ Re-enabled
 from backend.routes.payment import payment_bp  # Payment routes
@@ -137,8 +137,8 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 
 app = Flask(__name__,
-            static_folder=CONFIG['paths']['static'],
-            static_url_path='')
+            static_folder=None,  # Disable Flask's built-in static file handler
+            static_url_path=None)  # Use custom serve_static() function instead
 
 # Secret key for session management
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
@@ -188,10 +188,25 @@ logger.info("WebSocket (SocketIO) initialized")
 
 def register_blueprints():
     """Register all route blueprints"""
+    # Initialize holdings routes with dependencies
+    try:
+        access_key, secret_key = load_api_keys()
+        if access_key and secret_key:
+            upbit_api = UpbitAPI(access_key, secret_key)
+        else:
+            upbit_api = None
+            logger.warning("API keys not configured - holdings API will use fallback mode")
+
+        holdings_service = HoldingsService(upbit_api)
+        init_holdings_routes(CONFIG, upbit_api, holdings_service)
+        logger.info("Holdings routes initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize holdings routes: {e}")
+
     blueprints = [
         (auth_bp, '/api/auth'),
         (user_bp, None),  # User API routes (already has /api/user prefix)
-        (holdings_bp, '/api'),
+        (holdings_bp, None),  # Holdings routes (already has /api prefix in routes)
         (auto_trading_bp, '/api'),
         (payment_bp, '/api/payment'),  # Payment routes
         (subscription_bp, None),  # ✅ Re-enabled - Subscription routes (already has /api/subscription prefix)
@@ -231,9 +246,52 @@ def index():
 
 @app.route('/<path:path>')
 def serve_static(path):
-    """Serve static files from frontend directory"""
+    """Serve static files from frontend directory with proper MIME types"""
     try:
-        return send_from_directory(CONFIG['paths']['frontend'], path)
+        import os
+        from flask import make_response
+
+        # Get full file path
+        file_path = os.path.join(CONFIG['paths']['frontend'], path)
+
+        # Check if file exists
+        if not os.path.exists(file_path):
+            logger.warning(f"File not found: {file_path}")
+            return jsonify({'error': 'File not found'}), 404
+
+        # Determine MIME type
+        mimetype = 'application/octet-stream'  # Default
+        if path.endswith('.js'):
+            mimetype = 'application/javascript; charset=utf-8'
+        elif path.endswith('.css'):
+            mimetype = 'text/css; charset=utf-8'
+        elif path.endswith('.json'):
+            mimetype = 'application/json; charset=utf-8'
+        elif path.endswith('.html'):
+            mimetype = 'text/html; charset=utf-8'
+        elif path.endswith('.png'):
+            mimetype = 'image/png'
+        elif path.endswith('.jpg') or path.endswith('.jpeg'):
+            mimetype = 'image/jpeg'
+        elif path.endswith('.svg'):
+            mimetype = 'image/svg+xml; charset=utf-8'
+        elif path.endswith('.ico'):
+            mimetype = 'image/x-icon'
+        elif path.endswith('.woff') or path.endswith('.woff2'):
+            mimetype = 'font/woff2'
+        elif path.endswith('.ttf'):
+            mimetype = 'font/ttf'
+
+        # Read file content
+        with open(file_path, 'rb') as f:
+            content = f.read()
+
+        # Create response with explicit Content-Type
+        response = make_response(content)
+        response.headers['Content-Type'] = mimetype
+        response.headers['Content-Length'] = len(content)
+
+        return response
     except Exception as e:
         logger.error(f"Error serving static file {path}: {e}")
         return jsonify({'error': 'File not found'}), 404

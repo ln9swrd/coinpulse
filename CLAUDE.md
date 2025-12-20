@@ -21,19 +21,170 @@
 
 ---
 
-## 🗣️ 대화 언어 규칙 (2025.11.30 추가)
+## 🗣️ 대화 언어 및 인코딩 규칙 (2025.11.30 추가, 2025.12.18 업데이트)
 
-### 필수 규칙
-- ✅ **모든 대화는 한글로 진행**: AI 어시스턴트의 모든 응답은 한글로 작성
-- ✅ **사용자 대면 문서는 한글**: README, 가이드, 보고서 등은 한글 작성
-- ✅ **기술 문서는 영어 허용**: 코드 주석, API 문서, 에러 메시지는 영어 가능
-- ✅ **변수명/함수명은 영어**: 코드 내 식별자는 영어 사용 (가독성)
+### 핵심 원칙 (반드시 준수)
+1. ✅ **모든 파일은 UTF-8 BOM 인코딩**: HTML, JS, CSS, Python, JSON 모두 UTF-8 BOM 사용 (필수)
+2. ✅ **프론트엔드는 한글 우선**: 사용자 대면 텍스트는 100% 한글 작성 (영어 금지)
+3. ✅ **백엔드는 영어 허용**: 로그, 에러 메시지, 코드 주석은 영어 사용 가능
+
+---
+
+### 인코딩 규칙 (강제 사항)
+
+#### UTF-8 BOM 인코딩 필수
+**모든 텍스트 파일은 UTF-8 BOM(Byte Order Mark)으로 저장해야 합니다.**
+
+| 파일 종류 | 인코딩 | 필수 여부 |
+|----------|--------|-----------|
+| HTML     | UTF-8 BOM | ✅ 필수 |
+| JavaScript | UTF-8 BOM | ✅ 필수 |
+| CSS      | UTF-8 BOM | ✅ 필수 |
+| Python   | UTF-8 BOM | ✅ 필수 |
+| JSON     | UTF-8 BOM | ✅ 필수 |
+| Markdown | UTF-8 BOM | ✅ 필수 |
+
+**UTF-8 BOM 사용 이유:**
+- Windows 환경에서 한글 인코딩 오류 100% 방지
+- CMD/PowerShell 출력 깨짐 방지
+- 파일 읽기/쓰기 시 자동 인코딩 감지
+- 국제 표준 호환성 유지
+
+#### 파일별 인코딩 선언
+
+**HTML 파일:**
+```html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">  <!-- 필수 -->
+    ...
+</head>
+```
+
+**Python 파일:**
+```python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-  <!-- 필수 -->
+
+import os
+...
+```
+
+**JSON 파일:**
+```python
+# JSON 저장 시 반드시 ensure_ascii=False 사용
+with open('data.json', 'w', encoding='utf-8-sig') as f:  # utf-8-sig = UTF-8 BOM
+    json.dump(data, f, ensure_ascii=False, indent=2)
+```
+
+**에디터 설정:**
+- VS Code: `"files.encoding": "utf8bom"`
+- PyCharm: Settings → Editor → File Encodings → UTF-8 with BOM
+
+---
+
+### 언어 사용 규칙
+
+#### 프론트엔드 (HTML/JS/CSS)
+**사용자 대면 텍스트는 100% 한글 작성 (영어 금지)**
+
+```html
+<!-- ✅ 올바른 예시 (한글) -->
+<button>로그인</button>
+<h1>결제 완료</h1>
+<p>회원가입이 성공적으로 완료되었습니다.</p>
+<label>이메일</label>
+<input placeholder="이메일을 입력하세요">
+<div class="error">비밀번호가 일치하지 않습니다</div>
+
+<!-- ❌ 잘못된 예시 (영어) -->
+<button>Login</button>
+<h1>Payment Complete</h1>
+<p>Registration successful.</p>
+<label>Email</label>
+<input placeholder="Enter your email">
+<div class="error">Passwords do not match</div>
+```
+
+**JavaScript 사용자 메시지:**
+```javascript
+// ✅ 올바른 예시 (한글)
+alert('로그인에 성공했습니다');
+console.log('[로그인] 사용자 인증 완료');
+throw new Error('이메일 형식이 올바르지 않습니다');
+
+// ❌ 잘못된 예시 (영어)
+alert('Login successful');
+console.log('[Login] User authenticated');
+throw new Error('Invalid email format');
+```
+
+#### 백엔드 (Python)
+**로그, 에러 메시지, 코드 주석은 영어 허용**
+
+```python
+# ✅ 영어 사용 가능
+logger.info("User login successful")
+raise ValueError("Invalid email format")
+
+# 변수명, 함수명, 클래스명은 반드시 영어
+def get_user_profile(user_id):
+    pass
+```
+
+#### 문서 (Markdown)
+**사용자 대면 문서는 한글, 기술 문서는 영어 허용**
+
+```markdown
+<!-- ✅ 사용자 가이드 (한글) -->
+# CoinPulse 사용자 가이드
+## 시작하기
+1. 회원가입을 진행하세요
+2. 이메일 인증을 완료하세요
+
+<!-- ✅ 기술 문서 (영어) -->
+# API Documentation
+## Authentication
+- Use JWT tokens for authentication
+```
+
+---
 
 ### 예외 사항
-- 코드 내 변수명, 함수명, 클래스명: 영어
-- 에러 메시지, 로그 출력: 영어
-- Git 커밋 메시지: 영어 (국제 협업 고려)
-- API 엔드포인트: 영어
+
+다음 경우에만 영어 사용 허용:
+
+| 항목 | 언어 | 이유 |
+|------|------|------|
+| 변수명, 함수명, 클래스명 | 영어 | 코드 가독성 |
+| Git 커밋 메시지 | 영어 | 국제 협업 |
+| API 엔드포인트 | 영어 | RESTful 표준 |
+| 로그 메시지 | 영어 | 디버깅 편의성 |
+| 에러 코드 | 영어 | 표준화 |
+
+**국제 서비스 대비:**
+- 다국어 지원이 필요한 경우 i18n 시스템 사용
+- 텍스트는 별도 언어 파일로 분리
+- 기본 언어는 한글로 설정
+
+---
+
+### 검증 체크리스트
+
+**파일 생성/수정 시 반드시 확인:**
+
+- [ ] 파일이 UTF-8 BOM 인코딩으로 저장되었는가?
+- [ ] HTML 파일에 `<meta charset="UTF-8">` 선언이 있는가?
+- [ ] 사용자 대면 텍스트가 모두 한글인가?
+- [ ] 버튼, 라벨, 메시지가 한글로 작성되었는가?
+- [ ] 코드 주석은 영어로 작성되었는가? (선택)
+- [ ] 변수명/함수명이 영어로 작성되었는가?
+
+**위반 시 조치:**
+- 즉시 파일 인코딩을 UTF-8 BOM으로 변경
+- 영어 UI 텍스트를 한글로 번역
+- 커밋 전 검증 필수
 
 ---
 
@@ -409,12 +560,13 @@ backend/
    - 점유하고 있는 프로세스를 강제 중지 후 해당 포트 사용
    - `tasklist`, `netstat` 명령어로 점유 프로세스 확인 후 `taskkill` 사용
    - 중복 프로세스 실행 방지 (성능 저하 원인)
-3. **인코딩 오류 방지 강화** (2025.12.16 업데이트):
+3. **인코딩 오류 방지 강화** (2025.12.17 업데이트):
    - 한글, 이모지, 특수문자로 인한 작업 중단 방지
    - **✅ 모든 파일은 UTF-8 BOM 인코딩으로 저장** (필수)
    - **✅ Windows 환경에서 한글 호환성 보장**
    - 개발 환경에서 인코딩 설정 통일
-   - UI 텍스트는 영어 우선, 한글 사용 시 주의
+   - **✅ HTML UI 텍스트는 한글 우선** (사용자 대면)
+   - **✅ 코드 내부는 영어** (변수명, 함수명, 로그)
    - **VS Code 설정**: `"files.encoding": "utf8bom"`
    - **PyCharm 설정**: File Encodings → UTF-8 with BOM
 4. **기존 파일 편집 우선**: 새 파일 생성보다 기존 파일 수정
@@ -428,11 +580,12 @@ backend/
    - **순환 참조 금지**: 모듈 간 순환 의존성 절대 금지
 
 ### 오류 방지 규칙
-1. **문자 인코딩 규칙**:
-   - 한글, 이모지, 특수문자 사용 금지
-   - 모든 변수명, 함수명, 주석은 영어만 사용
-   - 프로그램 출력 메시지도 영어 권장
-   - UI 텍스트는 영어 우선, 한글 사용 시 주의
+1. **문자 인코딩 규칙** (2025.12.17 업데이트):
+   - **코드 내부**: 변수명, 함수명, 클래스명은 영어만 사용
+   - **코드 주석**: 영어 권장 (한글 사용 시 UTF-8 BOM 필수)
+   - **로그 출력**: 영어 권장 (디버깅 편의성)
+   - **HTML UI**: 한글 우선 (사용자 대면 텍스트)
+   - **모든 파일**: UTF-8 BOM 인코딩 필수
 2. **스크립트 작성 규칙**:
    - `&&`, `||` 등 연산자 사용 시 공백으로 분리
    - 복잡한 명령어 체이닝 금지
@@ -446,6 +599,64 @@ backend/
    - **3줄 구조**: 헤더+가격정보+차트설정으로 고정
    - **반응형 디자인**: 모바일/태블릿 지원 필수
    - **테마 지원**: 라이트/다크 테마 토글 기능
+
+### 인코딩 설정 예시 (2025.12.17 추가)
+
+#### Python 파일
+```python
+# -*- coding: utf-8 -*-
+"""
+파일 설명
+"""
+
+# 파일 읽기/쓰기 시 인코딩 명시
+with open('config.json', 'r', encoding='utf-8') as f:
+    config = json.load(f)
+
+# JSON 저장 시 ensure_ascii=False 사용
+with open('data.json', 'w', encoding='utf-8') as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
+```
+
+#### HTML 파일
+```html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>코인펄스</title>
+</head>
+<body>
+    <h1>환영합니다</h1>
+    <button>로그인</button>
+</body>
+</html>
+```
+
+#### VS Code 설정 (.vscode/settings.json)
+```json
+{
+  "files.encoding": "utf8bom",
+  "files.autoGuessEncoding": false,
+  "[python]": {
+    "files.encoding": "utf8bom"
+  },
+  "[html]": {
+    "files.encoding": "utf8bom"
+  },
+  "[javascript]": {
+    "files.encoding": "utf8bom"
+  }
+}
+```
+
+#### PyCharm 설정
+1. **File → Settings → Editor → File Encodings**
+2. **Global Encoding**: UTF-8
+3. **Project Encoding**: UTF-8
+4. **Default encoding for properties files**: UTF-8
+5. ✅ **Create UTF-8 files with BOM** 체크
 
 ### 확장된 설정 파일 예시 (2025.11.06)
 

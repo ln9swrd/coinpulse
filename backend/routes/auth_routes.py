@@ -9,11 +9,16 @@ from sqlalchemy.exc import IntegrityError
 import jwt
 import os
 import secrets
+import logging
+import traceback
 
 from backend.database.connection import get_db_session
 from backend.database.models import User, Session as UserSession, EmailVerification, PasswordReset, UserAPIKey
 from backend.services.auth_service import auth_service
 from backend.services.email_service import email_service
+
+# Setup logger
+logger = logging.getLogger(__name__)
 
 # Create Blueprint
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
@@ -446,10 +451,13 @@ def logout():
         }), 400
 
 
+@auth_bp.route('/me', methods=['GET'])  # Alias for /profile
 @auth_bp.route('/profile', methods=['GET'])
 def get_profile():
     """
-    Get user profile
+    Get user profile (current user)
+
+    Available at both /me and /profile endpoints
 
     Headers:
         Authorization: Bearer <access_token>
@@ -481,9 +489,12 @@ def get_profile():
                     'code': 'USER_NOT_FOUND'
                 }), 404
 
+            # Get user data with has_upbit_keys field
+            user_data = user.to_dict(include_sensitive=True)
+
             return jsonify({
                 'success': True,
-                'user': user.to_dict()
+                'user': user_data
             }), 200
 
         finally:
@@ -555,6 +566,15 @@ def update_profile():
 
             if 'phone' in data:
                 user.phone = data['phone'].strip() if data['phone'] else None
+
+            # Update Upbit API keys
+            if 'upbit_access_key' in data:
+                user.upbit_access_key = data['upbit_access_key'].strip() if data['upbit_access_key'] else None
+                print(f"[Auth] Updated upbit_access_key for user {user_id}")
+
+            if 'upbit_secret_key' in data:
+                user.upbit_secret_key = data['upbit_secret_key'].strip() if data['upbit_secret_key'] else None
+                print(f"[Auth] Updated upbit_secret_key for user {user_id}")
 
             user.updated_at = datetime.utcnow()
             session.commit()
@@ -652,6 +672,168 @@ def refresh_token():
             'error': 'Internal server error',
             'code': 'SERVER_ERROR'
         }), 500
+
+
+@auth_bp.route('/google-login', methods=['POST'])
+def google_login():
+    """
+    Google OAuth login/signup
+
+    Request Body:
+        {
+            "credential": "Google JWT token",
+            "email": "user@gmail.com",
+            "name": "John Doe",
+            "picture": "https://..."
+        }
+
+    Returns:
+        200: Login successful with tokens
+        400: Validation error
+        500: Server error
+    """
+    try:
+        data = request.get_json()
+
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': 'No data provided',
+                'code': 'NO_DATA'
+            }), 400
+
+        credential = data.get('credential')
+        email = data.get('email', '').strip().lower()
+        name = data.get('name', '').strip()
+        picture = data.get('picture', '').strip()
+
+        if not credential or not email:
+            return jsonify({
+                'success': False,
+                'error': 'Google credential and email are required',
+                'code': 'MISSING_FIELDS'
+            }), 400
+
+        # Validate email format
+        if not auth_service.validate_email(email):
+            return jsonify({
+                'success': False,
+                'error': 'Invalid email format',
+                'code': 'INVALID_EMAIL'
+            }), 400
+
+        # TODO: Verify Google JWT credential with google-auth library
+        # For now, we trust the email from the client (not recommended for production)
+        # Install: pip install google-auth
+        # from google.oauth2 import id_token
+        # from google.auth.transport import requests as google_requests
+        # idinfo = id_token.verify_oauth2_token(credential, google_requests.Request(), GOOGLE_CLIENT_ID)
+
+        session = get_db_session()
+        try:
+            # Check if user exists
+            user = session.query(User).filter(User.email == email).first()
+
+            if user:
+                # Existing user - login
+                if not user.is_active:
+                    return jsonify({
+                        'success': False,
+                        'error': 'Account is disabled',
+                        'code': 'ACCOUNT_DISABLED'
+                    }), 403
+
+                # Update last login
+                user.last_login_at = datetime.utcnow()
+
+                print(f"[Auth] Google login for existing user: {user.id} ({email})")
+
+            else:
+                # New user - auto-register
+                # Extract username from email (before @)
+                username = email.split('@')[0]
+
+                # Check if username is taken, add suffix if needed
+                base_username = username
+                counter = 1
+                while session.query(User).filter(User.username == username).first():
+                    username = f"{base_username}{counter}"
+                    counter += 1
+
+                # Create new user (no password needed for OAuth users)
+                user = User(
+                    email=email,
+                    username=username,
+                    password_hash=auth_service.hash_password(secrets.token_urlsafe(32)),  # Random password
+                    full_name=name if name else None,
+                    is_active=True,
+                    is_verified=True,  # Google accounts are pre-verified
+                    email_verified_at=datetime.utcnow()
+                )
+
+                session.add(user)
+                session.flush()
+
+                print(f"[Auth] New user registered via Google: {user.id} ({email})")
+
+            # Generate tokens
+            access_token, refresh_token = generate_tokens(user.id, user.username)
+
+            # Create session record
+            user_session = UserSession(
+                user_id=user.id,
+                token_jti=f"google_session_{user.id}_{datetime.utcnow().timestamp()}",
+                token_type='access',
+                expires_at=datetime.utcnow() + timedelta(seconds=JWT_ACCESS_TOKEN_EXPIRES),
+                ip_address=request.remote_addr,
+                user_agent=request.headers.get('User-Agent', '')[:500]
+            )
+
+            session.add(user_session)
+            session.commit()
+
+            return jsonify({
+                'success': True,
+                'message': 'Google login successful',
+                'user': user.to_dict(),
+                'access_token': access_token,
+                'refresh_token': refresh_token,
+                'tokens': {
+                    'access_token': access_token,
+                    'refresh_token': refresh_token,
+                    'expires_in': JWT_ACCESS_TOKEN_EXPIRES
+                }
+            }), 200
+
+        except Exception as e:
+            session.rollback()
+            error_msg = f"[Auth] Google login error: {str(e)}"
+            logger.error(error_msg)
+            logger.error(traceback.format_exc())
+            print(error_msg)
+            print(traceback.format_exc())
+            return jsonify({
+                'success': False,
+                'error': 'Internal server error',
+                'code': 'SERVER_ERROR',
+                'details': str(e) if os.getenv('DEBUG_MODE', 'true').lower() == 'true' else None
+            }), 500
+
+        finally:
+            session.close()
+
+    except Exception as e:
+        error_msg = f"[Auth] Google login request error: {str(e)}"
+        logger.error(error_msg)
+        logger.error(traceback.format_exc())
+        print(error_msg)
+        print(traceback.format_exc())
+        return jsonify({
+            'success': False,
+            'error': 'Invalid request format',
+            'code': 'INVALID_REQUEST',
+            'details': str(e) if os.getenv('DEBUG_MODE', 'true').lower() == 'true' else None
+        }), 400
 
 
 @auth_bp.route('/health', methods=['GET'])

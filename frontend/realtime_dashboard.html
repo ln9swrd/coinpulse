@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CoinPulse - Real-time Dashboard</title>
+    <title>코인펄스 - 실시간 대시보드</title>
 
     <!-- Socket.IO Client -->
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js?v=20251218"></script>
 
     <style>
         * {
@@ -293,17 +293,17 @@
         <div class="header">
             <h1>
                 <span>📊</span>
-                CoinPulse Real-time Dashboard
+                코인펄스 실시간 대시보드
             </h1>
             <div class="connection-status disconnected" id="connection-status">
                 <span class="status-dot"></span>
-                <span id="status-text">Connecting...</span>
+                <span id="status-text">연결 중...</span>
             </div>
         </div>
 
         <!-- Market Selector -->
         <div class="card">
-            <div class="card-header">Select Markets to Monitor</div>
+            <div class="card-header">모니터링할 마켓 선택</div>
             <div class="market-selector" id="market-selector">
                 <div class="market-tag active" data-market="KRW-BTC">BTC</div>
                 <div class="market-tag active" data-market="KRW-ETH">ETH</div>
@@ -321,35 +321,35 @@
             <!-- Real-time Prices -->
             <div class="card">
                 <div class="card-header">
-                    Real-time Prices
-                    <span style="font-size: 12px; color: #6b7280;">Updated every 1s</span>
+                    실시간 가격
+                    <span style="font-size: 12px; color: #6b7280;">1초마다 업데이트</span>
                 </div>
                 <div class="card-content" id="price-container">
                     <div class="empty-state">
                         <div class="empty-state-icon">📈</div>
-                        <div>Connecting to price feed...</div>
+                        <div>가격 피드 연결 중...</div>
                     </div>
                 </div>
             </div>
 
             <!-- Portfolio Status -->
             <div class="card">
-                <div class="card-header">Portfolio Status</div>
+                <div class="card-header">포트폴리오 상태</div>
                 <div class="card-content">
                     <div class="stat-item">
-                        <span class="stat-label">Total Value</span>
-                        <span class="stat-value" id="total-value">Loading...</span>
+                        <span class="stat-label">총 평가액</span>
+                        <span class="stat-value" id="total-value">로딩 중...</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-label">Open Positions</span>
+                        <span class="stat-label">오픈 포지션</span>
                         <span class="stat-value" id="open-positions">0</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-label">Total P/L</span>
+                        <span class="stat-label">총 손익</span>
                         <span class="stat-value" id="total-pl">0 KRW</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-label">Win Rate</span>
+                        <span class="stat-label">승률</span>
                         <span class="stat-value" id="win-rate">0%</span>
                     </div>
                 </div>
@@ -357,11 +357,11 @@
 
             <!-- Notifications -->
             <div class="card">
-                <div class="card-header">Recent Notifications</div>
+                <div class="card-header">최근 알림</div>
                 <div class="card-content" id="notifications-container">
                     <div class="empty-state">
                         <div class="empty-state-icon">🔔</div>
-                        <div>No notifications yet</div>
+                        <div>알림이 없습니다</div>
                     </div>
                 </div>
             </div>
@@ -436,11 +436,11 @@
             if (connected) {
                 connectionStatus.classList.remove('disconnected');
                 connectionStatus.classList.add('connected');
-                statusText.textContent = 'Connected';
+                statusText.textContent = '연결됨';
             } else {
                 connectionStatus.classList.remove('connected');
                 connectionStatus.classList.add('disconnected');
-                statusText.textContent = 'Disconnected';
+                statusText.textContent = '연결 끊김';
             }
         }
 
@@ -460,7 +460,7 @@
                 priceContainer.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">📈</div>
-                        <div>Select markets to monitor</div>
+                        <div>모니터링할 마켓을 선택하세요</div>
                     </div>
                 `;
                 return;
@@ -472,7 +472,7 @@
                     return `
                         <div class="price-card">
                             <div class="price-symbol">${market.replace('KRW-', '')}</div>
-                            <div style="color: #9ca3af;">Loading...</div>
+                            <div style="color: #9ca3af;">로딩 중...</div>
                         </div>
                     `;
                 }
@@ -515,18 +515,26 @@
                 notificationsContainer.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">🔔</div>
-                        <div>No notifications yet</div>
+                        <div>알림이 없습니다</div>
                     </div>
                 `;
                 return;
             }
 
-            notificationsContainer.innerHTML = state.notifications.map(notif => `
-                <div class="notification">
-                    <strong>${notif.type}</strong>: ${JSON.stringify(notif.data.data || notif.data, null, 2)}
-                    <div class="notification-time">${notif.timestamp}</div>
-                </div>
-            `).join('');
+            notificationsContainer.innerHTML = state.notifications.map(notif => {
+                const typeMap = {
+                    'Order': '주문',
+                    'Position': '포지션'
+                };
+                const typeText = typeMap[notif.type] || notif.type;
+
+                return `
+                    <div class="notification">
+                        <strong>${typeText}</strong>: ${JSON.stringify(notif.data.data || notif.data, null, 2)}
+                        <div class="notification-time">${notif.timestamp}</div>
+                    </div>
+                `;
+            }).join('');
         }
 
         // Market selector

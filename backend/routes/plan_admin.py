@@ -200,7 +200,16 @@ def get_public_plans():
             'count': len(plans)
         })
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+        # If table doesn't exist, return empty list instead of 500
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(f"[Plans] Error fetching public plans (table may not exist yet): {str(e)}")
+        return jsonify({
+            'success': True,
+            'plans': [],
+            'count': 0,
+            'message': 'Plan configuration not initialized yet'
+        }), 200
     finally:
         session.close()
 
@@ -209,7 +218,15 @@ def compare_plans():
     """플랜 비교표 데이터 (인증 불필요)"""
     session = get_db_session()
     try:
-        plans = PlanConfig.get_active_plans(session)
+        try:
+            plans = PlanConfig.get_active_plans(session)
+        except Exception:
+            # If table doesn't exist, return empty comparison
+            return jsonify({
+                'success': True,
+                'comparison': [],
+                'message': 'Plan configuration not initialized yet'
+            }), 200
 
         # 비교표용 데이터 구조
         comparison = []

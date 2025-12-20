@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="CoinPulse - Login to your trading account">
-    <title>Login - CoinPulse</title>
+    <meta name="description" content="CoinPulse - 트레이딩 계정 로그인">
+    <title>로그인 - CoinPulse</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="css/auth.css?v=20251124">
+    <link rel="stylesheet" href="css/auth.css?v=20251217">
 </head>
 <body>
     <!-- Background Gradient -->
@@ -26,19 +26,19 @@
             <!-- Logo -->
             <div class="auth-header">
                 <a href="index.html" class="logo">CoinPulse</a>
-                <p class="tagline">Welcome back to smart trading</p>
+                <p class="tagline">스마트 트레이딩으로 돌아오신 것을 환영합니다</p>
             </div>
 
             <!-- Login Form -->
             <form id="login-form" class="auth-form">
                 <!-- Email Input -->
                 <div class="form-group">
-                    <label for="email">Email</label>
+                    <label for="email">이메일</label>
                     <input
                         type="email"
                         id="email"
                         name="email"
-                        placeholder="Enter your email"
+                        placeholder="이메일을 입력하세요"
                         required
                         autocomplete="email"
                     >
@@ -47,17 +47,17 @@
 
                 <!-- Password Input -->
                 <div class="form-group">
-                    <label for="password">Password</label>
+                    <label for="password">비밀번호</label>
                     <div class="password-input-wrapper">
                         <input
                             type="password"
                             id="password"
                             name="password"
-                            placeholder="Enter your password"
+                            placeholder="비밀번호를 입력하세요"
                             required
                             autocomplete="current-password"
                         >
-                        <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+                        <button type="button" class="toggle-password" aria-label="비밀번호 표시 전환">
                             <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                 <circle cx="12" cy="12" r="3"></circle>
@@ -71,14 +71,14 @@
                 <div class="form-options">
                     <label class="checkbox-label">
                         <input type="checkbox" id="remember-me" name="remember">
-                        <span>Remember me</span>
+                        <span>로그인 상태 유지</span>
                     </label>
-                    <a href="forgot-password.html" class="forgot-link">Forgot password?</a>
+                    <a href="forgot-password.html" class="forgot-link">비밀번호를 잊으셨나요?</a>
                 </div>
 
                 <!-- Submit Button -->
                 <button type="submit" class="btn-primary btn-large btn-block" id="login-btn">
-                    <span class="btn-text">Login</span>
+                    <span class="btn-text">로그인</span>
                     <span class="btn-loader" style="display: none;">
                         <svg class="spinner" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <circle cx="12" cy="12" r="10" stroke-width="3" stroke-dasharray="32" stroke-dashoffset="32"></circle>
@@ -92,32 +92,36 @@
 
             <!-- Divider -->
             <div class="divider">
-                <span>or</span>
+                <span>또는</span>
             </div>
 
-            <!-- Social Login (Optional - future enhancement) -->
+            <!-- Social Login -->
             <div class="social-login">
-                <button type="button" class="btn-social btn-google" disabled>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                    </svg>
-                    <span>Continue with Google</span>
-                </button>
+                <!-- Google Sign-In Configuration -->
+                <div id="g_id_onload"
+                     data-client_id="759125219088-4j3a1nnubmvb0rvvbgqipups62b22s9s.apps.googleusercontent.com"
+                     data-context="signin"
+                     data-ux_mode="popup"
+                     data-callback="handleGoogleSignIn"
+                     data-auto_prompt="false"
+                     data-itp_support="true">
+                </div>
 
-                <button type="button" class="btn-social btn-kakao" disabled>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 3C6.477 3 2 6.477 2 10.5c0 2.664 1.88 4.992 4.715 6.243-.328 1.176-1.087 3.818-1.124 3.966-.048.193.07.19.145.139.058-.039 3.396-2.289 3.958-2.668C10.422 18.467 11.196 18.6 12 18.6c5.523 0 10-3.477 10-7.6S17.523 3 12 3z" fill="#FFE812"/>
-                    </svg>
-                    <span>Continue with Kakao</span>
-                </button>
+                <!-- Google Sign-In Button (Official) -->
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-shape="rectangular"
+                     data-theme="outline"
+                     data-text="signin_with"
+                     data-size="large"
+                     data-logo_alignment="left"
+                     data-width="400">
+                </div>
             </div>
 
             <!-- Sign Up Link -->
             <div class="auth-footer">
-                <p>Don't have an account? <a href="signup.html" class="link">Sign up</a></p>
+                <p>계정이 없으신가요? <a href="signup.html" class="link">회원가입</a></p>
             </div>
         </div>
 
@@ -126,13 +130,16 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
-            <span>Back to home</span>
+            <span>홈으로 돌아가기</span>
         </a>
     </div>
 
     <!-- JavaScript -->
+    <!-- Google Sign-In SDK -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
     <!-- API Client Library (must be loaded first) -->
-    <script src="js/api_client.js?v=20251129"></script>
+    <script src="js/api_client.js?v=20251219"></script>
 
     <!-- Login Handler -->
     <script>
@@ -146,11 +153,39 @@
                 const passwordInput = document.getElementById('password');
                 const loginBtn = loginForm.querySelector('button[type="submit"]');
 
+                // Password toggle functionality
+                const togglePasswordBtn = document.querySelector('.toggle-password');
+                if (togglePasswordBtn && passwordInput) {
+                    togglePasswordBtn.addEventListener('click', function() {
+                        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                        passwordInput.setAttribute('type', type);
+
+                        // Toggle eye icon (optional - add slash through eye when visible)
+                        const eyeIcon = this.querySelector('.eye-icon');
+                        if (type === 'text') {
+                            eyeIcon.style.opacity = '0.6';
+                        } else {
+                            eyeIcon.style.opacity = '1';
+                        }
+                    });
+                }
+
                 // Check if user is already logged in
-                if (window.api.isAuthenticated()) {
-                    console.log('[Login] User already authenticated, redirecting...');
-                    window.location.href = '/dashboard.html';
-                    return;
+                const isAuth = window.api.isAuthenticated();
+                console.log('[Login] Auth check:', {
+                    isAuthenticated: isAuth,
+                    accessToken: localStorage.getItem('access_token') ? 'EXISTS' : 'NULL',
+                    apiAccessToken: window.api.accessToken ? 'EXISTS' : 'NULL'
+                });
+
+                if (isAuth) {
+                    console.log('[Login] User already authenticated, redirecting to dashboard...');
+                    // TEMPORARY: Disable redirect for debugging
+                    console.warn('[Login] REDIRECT DISABLED FOR DEBUGGING - User can stay on login page');
+                    // setTimeout(() => {
+                    //     window.location.href = '/dashboard.html';
+                    // }, 100);
+                    return; // Keep return to prevent form submission
                 }
 
                 // Handle login form submission
@@ -165,12 +200,12 @@
 
                     // Validate inputs
                     if (!email) {
-                        showError('email-error', 'Email is required');
+                        showError('email-error', '이메일을 입력해주세요');
                         return;
                     }
 
                     if (!password) {
-                        showError('password-error', 'Password is required');
+                        showError('password-error', '비밀번호를 입력해주세요');
                         return;
                     }
 
@@ -184,7 +219,7 @@
                         console.log('[Login] Success:', response);
 
                         // Show success message
-                        showMessage('success', 'Login successful! Redirecting...');
+                        showMessage('success', '로그인 성공! 이동 중...');
 
                         // Redirect to dashboard after short delay
                         setTimeout(() => {
@@ -195,13 +230,13 @@
                         console.error('[Login] Error:', error);
 
                         // Show error message
-                        let errorMessage = 'Login failed. Please try again.';
+                        let errorMessage = '로그인에 실패했습니다. 다시 시도해주세요.';
                         if (error.code === 'INVALID_CREDENTIALS') {
-                            errorMessage = 'Invalid email or password';
+                            errorMessage = '이메일 또는 비밀번호가 올바르지 않습니다';
                         } else if (error.code === 'ACCOUNT_DEACTIVATED') {
-                            errorMessage = 'Your account has been deactivated';
+                            errorMessage = '계정이 비활성화되었습니다';
                         } else if (error.code === 'NETWORK_ERROR') {
-                            errorMessage = 'Network error. Please check your connection.';
+                            errorMessage = '네트워크 오류가 발생했습니다. 연결을 확인해주세요.';
                         }
 
                         showMessage('error', errorMessage);
@@ -249,17 +284,87 @@
                 function setButtonLoading(button, isLoading) {
                     if (isLoading) {
                         button.disabled = true;
-                        button.innerHTML = '<span>Logging in...</span>';
+                        button.innerHTML = '<span>로그인 중...</span>';
                         button.style.opacity = '0.7';
                     } else {
                         button.disabled = false;
-                        button.innerHTML = '<span>Login</span>';
+                        button.innerHTML = '<span>로그인</span>';
                         button.style.opacity = '1';
                     }
                 }
 
                 console.log('[Login] Form initialized with new API client');
             });
+
+            // Google Sign-In callback (called by Google SDK)
+            window.handleGoogleSignIn = async function(response) {
+                console.log('[Google] Sign-In response received');
+
+                try {
+                    // Google JWT credential
+                    const credential = response.credential;
+
+                    // Decode JWT to get user info (basic decoding, not verification)
+                    const payload = JSON.parse(atob(credential.split('.')[1]));
+                    console.log('[Google] User info:', {
+                        email: payload.email,
+                        name: payload.name,
+                        picture: payload.picture
+                    });
+
+                    // Send to backend for verification and login
+                    const loginResponse = await fetch('/api/auth/google-login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            credential: credential,
+                            email: payload.email,
+                            name: payload.name,
+                            picture: payload.picture
+                        })
+                    });
+
+                    const data = await loginResponse.json();
+
+                    if (data.success) {
+                        // Save tokens
+                        window.api.setAccessToken(data.access_token);
+                        if (data.refresh_token) {
+                            window.api.setRefreshToken(data.refresh_token);
+                        }
+
+                        console.log('[Google] Login successful, redirecting...');
+
+                        // Show success message
+                        const msgEl = document.createElement('div');
+                        msgEl.className = 'form-message success';
+                        msgEl.textContent = 'Google 로그인 성공! 이동 중...';
+                        document.getElementById('login-form').parentElement.insertBefore(
+                            msgEl,
+                            document.getElementById('login-form')
+                        );
+
+                        // Redirect to dashboard
+                        setTimeout(() => {
+                            window.location.href = '/dashboard.html';
+                        }, 1000);
+                    } else {
+                        throw new Error(data.error || 'Google 로그인에 실패했습니다.');
+                    }
+                } catch (error) {
+                    console.error('[Google] Login error:', error);
+
+                    const msgEl = document.createElement('div');
+                    msgEl.className = 'form-message error';
+                    msgEl.textContent = error.message || 'Google 로그인 중 오류가 발생했습니다.';
+                    document.getElementById('login-form').parentElement.insertBefore(
+                        msgEl,
+                        document.getElementById('login-form')
+                    );
+                }
+            };
         })();
     </script>
 </body>

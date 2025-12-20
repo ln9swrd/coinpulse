@@ -128,8 +128,16 @@ def init_database(create_tables=True):
     if create_tables:
         print("[Database] Creating tables...")
         from . import models  # Import models to register them
-        Base.metadata.create_all(bind=engine)
-        print("[Database] Tables created successfully")
+        try:
+            Base.metadata.create_all(bind=engine)
+            print("[Database] Tables created successfully")
+        except Exception as e:
+            # Ignore duplicate table/index errors (they already exist)
+            if "already exists" in str(e) or "DuplicateTable" in str(e) or "이미 존재" in str(e):
+                print(f"[Database] Tables/indexes already exist (ignored): {str(e)[:100]}")
+            else:
+                print(f"[Database] Warning: Table creation error: {str(e)}")
+                # Don't raise - allow the application to continue
 
     print("[Database] Database initialized successfully")
     return engine

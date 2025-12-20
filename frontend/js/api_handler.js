@@ -6,9 +6,15 @@ async function loadConfig() {
     try {
         const response = await fetch('/frontend/config.json');
         const config = await response.json();
+
+        // "auto" 값이면 현재 origin 사용 (환경 자동 감지)
+        const resolveUrl = (url) => {
+            return url === 'auto' ? window.location.origin : url;
+        };
+
         API_CONFIG = {
-            chartServer: config.api.chartServerUrl,
-            tradingServer: config.api.tradingServerUrl,
+            chartServer: resolveUrl(config.api.chartServerUrl),
+            tradingServer: resolveUrl(config.api.tradingServerUrl),
             endpoints: {
                 chart: {
                     candles: {
@@ -31,10 +37,10 @@ async function loadConfig() {
         };
     } catch (error) {
         console.error('Failed to load config:', error);
-        // 기본값 사용
+        // 기본값: 현재 origin 사용 (환경 자동 감지)
         API_CONFIG = {
-            chartServer: 'https://coinpulse.sinsi.ai',
-            tradingServer: 'https://coinpulse.sinsi.ai',
+            chartServer: window.location.origin,
+            tradingServer: window.location.origin,
             endpoints: {
                 chart: {
                     candles: {

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CoinPulse Admin Dashboard v2.0</title>
+    <title>코인펄스 관리자 대시보드 v2.0</title>
     <style>
         * {
             margin: 0;
@@ -412,21 +412,21 @@
         <!-- Header -->
         <header>
             <div>
-                <h1>🎛️ CoinPulse Admin Dashboard</h1>
-                <div class="admin-token" id="tokenDisplay">Token: Loading...</div>
+                <h1>🎛️ 코인펄스 관리자 대시보드</h1>
+                <div class="admin-token" id="tokenDisplay">토큰: 로딩 중...</div>
             </div>
             <div class="admin-info">
-                <button class="btn btn-secondary" onclick="logout()">Logout</button>
+                <button class="btn btn-secondary" onclick="logout()">로그아웃</button>
             </div>
         </header>
 
         <!-- Tabs -->
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('stats')">📊 Dashboard</button>
-            <button class="tab" onclick="switchTab('users')">👥 Users</button>
-            <button class="tab" onclick="switchTab('payments')">💳 Payments</button>
-            <button class="tab" onclick="switchTab('beta')">🧪 Beta Testers</button>
-            <button class="tab" onclick="switchTab('plans')">💎 Plans</button>
+            <button class="tab active" onclick="switchTab('stats')">📊 대시보드</button>
+            <button class="tab" onclick="switchTab('users')">👥 사용자</button>
+            <button class="tab" onclick="switchTab('payments')">💳 결제</button>
+            <button class="tab" onclick="switchTab('beta')">🧪 베타 테스터</button>
+            <button class="tab" onclick="switchTab('plans')">💎 플랜</button>
         </div>
 
         <!-- Content -->
@@ -435,27 +435,27 @@
             <div id="stats-tab" class="tab-content active">
                 <div class="stats-grid" id="statsCards">
                     <div class="stat-card">
-                        <div class="stat-label">Total Users</div>
+                        <div class="stat-label">전체 사용자</div>
                         <div class="stat-value highlight" id="statTotalUsers">0</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">Active Subscriptions</div>
+                        <div class="stat-label">활성 구독</div>
                         <div class="stat-value" id="statActiveSubscriptions">0</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">Pending Payments</div>
+                        <div class="stat-label">대기 중 결제</div>
                         <div class="stat-value" id="statPendingPayments">0</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">Beta Testers</div>
+                        <div class="stat-label">베타 테스터</div>
                         <div class="stat-value" id="statBetaTesters">0</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">Monthly Revenue</div>
+                        <div class="stat-label">월간 수익</div>
                         <div class="stat-value" id="statMonthlyRevenue">₩0</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">Total Revenue</div>
+                        <div class="stat-label">총 수익</div>
                         <div class="stat-value" id="statTotalRevenue">₩0</div>
                     </div>
                 </div>
@@ -465,7 +465,7 @@
             <div id="users-tab" class="tab-content">
                 <div class="actions-bar">
                     <div class="search-box">
-                        <input type="text" id="userSearch" placeholder="🔍 Search users..." onkeyup="filterUsers()">
+                        <input type="text" id="userSearch" placeholder="🔍 사용자 검색..." onkeyup="filterUsers()">
                     </div>
                 </div>
                 <div class="table-container">
@@ -477,11 +477,11 @@
                                 <th>현재 플랜</th>
                                 <th>상태</th>
                                 <th>만료일</th>
-                                <th>관리</th>
+                                <th>작업</th>
                             </tr>
                         </thead>
                         <tbody id="usersTable">
-                            <tr><td colspan="6" class="loading">Loading...</td></tr>
+                            <tr><td colspan="6" class="loading">로딩 중...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -491,30 +491,30 @@
             <div id="payments-tab" class="tab-content">
                 <div class="actions-bar">
                     <div class="search-box">
-                        <input type="text" id="paymentSearch" placeholder="🔍 Search payments..." onkeyup="filterPayments()">
+                        <input type="text" id="paymentSearch" placeholder="🔍 결제 검색..." onkeyup="filterPayments()">
                     </div>
                     <select id="paymentStatusFilter" onchange="loadPayments()">
-                        <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
-                        <option value="all">All</option>
+                        <option value="pending">대기 중</option>
+                        <option value="approved">승인됨</option>
+                        <option value="rejected">거부됨</option>
+                        <option value="all">전체</option>
                     </select>
                 </div>
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th>Payment Code</th>
-                                <th>Email</th>
-                                <th>Plan</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                                <th>Actions</th>
+                                <th>결제 코드</th>
+                                <th>이메일</th>
+                                <th>플랜</th>
+                                <th>금액</th>
+                                <th>상태</th>
+                                <th>날짜</th>
+                                <th>작업</th>
                             </tr>
                         </thead>
                         <tbody id="paymentsTable">
-                            <tr><td colspan="7" class="loading">Loading...</td></tr>
+                            <tr><td colspan="7" class="loading">로딩 중...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -524,23 +524,23 @@
             <div id="beta-tab" class="tab-content">
                 <div class="actions-bar">
                     <div class="search-box">
-                        <input type="text" id="betaSearch" placeholder="🔍 Search beta testers..." onkeyup="filterBeta()">
+                        <input type="text" id="betaSearch" placeholder="🔍 베타 테스터 검색..." onkeyup="filterBeta()">
                     </div>
-                    <button class="btn btn-primary" onclick="openAddBetaModal()">+ Add Beta Tester</button>
+                    <button class="btn btn-primary" onclick="openAddBetaModal()">+ 베타 테스터 추가</button>
                 </div>
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th>Email</th>
-                                <th>Name</th>
-                                <th>Status</th>
-                                <th>Joined</th>
-                                <th>Actions</th>
+                                <th>이메일</th>
+                                <th>이름</th>
+                                <th>상태</th>
+                                <th>가입일</th>
+                                <th>작업</th>
                             </tr>
                         </thead>
                         <tbody id="betaTable">
-                            <tr><td colspan="5" class="loading">Loading...</td></tr>
+                            <tr><td colspan="5" class="loading">로딩 중...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -552,15 +552,15 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Plan</th>
-                                <th>Price</th>
-                                <th>Features</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th>플랜</th>
+                                <th>가격</th>
+                                <th>기능</th>
+                                <th>상태</th>
+                                <th>작업</th>
                             </tr>
                         </thead>
                         <tbody id="plansTable">
-                            <tr><td colspan="5" class="loading">Loading...</td></tr>
+                            <tr><td colspan="5" class="loading">로딩 중...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -609,13 +609,13 @@
     <div id="paymentModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Payment Request Details</h2>
+                <h2>결제 요청 상세</h2>
             </div>
             <div id="paymentDetails"></div>
             <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" onclick="closeModal('paymentModal')">Close</button>
-                <button type="button" class="btn btn-success" onclick="approvePayment()">✓ Approve</button>
-                <button type="button" class="btn btn-danger" onclick="rejectPayment()">✗ Reject</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('paymentModal')">닫기</button>
+                <button type="button" class="btn btn-success" onclick="approvePayment()">✓ 승인</button>
+                <button type="button" class="btn btn-danger" onclick="rejectPayment()">✗ 거부</button>
             </div>
         </div>
     </div>
@@ -623,20 +623,20 @@
     <div id="betaModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Add Beta Tester</h2>
+                <h2>베타 테스터 추가</h2>
             </div>
             <form id="betaForm">
                 <div class="form-group">
-                    <label>Email *</label>
+                    <label>이메일 *</label>
                     <input type="email" id="betaEmail" required>
                 </div>
                 <div class="form-group">
-                    <label>Name</label>
+                    <label>이름</label>
                     <input type="text" id="betaName">
                 </div>
                 <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('betaModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('betaModal')">취소</button>
+                    <button type="submit" class="btn btn-primary">추가</button>
                 </div>
             </form>
         </div>
@@ -657,21 +657,21 @@
         // Auth
         function checkAuth() {
             if (!adminToken) {
-                adminToken = prompt('Enter Admin Token:');
+                adminToken = prompt('관리자 토큰을 입력하세요:');
                 if (adminToken) {
                     localStorage.setItem('adminToken', adminToken);
-                    document.getElementById('tokenDisplay').textContent = `Token: ${adminToken.substring(0, 20)}...`;
+                    document.getElementById('tokenDisplay').textContent = `토큰: ${adminToken.substring(0, 20)}...`;
                 } else {
-                    alert('Admin token required!');
+                    alert('관리자 토큰이 필요합니다!');
                     location.reload();
                 }
             } else {
-                document.getElementById('tokenDisplay').textContent = `Token: ${adminToken.substring(0, 20)}...`;
+                document.getElementById('tokenDisplay').textContent = `토큰: ${adminToken.substring(0, 20)}...`;
             }
         }
 
         function logout() {
-            if (confirm('Logout?')) {
+            if (confirm('로그아웃 하시겠습니까?')) {
                 localStorage.removeItem('adminToken');
                 location.reload();
             }
@@ -740,18 +740,18 @@
                 if (data.success) {
                     renderUsers(data.users);
                 } else {
-                    alert('Failed to load users: ' + data.error);
+                    alert('사용자 로드 실패: ' + data.error);
                 }
             } catch (error) {
-                console.error('Failed to load users:', error);
+                console.error('사용자 로드 실패:', error);
             }
         }
 
         function renderUsers(users) {
             const tbody = document.getElementById('usersTable');
-            
+
             if (!users || users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-state-icon">👥</div><div class="empty-state-text">No users yet</div></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-state-icon">👥</div><div class="empty-state-text">아직 사용자가 없습니다</div></td></tr>';
                 return;
             }
 
@@ -846,18 +846,18 @@
                 if (data.success) {
                     renderPayments(data.requests);
                 } else {
-                    alert('Failed to load payments: ' + data.error);
+                    alert('결제 내역 로드 실패: ' + data.error);
                 }
             } catch (error) {
-                console.error('Failed to load payments:', error);
+                console.error('결제 내역 로드 실패:', error);
             }
         }
 
         function renderPayments(payments) {
             const tbody = document.getElementById('paymentsTable');
-            
+
             if (!payments || payments.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="empty-state-icon">💳</div><div class="empty-state-text">No payment requests</div></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="empty-state-icon">💳</div><div class="empty-state-text">결제 요청이 없습니다</div></td></tr>';
                 return;
             }
 
@@ -871,7 +871,7 @@
                     <td>${new Date(payment.created_at).toLocaleDateString()}</td>
                     <td>
                         ${payment.status === 'pending' ? `
-                            <button class="btn btn-success" style="padding: 6px 12px; font-size: 12px;" onclick="showPaymentDetails(${payment.id})">Review</button>
+                            <button class="btn btn-success" style="padding: 6px 12px; font-size: 12px;" onclick="showPaymentDetails(${payment.id})">검토</button>
                         ` : '-'}
                     </td>
                 </tr>
@@ -888,10 +888,10 @@
             // In a real app, fetch payment details
             document.getElementById('paymentDetails').innerHTML = `
                 <div class="form-group">
-                    <label>Payment ID</label>
+                    <label>결제 ID</label>
                     <p>${paymentId}</p>
                 </div>
-                <p>Review this payment request and approve or reject.</p>
+                <p>이 결제 요청을 검토한 후 승인 또는 거부하세요.</p>
             `;
             openModal('paymentModal');
         }
@@ -906,22 +906,22 @@
                 });
 
                 const data = await response.json();
-                
+
                 if (data.success) {
                     closeModal('paymentModal');
                     loadPayments();
                     loadDashboard();
-                    alert('✓ Payment approved!');
+                    alert('✓ 결제가 승인되었습니다!');
                 } else {
-                    alert('Failed: ' + data.error);
+                    alert('실패: ' + data.error);
                 }
             } catch (error) {
-                alert('Error: ' + error.message);
+                alert('오류: ' + error.message);
             }
         }
 
         function rejectPayment() {
-            alert('Reject functionality to be implemented');
+            alert('거부 기능은 곧 구현될 예정입니다');
         }
 
         function filterPayments() {
@@ -943,18 +943,18 @@
                 if (data.success) {
                     renderBetaTesters(data.testers);
                 } else {
-                    alert('Failed to load beta testers: ' + data.error);
+                    alert('베타 테스터 로드 실패: ' + data.error);
                 }
             } catch (error) {
-                console.error('Failed to load beta testers:', error);
+                console.error('베타 테스터 로드 실패:', error);
             }
         }
 
         function renderBetaTesters(testers) {
             const tbody = document.getElementById('betaTable');
-            
+
             if (!testers || testers.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><div class="empty-state-icon">🧪</div><div class="empty-state-text">No beta testers yet</div></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><div class="empty-state-icon">🧪</div><div class="empty-state-text">아직 베타 테스터가 없습니다</div></td></tr>';
                 return;
             }
 
@@ -962,10 +962,10 @@
                 <tr>
                     <td>${tester.email}</td>
                     <td>${tester.name || '-'}</td>
-                    <td><span class="badge badge-${tester.is_active ? 'success' : 'danger'}">${tester.is_active ? 'Active' : 'Inactive'}</span></td>
+                    <td><span class="badge badge-${tester.is_active ? 'success' : 'danger'}">${tester.is_active ? '활성' : '비활성'}</span></td>
                     <td>${new Date(tester.joined_at).toLocaleDateString()}</td>
                     <td>
-                        <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="deleteBetaTester(${tester.id})">Delete</button>
+                        <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="deleteBetaTester(${tester.id})">삭제</button>
                     </td>
                 </tr>
             `).join('');
@@ -991,23 +991,23 @@
                 });
 
                 const data = await response.json();
-                
+
                 if (data.success) {
                     closeModal('betaModal');
                     loadBetaTesters();
                     loadDashboard();
                     document.getElementById('betaForm').reset();
-                    alert('✓ Beta tester added!');
+                    alert('✓ 베타 테스터가 추가되었습니다!');
                 } else {
-                    alert('Failed: ' + data.error);
+                    alert('실패: ' + data.error);
                 }
             } catch (error) {
-                alert('Error: ' + error.message);
+                alert('오류: ' + error.message);
             }
         });
 
         async function deleteBetaTester(id) {
-            if (!confirm('Delete this beta tester?')) return;
+            if (!confirm('이 베타 테스터를 삭제하시겠습니까?')) return;
 
             try {
                 const response = await fetch(`${API_BASE}/beta-tester/${id}`, {
@@ -1016,16 +1016,16 @@
                 });
 
                 const data = await response.json();
-                
+
                 if (data.success) {
                     loadBetaTesters();
                     loadDashboard();
-                    alert('✓ Beta tester deleted!');
+                    alert('✓ 베타 테스터가 삭제되었습니다!');
                 } else {
-                    alert('Failed: ' + data.error);
+                    alert('실패: ' + data.error);
                 }
             } catch (error) {
-                alert('Error: ' + error.message);
+                alert('오류: ' + error.message);
             }
         }
 
@@ -1048,18 +1048,18 @@
                 if (data.success) {
                     renderPlans(data.plans);
                 } else {
-                    alert('Failed to load plans: ' + data.error);
+                    alert('플랜 로드 실패: ' + data.error);
                 }
             } catch (error) {
-                console.error('Failed to load plans:', error);
+                console.error('플랜 로드 실패:', error);
             }
         }
 
         function renderPlans(plans) {
             const tbody = document.getElementById('plansTable');
-            
+
             if (!plans || plans.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><div class="empty-state-icon">💎</div><div class="empty-state-text">No plans configured</div></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><div class="empty-state-icon">💎</div><div class="empty-state-text">설정된 플랜이 없습니다</div></td></tr>';
                 return;
             }
 
@@ -1068,7 +1068,7 @@
                     <td><strong>${plan.plan_name_ko}</strong> (${plan.plan_code})</td>
                     <td>₩${plan.price.monthly.toLocaleString()}/월</td>
                     <td>${plan.description}</td>
-                    <td><span class="badge badge-${plan.display.is_active ? 'success' : 'danger'}">${plan.display.is_active ? 'Active' : 'Inactive'}</span></td>
+                    <td><span class="badge badge-${plan.display.is_active ? 'success' : 'danger'}">${plan.display.is_active ? '활성' : '비활성'}</span></td>
                     <td>-</td>
                 </tr>
             `).join('');

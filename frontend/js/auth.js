@@ -10,7 +10,7 @@
     // 1. Configuration
     // ============================================
     const CONFIG = {
-        apiUrl: 'https://coinpulse.sinsi.ai/api',  // To be loaded from config.json
+        apiUrl: `${window.location.origin}/api`,  // 환경 자동 감지 (localhost or production)
         endpoints: {
             login: '/auth/login',
             signup: '/auth/signup',
