@@ -437,6 +437,87 @@
                                 <h2>업비트 API 키</h2>
                                 <p>업비트 계정을 연결하여 실시간 거래 및 포트폴리오 추적을 활성화하세요.</p>
 
+                                <!-- API Key Guide (shown when no keys) -->
+                                <div id="api-key-guide" style="display: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 24px; border-radius: 12px; margin-bottom: 24px;">
+                                    <h3 style="margin: 0 0 16px 0; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                        </svg>
+                                        업비트 API 키가 등록되지 않았습니다
+                                    </h3>
+                                    <p style="margin: 0 0 20px 0; opacity: 0.95; line-height: 1.6;">
+                                        코인펄스를 사용하려면 업비트 API 키가 필요합니다. 아래 가이드를 따라 API 키를 발급받고 등록하세요.
+                                    </p>
+
+                                    <details style="background: rgba(255,255,255,0.1); padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                                        <summary style="cursor: pointer; font-weight: 600; font-size: 15px; list-style: none; display: flex; align-items: center; gap: 8px;">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="6 9 12 15 18 9"></polyline>
+                                            </svg>
+                                            📝 1단계: 업비트에서 API 키 발급하기
+                                        </summary>
+                                        <div style="margin-top: 16px; padding-left: 28px; line-height: 1.8; font-size: 14px;">
+                                            <ol style="margin: 0; padding-left: 20px;">
+                                                <li><strong>업비트 웹사이트 접속</strong><br>
+                                                    <a href="https://upbit.com" target="_blank" style="color: #fff; text-decoration: underline;">https://upbit.com</a></li>
+                                                <li><strong>로그인</strong> 후 우측 상단 <strong>'마이페이지'</strong> 클릭</li>
+                                                <li>좌측 메뉴에서 <strong>'Open API 관리'</strong> 선택</li>
+                                                <li><strong>'Open API Key 발급'</strong> 버튼 클릭</li>
+                                                <li><strong>권한 설정</strong> (필수):
+                                                    <ul style="margin-top: 8px;">
+                                                        <li>✅ <strong>자산 조회</strong> (필수)</li>
+                                                        <li>✅ <strong>주문 조회</strong> (필수)</li>
+                                                        <li>⚠️ <strong>주문하기</strong> (자동거래 사용 시 필요)</li>
+                                                        <li>❌ <strong>출금하기</strong> (절대 선택 금지)</li>
+                                                    </ul>
+                                                </li>
+                                                <li><strong>IP 주소 등록</strong>:
+                                                    <ul style="margin-top: 8px;">
+                                                        <li>특정 IP만 허용 (권장)</li>
+                                                        <li>또는 모든 IP 허용 (보안 위험)</li>
+                                                    </ul>
+                                                </li>
+                                                <li><strong>발급된 키 복사</strong>:
+                                                    <ul style="margin-top: 8px;">
+                                                        <li>Access Key (공개 키)</li>
+                                                        <li>Secret Key (비밀 키)</li>
+                                                        <li style="color: #ffeb3b;">⚠️ Secret Key는 다시 볼 수 없으니 안전하게 보관하세요!</li>
+                                                    </ul>
+                                                </li>
+                                            </ol>
+                                        </div>
+                                    </details>
+
+                                    <details style="background: rgba(255,255,255,0.1); padding: 16px; border-radius: 8px;">
+                                        <summary style="cursor: pointer; font-weight: 600; font-size: 15px; list-style: none; display: flex; align-items: center; gap: 8px;">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="6 9 12 15 18 9"></polyline>
+                                            </svg>
+                                            🔑 2단계: 코인펄스에 API 키 등록하기
+                                        </summary>
+                                        <div style="margin-top: 16px; padding-left: 28px; line-height: 1.8; font-size: 14px;">
+                                            <ol style="margin: 0; padding-left: 20px;">
+                                                <li>아래 <strong>'액세스 키'</strong> 입력 필드에 복사한 Access Key 붙여넣기</li>
+                                                <li><strong>'시크릿 키'</strong> 입력 필드에 복사한 Secret Key 붙여넣기</li>
+                                                <li><strong>'연결 테스트'</strong> 버튼 클릭하여 키 유효성 확인</li>
+                                                <li>테스트 성공 시 <strong>'API 키 저장'</strong> 버튼 클릭</li>
+                                                <li>✅ 완료! 이제 코인펄스의 모든 기능을 사용할 수 있습니다</li>
+                                            </ol>
+                                        </div>
+                                    </details>
+
+                                    <div style="margin-top: 16px; padding: 12px; background: rgba(255,235,59,0.2); border-left: 4px solid #ffeb3b; border-radius: 4px;">
+                                        <strong>🔒 보안 안내</strong>
+                                        <ul style="margin: 8px 0 0 20px; line-height: 1.6; font-size: 13px;">
+                                            <li>API 키는 암호화되어 저장되며, 절대 제3자와 공유하지 마세요</li>
+                                            <li>Secret Key는 마스킹 처리되어 표시됩니다</li>
+                                            <li>의심스러운 활동 발견 시 즉시 업비트에서 키를 삭제하세요</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
                                 <form id="api-keys-form" class="settings-form">
                                     <div class="form-group">
                                         <label for="api-access-key">
@@ -1058,6 +1139,14 @@
                     const data = await response.json();
                     if (data.success && data.user) {
                         const editBtn = document.getElementById('edit-access-key-btn');
+                        const guideDiv = document.getElementById('api-key-guide');
+                        const hasApiKeys = data.user.upbit_access_key && data.user.upbit_secret_key_masked;
+
+                        // Show guide if no API keys
+                        if (!hasApiKeys && guideDiv) {
+                            guideDiv.style.display = 'block';
+                            console.log('[Settings] API key guide displayed (no keys found)');
+                        }
 
                         // Display access key (if exists)
                         if (data.user.upbit_access_key) {
@@ -1089,6 +1178,11 @@
                 }
             } catch (error) {
                 console.error('[Settings] Failed to load API keys:', error);
+                // Show guide on error (assume no keys)
+                const guideDiv = document.getElementById('api-key-guide');
+                if (guideDiv) {
+                    guideDiv.style.display = 'block';
+                }
             }
 
             // Test API connection
@@ -1145,8 +1239,18 @@
 
                     if (response.success) {
                         this.showSuccess(form, 'API 키가 안전하게 저장되었습니다');
-                        // Clear form for security
-                        form.reset();
+
+                        // Hide guide after successful save
+                        const guideDiv = document.getElementById('api-key-guide');
+                        if (guideDiv) {
+                            guideDiv.style.display = 'none';
+                        }
+
+                        // Reload API keys to show saved values
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+
                         console.log('[Settings] API keys saved successfully');
                     } else {
                         throw new Error(response.error || 'Unknown error');
