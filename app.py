@@ -43,6 +43,7 @@ from backend.routes.plan_admin import plan_admin_bp  # Plan configuration manage
 from backend.routes.stats_routes import stats_bp  # Statistics API
 from backend.routes.surge_routes import surge_bp  # Surge prediction MVP (81.25% accuracy)
 from backend.routes.scheduler_admin import scheduler_admin_bp  # Subscription scheduler admin
+from backend.routes.upbit_proxy_routes import upbit_proxy_bp  # Upbit API proxy for chart data
 
 # Import WebSocket service (Phase 3)
 from backend.services.websocket_service import init_websocket_service, setup_socketio_handlers
@@ -205,7 +206,8 @@ def register_blueprints():
         (plan_admin_bp, None),  # Plan admin (already has /api/admin/plans prefix)
         (stats_bp, None),  # Statistics API (already has /api/stats prefix)
         (surge_bp, '/api'),  # Surge prediction API (81.25% backtest accuracy)
-        (scheduler_admin_bp, '/api/admin')  # Subscription renewal scheduler admin
+        (scheduler_admin_bp, '/api/admin'),  # Subscription renewal scheduler admin
+        (upbit_proxy_bp, None)  # Upbit API proxy (already has /api/upbit prefix)
     ]
 
     for blueprint, url_prefix in blueprints:
