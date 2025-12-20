@@ -27,7 +27,7 @@ class MarketFilter:
         """
         try:
             # 1. 전체 KRW 마켓 조회
-            all_markets = self.upbit_api.get_market_all()
+            all_markets = self.upbit_api.get_markets()
             if not all_markets:
                 print("[MarketFilter] Failed to fetch markets")
                 return []
@@ -58,9 +58,9 @@ class MarketFilter:
 
             for i in range(0, len(market_codes), batch_size):
                 batch = market_codes[i:i+batch_size]
-                tickers = self.upbit_api.get_ticker(markets=batch)
+                tickers = self.upbit_api.get_current_prices(markets=batch)
                 if tickers:
-                    all_tickers.extend(tickers)
+                    all_tickers.extend(tickers.values())  # Convert dict to list
                 time.sleep(0.1)  # Rate limit
 
             # 5. 거래대금 기준 정렬 (내림차순)
@@ -76,7 +76,7 @@ class MarketFilter:
             for i, coin in enumerate(top_coins[:10], 1):
                 ticker = next(t for t in all_tickers if t['market'] == coin)
                 volume = ticker.get('acc_trade_price_24h', 0)
-                print(f"  {i}. {coin}: ₩{volume:,.0f}")
+                print(f"  {i}. {coin}: KRW {volume:,.0f}")
 
             return top_coins
 
@@ -96,7 +96,7 @@ class MarketFilter:
         """
         try:
             if markets is None:
-                markets = self.upbit_api.get_market_all()
+                markets = self.upbit_api.get_markets()
 
             if not markets:
                 return []
@@ -108,11 +108,11 @@ class MarketFilter:
             ]
 
             if caution:
-                print(f"[MarketFilter] 🚫 투자유의 종목 {len(caution)}개 제외:")
+                print(f"[MarketFilter] [CAUTION] Excluding {len(caution)} markets:")
                 for coin in caution:
                     print(f"  - {coin}")
             else:
-                print(f"[MarketFilter] ✅ 투자유의 종목 없음")
+                print(f"[MarketFilter] [OK] No caution markets")
 
             return caution
 
@@ -131,14 +131,14 @@ class MarketFilter:
             dict: 마켓 정보
         """
         try:
-            all_markets = self.upbit_api.get_market_all()
+            all_markets = self.upbit_api.get_markets()
             market_info = next(
                 (m for m in all_markets if m['market'] == market_code),
                 None
             )
 
             if market_info:
-                ticker = self.upbit_api.get_ticker(markets=[market_code])
+                ticker = self.upbit_api.get_current_prices(markets=[market_code])
                 if ticker:
                     market_info['ticker'] = ticker[0]
 
