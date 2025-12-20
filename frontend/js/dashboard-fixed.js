@@ -167,6 +167,7 @@
                 'trading': '거래 차트',
                 'portfolio': '포트폴리오',
                 'auto-trading': '자동 거래',
+                'swing-trading': '스윙 트레이딩',
                 'history': '거래 내역',
                 'settings': '설정'
             };
@@ -199,6 +200,9 @@
                         break;
                     case 'auto-trading':
                         content = await this.loadAutoTradingPage();
+                        break;
+                    case 'swing-trading':
+                        content = await this.loadSwingTradingPage();
                         break;
                     case 'history':
                         content = await this.loadHistoryPage();
@@ -521,8 +525,36 @@
         async loadAutoTradingPage() {
             return `
                 <div class="auto-trading-page">
-                    <h2>자동 거래</h2>
-                    <p>자동 거래 전략을 설정하고 모니터링하세요.</p>
+                    <div style="max-width: 1200px; margin: 0 auto;">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h2>자동 거래 상태</h2>
+                                <button class="btn-refresh" onclick="if(window.loadAutoTradingStatus) window.loadAutoTradingStatus()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                                    </svg>
+                                    새로고침
+                                </button>
+                            </div>
+                            <div class="card-content" id="auto-trading-container">
+                                <div class="loading-state">
+                                    <div class="spinner-small"></div>
+                                    <p>자동 거래 상태 로딩 중...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async loadSwingTradingPage() {
+            return `
+                <div class="swing-trading-page">
+                    <iframe id="swing-trading-iframe"
+                            src="swing_trading.html"
+                            style="width: 100%; height: calc(100vh - 140px); border: none;"
+                            title="Swing Trading"></iframe>
                 </div>
             `;
         }
@@ -827,6 +859,12 @@
                     break;
                 case 'portfolio':
                     this.initPortfolioPage();
+                    break;
+                case 'auto-trading':
+                    this.initAutoTradingPage();
+                    break;
+                case 'swing-trading':
+                    // Swing trading iframe has its own scripts
                     break;
                 case 'settings':
                     this.initSettingsPage();
@@ -1343,6 +1381,16 @@
         async initPortfolioPage() {
             console.log('[Dashboard] Portfolio page initialized');
             await this.loadPortfolioData();
+        }
+
+        async initAutoTradingPage() {
+            console.log('[Dashboard] Auto-trading page initialized');
+            // Call the loadAutoTradingStatus function from dashboard.html
+            if (window.loadAutoTradingStatus) {
+                await window.loadAutoTradingStatus();
+            } else {
+                console.warn('[Dashboard] loadAutoTradingStatus function not found');
+            }
         }
 
         async loadPortfolioData() {
