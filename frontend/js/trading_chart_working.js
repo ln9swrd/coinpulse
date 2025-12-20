@@ -1448,22 +1448,35 @@ class WorkingTradingChart {
 
 // 모달 관리 함수들
 function showHistoryModal() {
+    console.log('[Modal] showHistoryModal called');
     const modal = document.getElementById('history-modal');
+    console.log('[Modal] Modal element:', modal);
+
     if (modal) {
         modal.style.display = 'flex';
-        
+        console.log('[Modal] Modal display set to flex');
+
         // 타이틀 업데이트 (현재 선택된 코인으로)
         const titleElement = document.getElementById('trading-history-title');
+        console.log('[Modal] Title element:', titleElement);
+        console.log('[Modal] window.workingChart:', window.workingChart);
+
         if (titleElement && window.workingChart) {
             const coinSymbol = window.workingChart.currentMarket.split('-')[1]; // KRW-BTC → BTC
             titleElement.textContent = `${coinSymbol} 거래내역`;
+            console.log('[Modal] Title updated to:', titleElement.textContent);
         }
-        
+
         // 거래내역 새로고침 (강제 갱신)
         if (window.workingChart) {
-            console.log('[Working] Loading trading history for modal (force refresh)');
+            console.log('[Modal] Loading trading history for modal (force refresh)');
+            console.log('[Modal] Current market:', window.workingChart.currentMarket);
             window.workingChart.loadTradingHistory(true);
+        } else {
+            console.error('[Modal] window.workingChart is not available!');
         }
+    } else {
+        console.error('[Modal] history-modal element not found!');
     }
 }
 

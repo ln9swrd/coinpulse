@@ -651,31 +651,42 @@ class DataLoader {
     
             // Fallback to original implementation
             try {
-                console.log(`[Working] Loading trading history for ${this.chart.currentMarket}... (forceRefresh: ${forceRefresh})`);
-    
+                console.log(`[DataLoader] Loading trading history for ${this.chart.currentMarket}... (forceRefresh: ${forceRefresh})`);
+
                 if (!window.apiHandler) {
-                    console.error('[Working] APIHandler not available');
+                    console.error('[DataLoader] APIHandler not available');
                     return;
                 }
-    
+
                 const historyList = document.getElementById('history-list');
+                console.log('[DataLoader] History list element:', historyList);
                 if (!historyList) {
-                    console.error('[Working] History list element not found');
+                    console.error('[DataLoader] History list element not found - cannot display trading history');
                     return;
                 }
     
                 // Show loading state
                 historyList.innerHTML = '<div class="loading-state">Loading trading history...</div>';
-    
+                console.log('[DataLoader] Loading state displayed');
+
                 // forceRefresh가 true면 캐시를 무시하고 새로 로드
                 // limit을 100으로 증가하여 더 많은 이력 조회
+                console.log('[DataLoader] Calling getOrders API...');
+                console.log('[DataLoader] - Market:', this.chart.currentMarket);
+                console.log('[DataLoader] - State: done, Limit: 100');
+                console.log('[DataLoader] - Use cache:', !forceRefresh);
+
                 const response = await window.apiHandler.getOrders(this.chart.currentMarket, 'done', 100, !forceRefresh);
-                console.log(`[Working] Trading history response for ${this.chart.currentMarket}:`, response);
-    
+                console.log(`[DataLoader] Trading history response for ${this.chart.currentMarket}:`, response);
+                console.log('[DataLoader] Response success:', response?.success);
+                console.log('[DataLoader] Response orders count:', response?.orders?.length);
+
                 // 서버 응답: {success: true, orders: [...]}
                 const orders = response.orders || (response.data && response.data.orders) || [];
-    
+                console.log('[DataLoader] Extracted orders count:', orders.length);
+
                 if (!response.success || orders.length === 0) {
+                    console.warn('[DataLoader] No orders to display');
                     historyList.innerHTML = `<div class="empty-state">${this.chart.currentMarket} 매매 이력 없음</div>`;
                     return;
                 }
