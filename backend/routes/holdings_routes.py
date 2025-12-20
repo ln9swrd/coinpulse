@@ -64,6 +64,10 @@ def get_holdings():
         total_value_krw = 0
         total_invested_krw = 0
 
+        # First pass: collect all markets and coin data
+        coin_data = []
+        markets = []
+
         for account in accounts:
             currency = account.get('currency', '')
             balance = float(account.get('balance', 0))
@@ -76,39 +80,72 @@ def get_holdings():
                 continue
 
             if balance > 0 or locked > 0:
-                # Get current price
                 market = f'KRW-{currency}'
-                try:
-                    current_price = user_upbit_api.get_current_price(market)
-                except:
-                    current_price = avg_buy_price  # Fallback
-
-                # Handle None values
-                if current_price is None or current_price == 0:
-                    current_price = avg_buy_price if avg_buy_price else 0
-                if avg_buy_price is None:
-                    avg_buy_price = 0
-
-                total_balance = balance + locked
-                current_value = total_balance * current_price
-                invested_value = total_balance * avg_buy_price
-                profit_loss = current_value - invested_value
-                profit_rate = (profit_loss / invested_value * 100) if invested_value > 0 else 0
-
-                coins.append({
-                    'coin': currency,
-                    'name': currency,
-                    'balance': total_balance,
-                    'avg_price': avg_buy_price,
-                    'current_price': current_price,
-                    'total_value': current_value,
-                    'profit_loss': profit_loss,
-                    'profit_rate': profit_rate,
+                markets.append(market)
+                coin_data.append({
+                    'currency': currency,
+                    'balance': balance,
+                    'locked': locked,
+                    'avg_buy_price': avg_buy_price,
                     'market': market
                 })
 
-                total_value_krw += current_value
-                total_invested_krw += invested_value
+        # Batch fetch all prices at once (prevents rate limiting)
+        price_map = {}
+        if markets:
+            try:
+                # Upbit allows fetching multiple tickers at once
+                markets_param = ','.join(markets)
+                import requests
+                response = requests.get(
+                    f'https://api.upbit.com/v1/ticker',
+                    params={'markets': markets_param},
+                    timeout=5
+                )
+                if response.status_code == 200:
+                    ticker_data = response.json()
+                    for ticker in ticker_data:
+                        price_map[ticker['market']] = ticker['trade_price']
+            except Exception as e:
+                print(f"[Holdings] Error fetching batch prices: {e}")
+
+        # Second pass: calculate values using batch prices
+        for coin_info in coin_data:
+            currency = coin_info['currency']
+            market = coin_info['market']
+            balance = coin_info['balance']
+            locked = coin_info['locked']
+            avg_buy_price = coin_info['avg_buy_price']
+
+            # Get current price from batch fetch (or fallback to avg_buy_price)
+            current_price = price_map.get(market, avg_buy_price)
+
+            # Handle None values
+            if current_price is None or current_price == 0:
+                current_price = avg_buy_price if avg_buy_price else 0
+            if avg_buy_price is None:
+                avg_buy_price = 0
+
+            total_balance = balance + locked
+            current_value = total_balance * current_price
+            invested_value = total_balance * avg_buy_price
+            profit_loss = current_value - invested_value
+            profit_rate = (profit_loss / invested_value * 100) if invested_value > 0 else 0
+
+            coins.append({
+                'coin': currency,
+                'name': currency,
+                'balance': total_balance,
+                'avg_price': avg_buy_price,
+                'current_price': current_price,
+                'total_value': current_value,
+                'profit_loss': profit_loss,
+                'profit_rate': profit_rate,
+                'market': market
+            })
+
+            total_value_krw += current_value
+            total_invested_krw += invested_value
 
         total_profit_loss_krw = total_value_krw - total_invested_krw - krw_balance
         total_profit_rate = (total_profit_loss_krw / total_invested_krw * 100) if total_invested_krw > 0 else 0
