@@ -271,22 +271,11 @@
                     <!-- Portfolio Chart -->
                     <div class="portfolio-chart-container">
                         <h2>포트폴리오 성과</h2>
-                        <div class="chart-placeholder" style="padding: 40px; text-align: center; background: white; border: 1px solid #e0e0e0; border-radius: 12px;">
-                            <p style="margin: 0 0 16px 0; color: #666;">상세한 포트폴리오 성과는 포트폴리오 페이지에서 확인하세요</p>
-                            <button onclick="window.dashboardApp.loadPage('portfolio')" style="
-                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                color: white;
-                                border: none;
-                                padding: 12px 32px;
-                                border-radius: 8px;
-                                font-size: 15px;
-                                font-weight: 600;
-                                cursor: pointer;
-                                transition: all 0.2s;
-                                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-                            " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(102, 126, 234, 0.5)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)';">
-                                포트폴리오 보기
-                            </button>
+                        <div id="portfolio-performance-container" style="padding: 40px; background: white; border: 1px solid #e0e0e0; border-radius: 12px;">
+                            <div class="loading-state">
+                                <div class="spinner-small"></div>
+                                <p>포트폴리오 성과 데이터 로딩 중...</p>
+                            </div>
                         </div>
                     </div>
 
@@ -862,6 +851,9 @@
                 // Display holdings table
                 this.displayHoldingsTable(holdingsData);
 
+                // Display portfolio performance
+                this.displayPortfolioPerformance(holdingsData, ordersData);
+
                 // Display recent activity
                 this.displayRecentActivity(ordersData);
 
@@ -891,11 +883,17 @@
                 const data = await response.json();
 
                 // API 응답 형식: { coins: [...], krw: {...}, summary: {...} }
-                // summary 정보를 함께 반환
+                // API 필드명을 JavaScript 필드명으로 매핑
+                const summary = data.summary || {};
                 return {
                     coins: data.coins || [],
                     krw: data.krw || { balance: 0, locked: 0, total: 0 },
-                    summary: data.summary || { total_value: 0, total_profit: 0, coin_count: 0, profit_rate: 0 }
+                    summary: {
+                        total_value: summary.total_value_krw || 0,
+                        total_profit: summary.total_profit_loss_krw || 0,
+                        coin_count: summary.coin_count || 0,
+                        profit_rate: summary.total_profit_rate || 0
+                    }
                 };
             } catch (error) {
                 console.error('[Dashboard] Error fetching holdings:', error);
@@ -1049,11 +1047,19 @@
                 const market = coin.market || `KRW-${coin.coin}`;
                 const coinName = coin.name || coin.coin;
 
+                const coinSymbol = coin.coin.toUpperCase();
+                const logoUrl = `https://static.upbit.com/logos/${coinSymbol}.png`;
+
                 tableHTML += `
                     <tr class="holding-row" data-market="${market}" style="cursor: pointer;">
                         <td>
                             <div class="coin-info">
-                                <div class="coin-icon">${coin.coin.substring(0, 2).toUpperCase()}</div>
+                                <img src="${logoUrl}"
+                                     alt="${coinSymbol}"
+                                     class="coin-logo"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                     style="width: 32px; height: 32px; border-radius: 50%; margin-right: 12px;">
+                                <div class="coin-icon" style="display: none;">${coin.coin.substring(0, 2).toUpperCase()}</div>
                                 <div>
                                     <div class="coin-name">${coinName}</div>
                                     <div class="coin-symbol">${market}</div>
@@ -1169,6 +1175,70 @@
                     });
                 });
             }, 100);
+        }
+
+        displayPortfolioPerformance(holdingsData, orders) {
+            const container = document.getElementById('portfolio-performance-container');
+            if (!container) return;
+
+            const { summary, coins } = holdingsData;
+            const totalValue = summary.total_value || 0;
+            const totalProfit = summary.total_profit || 0;
+            const profitRate = summary.profit_rate || 0;
+
+            // Calculate win rate
+            const completedTrades = orders.filter(o => o.state === 'done');
+            const winningTrades = completedTrades.filter(o => {
+                const isSell = o.side === 'ask';
+                if (!isSell) return false;
+                const profit = (parseFloat(o.avg_price || 0) - parseFloat(o.price || 0)) * parseFloat(o.executed_volume || 0);
+                return profit > 0;
+            });
+            const winRate = completedTrades.length > 0 ? (winningTrades.length / completedTrades.length * 100) : 0;
+
+            container.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 14px; color: #666; margin-bottom: 8px;">총 자산 가치</div>
+                        <div style="font-size: 32px; font-weight: 700; color: #1a1a1a;">₩${this.formatNumber(totalValue)}</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 14px; color: #666; margin-bottom: 8px;">총 손익</div>
+                        <div style="font-size: 32px; font-weight: 700; color: ${totalProfit >= 0 ? '#10b981' : '#ef4444'};">
+                            ${totalProfit >= 0 ? '+' : ''}₩${this.formatNumber(totalProfit)}
+                        </div>
+                        <div style="font-size: 14px; color: ${totalProfit >= 0 ? '#10b981' : '#ef4444'};">
+                            ${totalProfit >= 0 ? '▲' : '▼'} ${Math.abs(profitRate).toFixed(2)}%
+                        </div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 14px; color: #666; margin-bottom: 8px;">승률</div>
+                        <div style="font-size: 32px; font-weight: 700; color: #1a1a1a;">${winRate.toFixed(1)}%</div>
+                        <div style="font-size: 14px; color: #666;">${completedTrades.length}건 완료</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 14px; color: #666; margin-bottom: 8px;">보유 코인</div>
+                        <div style="font-size: 32px; font-weight: 700; color: #1a1a1a;">${coins.length}</div>
+                        <div style="font-size: 14px; color: #666;">활성 포지션</div>
+                    </div>
+                </div>
+                <div style="margin-top: 24px; text-align: center;">
+                    <button onclick="window.dashboardApp.loadPage('portfolio')" style="
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        border: none;
+                        padding: 12px 32px;
+                        border-radius: 8px;
+                        font-size: 15px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+                    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(102, 126, 234, 0.5)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)';">
+                        상세 포트폴리오 보기
+                    </button>
+                </div>
+            `;
         }
 
         formatNumber(num) {
