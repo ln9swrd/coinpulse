@@ -843,26 +843,36 @@
 
             try {
                 // Fetch all required data in parallel
+                console.log('[DEBUG] Fetching holdings and orders...');
                 const [holdingsData, ordersData] = await Promise.all([
                     this.fetchHoldings(),
                     this.fetchOrders()
                 ]);
 
+                console.log('[DEBUG] Data fetched successfully');
+                console.log('[DEBUG] holdingsData:', holdingsData);
+                console.log('[DEBUG] ordersData:', ordersData);
+
                 // Calculate and update stats
+                console.log('[DEBUG] Updating portfolio stats...');
                 this.updatePortfolioStats(holdingsData, ordersData);
 
                 // Display holdings table
+                console.log('[DEBUG] Calling displayHoldingsTable...');
                 this.displayHoldingsTable(holdingsData);
 
                 // Display portfolio performance
+                console.log('[DEBUG] Displaying portfolio performance...');
                 this.displayPortfolioPerformance(holdingsData, ordersData);
 
                 // Display recent activity
+                console.log('[DEBUG] Displaying recent activity...');
                 this.displayRecentActivity(ordersData);
 
                 console.log('[Dashboard] Overview page loaded successfully');
             } catch (error) {
                 console.error('[Dashboard] Error loading overview data:', error);
+                console.error('[DEBUG] Error stack:', error.stack);
                 this.showOverviewError();
             }
         }
@@ -1007,7 +1017,15 @@
         }
 
         displayHoldingsTable(holdingsData) {
+            console.log('[DEBUG] displayHoldingsTable called');
+            console.log('[DEBUG] holdingsData:', holdingsData);
+            console.log('[DEBUG] holdingsData.coins:', holdingsData?.coins);
+            console.log('[DEBUG] holdingsData.coins length:', holdingsData?.coins?.length);
+
             const container = document.getElementById('holdings-table-container');
+            console.log('[DEBUG] container found:', !!container);
+            console.log('[DEBUG] container element:', container);
+
             if (!container) {
                 console.warn('[Dashboard] holdings-table-container not found');
                 return;
@@ -1015,6 +1033,8 @@
 
             // holdingsData는 { coins: [...], krw: {...}, summary: {...} } 형식
             const coins = holdingsData.coins || [];
+            console.log('[DEBUG] coins after extraction:', coins);
+            console.log('[DEBUG] coins.length:', coins.length);
 
             if (coins.length === 0) {
                 container.innerHTML = `
@@ -1091,7 +1111,13 @@
                 </table>
             `;
 
+            console.log('[DEBUG] About to set container.innerHTML');
+            console.log('[DEBUG] tableHTML length:', tableHTML.length);
+            console.log('[DEBUG] tableHTML preview:', tableHTML.substring(0, 200));
+
             container.innerHTML = tableHTML;
+
+            console.log('[DEBUG] container.innerHTML updated successfully');
 
             // Add click handlers to navigate to trading chart
             setTimeout(() => {
