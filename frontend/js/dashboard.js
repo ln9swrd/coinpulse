@@ -1285,110 +1285,110 @@
                         <div class="pricing-card">
                             <div class="plan-header">
                                 <h3 class="plan-name">Free</h3>
-                                <p class="plan-description">Perfect for getting started</p>
+                                <p class="plan-description">시작하기에 완벽</p>
                             </div>
                             <div class="plan-price">
                                 <span class="price-currency">₩</span>
                                 <span class="price-amount">0</span>
-                                <span class="price-period">/month</span>
+                                <span class="price-period">/월</span>
                             </div>
                             <ul class="plan-features">
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>1 Trading Bot</span>
+                                    <span>1개 트레이딩 봇</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>Basic Technical Indicators</span>
+                                    <span>기본 기술적 지표</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>Portfolio Tracking</span>
+                                    <span>포트폴리오 추적</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>Email Notifications</span>
+                                    <span>이메일 알림</span>
                                 </li>
                                 <li class="feature-excluded">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <line x1="18" y1="6" x2="6" y2="18"></line>
                                         <line x1="6" y1="6" x2="18" y2="18"></line>
                                     </svg>
-                                    <span>Advanced Strategies</span>
+                                    <span>고급 전략</span>
                                 </li>
                                 <li class="feature-excluded">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <line x1="18" y1="6" x2="6" y2="18"></line>
                                         <line x1="6" y1="6" x2="18" y2="18"></line>
                                     </svg>
-                                    <span>API Access</span>
+                                    <span>API 접근</span>
                                 </li>
                             </ul>
                             <button class="plan-cta plan-cta-secondary" data-plan="free">
-                                Current Plan
+                                현재 플랜
                             </button>
                         </div>
 
                         <!-- Premium Plan (Highlighted) -->
                         <div class="pricing-card pricing-card-featured">
-                            <div class="featured-badge">Most Popular</div>
+                            <div class="featured-badge">인기</div>
                             <div class="plan-header">
                                 <h3 class="plan-name">Premium</h3>
-                                <p class="plan-description">For professional traders</p>
+                                <p class="plan-description">전문 트레이더용</p>
                             </div>
                             <div class="plan-price">
                                 <span class="price-currency">₩</span>
                                 <span class="price-amount" data-monthly="49000" data-annual="39200">49,000</span>
-                                <span class="price-period">/month</span>
+                                <span class="price-period">/월</span>
                             </div>
                             <ul class="plan-features">
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>Unlimited Trading Bots</span>
+                                    <span>무제한 트레이딩 봇</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>All Technical Indicators</span>
+                                    <span>모든 기술적 지표</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>Advanced Chart Tools</span>
+                                    <span>고급 차트 도구</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>AI-Powered Strategies</span>
+                                    <span>AI 기반 전략</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>Real-time Alerts</span>
+                                    <span>실시간 알림</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>Priority Support</span>
+                                    <span>우선 지원</span>
                                 </li>
                             </ul>
                             <button class="plan-cta plan-cta-primary" data-plan="premium">
-                                Upgrade to Premium
+                                프리미엄으로 업그레이드
                             </button>
                         </div>
 
@@ -1396,130 +1396,130 @@
                         <div class="pricing-card">
                             <div class="plan-header">
                                 <h3 class="plan-name">Pro</h3>
-                                <p class="plan-description">For professional traders</p>
+                                <p class="plan-description">프로 트레이더용</p>
                             </div>
                             <div class="plan-price">
                                 <span class="price-currency">₩</span>
                                 <span class="price-amount" data-monthly="99000" data-annual="79200">99,000</span>
-                                <span class="price-period">/month</span>
+                                <span class="price-period">/월</span>
                             </div>
                             <ul class="plan-features">
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>Everything in Premium</span>
+                                    <span>Premium의 모든 기능</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>Advanced Backtesting</span>
+                                    <span>고급 백테스팅</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>Custom Strategy Consulting</span>
+                                    <span>맞춤형 전략 컨설팅</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>API & Webhook Access</span>
+                                    <span>API & Webhook 접근</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>Unlimited Data Export</span>
+                                    <span>데이터 내보내기 무제한</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>Dedicated 1:1 Support</span>
+                                    <span>1:1 전담 지원</span>
                                 </li>
                             </ul>
                             <button class="plan-cta plan-cta-secondary" data-plan="pro">
-                                Upgrade to Pro
+                                프로로 업그레이드
                             </button>
                         </div>
                     </div>
 
                     <!-- FAQ Section -->
                     <div class="pricing-faq">
-                        <h2>Frequently Asked Questions</h2>
+                        <h2>자주 묻는 질문</h2>
                         <div class="faq-grid">
                             <div class="faq-item">
                                 <h3 class="faq-question">
-                                    <span>Can I change plans later?</span>
+                                    <span>요금제를 변경할 수 있나요?</span>
                                     <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="6 9 12 15 18 9"></polyline>
                                     </svg>
                                 </h3>
                                 <div class="faq-answer">
-                                    <p>Yes! You can upgrade or downgrade your plan at any time. Changes will be reflected in your next billing cycle.</p>
+                                    <p>네! 언제든지 요금제를 업그레이드하거나 다운그레이드할 수 있습니다. 변경사항은 다음 결제 주기부터 적용됩니다.</p>
                                 </div>
                             </div>
 
                             <div class="faq-item">
                                 <h3 class="faq-question">
-                                    <span>What payment methods do you accept?</span>
+                                    <span>어떤 결제 수단을 지원하나요?</span>
                                     <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="6 9 12 15 18 9"></polyline>
                                     </svg>
                                 </h3>
                                 <div class="faq-answer">
-                                    <p>We accept credit cards, Kakao Pay, Toss, and bank transfers for Enterprise plans.</p>
+                                    <p>신용카드, 카카오페이, 토스를 지원합니다. Pro 요금제는 계좌이체도 가능합니다.</p>
                                 </div>
                             </div>
 
                             <div class="faq-item">
                                 <h3 class="faq-question">
-                                    <span>Is there a free trial?</span>
+                                    <span>무료 체험이 있나요?</span>
                                     <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="6 9 12 15 18 9"></polyline>
                                     </svg>
                                 </h3>
                                 <div class="faq-answer">
-                                    <p>Premium plans come with a 14-day free trial. No credit card required to start.</p>
+                                    <p>Premium 요금제는 14일 무료 체험을 제공합니다. 신용카드 등록 없이 시작할 수 있습니다.</p>
                                 </div>
                             </div>
 
                             <div class="faq-item">
                                 <h3 class="faq-question">
-                                    <span>What happens if I cancel?</span>
+                                    <span>해지하면 어떻게 되나요?</span>
                                     <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="6 9 12 15 18 9"></polyline>
                                     </svg>
                                 </h3>
                                 <div class="faq-answer">
-                                    <p>You can cancel anytime. Your account will remain active until the end of your billing period, then revert to the Free plan.</p>
+                                    <p>언제든지 해지할 수 있습니다. 계정은 결제 기간 종료까지 활성 상태로 유지되며, 이후 Free 요금제로 전환됩니다.</p>
                                 </div>
                             </div>
 
                             <div class="faq-item">
                                 <h3 class="faq-question">
-                                    <span>Do you offer refunds?</span>
+                                    <span>환불이 가능한가요?</span>
                                     <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="6 9 12 15 18 9"></polyline>
                                     </svg>
                                 </h3>
                                 <div class="faq-answer">
-                                    <p>We offer a 30-day money-back guarantee for annual plans. No questions asked.</p>
+                                    <p>연간 요금제의 경우 30일 환불 보장 정책을 제공합니다. 질문 없이 전액 환불해드립니다.</p>
                                 </div>
                             </div>
 
                             <div class="faq-item">
                                 <h3 class="faq-question">
-                                    <span>Is my data secure?</span>
+                                    <span>데이터는 안전한가요?</span>
                                     <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="6 9 12 15 18 9"></polyline>
                                     </svg>
                                 </h3>
                                 <div class="faq-answer">
-                                    <p>Yes! We use bank-level encryption (AES-256) and never store your exchange API secret keys in plain text.</p>
+                                    <p>네! 은행급 암호화(AES-256)를 사용하며, API 시크릿 키는 평문으로 저장하지 않습니다.</p>
                                 </div>
                             </div>
                         </div>
