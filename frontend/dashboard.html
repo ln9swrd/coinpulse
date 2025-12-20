@@ -185,14 +185,6 @@
                     <span>자동 거래</span>
                 </a>
 
-                <a href="#swing-trading" class="nav-item" data-page="swing-trading">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M3 3v18h18"/>
-                        <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
-                    </svg>
-                    <span>스윙 트레이딩</span>
-                </a>
-
                 <a href="realtime_dashboard.html" class="nav-item">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
@@ -834,6 +826,46 @@
             async function loadAutoTradingStatus() {
                 const container = document.getElementById('auto-trading-container');
                 if (!container) return;
+
+                // Check subscription plan first
+                try {
+                    const subscriptionResponse = await window.api.getCurrentSubscription();
+                    const plan = subscriptionResponse?.subscription?.plan || 'free';
+
+                    if (plan === 'free') {
+                        console.log('[Dashboard] Free plan - auto-trading not available');
+                        container.innerHTML = `
+                            <div style="text-align: center; padding: 60px 20px;">
+                                <div style="font-size: 64px; margin-bottom: 20px;">💎</div>
+                                <h3 style="margin: 0 0 12px 0; color: #333; font-size: 20px; font-weight: 600;">
+                                    자동 거래는 프리미엄 기능입니다
+                                </h3>
+                                <p style="margin: 0 0 24px 0; color: #666; font-size: 14px; line-height: 1.6;">
+                                    자동 거래 기능을 사용하려면<br>
+                                    Premium 또는 Enterprise 플랜으로 업그레이드하세요.
+                                </p>
+                                <button onclick="window.showPage('pricing')" style="
+                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                    color: white;
+                                    border: none;
+                                    padding: 12px 32px;
+                                    border-radius: 8px;
+                                    font-size: 15px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    transition: all 0.2s;
+                                    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+                                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(102, 126, 234, 0.5)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)';">
+                                    요금제 업그레이드
+                                </button>
+                            </div>
+                        `;
+                        return;
+                    }
+                } catch (error) {
+                    console.error('[Dashboard] Failed to check subscription:', error);
+                    // Continue to show API key check if subscription check fails
+                }
 
                 // Check if user has API keys
                 if (!currentUser || !currentUser.has_upbit_keys) {

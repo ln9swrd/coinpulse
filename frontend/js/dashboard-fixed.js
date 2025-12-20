@@ -167,7 +167,6 @@
                 'trading': '거래 차트',
                 'portfolio': '포트폴리오',
                 'auto-trading': '자동 거래',
-                'swing-trading': '스윙 트레이딩',
                 'history': '거래 내역',
                 'settings': '설정'
             };
@@ -200,9 +199,6 @@
                         break;
                     case 'auto-trading':
                         content = await this.loadAutoTradingPage();
-                        break;
-                    case 'swing-trading':
-                        content = await this.loadSwingTradingPage();
                         break;
                     case 'history':
                         content = await this.loadHistoryPage();
