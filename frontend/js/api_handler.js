@@ -4,7 +4,7 @@ let API_CONFIG = {};
 // 설정 파일 로드
 async function loadConfig() {
     try {
-        const response = await fetch('/frontend/config.json');
+        const response = await fetch('/config.json');
         const config = await response.json();
 
         // "auto" 값이면 현재 origin 사용 (환경 자동 감지)
