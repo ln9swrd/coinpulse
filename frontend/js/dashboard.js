@@ -271,8 +271,22 @@
                     <!-- Portfolio Chart -->
                     <div class="portfolio-chart-container">
                         <h2>포트폴리오 성과</h2>
-                        <div class="chart-placeholder">
-                            차트 준비 중 - 포트폴리오 가치 추이
+                        <div class="chart-placeholder" style="padding: 40px; text-align: center; background: white; border: 1px solid #e0e0e0; border-radius: 12px;">
+                            <p style="margin: 0 0 16px 0; color: #666;">상세한 포트폴리오 성과는 포트폴리오 페이지에서 확인하세요</p>
+                            <button onclick="window.dashboardApp.showPage('portfolio')" style="
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                color: white;
+                                border: none;
+                                padding: 12px 32px;
+                                border-radius: 8px;
+                                font-size: 15px;
+                                font-weight: 600;
+                                cursor: pointer;
+                                transition: all 0.2s;
+                                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+                            " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(102, 126, 234, 0.5)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)';">
+                                포트폴리오 보기
+                            </button>
                         </div>
                     </div>
 
