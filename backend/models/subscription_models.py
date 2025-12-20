@@ -15,7 +15,8 @@ from backend.database.connection import Base
 class SubscriptionPlan(enum.Enum):
     """Subscription plan types"""
     FREE = "free"
-    PREMIUM = "premium"
+    BASIC = "basic"
+    PRO = "pro"
     ENTERPRISE = "enterprise"
 
 
@@ -207,13 +208,17 @@ PLAN_PRICING = {
         BillingPeriod.MONTHLY: 0,
         BillingPeriod.ANNUAL: 0
     },
-    SubscriptionPlan.PREMIUM: {
+    SubscriptionPlan.BASIC: {
         BillingPeriod.MONTHLY: 49000,
-        BillingPeriod.ANNUAL: 470400  # 20% discount
+        BillingPeriod.ANNUAL: 470400  # 20% discount (₩39,200/month)
+    },
+    SubscriptionPlan.PRO: {
+        BillingPeriod.MONTHLY: 99000,
+        BillingPeriod.ANNUAL: 950400  # 20% discount (₩79,200/month)
     },
     SubscriptionPlan.ENTERPRISE: {
-        BillingPeriod.MONTHLY: 99000,  # Pro plan (public name)
-        BillingPeriod.ANNUAL: 950400   # 20% discount
+        BillingPeriod.MONTHLY: None,  # Custom pricing (hidden from public)
+        BillingPeriod.ANNUAL: None
     }
 }
 

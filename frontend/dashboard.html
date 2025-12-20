@@ -828,7 +828,7 @@
                 if (!container) return;
 
                 // Check subscription plan first
-                // Note: Premium and Enterprise plans have access to auto-trading
+                // Note: Basic, Pro, and Enterprise plans have access to auto-trading
                 // Enterprise is not publicly promoted but technically functional
                 try {
                     const subscriptionResponse = await window.api.getCurrentSubscription();
@@ -844,7 +844,7 @@
                                 </h3>
                                 <p style="margin: 0 0 24px 0; color: #666; font-size: 14px; line-height: 1.6;">
                                     자동 거래 기능을 사용하려면<br>
-                                    Premium 플랜으로 업그레이드하세요.
+                                    Basic 또는 Pro 플랜으로 업그레이드하세요.
                                 </p>
                                 <button onclick="window.showPage('pricing')" style="
                                     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

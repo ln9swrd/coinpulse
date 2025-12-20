@@ -2023,12 +2023,11 @@
                             </button>
                         </div>
 
-                        <!-- Premium Plan (Highlighted) -->
-                        <div class="pricing-card pricing-card-featured">
-                            <div class="featured-badge">인기</div>
+                        <!-- Basic Plan -->
+                        <div class="pricing-card">
                             <div class="plan-header">
-                                <h3 class="plan-name">Premium</h3>
-                                <p class="plan-description">전문 트레이더용</p>
+                                <h3 class="plan-name">Basic</h3>
+                                <p class="plan-description">입문 트레이더용</p>
                             </div>
                             <div class="plan-price">
                                 <span class="price-currency">₩</span>
@@ -2040,49 +2039,52 @@
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>무제한 트레이딩 봇</span>
+                                    <span>수동 거래 가능</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>모든 기술적 지표</span>
+                                    <span>자동매매 봇 1개</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>고급 차트 도구</span>
+                                    <span>기본 기술적 지표</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>AI 기반 전략</span>
+                                    <span>이메일 알림</span>
                                 </li>
-                                <li class="feature-included">
+                                <li class="feature-excluded">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
                                     </svg>
-                                    <span>실시간 알림</span>
+                                    <span>고급 전략</span>
                                 </li>
-                                <li class="feature-included">
+                                <li class="feature-excluded">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
                                     </svg>
-                                    <span>우선 지원</span>
+                                    <span>백테스팅</span>
                                 </li>
                             </ul>
-                            <button class="plan-cta plan-cta-primary" data-plan="premium">
-                                프리미엄으로 업그레이드
+                            <button class="plan-cta plan-cta-secondary" data-plan="basic">
+                                베이직으로 시작하기
                             </button>
                         </div>
 
-                        <!-- Pro Plan -->
-                        <div class="pricing-card">
+                        <!-- Pro Plan (Highlighted) -->
+                        <div class="pricing-card pricing-card-featured">
+                            <div class="featured-badge">인기</div>
                             <div class="plan-header">
                                 <h3 class="plan-name">Pro</h3>
-                                <p class="plan-description">프로 트레이더용</p>
+                                <p class="plan-description">전문 트레이더용</p>
                             </div>
                             <div class="plan-price">
                                 <span class="price-currency">₩</span>
@@ -2094,19 +2096,25 @@
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>Premium의 모든 기능</span>
+                                    <span>무제한 자동매매 봇</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>고급 백테스팅</span>
+                                    <span>모든 기술적 지표</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>맞춤형 전략 컨설팅</span>
+                                    <span>고급 전략 + AI 기반 전략</span>
+                                </li>
+                                <li class="feature-included">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span>백테스팅 & 성능 분석</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -2118,16 +2126,10 @@
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>데이터 내보내기 무제한</span>
-                                </li>
-                                <li class="feature-included">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                    <span>1:1 전담 지원</span>
+                                    <span>실시간 알림 + 우선 지원</span>
                                 </li>
                             </ul>
-                            <button class="plan-cta plan-cta-secondary" data-plan="pro">
+                            <button class="plan-cta plan-cta-primary" data-plan="pro">
                                 프로로 업그레이드
                             </button>
                         </div>
@@ -2308,14 +2310,13 @@
 
                     if (plan === 'free') {
                         alert('이미 무료 플랜을 사용 중입니다.');
-                    } else if (plan === 'premium') {
+                    } else if (plan === 'basic') {
                         // TODO: Redirect to checkout page
-                        console.log('[Pricing] Upgrading to Premium');
-                        alert('Premium 업그레이드 기능이 곧 제공됩니다!\n결제 페이지로 이동합니다.');
+                        console.log('[Pricing] Upgrading to Basic');
+                        alert('Basic 업그레이드 기능이 곧 제공됩니다!\n결제 페이지로 이동합니다.');
                     } else if (plan === 'pro') {
-                        // Pro plan maps to "enterprise" in backend
-                        // TODO: Redirect to checkout page with plan=enterprise
-                        console.log('[Pricing] Upgrading to Pro (backend: enterprise)');
+                        // TODO: Redirect to checkout page
+                        console.log('[Pricing] Upgrading to Pro');
                         alert('Pro 업그레이드 기능이 곧 제공됩니다!\n결제 페이지로 이동합니다.');
                     }
                 });
