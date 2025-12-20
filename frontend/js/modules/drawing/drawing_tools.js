@@ -286,10 +286,9 @@ class DrawingTools {
             });
 
             // Set line data (extended to chart edges)
+            // Use only 2 points for a perfectly straight line
             const lineData = [
                 { time: minTime, value: calculatePrice(minTime) },
-                { time: point1.time, value: point1.price },
-                { time: point2.time, value: point2.price },
                 { time: maxTime, value: calculatePrice(maxTime) }
             ];
 
