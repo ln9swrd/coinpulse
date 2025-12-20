@@ -41,8 +41,7 @@
                 // Check if user is authenticated using window.api
                 if (!window.api || !window.api.isAuthenticated()) {
                     console.warn('[Dashboard] User not authenticated, redirecting to login');
-                    // DISABLED for debugging - dashboard.html handles auth
-                    // window.location.href = 'login.html';
+                    window.location.href = 'login.html';
                     return;
                 }
 
@@ -54,7 +53,6 @@
                     }
                 } catch (error) {
                     console.error('[Dashboard] Failed to get user profile:', error);
-                    // Don't redirect - let dashboard.html handle it
                     return;
                 }
 
@@ -64,8 +62,7 @@
                 console.log('[Dashboard] User authenticated:', this.user?.email || 'unknown');
             } catch (error) {
                 console.error('[Dashboard] Auth check failed:', error);
-                // DISABLED - let dashboard.html handle redirect
-                // window.location.href = 'login.html';
+                window.location.href = 'login.html';
             }
         }
 
@@ -1078,18 +1075,31 @@
                 const accessKey = document.getElementById('api-access-key').value.trim();
                 const secretKey = document.getElementById('api-secret-key').value.trim();
 
+                if (!accessKey || !secretKey) {
+                    this.showError(form, '액세스 키와 시크릿 키를 모두 입력하세요');
+                    return;
+                }
+
                 try {
-                    // TODO: Call API to save keys
                     console.log('[Settings] Saving API keys');
 
-                    // Mock response
-                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    // Call API to save keys
+                    const response = await window.api.updateProfile({
+                        upbit_access_key: accessKey,
+                        upbit_secret_key: secretKey
+                    });
 
-                    this.showSuccess(form, 'API 키가 성공적으로 저장되었습니다!');
-
+                    if (response.success) {
+                        this.showSuccess(form, 'API 키가 안전하게 저장되었습니다');
+                        // Clear form for security
+                        form.reset();
+                        console.log('[Settings] API keys saved successfully');
+                    } else {
+                        throw new Error(response.error || 'Unknown error');
+                    }
                 } catch (error) {
                     console.error('[Settings] API keys save error:', error);
-                    this.showError(form, 'API 키 저장 실패. 다시 시도해주세요.');
+                    this.showError(form, 'API 키 저장 실패: ' + error.message);
                 }
             });
         }

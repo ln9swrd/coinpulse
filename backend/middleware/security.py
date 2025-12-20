@@ -35,7 +35,7 @@ class RateLimiter:
         self.blocked_ips = {}
 
         # Check if running in development mode
-        is_dev = os.getenv('DEBUG_MODE', 'true').lower() == 'true'
+        is_dev = os.getenv('DEBUG_MODE', 'false').lower() == 'true'
 
         # Rate limit configuration (relaxed in development)
         if is_dev:
@@ -267,16 +267,8 @@ def setup_security_middleware(app):
         if request.path in ['/health', '/health/live', '/health/ready']:
             return
 
-        # Skip rate limiting in development mode (DEBUG_MODE=true)
-        import os
-        if os.getenv('DEBUG_MODE', 'true').lower() == 'true':
-            # Development: Skip rate limiting completely
-            allowed = True
-            retry_after = 0
-        else:
-            # Production: Apply rate limiting
-            # 1. Rate limiting
-            allowed, retry_after = _rate_limiter.is_allowed(client_ip, request.path)
+        # 1. Rate limiting
+        allowed, retry_after = _rate_limiter.is_allowed(client_ip, request.path)
 
         if not allowed:
             # Log rate limit exceeded

@@ -418,7 +418,8 @@ class User(Base):
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
             'last_login_at': self.last_login_at.isoformat() if self.last_login_at else None,
             'full_name': self.full_name,
-            'phone': self.phone
+            'phone': self.phone,
+            'is_admin': getattr(self, 'is_admin', False)  # Admin flag
         }
 
         if include_sensitive:

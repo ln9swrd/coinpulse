@@ -13,6 +13,114 @@
 
     <!-- CSS -->
     <link rel="stylesheet" href="css/dashboard.css?v=20251220">
+
+    <!-- API Key Notice Styles -->
+    <style>
+        .api-key-notice {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notice-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+        }
+
+        .notice-icon {
+            font-size: 48px;
+            line-height: 1;
+        }
+
+        .notice-text h3 {
+            margin: 0 0 8px 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .notice-text p {
+            margin: 0 0 16px 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .notice-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .notice-actions .btn-primary,
+        .notice-actions .btn-secondary {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .notice-actions .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .notice-actions .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+        }
+
+        .notice-actions .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .notice-actions .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .notice-close {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .notice-close:hover {
+            background: rgba(0, 0, 0, 0.4);
+            transform: rotate(90deg);
+        }
+    </style>
 </head>
 <body>
     <!-- Dashboard Container -->
@@ -177,6 +285,14 @@
                                 </svg>
                                 <span>설정</span>
                             </a>
+                            <!-- Admin Menu (only visible for admins) -->
+                            <a href="admin.html" class="dropdown-item admin-only" id="admin-menu-item" style="display: none;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                    <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                                </svg>
+                                <span>관리자</span>
+                            </a>
                             <div class="dropdown-divider"></div>
                             <button class="dropdown-item logout-item" id="logout-dropdown">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -193,6 +309,22 @@
 
             <!-- Page Content Container -->
             <div class="content-container" id="content-container">
+                <!-- API Key Setup Notice (Hidden by default) -->
+                <div id="api-key-notice" class="api-key-notice" style="display: none;">
+                    <div class="notice-content">
+                        <div class="notice-icon">🔑</div>
+                        <div class="notice-text">
+                            <h3>업비트 API 키를 등록하세요</h3>
+                            <p>포트폴리오 추적, 자동 거래 등 모든 기능을 사용하려면 업비트 API 키가 필요합니다.</p>
+                            <div class="notice-actions">
+                                <a href="#settings" class="btn-primary">API 키 등록하기</a>
+                                <button id="show-api-guide-btn" class="btn-secondary">발급 방법 보기</button>
+                            </div>
+                        </div>
+                        <button id="close-api-notice" class="notice-close">✕</button>
+                    </div>
+                </div>
+
                 <!-- Dynamic content will be loaded here -->
                 <div class="loading-state">
                     <div class="spinner-large"></div>
@@ -211,8 +343,7 @@
         (function() {
             'use strict';
 
-            // DEBUGGING VERSION - UPDATED 2025-12-19
-            console.log('%c[Dashboard] DEBUGGING VERSION LOADED - Redirects disabled', 'background: #ff0; color: #000; font-size: 16px; font-weight: bold;');
+            console.log('[Dashboard] Dashboard loaded');
 
             // ================================================================
             // Authentication Check
@@ -229,12 +360,10 @@
 
             if (!isAuth) {
                 console.log('[Dashboard] User not authenticated, redirecting to login...');
-                // TEMPORARY: Disable redirect for debugging
-                console.warn('[Dashboard] REDIRECT DISABLED FOR DEBUGGING - Staying on dashboard anyway');
-                // setTimeout(() => {
-                //     window.location.href = '/login.html';
-                // }, 100);
-                // return; // COMMENTED OUT - Allow dashboard to load even without auth for debugging
+                setTimeout(() => {
+                    window.location.href = '/login.html';
+                }, 100);
+                return;
             }
 
             console.log('[Dashboard] User authenticated, loading dashboard...');
@@ -249,6 +378,76 @@
             const logoutBtn = document.getElementById('logout-btn');
             const logoutDropdownBtn = document.getElementById('logout-dropdown');
             const contentContainer = document.getElementById('content-container');
+
+            // ================================================================
+            // API Key Status Check
+            // ================================================================
+
+            function checkApiKeyStatus(user) {
+                const apiKeyNotice = document.getElementById('api-key-notice');
+                const closeBtn = document.getElementById('close-api-notice');
+                const showGuideBtn = document.getElementById('show-api-guide-btn');
+
+                // Check if user dismissed the notice (stored in localStorage)
+                const dismissed = localStorage.getItem('api-key-notice-dismissed');
+
+                // Show notice if user doesn't have API keys and hasn't dismissed it
+                if (!user.has_upbit_keys && !dismissed) {
+                    console.log('[Dashboard] User has no Upbit API keys - showing notice');
+                    apiKeyNotice.style.display = 'block';
+                } else {
+                    console.log('[Dashboard] API keys:', user.has_upbit_keys ? 'configured' : 'not configured (notice dismissed)');
+                }
+
+                // Close button handler
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', () => {
+                        apiKeyNotice.style.display = 'none';
+                        localStorage.setItem('api-key-notice-dismissed', 'true');
+                        console.log('[Dashboard] API key notice dismissed');
+                    });
+                }
+
+                // Show guide button handler
+                if (showGuideBtn) {
+                    showGuideBtn.addEventListener('click', () => {
+                        showApiKeyGuide();
+                    });
+                }
+            }
+
+            function showApiKeyGuide() {
+                alert(`
+📖 업비트 API 키 발급 방법
+
+1️⃣ 업비트 웹사이트 접속
+   https://upbit.com
+
+2️⃣ 로그인 후 우측 상단 '마이페이지' 클릭
+
+3️⃣ 좌측 메뉴에서 'Open API 관리' 선택
+
+4️⃣ 'Open API Key 발급' 버튼 클릭
+
+5️⃣ 권한 설정:
+   ✅ 자산 조회 (필수)
+   ✅ 주문 조회 (필수)
+   ⚠️ 주문하기 (자동거래 사용 시 필요)
+   ⚠️ 출금하기 (권장하지 않음)
+
+6️⃣ IP 주소 등록:
+   - 특정 IP만 허용 (권장)
+   - 또는 모든 IP 허용 (보안 위험)
+
+7️⃣ 발급된 키 복사:
+   - Access Key (공개 키)
+   - Secret Key (비밀 키)
+   ⚠️ Secret Key는 다시 볼 수 없으니 안전하게 보관하세요!
+
+8️⃣ 코인펄스 설정에서 키 등록:
+   대시보드 → 설정 → API 키 탭
+                `);
+            }
 
             // ================================================================
             // Load User Profile
@@ -275,6 +474,17 @@
                         }
 
                         console.log('[Dashboard] User profile loaded:', user);
+
+                        // Show admin menu if user is admin
+                        const adminMenuItem = document.getElementById('admin-menu-item');
+                        if (user.is_admin && adminMenuItem) {
+                            adminMenuItem.style.display = 'flex';
+                            console.log('[Dashboard] Admin menu enabled for:', user.email);
+                        }
+
+                        // Check if user has Upbit API keys
+                        checkApiKeyStatus(user);
+
                         return user;
                     } else {
                         throw new Error('Invalid response format');
@@ -284,9 +494,9 @@
 
                     // If unauthorized, logout
                     if (error.status === 401) {
-                        console.warn('[Dashboard] 401 error - REDIRECT TO LOGIN DISABLED FOR DEBUGGING');
-                        // window.api.clearTokens();
-                        // window.location.href = '/login.html';
+                        console.warn('[Dashboard] 401 Unauthorized - redirecting to login');
+                        window.api.clearTokens();
+                        window.location.href = '/login.html';
                     }
 
                     // Show error in UI
