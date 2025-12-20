@@ -29,7 +29,7 @@
     --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 
     /* Sidebar */
-    --sidebar-width: 260px;
+    --sidebar-width: 220px;
     --sidebar-collapsed-width: 70px;
     --sidebar-bg: #1e293b;
     --sidebar-text: #cbd5e1;
