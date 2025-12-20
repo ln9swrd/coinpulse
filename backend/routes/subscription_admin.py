@@ -24,7 +24,7 @@ subscription_admin_bp = Blueprint('subscription_admin', __name__, url_prefix='/a
 
 # JWT Configuration
 JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', '7DfH2jzRD4lCfQ_llC4CObochoaGzaBBZLeODoftgWk')
-ADMIN_USER_IDS = [1]  # TODO: Move to database or environment variable
+ADMIN_EMAILS = ['ln9swrd@gmail.com']  # Admin email addresses
 
 
 def verify_token(token):
@@ -43,15 +43,15 @@ def get_current_user(request):
     auth_header = request.headers.get('Authorization')
 
     if not auth_header or not auth_header.startswith('Bearer '):
-        return None, 'Authorization header missing or invalid'
+        return None, None, 'Authorization header missing or invalid'
 
     token = auth_header.split(' ')[1]
     payload, error = verify_token(token)
 
     if error:
-        return None, error
+        return None, None, error
 
-    return payload.get('user_id'), None
+    return payload.get('user_id'), payload.get('email'), None
 
 
 def require_admin(f):
@@ -60,7 +60,7 @@ def require_admin(f):
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        user_id, error = get_current_user(request)
+        user_id, email, error = get_current_user(request)
 
         if error:
             return jsonify({
@@ -69,16 +69,17 @@ def require_admin(f):
                 'code': 'UNAUTHORIZED'
             }), 401
 
-        # Check if user is admin
-        if user_id not in ADMIN_USER_IDS:
+        # Check if user is admin by email
+        if email not in ADMIN_EMAILS:
             return jsonify({
                 'success': False,
                 'error': 'Admin access required',
                 'code': 'FORBIDDEN'
             }), 403
 
-        # Add user_id to request context
+        # Add user_id and email to request context
         request.admin_id = user_id
+        request.admin_email = email
 
         return f(*args, **kwargs)
 

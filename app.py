@@ -46,6 +46,8 @@ from backend.routes.scheduler_admin import scheduler_admin_bp  # Subscription sc
 from backend.routes.upbit_proxy_routes import upbit_proxy_bp  # Upbit API proxy for chart data
 from backend.routes.subscription_admin import subscription_admin_bp  # Admin subscription management
 from backend.routes.features_admin import features_admin_bp  # Admin feature customization
+from backend.routes.payment_confirmation import payment_confirm_bp  # Payment confirmation (bank transfer)
+from backend.routes.payment_confirmation_admin import payment_confirm_admin_bp  # Admin payment confirmation review
 
 # Import WebSocket service (Phase 3)
 from backend.services.websocket_service import init_websocket_service, setup_socketio_handlers
@@ -211,7 +213,9 @@ def register_blueprints():
         (scheduler_admin_bp, '/api/admin'),  # Subscription renewal scheduler admin
         (upbit_proxy_bp, None),  # Upbit API proxy (already has /api/upbit prefix)
         (subscription_admin_bp, None),  # Admin subscription management (already has /api/admin/subscriptions prefix)
-        (features_admin_bp, None)  # Admin feature customization (already has /api/admin/features prefix)
+        (features_admin_bp, None),  # Admin feature customization (already has /api/admin/features prefix)
+        (payment_confirm_bp, None),  # Payment confirmation (already has /api/payment-confirm prefix)
+        (payment_confirm_admin_bp, None)  # Admin payment confirmation (already has /api/admin/payment-confirmations prefix)
     ]
 
     for blueprint, url_prefix in blueprints:
