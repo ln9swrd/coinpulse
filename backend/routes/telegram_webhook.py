@@ -279,7 +279,11 @@ def telegram_webhook():
     }
     """
     try:
-        data = request.get_json()
+        # Handle UTF-8 encoding explicitly
+        if request.content_type and 'charset' not in request.content_type:
+            request.environ['CONTENT_TYPE'] = 'application/json; charset=utf-8'
+
+        data = request.get_json(force=True)
 
         if not data or 'message' not in data:
             return jsonify({'success': False, 'error': 'Invalid webhook data'}), 400
