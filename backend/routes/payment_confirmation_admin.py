@@ -14,7 +14,7 @@ import jwt
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from database.connection import get_db_session
-from payment_confirmation import PaymentConfirmation, PaymentConfirmStatus
+from backend.routes.payment_confirmation import PaymentConfirmation, PaymentConfirmStatus
 from models.subscription_models import Subscription, SubscriptionPlan, SubscriptionStatus, BillingPeriod
 
 # Create Blueprint
