@@ -1459,9 +1459,10 @@ function showHistoryModal() {
             titleElement.textContent = `${coinSymbol} 거래내역`;
         }
         
-        // 거래내역 새로고침
+        // 거래내역 새로고침 (강제 갱신)
         if (window.workingChart) {
-            window.workingChart.loadTradingHistory();
+            console.log('[Working] Loading trading history for modal (force refresh)');
+            window.workingChart.loadTradingHistory(true);
         }
     }
 }
