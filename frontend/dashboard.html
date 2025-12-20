@@ -1100,6 +1100,13 @@
     </script>
 
     <!-- Original Dashboard Scripts -->
-    <script src="js/dashboard-fixed.js"></script>
+    <script>
+        // Dynamic load with timestamp to bypass ALL caches
+        (function() {
+            const script = document.createElement('script');
+            script.src = 'js/dashboard-fixed.js?t=' + Date.now();
+            document.body.appendChild(script);
+        })();
+    </script>
 </body>
 </html>
