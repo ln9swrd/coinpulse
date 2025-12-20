@@ -48,6 +48,7 @@ from backend.routes.subscription_admin import subscription_admin_bp  # Admin sub
 from backend.routes.features_admin import features_admin_bp  # Admin feature customization
 from backend.routes.payment_confirmation import payment_confirm_bp  # Payment confirmation (bank transfer)
 from backend.routes.payment_confirmation_admin import payment_confirm_admin_bp  # Admin payment confirmation review
+from backend.routes.telegram_webhook import telegram_webhook_bp  # Telegram bot webhook for auto payment processing
 
 # Import WebSocket service (Phase 3)
 from backend.services.websocket_service import init_websocket_service, setup_socketio_handlers
@@ -215,7 +216,8 @@ def register_blueprints():
         (subscription_admin_bp, None),  # Admin subscription management (already has /api/admin/subscriptions prefix)
         (features_admin_bp, None),  # Admin feature customization (already has /api/admin/features prefix)
         (payment_confirm_bp, None),  # Payment confirmation (already has /api/payment-confirm prefix)
-        (payment_confirm_admin_bp, None)  # Admin payment confirmation (already has /api/admin/payment-confirmations prefix)
+        (payment_confirm_admin_bp, None),  # Admin payment confirmation (already has /api/admin/payment-confirmations prefix)
+        (telegram_webhook_bp, None)  # Telegram bot webhook for auto payment processing (already has /api/telegram prefix)
     ]
 
     for blueprint, url_prefix in blueprints:
