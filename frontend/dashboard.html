@@ -1121,6 +1121,15 @@
             // Start Dashboard
             // ================================================================
 
+            // Expose functions to window for external access
+            window.loadAutoTradingStatus = loadAutoTradingStatus;
+            window.toggleAutoTrading = toggleAutoTrading;
+            window.showPage = function(pageName) {
+                if (window.dashboardApp) {
+                    window.dashboardApp.loadPage(pageName);
+                }
+            };
+
             // Wait for DOM to be ready
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', initDashboard);
@@ -1133,6 +1142,6 @@
     </script>
 
     <!-- Original Dashboard Scripts -->
-    <script src="js/dashboard-fixed.js?v=20251220_price_fix"></script>
+    <script src="js/dashboard-fixed.js?v=20251221_auto_fixed"></script>
 </body>
 </html>
