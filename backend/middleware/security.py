@@ -49,12 +49,12 @@ class RateLimiter:
             }
         else:
             self.limits = {
-                # Production: Strict limits
-                'default': {'requests': 60, 'window': 60},
-                'auth': {'requests': 5, 'window': 60},  # 5 login attempts per minute
-                'api': {'requests': 30, 'window': 60},
-                'trading': {'requests': 10, 'window': 60},
-                'admin': {'requests': 20, 'window': 60}
+                # Production: Relaxed limits (increased for dashboard)
+                'default': {'requests': 120, 'window': 60},
+                'auth': {'requests': 10, 'window': 60},  # 10 login attempts per minute
+                'api': {'requests': 100, 'window': 60},  # 100 API calls per minute
+                'trading': {'requests': 30, 'window': 60},  # 30 trading calls per minute
+                'admin': {'requests': 50, 'window': 60}  # 50 admin calls per minute
             }
 
     def _get_limit_for_path(self, path):
@@ -105,6 +105,11 @@ class RateLimiter:
         Returns:
             (allowed: bool, retry_after: int)
         """
+        # Exclude static files and HTML pages from rate limiting
+        static_extensions = ('.html', '.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.eot')
+        if path.endswith(static_extensions) or path.startswith('/static/') or path.startswith('/frontend/'):
+            return True, 0
+
         # Check if IP is blocked
         if identifier in self.blocked_ips:
             block_until = self.blocked_ips[identifier]
