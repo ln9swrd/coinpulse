@@ -8,6 +8,8 @@ from flask import Blueprint, jsonify
 from datetime import datetime, timedelta
 from backend.database.connection import get_db_session
 from backend.models.trading_signal import TradingSignal, SignalStatus, UserSignalHistory
+import json
+import os
 
 monitoring_bp = Blueprint('monitoring', __name__)
 
@@ -274,6 +276,49 @@ def top_performers():
             'success': True,
             'signals': signal_list,
             'count': len(signal_list),
+            'timestamp': datetime.utcnow().isoformat()
+        })
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@monitoring_bp.route('/backtest/results', methods=['GET'])
+def backtest_results():
+    """
+    Get backtest verification results
+
+    Returns:
+        {
+            "summary": {
+                "win_rate": 81.25,
+                "avg_return": 19.12,
+                "total_trades": 16,
+                "wins": 13,
+                "losses": 3
+            },
+            "all_results": [...],
+            "timestamp": "2025-12-21T..."
+        }
+    """
+    try:
+        backtest_file = os.path.join('docs', 'backtest_results', 'multi_date_backtest.json')
+
+        if not os.path.exists(backtest_file):
+            return jsonify({
+                'success': False,
+                'error': 'Backtest results not found'
+            }), 404
+
+        with open(backtest_file, 'r', encoding='utf-8') as f:
+            backtest_data = json.load(f)
+
+        return jsonify({
+            'success': True,
+            'data': backtest_data,
             'timestamp': datetime.utcnow().isoformat()
         })
 

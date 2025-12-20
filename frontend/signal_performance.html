@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signal Performance Analysis - CoinPulse</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #1a202c;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .metric-card h3 {
+            color: #718096;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-card .value {
+            color: #1a202c;
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .metric-card .trend {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .metric-card .trend.up {
+            color: #48bb78;
+        }
+
+        .metric-card .trend.down {
+            color: #f56565;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .chart-card h2 {
+            color: #1a202c;
+            font-size: 18px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #edf2f7;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f7fafc;
+            padding: 14px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #4a5568;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #edf2f7;
+            font-size: 14px;
+            color: #2d3748;
+        }
+
+        tr:hover {
+            background: #f7fafc;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #a0aec0;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            float: right;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Signal Performance Analysis</h1>
+            <p>Comprehensive performance metrics and historical analysis</p>
+            <button class="refresh-btn" onclick="loadData()">Refresh Data</button>
+        </div>
+
+        <div class="metrics-grid" id="metricsGrid">
+            <div class="metric-card">
+                <h3>Execution Rate</h3>
+                <div class="value" id="executionRate">--%</div>
+                <div class="trend up">Average conversion</div>
+            </div>
+            <div class="metric-card">
+                <h3>Active Signals</h3>
+                <div class="value" id="activeSignals">--</div>
+                <div class="trend">Currently active</div>
+            </div>
+            <div class="metric-card">
+                <h3>24h Signals</h3>
+                <div class="value" id="last24hSignals">--</div>
+                <div class="trend">Generated today</div>
+            </div>
+            <div class="metric-card">
+                <h3>Total Distributed</h3>
+                <div class="value" id="totalDistributed">--</div>
+                <div class="trend">User notifications</div>
+            </div>
+            <div class="metric-card">
+                <h3>Backtest Win Rate</h3>
+                <div class="value">81.25%</div>
+                <div class="trend up">13 wins / 16 trades</div>
+            </div>
+            <div class="metric-card">
+                <h3>Avg Return</h3>
+                <div class="value">+19.12%</div>
+                <div class="trend up">Backtest verified</div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h2>Signal Distribution by Market</h2>
+                <canvas id="marketDistributionChart"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h2>Execution Rate Trend</h2>
+                <canvas id="executionTrendChart"></canvas>
+            </div>
+
+            <div class="chart-card full-width">
+                <h2>Signal Confidence Distribution</h2>
+                <canvas id="confidenceDistributionChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card full-width">
+            <h2>Top Performing Signals</h2>
+            <div id="topPerformers" class="loading">Loading top performers...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let charts = {};
+
+        async function loadData() {
+            await Promise.all([
+                loadStats(),
+                loadRecentSignals(),
+                loadTopPerformers()
+            ]);
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/api/monitoring/signals/stats`);
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('executionRate').textContent = data.execution_rate + '%';
+                    document.getElementById('activeSignals').textContent = data.active_signals;
+                    document.getElementById('last24hSignals').textContent = data.last_24h.signals_generated;
+                    document.getElementById('totalDistributed').textContent = data.total_distributions;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function loadRecentSignals() {
+            try {
+                const response = await fetch(`${API_BASE}/api/monitoring/signals/recent`);
+                const data = await response.json();
+
+                if (data.success && data.signals.length > 0) {
+                    createMarketDistributionChart(data.signals);
+                    createExecutionTrendChart(data.signals);
+                    createConfidenceDistributionChart(data.signals);
+                }
+            } catch (error) {
+                console.error('Error loading signals:', error);
+            }
+        }
+
+        async function loadTopPerformers() {
+            try {
+                const response = await fetch(`${API_BASE}/api/monitoring/signals/top-performers`);
+                const data = await response.json();
+
+                const div = document.getElementById('topPerformers');
+
+                if (data.success && data.signals.length > 0) {
+                    let html = '<table><tr><th>Rank</th><th>Market</th><th>Confidence</th><th>Entry Price</th><th>Distributed</th><th>Executed</th><th>Execution Rate</th><th>Created</th></tr>';
+
+                    data.signals.forEach((signal, index) => {
+                        const created = new Date(signal.created_at).toLocaleDateString();
+                        html += `<tr>
+                            <td><strong>#${index + 1}</strong></td>
+                            <td><strong>${signal.market}</strong></td>
+                            <td>${signal.confidence}%</td>
+                            <td>KRW ${signal.entry_price.toLocaleString()}</td>
+                            <td>${signal.distributed_to}</td>
+                            <td>${signal.executed_count}</td>
+                            <td><strong style="color: #48bb78;">${signal.execution_rate}%</strong></td>
+                            <td>${created}</td>
+                        </tr>`;
+                    });
+
+                    html += '</table>';
+                    div.innerHTML = html;
+                } else {
+                    div.innerHTML = '<p style="text-align: center; color: #a0aec0; padding: 40px;">No data available yet</p>';
+                }
+            } catch (error) {
+                document.getElementById('topPerformers').innerHTML =
+                    '<p style="text-align: center; color: #f56565; padding: 40px;">Error loading data</p>';
+            }
+        }
+
+        function createMarketDistributionChart(signals) {
+            const marketCounts = {};
+            signals.forEach(signal => {
+                const market = signal.market.replace('KRW-', '');
+                marketCounts[market] = (marketCounts[market] || 0) + 1;
+            });
+
+            const sortedMarkets = Object.entries(marketCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+
+            const ctx = document.getElementById('marketDistributionChart');
+            if (charts.marketDistribution) charts.marketDistribution.destroy();
+
+            charts.marketDistribution = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sortedMarkets.map(([market]) => market),
+                    datasets: [{
+                        label: 'Number of Signals',
+                        data: sortedMarkets.map(([, count]) => count),
+                        backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        function createExecutionTrendChart(signals) {
+            const ctx = document.getElementById('executionTrendChart');
+            if (charts.executionTrend) charts.executionTrend.destroy();
+
+            const last10 = signals.slice(0, 10).reverse();
+
+            charts.executionTrend = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: last10.map((_, i) => `Signal ${i + 1}`),
+                    datasets: [{
+                        label: 'Execution Rate (%)',
+                        data: last10.map(s => s.execution_rate),
+                        borderColor: 'rgba(72, 187, 120, 1)',
+                        backgroundColor: 'rgba(72, 187, 120, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        function createConfidenceDistributionChart(signals) {
+            const confidenceRanges = {
+                '80-85': 0,
+                '85-90': 0,
+                '90-95': 0,
+                '95-100': 0
+            };
+
+            signals.forEach(signal => {
+                const conf = signal.confidence;
+                if (conf >= 80 && conf < 85) confidenceRanges['80-85']++;
+                else if (conf >= 85 && conf < 90) confidenceRanges['85-90']++;
+                else if (conf >= 90 && conf < 95) confidenceRanges['90-95']++;
+                else if (conf >= 95) confidenceRanges['95-100']++;
+            });
+
+            const ctx = document.getElementById('confidenceDistributionChart');
+            if (charts.confidenceDistribution) charts.confidenceDistribution.destroy();
+
+            charts.confidenceDistribution = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(confidenceRanges),
+                    datasets: [{
+                        label: 'Number of Signals',
+                        data: Object.values(confidenceRanges),
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(118, 75, 162, 0.8)',
+                            'rgba(237, 100, 166, 0.8)',
+                            'rgba(255, 154, 162, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        // Initial load
+        loadData();
+
+        // Auto-refresh every 60 seconds
+        setInterval(loadData, 60000);
+    </script>
+</body>
+</html>
