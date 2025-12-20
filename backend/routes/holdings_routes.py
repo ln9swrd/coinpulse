@@ -9,16 +9,20 @@ Handles API endpoints for:
 IMPORTANT: All routes use user-specific Upbit API keys from database.
 """
 
-from flask import Blueprint, jsonify, request, g
+from flask import Blueprint, jsonify, request, g, current_app
 import requests
 import datetime
 from datetime import timezone
+import logging
 
 from backend.middleware.user_api_keys import get_user_upbit_api, get_user_from_token
 from backend.middleware.auth_middleware import require_auth
 
 # Create Blueprint
 holdings_bp = Blueprint('holdings', __name__)
+
+# Get logger
+logger = logging.getLogger(__name__)
 
 # Config (will be set by app.py)
 UPBIT_BASE_URL = 'https://api.upbit.com'
@@ -96,18 +100,47 @@ def get_holdings():
             try:
                 # Upbit allows fetching multiple tickers at once
                 markets_param = ','.join(markets)
+                logger.info(f"[Holdings] Fetching prices for {len(markets)} markets")
                 import requests
                 response = requests.get(
                     f'https://api.upbit.com/v1/ticker',
                     params={'markets': markets_param},
                     timeout=5
                 )
+                logger.info(f"[Holdings] Price fetch response status: {response.status_code}")
                 if response.status_code == 200:
                     ticker_data = response.json()
+                    logger.info(f"[Holdings] Received {len(ticker_data)} tickers")
                     for ticker in ticker_data:
                         price_map[ticker['market']] = ticker['trade_price']
+                elif response.status_code == 404:
+                    # Batch request failed (likely due to delisted coins), try individual requests
+                    logger.warning(f"[Holdings] Batch fetch failed (404), trying individual requests")
+                    import time
+                    for market in markets:
+                        try:
+                            resp = requests.get(
+                                f'https://api.upbit.com/v1/ticker',
+                                params={'markets': market},
+                                timeout=3
+                            )
+                            if resp.status_code == 200:
+                                data = resp.json()
+                                if data and len(data) > 0:
+                                    price_map[market] = data[0]['trade_price']
+                                    logger.debug(f"[Holdings] {market}: ₩{data[0]['trade_price']:,.0f}")
+                            else:
+                                logger.warning(f"[Holdings] Market {market} returned {resp.status_code} (likely delisted)")
+                            # Small delay to avoid rate limiting (Upbit allows 10 req/sec)
+                            time.sleep(0.12)
+                        except Exception as inner_e:
+                            logger.warning(f"[Holdings] Failed to fetch {market}: {inner_e}")
+                else:
+                    logger.error(f"[Holdings] Failed to fetch prices: {response.text}")
             except Exception as e:
-                print(f"[Holdings] Error fetching batch prices: {e}")
+                logger.error(f"[Holdings] Error fetching batch prices: {e}")
+                import traceback
+                traceback.print_exc()
 
         # Second pass: calculate values using batch prices
         for coin_info in coin_data:
