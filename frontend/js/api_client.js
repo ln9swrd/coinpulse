@@ -295,7 +295,7 @@ class CoinPulseAPI {
      * @returns {Promise<Object>}
      */
     async updateProfile(profileData) {
-        return this.put('/api/auth/update-profile', profileData);
+        return this.put('/api/auth/profile', profileData);
     }
 
     /**
