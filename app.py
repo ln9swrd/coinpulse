@@ -448,6 +448,19 @@ def init_background_services():
     except Exception as e:
         logger.error(f"Failed to start backup scheduler: {e}")
 
+    # Initialize signal generation scheduler (Phase 5 - Auto Trading)
+    try:
+        from backend.services.signal_scheduler import signal_scheduler
+
+        signal_scheduler.start()
+
+        # Store reference for later use
+        app.signal_scheduler = signal_scheduler
+
+        logger.info("Signal generation scheduler started (surge analysis every 15 minutes)")
+    except Exception as e:
+        logger.error(f"Failed to start signal scheduler: {e}")
+
     # Initialize Telegram alert bot (Optional - requires TELEGRAM_BOT_TOKEN)
     try:
         telegram_token = os.getenv('TELEGRAM_BOT_TOKEN')
