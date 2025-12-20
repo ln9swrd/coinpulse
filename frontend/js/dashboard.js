@@ -1392,14 +1392,16 @@
                             </button>
                         </div>
 
-                        <!-- Enterprise Plan -->
+                        <!-- Pro Plan -->
                         <div class="pricing-card">
                             <div class="plan-header">
-                                <h3 class="plan-name">Enterprise</h3>
-                                <p class="plan-description">For institutional investors</p>
+                                <h3 class="plan-name">Pro</h3>
+                                <p class="plan-description">For professional traders</p>
                             </div>
                             <div class="plan-price">
-                                <span class="price-custom">Custom</span>
+                                <span class="price-currency">₩</span>
+                                <span class="price-amount" data-monthly="99000" data-annual="79200">99,000</span>
+                                <span class="price-period">/month</span>
                             </div>
                             <ul class="plan-features">
                                 <li class="feature-included">
@@ -1412,19 +1414,13 @@
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>Dedicated Account Manager</span>
+                                    <span>Advanced Backtesting</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>Custom Strategy Development</span>
-                                </li>
-                                <li class="feature-included">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                    <span>White-label Solution</span>
+                                    <span>Custom Strategy Consulting</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -1436,11 +1432,17 @@
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>SLA Guarantee</span>
+                                    <span>Unlimited Data Export</span>
+                                </li>
+                                <li class="feature-included">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span>Dedicated 1:1 Support</span>
                                 </li>
                             </ul>
-                            <button class="plan-cta plan-cta-secondary" data-plan="enterprise">
-                                Contact Sales
+                            <button class="plan-cta plan-cta-secondary" data-plan="pro">
+                                Upgrade to Pro
                             </button>
                         </div>
                     </div>
@@ -1624,10 +1626,10 @@
                         // TODO: Redirect to checkout page
                         console.log('[Pricing] Upgrading to Premium');
                         alert('Premium upgrade coming soon! This will redirect to the payment page.');
-                    } else if (plan === 'enterprise') {
-                        // TODO: Open contact form or redirect to contact page
-                        console.log('[Pricing] Contacting sales for Enterprise');
-                        alert('Enterprise inquiries coming soon! We will contact you within 24 hours.');
+                    } else if (plan === 'pro') {
+                        // TODO: Redirect to checkout page
+                        console.log('[Pricing] Upgrading to Pro');
+                        alert('Pro upgrade coming soon! This will redirect to the payment page.');
                     }
                 });
             });
