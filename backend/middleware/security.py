@@ -131,6 +131,12 @@ class RateLimiter:
            path_without_query.startswith('/api/auto-trading/history/'):
             return True, 0
 
+        # Exclude Upbit proxy endpoints (chart data, market info)
+        if path_without_query.startswith('/api/upbit/candles/') or \
+           path_without_query.startswith('/api/upbit/ticker') or \
+           path_without_query.startswith('/api/upbit/market/'):
+            return True, 0
+
         # Check if IP is blocked
         if identifier in self.blocked_ips:
             block_until = self.blocked_ips[identifier]
