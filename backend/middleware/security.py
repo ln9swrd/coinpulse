@@ -124,6 +124,17 @@ class RateLimiter:
         if path_without_query in auth_get_endpoints:
             return True, 0
 
+        # Exclude login endpoints (Google OAuth and regular login)
+        login_endpoints = [
+            '/api/auth/login',
+            '/api/auth/register',
+            '/api/auth/google-login',
+            '/api/auth/logout',
+            '/api/auth/refresh'
+        ]
+        if path_without_query in login_endpoints:
+            return True, 0
+
         # Exclude auto-trading GET endpoints (dynamic paths with user_id)
         if path_without_query.startswith('/api/auto-trading/status/') or \
            path_without_query.startswith('/api/auto-trading/config/') or \
