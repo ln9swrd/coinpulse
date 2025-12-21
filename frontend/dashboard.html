@@ -250,6 +250,17 @@
                     </svg>
                     <span>설정</span>
                 </a>
+
+                <!-- 관리자 섹션 (Admin only) -->
+                <div class="nav-section-title admin-only" id="admin-section-title" style="display: none;">관리자</div>
+
+                <a href="#admin" class="nav-item admin-only" id="admin-menu-link" data-page="admin" style="display: none;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                        <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                    </svg>
+                    <span>관리자 패널</span>
+                </a>
             </nav>
 
             <!-- Sidebar Footer -->
@@ -504,10 +515,24 @@
                         console.log('[Dashboard] User profile loaded:', user);
 
                         // Show admin menu if user is admin
-                        const adminMenuItem = document.getElementById('admin-menu-item');
-                        if (user.is_admin && adminMenuItem) {
-                            adminMenuItem.style.display = 'flex';
-                            console.log('[Dashboard] Admin menu enabled for:', user.email);
+                        if (user.is_admin) {
+                            // Top bar dropdown admin menu
+                            const adminMenuItem = document.getElementById('admin-menu-item');
+                            if (adminMenuItem) {
+                                adminMenuItem.style.display = 'flex';
+                            }
+
+                            // Sidebar admin section
+                            const adminSectionTitle = document.getElementById('admin-section-title');
+                            const adminMenuLink = document.getElementById('admin-menu-link');
+                            if (adminSectionTitle) {
+                                adminSectionTitle.style.display = 'block';
+                            }
+                            if (adminMenuLink) {
+                                adminMenuLink.style.display = 'flex';
+                            }
+
+                            console.log('[Dashboard] Admin menus enabled for:', user.email);
                         }
 
                         // Check if user has Upbit API keys
