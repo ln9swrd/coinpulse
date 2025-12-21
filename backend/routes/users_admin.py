@@ -28,9 +28,9 @@ def get_users():
     try:
         with get_db_session() as session:
             query = text("""
-                SELECT 
+                SELECT
                     u.id, u.username, u.email, u.is_active, u.created_at, u.last_login_at,
-                    COALESCE(s.plan_code, 'free') as plan_code,
+                    COALESCE(s.plan, 'free') as plan_code,
                     s.status as subscription_status,
                     s.expires_at
                 FROM users u
@@ -88,8 +88,8 @@ def update_user_subscription():
             if existing:
                 # 업데이트
                 update_query = text("""
-                    UPDATE user_subscriptions 
-                    SET plan_code = :plan_code, 
+                    UPDATE user_subscriptions
+                    SET plan = :plan_code,
                         status = 'active',
                         updated_at = NOW()
                     WHERE user_id = :user_id
@@ -101,7 +101,7 @@ def update_user_subscription():
             else:
                 # 신규 생성
                 insert_query = text("""
-                    INSERT INTO user_subscriptions (user_id, plan_code, status)
+                    INSERT INTO user_subscriptions (user_id, plan, status)
                     VALUES (:user_id, :plan_code, 'active')
                 """)
                 session.execute(insert_query, {
@@ -283,7 +283,7 @@ def approve_payment_request(request_id):
             if existing_sub:
                 update_sub = text("""
                     UPDATE user_subscriptions
-                    SET plan_code = :plan_code, status = 'active',
+                    SET plan = :plan_code, status = 'active',
                         expires_at = :expires_at, updated_at = NOW()
                     WHERE user_id = :user_id
                 """)
@@ -294,7 +294,7 @@ def approve_payment_request(request_id):
                 })
             else:
                 insert_sub = text("""
-                    INSERT INTO user_subscriptions (user_id, plan_code, status, expires_at)
+                    INSERT INTO user_subscriptions (user_id, plan, status, expires_at)
                     VALUES (:user_id, :plan_code, 'active', :expires_at)
                 """)
                 session.execute(insert_sub, {
