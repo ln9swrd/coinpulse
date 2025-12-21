@@ -127,3 +127,77 @@ class PlanConfig(Base):
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
+
+    @staticmethod
+    def get_active_plans(session):
+        """활성화된 플랜 목록 조회 (표시 가능한 플랜만)"""
+        return session.query(PlanConfig).filter(
+            PlanConfig.is_active == True,
+            PlanConfig.is_visible == True
+        ).order_by(PlanConfig.display_order.asc()).all()
+
+    @staticmethod
+    def get_plan_by_code(plan_code, session):
+        """플랜 코드로 플랜 조회"""
+        return session.query(PlanConfig).filter(
+            PlanConfig.plan_code == plan_code
+        ).first()
+
+    @staticmethod
+    def check_feature_limit(subscription, feature, current_count, session):
+        """
+        기능 사용 제한 확인
+
+        Args:
+            subscription: 사용자 구독 정보
+            feature: 확인할 기능 ('coins', 'strategies', 'trades', 'watchlists')
+            current_count: 현재 사용 중인 개수
+            session: 데이터베이스 세션
+
+        Returns:
+            dict: {
+                'allowed': bool,
+                'limit': int | None,  # None = unlimited
+                'current': int,
+                'remaining': int | None
+            }
+        """
+        plan = session.query(PlanConfig).filter(
+            PlanConfig.plan_code == subscription.plan
+        ).first()
+
+        if not plan:
+            # 플랜이 없으면 FREE 플랜 기본값 사용
+            return {
+                'allowed': current_count < 1,
+                'limit': 1,
+                'current': current_count,
+                'remaining': max(0, 1 - current_count)
+            }
+
+        # 기능별 제한 확인
+        limit_map = {
+            'coins': plan.max_coins,
+            'strategies': plan.max_auto_strategies,
+            'trades': plan.max_concurrent_trades,
+            'watchlists': plan.max_watchlists
+        }
+
+        limit = limit_map.get(feature, 0)
+
+        # 0 = 무제한
+        if limit == 0:
+            return {
+                'allowed': True,
+                'limit': None,
+                'current': current_count,
+                'remaining': None
+            }
+
+        # 제한이 있는 경우
+        return {
+            'allowed': current_count < limit,
+            'limit': limit,
+            'current': current_count,
+            'remaining': max(0, limit - current_count)
+        }
