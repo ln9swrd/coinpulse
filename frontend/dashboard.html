@@ -1294,6 +1294,7 @@
             // Expose functions to window for external access
             window.loadAutoTradingStatus = loadAutoTradingStatus;
             window.toggleAutoTrading = toggleAutoTrading;
+            window.showDashboardContent = showDashboardContent;
             window.showPage = function(pageName) {
                 if (window.dashboardApp) {
                     window.dashboardApp.loadPage(pageName);
@@ -1427,7 +1428,7 @@
 
                 // Show dashboard content if returning to overview
                 if (pageName === 'overview') {
-                    showDashboardContent();
+                    window.showDashboardContent();
                 }
             }
         }
