@@ -426,6 +426,131 @@ https://t.me/coinpulse_surge_sinsi_bot
                 # Remove invalid chat_id
                 self.subscribers.discard(chat_id)
 
+    async def send_execution_notification(self, data: Dict):
+        """
+        Send signal execution notification to user
+
+        Args:
+            data: Execution data
+                {
+                    "telegram_chat_id": 123456,
+                    "type": "execution",
+                    "market": "KRW-XRP",
+                    "execution_price": 650,
+                    "signal_id": "SIGNAL-20251221-001",
+                    "executed_at": "2025-12-21T..."
+                }
+        """
+        if not self.bot:
+            logger.warning("[TelegramBot] Bot not initialized, skipping execution notification")
+            return
+
+        chat_id = data.get('telegram_chat_id')
+        if not chat_id:
+            return
+
+        market = data.get('market', 'Unknown')
+        execution_price = data.get('execution_price', 0)
+        signal_id = data.get('signal_id', 'Unknown')
+        executed_at = data.get('executed_at', '')
+
+        message = f"""
+✅ *시그널 실행 완료*
+
+*코인*: {market}
+*실행 가격*: KRW {execution_price:,}
+*시그널 ID*: {signal_id}
+*실행 시각*: {executed_at[:19]}
+
+📊 포지션이 열렸습니다.
+목표가나 손절가에 도달하면 알림을 받으실 수 있습니다.
+
+🌐 *내 시그널 보기*
+{self.base_url}/my_signals.html
+        """
+
+        try:
+            await self.bot.send_message(
+                chat_id=chat_id,
+                text=message,
+                parse_mode='Markdown'
+            )
+            logger.info(f"[TelegramBot] Execution notification sent to {chat_id}: {market}")
+        except Exception as e:
+            logger.error(f"[TelegramBot] Failed to send execution notification: {e}")
+
+    async def send_close_notification(self, data: Dict):
+        """
+        Send position close notification to user
+
+        Args:
+            data: Close data
+                {
+                    "telegram_chat_id": 123456,
+                    "type": "position_closed",
+                    "market": "KRW-XRP",
+                    "execution_price": 650,
+                    "close_price": 682,
+                    "profit_loss": 492,
+                    "profit_loss_ratio": 4.92,
+                    "close_reason": "target_reached"
+                }
+        """
+        if not self.bot:
+            logger.warning("[TelegramBot] Bot not initialized, skipping close notification")
+            return
+
+        chat_id = data.get('telegram_chat_id')
+        if not chat_id:
+            return
+
+        market = data.get('market', 'Unknown')
+        execution_price = data.get('execution_price', 0)
+        close_price = data.get('close_price', 0)
+        profit_loss = data.get('profit_loss', 0)
+        profit_loss_ratio = data.get('profit_loss_ratio', 0)
+        close_reason = data.get('close_reason', 'manual')
+
+        # Emoji based on profit/loss
+        if profit_loss >= 0:
+            emoji = "🎉" if profit_loss_ratio >= 5 else "✅"
+            status = "수익 실현"
+        else:
+            emoji = "⚠️"
+            status = "손실 확정"
+
+        reason_text = {
+            'target_reached': '목표가 도달',
+            'stop_loss': '손절가 도달',
+            'manual': '수동 청산'
+        }.get(close_reason, close_reason)
+
+        message = f"""
+{emoji} *포지션 청산 완료*
+
+*코인*: {market}
+*실행 가격*: KRW {execution_price:,}
+*청산 가격*: KRW {close_price:,}
+
+*손익*: {profit_loss:+,.0f} KRW ({profit_loss_ratio:+.2f}%)
+*청산 사유*: {reason_text}
+
+{status}되었습니다.
+
+🌐 *거래 내역 보기*
+{self.base_url}/my_signals.html
+        """
+
+        try:
+            await self.bot.send_message(
+                chat_id=chat_id,
+                text=message,
+                parse_mode='Markdown'
+            )
+            logger.info(f"[TelegramBot] Close notification sent to {chat_id}: {market} ({profit_loss_ratio:+.2f}%)")
+        except Exception as e:
+            logger.error(f"[TelegramBot] Failed to send close notification: {e}")
+
     async def initialize(self):
         """Initialize bot application"""
         self.app = Application.builder().token(self.token).build()
