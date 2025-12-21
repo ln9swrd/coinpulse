@@ -54,7 +54,7 @@ class RateLimiter:
                 'auth': {'requests': 10, 'window': 60},  # 10 login attempts per minute
                 'api': {'requests': 100, 'window': 60},  # 100 API calls per minute
                 'trading': {'requests': 30, 'window': 60},  # 30 trading calls per minute
-                'admin': {'requests': 200, 'window': 60}  # 200 admin calls per minute (dashboard + auto-refresh)
+                'admin': {'requests': 5000, 'window': 60}  # 5000 admin calls per minute (effectively unlimited for admin panel)
             }
 
     def _get_limit_for_path(self, path):
