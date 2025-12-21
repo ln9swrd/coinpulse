@@ -645,7 +645,7 @@
     <script>
         // Configuration
         const API_BASE = window.location.origin + '/api/admin';
-        let adminToken = localStorage.getItem('adminToken') || '';
+        let adminToken = localStorage.getItem('access_token') || '';
         let currentPaymentId = null;
 
         // Initialize
@@ -657,23 +657,43 @@
         // Auth
         function checkAuth() {
             if (!adminToken) {
-                adminToken = prompt('관리자 토큰을 입력하세요:');
-                if (adminToken) {
-                    localStorage.setItem('adminToken', adminToken);
-                    document.getElementById('tokenDisplay').textContent = `토큰: ${adminToken.substring(0, 20)}...`;
-                } else {
-                    alert('관리자 토큰이 필요합니다!');
-                    location.reload();
+                alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+                window.location.href = '/login.html';
+                return;
+            }
+
+            // Display token info
+            document.getElementById('tokenDisplay').textContent = `토큰: ${adminToken.substring(0, 20)}...`;
+
+            // Verify admin access
+            verifyAdminAccess();
+        }
+
+        async function verifyAdminAccess() {
+            try {
+                const response = await fetch(`${window.location.origin}/api/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`
+                    }
+                });
+                const data = await response.json();
+
+                if (!data.success || !data.user.is_admin) {
+                    alert('관리자 권한이 없습니다.');
+                    window.location.href = '/dashboard.html';
+                    return;
                 }
-            } else {
-                document.getElementById('tokenDisplay').textContent = `토큰: ${adminToken.substring(0, 20)}...`;
+            } catch (error) {
+                console.error('Admin verification failed:', error);
+                alert('권한 확인 중 오류가 발생했습니다.');
+                window.location.href = '/dashboard.html';
             }
         }
 
         function logout() {
             if (confirm('로그아웃 하시겠습니까?')) {
-                localStorage.removeItem('adminToken');
-                location.reload();
+                localStorage.removeItem('access_token');
+                window.location.href = '/login.html';
             }
         }
 
