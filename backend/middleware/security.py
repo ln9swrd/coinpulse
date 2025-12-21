@@ -54,7 +54,7 @@ class RateLimiter:
                 'auth': {'requests': 10, 'window': 60},  # 10 login attempts per minute
                 'api': {'requests': 100, 'window': 60},  # 100 API calls per minute
                 'trading': {'requests': 30, 'window': 60},  # 30 trading calls per minute
-                'admin': {'requests': 50, 'window': 60}  # 50 admin calls per minute
+                'admin': {'requests': 200, 'window': 60}  # 200 admin calls per minute (dashboard + auto-refresh)
             }
 
     def _get_limit_for_path(self, path):
@@ -121,9 +121,15 @@ class RateLimiter:
             '/api/orders',
             '/api/account/balance',
             '/api/subscription/current',  # User subscription status
-            '/api/subscription/transactions'  # User transaction history
+            '/api/subscription/transactions',  # User transaction history
+            '/api/user/signals/stats',  # User signal statistics
+            '/api/telegram/link/status'  # Telegram link status
         ]
         if path_without_query in auth_get_endpoints:
+            return True, 0
+
+        # Exclude user signals with query parameters (JWT secured)
+        if path_without_query == '/api/user/signals':
             return True, 0
 
         # Exclude login endpoints (Google OAuth and regular login)
