@@ -153,6 +153,7 @@
 
             <!-- Navigation Menu -->
             <nav class="sidebar-nav">
+                <!-- Dashboard -->
                 <a href="#overview" class="nav-item active" data-page="overview">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <rect x="3" y="3" width="7" height="7"></rect>
@@ -160,8 +161,11 @@
                         <rect x="14" y="14" width="7" height="7"></rect>
                         <rect x="3" y="14" width="7" height="7"></rect>
                     </svg>
-                    <span>개요</span>
+                    <span>대시보드 홈</span>
                 </a>
+
+                <!-- 거래 섹션 -->
+                <div class="nav-section-title">거래</div>
 
                 <a href="#trading" class="nav-item" data-page="trading">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -178,27 +182,6 @@
                     <span>포트폴리오</span>
                 </a>
 
-                <a href="#auto-trading" class="nav-item" data-page="auto-trading">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                    </svg>
-                    <span>자동 거래</span>
-                </a>
-
-                <a href="realtime_dashboard.html" class="nav-item">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                    </svg>
-                    <span>실시간 모니터링</span>
-                </a>
-
-                <a href="surge_monitoring.html" class="nav-item">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M18 20V10M12 20V4M6 20v-6"/>
-                    </svg>
-                    <span>급등 예측</span>
-                </a>
-
                 <a href="#history" class="nav-item" data-page="history">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <circle cx="12" cy="12" r="10"></circle>
@@ -206,6 +189,50 @@
                     </svg>
                     <span>거래 내역</span>
                 </a>
+
+                <!-- 자동화 섹션 -->
+                <div class="nav-section-title">자동화</div>
+
+                <a href="#auto-trading" class="nav-item" data-page="auto-trading">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                    <span>자동 거래</span>
+                </a>
+
+                <a href="#realtime" class="nav-item" data-page="realtime">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                    </svg>
+                    <span>실시간 모니터링</span>
+                </a>
+
+                <a href="#surge" class="nav-item" data-page="surge">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M18 20V10M12 20V4M6 20v-6"/>
+                    </svg>
+                    <span>급등 예측</span>
+                </a>
+
+                <!-- 시그널 섹션 -->
+                <div class="nav-section-title">시그널</div>
+
+                <a href="#signals" class="nav-item" data-page="signals">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    </svg>
+                    <span>내 시그널</span>
+                </a>
+
+                <a href="#telegram" class="nav-item" data-page="telegram">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                    </svg>
+                    <span>텔레그램 연동</span>
+                </a>
+
+                <!-- 설정 섹션 -->
+                <div class="nav-section-title">설정</div>
 
                 <a href="#pricing" class="nav-item" data-page="pricing">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -1173,6 +1200,174 @@
 
             console.log('[Dashboard] API integration loaded');
         })();
+    </script>
+
+    <!-- Page Loader Integration -->
+    <script type="module">
+        import pageLoader from './js/pages/page-loader.js';
+
+        // Page mapping: route -> file path
+        const PAGE_ROUTES = {
+            'signals': 'my_signals.html',
+            'telegram': 'telegram_settings.html',
+            'realtime': 'realtime_dashboard.html',
+            'surge': 'surge_monitoring.html',
+            'admin': 'admin_signals.html'
+        };
+
+        // Get content container
+        const contentContainer = document.getElementById('content-container');
+
+        /**
+         * Load external page into dashboard
+         */
+        async function loadExternalPage(pageName) {
+            const filePath = PAGE_ROUTES[pageName];
+
+            if (!filePath) {
+                console.warn('[Dashboard] Unknown page:', pageName);
+                return false;
+            }
+
+            console.log('[Dashboard] Loading external page:', pageName, '→', filePath);
+
+            try {
+                await pageLoader.loadPage(filePath, contentContainer, {
+                    useCache: true,
+                    showLoading: true,
+                    extractBody: true,
+                    executeScripts: true
+                });
+
+                // Update page title
+                updatePageTitle(pageName);
+
+                return true;
+            } catch (error) {
+                console.error('[Dashboard] Failed to load page:', error);
+                return false;
+            }
+        }
+
+        /**
+         * Update page title based on route
+         */
+        function updatePageTitle(pageName) {
+            const pageTitleEl = document.getElementById('page-title');
+
+            const titles = {
+                'overview': '대시보드 홈',
+                'trading': '거래 차트',
+                'portfolio': '포트폴리오',
+                'history': '거래 내역',
+                'auto-trading': '자동 거래',
+                'realtime': '실시간 모니터링',
+                'surge': '급등 예측',
+                'signals': '내 시그널',
+                'telegram': '텔레그램 연동',
+                'pricing': '요금제',
+                'settings': '설정',
+                'admin': '관리자'
+            };
+
+            if (pageTitleEl && titles[pageName]) {
+                pageTitleEl.textContent = titles[pageName];
+            }
+        }
+
+        /**
+         * Handle navigation click
+         */
+        async function handleNavigation(event) {
+            // Get clicked nav item
+            let navItem = event.target.closest('.nav-item');
+            if (!navItem) return;
+
+            // Prevent default link behavior
+            event.preventDefault();
+
+            // Get page name
+            const pageName = navItem.dataset.page || navItem.getAttribute('href').substring(1);
+            if (!pageName) return;
+
+            console.log('[Dashboard] Navigation clicked:', pageName);
+
+            // Update active state
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            navItem.classList.add('active');
+
+            // Update URL hash (without triggering hashchange)
+            if (window.history.replaceState) {
+                window.history.replaceState(null, null, `#${pageName}`);
+            } else {
+                window.location.hash = pageName;
+            }
+
+            // Load page
+            const isExternal = PAGE_ROUTES[pageName];
+
+            if (isExternal) {
+                // Load external page
+                await loadExternalPage(pageName);
+            } else {
+                // Internal page - use existing dashboard logic
+                updatePageTitle(pageName);
+
+                // Show dashboard content if returning to overview
+                if (pageName === 'overview') {
+                    showDashboardContent();
+                }
+            }
+        }
+
+        /**
+         * Handle hash change (browser back/forward)
+         */
+        function handleHashChange() {
+            const hash = window.location.hash.substring(1) || 'overview';
+            console.log('[Dashboard] Hash changed:', hash);
+
+            // Find and click the corresponding nav item
+            const navItem = document.querySelector(`.nav-item[data-page="${hash}"]`);
+            if (navItem) {
+                navItem.click();
+            }
+        }
+
+        /**
+         * Initialize page router
+         */
+        function initPageRouter() {
+            // Attach click listeners to all nav items
+            document.querySelectorAll('.nav-item').forEach(navItem => {
+                navItem.addEventListener('click', handleNavigation);
+            });
+
+            // Handle browser back/forward
+            window.addEventListener('hashchange', handleHashChange);
+
+            // Load initial page based on hash
+            const initialHash = window.location.hash.substring(1);
+            if (initialHash && initialHash !== 'overview') {
+                handleHashChange();
+            }
+
+            console.log('[Dashboard] Page router initialized');
+        }
+
+        // Expose loadExternalPage to window
+        window.loadExternalPage = loadExternalPage;
+
+        // Initialize router when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPageRouter);
+        } else {
+            initPageRouter();
+        }
+
+        console.log('[Dashboard] Page loader integrated');
     </script>
 
     <!-- Original Dashboard Scripts -->

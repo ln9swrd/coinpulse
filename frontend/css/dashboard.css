@@ -208,6 +208,25 @@ body {
     overflow-y: auto;
 }
 
+/* Navigation Section Title */
+.nav-section-title {
+    padding: var(--spacing-md) var(--spacing-md) var(--spacing-xs) var(--spacing-md);
+    color: var(--gray);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: var(--spacing-sm);
+}
+
+.nav-section-title:first-child {
+    margin-top: 0;
+}
+
+.sidebar.collapsed .nav-section-title {
+    display: none;
+}
+
 .nav-item {
     display: flex;
     align-items: center;
