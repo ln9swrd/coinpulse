@@ -4,42 +4,51 @@ Admin Authentication Middleware
 """
 from functools import wraps
 from flask import request, jsonify
-import os
+from backend.database.connection import get_db_session
+from backend.database.models import User
 
 def admin_required(f):
-    """관리자 권한 확인 데코레이터"""
+    """관리자 권한 확인 데코레이터 (JWT 기반)"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # 관리자 토큰 확인 (환경 변수에서)
-        admin_token = os.getenv('ADMIN_TOKEN', 'coinpulse_admin_2024')
-        
-        # Authorization 헤더 확인
-        auth_header = request.headers.get('Authorization')
-        
-        if not auth_header:
+        # JWT 토큰 검증 및 사용자 확인
+        from backend.routes.auth_routes import get_current_user
+
+        user_id, error = get_current_user(request)
+
+        if error:
             return jsonify({
                 'success': False,
-                'error': 'No authorization header'
+                'error': error,
+                'code': 'UNAUTHORIZED'
             }), 401
-        
-        # Bearer 토큰 파싱
+
+        # 사용자 정보 조회
+        session = get_db_session()
         try:
-            scheme, token = auth_header.split()
-            if scheme.lower() != 'bearer':
-                raise ValueError('Invalid authentication scheme')
-        except ValueError:
-            return jsonify({
-                'success': False,
-                'error': 'Invalid authorization header format'
-            }), 401
-        
-        # 토큰 검증
-        if token != admin_token:
-            return jsonify({
-                'success': False,
-                'error': 'Invalid admin token'
-            }), 403
-        
-        return f(*args, **kwargs)
-    
+            user = session.query(User).filter(User.id == user_id).first()
+
+            if not user:
+                return jsonify({
+                    'success': False,
+                    'error': 'User not found',
+                    'code': 'USER_NOT_FOUND'
+                }), 404
+
+            # 관리자 권한 확인
+            if not user.is_admin:
+                return jsonify({
+                    'success': False,
+                    'error': 'Admin access required',
+                    'code': 'FORBIDDEN'
+                }), 403
+
+            # 사용자 ID를 kwargs에 추가 (필요한 경우)
+            kwargs['current_user_id'] = user_id
+
+            return f(*args, **kwargs)
+
+        finally:
+            session.close()
+
     return decorated_function
