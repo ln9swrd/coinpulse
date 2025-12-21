@@ -1394,6 +1394,11 @@
             let navItem = event.target.closest('.nav-item');
             if (!navItem) return;
 
+            // Allow external links (target="_blank") to open normally
+            if (navItem.getAttribute('target') === '_blank') {
+                return; // Don't prevent default, let the link open in new tab
+            }
+
             // Prevent default link behavior
             event.preventDefault();
 
