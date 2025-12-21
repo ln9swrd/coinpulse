@@ -13,6 +13,7 @@ from backend.models.subscription_models import (
     Subscription, Transaction,
     SubscriptionPlan, BillingPeriod, SubscriptionStatus, PaymentStatus
 )
+from backend.database.models import User
 from backend.services.toss_payment import get_toss_payment_service
 
 logger = logging.getLogger(__name__)
@@ -228,10 +229,15 @@ class SubscriptionService:
         Returns:
             Transaction: 결제 트랜잭션
         """
+        # 사용자 정보 조회
+        user = db.query(User).filter(User.id == subscription.user_id).first()
+        if not user:
+            raise ValueError(f"User not found: {subscription.user_id}")
+
         # 주문 ID 생성
         order_id = f"SUB-{subscription.id}-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
         order_name = f"{subscription.plan.value.title()} Plan ({subscription.billing_period.value})"
-        
+
         try:
             # 토스페이먼츠로 자동 결제
             result = self.toss_service.charge_billing(
@@ -240,7 +246,7 @@ class SubscriptionService:
                 amount=subscription.amount,
                 order_id=order_id,
                 order_name=order_name,
-                customer_email=subscription.user_email
+                customer_email=user.email
             )
             
             # 트랜잭션 생성

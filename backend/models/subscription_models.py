@@ -65,7 +65,6 @@ class Subscription(Base):
 
     # User reference (foreign key to users table)
     user_id = Column(Integer, nullable=False, index=True)
-    user_email = Column(String(255), nullable=False)
 
     # Subscription details
     plan = Column(SQLEnum(SubscriptionPlan), nullable=False, default=SubscriptionPlan.FREE)
@@ -98,7 +97,6 @@ class Subscription(Base):
         return {
             'id': self.id,
             'user_id': self.user_id,
-            'user_email': self.user_email,
             'plan': self.plan.value,
             'billing_period': self.billing_period.value,
             'status': self.status.value,

@@ -10,6 +10,7 @@ from backend.database.connection import get_db_session
 from backend.models.trading_signal import TradingSignal, UserSignalHistory, ExecutionStatus, SignalStatus
 from backend.models.plan_limits import PlanLimits
 from backend.models.subscription_models import Subscription, SubscriptionStatus
+from backend.database.models import User
 
 
 class SignalDistributor:
@@ -84,15 +85,17 @@ class SignalDistributor:
         """
         session = get_db_session()
         try:
-            # 활성 구독자 조회
-            active_subscriptions = session.query(Subscription).filter(
+            # 활성 구독자 조회 (User와 조인하여 email 가져오기)
+            active_subscriptions = session.query(Subscription, User).join(
+                User, Subscription.user_id == User.id
+            ).filter(
                 Subscription.status == SubscriptionStatus.ACTIVE,
                 Subscription.current_period_end > datetime.utcnow()
             ).all()
 
             eligible_users = []
 
-            for sub in active_subscriptions:
+            for sub, user in active_subscriptions:
                 user_id = sub.user_id
                 plan = sub.plan.value
 
@@ -102,7 +105,7 @@ class SignalDistributor:
                 if can_receive:
                     eligible_users.append({
                         'user_id': user_id,
-                        'email': sub.user_email,
+                        'email': user.email,
                         'plan': plan,
                         'is_bonus': is_bonus,
                         'priority': self._get_priority(plan)
