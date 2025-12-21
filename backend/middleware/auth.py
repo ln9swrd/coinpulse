@@ -43,9 +43,6 @@ def admin_required(f):
                     'code': 'FORBIDDEN'
                 }), 403
 
-            # 사용자 ID를 kwargs에 추가 (필요한 경우)
-            kwargs['current_user_id'] = user_id
-
             return f(*args, **kwargs)
 
         finally:
