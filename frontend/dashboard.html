@@ -842,10 +842,11 @@
                                 <th>가격</th>
                                 <th>수량</th>
                                 <th>총액</th>
+                                <th>상세</th>
                             </tr>
                         </thead>
                         <tbody>
-                            ${orders.map(order => `
+                            ${orders.map((order, index) => `
                                 <tr>
                                     <td>${new Date(order.created_at).toLocaleString()}</td>
                                     <td>${order.market}</td>
@@ -853,6 +854,7 @@
                                     <td>${parseFloat(order.price || 0).toLocaleString()} KRW</td>
                                     <td>${parseFloat(order.volume || 0).toFixed(8)}</td>
                                     <td>${(parseFloat(order.price || 0) * parseFloat(order.volume || 0)).toLocaleString()} KRW</td>
+                                    <td><button class="btn-small btn-primary" onclick='showOrderDetails(${JSON.stringify(order).replace(/'/g, "&#39;")})'>보기</button></td>
                                 </tr>
                             `).join('')}
                         </tbody>
@@ -860,6 +862,81 @@
                 `;
 
                 ordersContainer.innerHTML = ordersHTML;
+            }
+
+            function showOrderDetails(order) {
+                const modalHTML = `
+                    <div class="modal-overlay" onclick="this.remove()">
+                        <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 600px;">
+                            <div class="modal-header">
+                                <h3>거래 상세 정보</h3>
+                                <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
+                            </div>
+                            <div class="modal-body" style="max-height: 500px; overflow-y: auto;">
+                                <div class="detail-grid" style="display: grid; grid-template-columns: 140px 1fr; gap: 12px; font-size: 14px;">
+                                    <div style="font-weight: 600; color: #666;">주문 ID:</div>
+                                    <div style="word-break: break-all;">${order.uuid || 'N/A'}</div>
+
+                                    <div style="font-weight: 600; color: #666;">마켓:</div>
+                                    <div>${order.market || 'N/A'}</div>
+
+                                    <div style="font-weight: 600; color: #666;">거래 유형:</div>
+                                    <div><span class="${order.side === 'bid' ? 'buy' : 'sell'}" style="padding: 4px 12px; border-radius: 4px; background: ${order.side === 'bid' ? '#d1fae5' : '#fee2e2'}; color: ${order.side === 'bid' ? '#065f46' : '#991b1b'}; font-weight: 600;">${order.side === 'bid' ? '매수 (BID)' : '매도 (ASK)'}</span></div>
+
+                                    <div style="font-weight: 600; color: #666;">주문 타입:</div>
+                                    <div>${order.ord_type || 'N/A'}</div>
+
+                                    <div style="font-weight: 600; color: #666;">주문 상태:</div>
+                                    <div><span style="padding: 4px 12px; border-radius: 4px; background: #d1fae5; color: #065f46; font-weight: 600;">${order.state || 'N/A'}</span></div>
+
+                                    <div style="font-weight: 600; color: #666;">주문 가격:</div>
+                                    <div>${parseFloat(order.price || 0).toLocaleString()} KRW</div>
+
+                                    <div style="font-weight: 600; color: #666;">평균 체결가:</div>
+                                    <div style="font-weight: 700; color: #667eea;">${parseFloat(order.avg_price || 0).toLocaleString()} KRW</div>
+
+                                    <div style="font-weight: 600; color: #666;">주문 수량:</div>
+                                    <div>${parseFloat(order.volume || 0).toFixed(8)}</div>
+
+                                    <div style="font-weight: 600; color: #666;">체결 수량:</div>
+                                    <div style="font-weight: 700; color: #10b981;">${parseFloat(order.executed_volume || 0).toFixed(8)}</div>
+
+                                    <div style="font-weight: 600; color: #666;">미체결 수량:</div>
+                                    <div>${parseFloat(order.remaining_volume || 0).toFixed(8)}</div>
+
+                                    <div style="font-weight: 600; color: #666;">거래 총액:</div>
+                                    <div style="font-weight: 700; font-size: 16px; color: #667eea;">${(parseFloat(order.price || 0) * parseFloat(order.volume || 0)).toLocaleString()} KRW</div>
+
+                                    <div style="font-weight: 600; color: #666;">수수료:</div>
+                                    <div>${parseFloat(order.paid_fee || 0).toLocaleString()} KRW</div>
+
+                                    <div style="font-weight: 600; color: #666;">주문 생성 시각:</div>
+                                    <div>${order.created_at ? new Date(order.created_at).toLocaleString('ko-KR', {timeZone: 'Asia/Seoul'}) : 'N/A'}</div>
+
+                                    ${order.executed_at ? `
+                                        <div style="font-weight: 600; color: #666;">체결 완료 시각:</div>
+                                        <div>${new Date(order.executed_at).toLocaleString('ko-KR', {timeZone: 'Asia/Seoul'})}</div>
+                                    ` : ''}
+
+                                    ${order.locked ? `
+                                        <div style="font-weight: 600; color: #666;">예약 금액:</div>
+                                        <div>${parseFloat(order.locked).toLocaleString()} KRW</div>
+                                    ` : ''}
+
+                                    ${order.reserved_fee ? `
+                                        <div style="font-weight: 600; color: #666;">예약 수수료:</div>
+                                        <div>${parseFloat(order.reserved_fee).toLocaleString()} KRW</div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">닫기</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.insertAdjacentHTML('beforeend', modalHTML);
             }
 
             function showOrdersError() {
