@@ -26,15 +26,15 @@ def get_beta_testers():
                 query += " WHERE is_active = :is_active"
                 params['is_active'] = (status == 'active')
             
-            query += " ORDER BY created_at DESC"
-            
+            query += " ORDER BY joined_at DESC"
+
             result = session.execute(text(query), params)
             testers = [dict(row._mapping) for row in result]
-            
+
             # Convert datetime to string
             for tester in testers:
-                if tester.get('created_at'):
-                    tester['created_at'] = tester['created_at'].isoformat()
+                if tester.get('joined_at'):
+                    tester['joined_at'] = tester['joined_at'].isoformat()
                 if tester.get('expires_at'):
                     tester['expires_at'] = tester['expires_at'].isoformat()
             
@@ -80,14 +80,14 @@ def add_beta_tester():
             # Insert new beta tester
             expires_at = datetime.now() + timedelta(days=duration_days)
             insert_query = text("""
-                INSERT INTO beta_testers (email, is_active, expires_at, created_at)
-                VALUES (:email, true, :expires_at, :created_at)
+                INSERT INTO beta_testers (email, is_active, expires_at, joined_at)
+                VALUES (:email, true, :expires_at, :joined_at)
             """)
-            
+
             session.execute(insert_query, {
                 "email": email,
                 "expires_at": expires_at,
-                "created_at": datetime.now()
+                "joined_at": datetime.now()
             })
             session.commit()
             
