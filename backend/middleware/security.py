@@ -119,7 +119,9 @@ class RateLimiter:
             '/api/user/plan',
             '/api/holdings',
             '/api/orders',
-            '/api/account/balance'
+            '/api/account/balance',
+            '/api/subscription/current',  # User subscription status
+            '/api/subscription/transactions'  # User transaction history
         ]
         if path_without_query in auth_get_endpoints:
             return True, 0
