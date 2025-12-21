@@ -450,6 +450,38 @@ class User(Base):
         return f"<User(id={self.id}, email='{self.email}', username='{self.username}')>"
 
 
+class TelegramLinkCode(Base):
+    """
+    Telegram Link Codes table - Temporary codes for linking Telegram accounts.
+    """
+    __tablename__ = 'telegram_link_codes'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
+    code = Column(String(6), unique=True, nullable=False, index=True, comment='6-digit linking code')
+    telegram_chat_id = Column(String(50), nullable=True, comment='Telegram chat ID')
+    telegram_username = Column(String(100), nullable=True, comment='Telegram username')
+    expires_at = Column(DateTime, nullable=False, comment='Code expiration time')
+    used = Column(Boolean, default=False, comment='Whether code has been used')
+    used_at = Column(DateTime, nullable=True, comment='When code was used')
+    created_at = Column(DateTime, default=datetime.utcnow, comment='Code creation time')
+
+    def to_dict(self):
+        """Convert to dictionary for JSON serialization"""
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'code': self.code,
+            'expires_at': self.expires_at.isoformat() if self.expires_at else None,
+            'used': self.used,
+            'used_at': self.used_at.isoformat() if self.used_at else None,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+
+    def __repr__(self):
+        return f"<TelegramLinkCode(id={self.id}, user_id={self.user_id}, code='{self.code}')>"
+
+
 class UserConfig(Base):
     """
     User Trading Configurations table.

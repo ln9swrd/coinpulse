@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from backend.database.connection import get_db_session
 from backend.models.trading_signal import TradingSignal, UserSignalHistory, ExecutionStatus, SignalStatus
 from backend.database.models import User
-from backend.middleware.security import token_required, admin_required
+from backend.utils.auth_utils import require_auth as token_required, admin_required
 from sqlalchemy import func, desc
 
 signal_admin_bp = Blueprint('signal_admin', __name__)

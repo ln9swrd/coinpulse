@@ -8,7 +8,7 @@ from flask import Blueprint, jsonify, request
 from datetime import datetime, timedelta
 from backend.database.connection import get_db_session
 from backend.database.models import User, TelegramLinkCode
-from backend.middleware.security import token_required
+from backend.utils.auth_utils import require_auth as token_required
 import random
 import string
 

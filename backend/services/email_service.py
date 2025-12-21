@@ -115,3 +115,7 @@ Not investment advice. All risks are your own.
 </div>
 </body></html>
         """
+
+
+# Create singleton instance
+email_service = EmailService()

@@ -234,6 +234,67 @@ def optional_auth(f):
     return decorated_function
 
 
+def admin_required(f):
+    """
+    Decorator for admin-only routes.
+    Requires authentication and admin privilege.
+
+    Usage:
+        @app.route('/api/admin/users')
+        @admin_required
+        def admin_route(current_user):
+            # current_user will be passed with is_admin=True
+            pass
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+
+        if not auth_header:
+            return jsonify({
+                'success': False,
+                'message': 'Missing authorization header'
+            }), 401
+
+        try:
+            token = auth_header.split(' ')[1]
+            payload = decode_token(token)
+
+            # Get user from database to check admin status
+            from backend.database.connection import get_db_session
+            from backend.database.models import User
+
+            session = get_db_session()
+            try:
+                user = session.query(User).filter(User.id == payload.get('user_id')).first()
+
+                if not user:
+                    return jsonify({
+                        'success': False,
+                        'message': 'User not found'
+                    }), 401
+
+                if not user.is_admin:
+                    return jsonify({
+                        'success': False,
+                        'message': 'Admin access required'
+                    }), 403
+
+                # Pass user object to route
+                return f(user, *args, **kwargs)
+
+            finally:
+                session.close()
+
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'message': str(e)
+            }), 401
+
+    return decorated_function
+
+
 # ============================================
 # API Key Generation
 # ============================================
