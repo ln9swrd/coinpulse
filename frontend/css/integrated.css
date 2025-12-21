@@ -130,7 +130,7 @@ to {
     width: 100vw;
     height: 100vh;
     margin: 0;
-    padding: var(--space-xs);
+    padding: 2px;
     background: var(--secondary-bg);
     backdrop-filter: blur(20px);
     border-radius: 0;
@@ -546,14 +546,14 @@ to {
 
 .chart-controls-row {
     margin-bottom: var(--space-xs);
-    padding: var(--space-sm) var(--space-md);
+    padding: 4px 8px;
     background: linear-gradient(135deg, var(--tertiary-bg) 0%, #2d3748 100%);
     border-radius: var(--radius-sm);
     border: 1px solid var(--border-light);
     box-shadow: var(--shadow-sm);
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
+    gap: 12px;
     align-items: start;
     flex-shrink: 0;
     transition: all 0.3s ease;
@@ -567,8 +567,8 @@ to {
 .chart-settings {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: var(--space-md);
+    gap: 8px;
+    padding: 6px;
     background: rgba(38, 166, 154, 0.05);
     border-radius: var(--radius-md);
     border: 1px solid rgba(38, 166, 154, 0.2);
@@ -1045,7 +1045,7 @@ to {
 
 .chart-and-portfolio-section {
     display: flex;
-    gap: 12px;
+    gap: 6px;
     margin-bottom: var(--space-xs);
     flex: 1;
     min-height: 0;
@@ -1053,20 +1053,20 @@ to {
 }
 
 .chart-section {
-    flex: 2;
+    flex: 3;
     min-width: 0;
     display: flex;
     flex-direction: column;
-    min-height: 700px;
+    min-height: 850px;
 }
 
 .portfolio-section {
-    width: 260px;
-    min-width: 260px;
+    width: 220px;
+    min-width: 220px;
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
 }
 
 .analysis-orders-section {
