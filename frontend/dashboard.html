@@ -1345,10 +1345,11 @@
             try {
                 // Load admin panel in iframe for full functionality
                 if (pageName === 'admin') {
+                    const adminUrl = `${window.location.origin}/${filePath}`;
                     contentContainer.innerHTML = `
                         <div style="width: 100%; height: 100%; min-height: 800px;">
                             <iframe
-                                src="${filePath}"
+                                src="${adminUrl}"
                                 style="width: 100%; height: 100%; min-height: 800px; border: none; border-radius: 8px;"
                                 title="관리자 패널"
                             ></iframe>
