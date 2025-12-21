@@ -254,7 +254,7 @@
                 <!-- 관리자 섹션 (Admin only) -->
                 <div class="nav-section-title admin-only" id="admin-section-title" style="display: none;">관리자</div>
 
-                <a href="/admin.html" target="_blank" class="nav-item admin-only" id="admin-menu-link" style="display: none;">
+                <a href="#admin" class="nav-item admin-only" id="admin-menu-link" style="display: none;" onclick="event.preventDefault(); window.location.hash = 'admin';">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
                         <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
@@ -321,7 +321,7 @@
                                 <span>설정</span>
                             </a>
                             <!-- Admin Menu (only visible for admins) -->
-                            <a href="/admin.html" target="_blank" class="dropdown-item admin-only" id="admin-menu-item" style="display: none;">
+                            <a href="#admin" class="dropdown-item admin-only" id="admin-menu-item" style="display: none;" onclick="event.preventDefault(); window.location.hash = 'admin';">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                     <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
                                     <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
@@ -1322,7 +1322,8 @@
             'telegram': 'telegram_settings.html',
             'realtime': 'realtime_dashboard.html',
             'surge': 'surge_monitoring.html',
-            'auto-trading-settings': 'auto_trading_settings.html'
+            'auto-trading-settings': 'auto_trading_settings.html',
+            'admin': 'admin.html'
         };
 
         // Get content container
