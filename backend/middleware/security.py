@@ -112,6 +112,10 @@ class RateLimiter:
         if path_without_query.endswith(static_extensions) or path_without_query.startswith('/static/') or path_without_query.startswith('/frontend/'):
             return True, 0
 
+        # Exclude admin endpoints from rate limiting (already secured by admin_required decorator)
+        if path_without_query.startswith('/api/admin/'):
+            return True, 0
+
         # Exclude auth and data GET endpoints (already secured by JWT tokens)
         auth_get_endpoints = [
             '/api/auth/me',
