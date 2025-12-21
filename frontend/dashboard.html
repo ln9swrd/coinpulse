@@ -1065,9 +1065,14 @@
                                 <div class="status-dot ${isEnabled ? 'active' : ''}"></div>
                                 <span class="status-text">${isEnabled ? '활성' : '비활성'}</span>
                             </div>
-                            <button class="btn-toggle-trading" onclick="toggleAutoTrading(${!isEnabled})">
-                                ${isEnabled ? '중지' : '시작'}
-                            </button>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn-toggle-trading" onclick="window.showPage('auto-trading-settings')" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">
+                                    ⚙️ 세부 설정
+                                </button>
+                                <button class="btn-toggle-trading" onclick="toggleAutoTrading(${!isEnabled})">
+                                    ${isEnabled ? '중지' : '시작'}
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Stats Grid -->
@@ -1316,7 +1321,8 @@
             'telegram': 'telegram_settings.html',
             'realtime': 'realtime_dashboard.html',
             'surge': 'surge_monitoring.html',
-            'admin': 'admin_signals.html'
+            'admin': 'admin_signals.html',
+            'auto-trading-settings': 'auto_trading_settings.html'
         };
 
         // Get content container
