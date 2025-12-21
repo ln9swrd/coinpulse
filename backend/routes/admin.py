@@ -285,51 +285,5 @@ def update_user_plan(user_id):
         }), 500
 
 
-@admin_bp.route('/users', methods=['GET'])
-@admin_required
-def get_all_users():
-    """모든 사용자 목록 조회 (플랜 정보 포함)"""
-    try:
-        with get_db_session() as session:
-            query = text("""
-                SELECT
-                    u.id,
-                    u.email,
-                    u.username,
-                    u.is_active,
-                    u.created_at,
-                    COALESCE(s.plan_code, 'FREE') as plan_code,
-                    s.status as subscription_status,
-                    s.expires_at
-                FROM users u
-                LEFT JOIN user_subscriptions s
-                    ON u.id = s.user_id
-                    AND s.status = 'active'
-                ORDER BY u.created_at DESC
-            """)
-
-            result = session.execute(query)
-            users = []
-
-            for row in result:
-                user = dict(row._mapping)
-
-                # Convert datetime to string
-                if user.get('created_at'):
-                    user['created_at'] = user['created_at'].isoformat()
-                if user.get('expires_at'):
-                    user['expires_at'] = user['expires_at'].isoformat()
-
-                users.append(user)
-
-            return jsonify({
-                "success": True,
-                "users": users,
-                "count": len(users)
-            }), 200
-
-    except Exception as e:
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
+# NOTE: /users endpoint is handled by users_admin.py to avoid route conflict
+# This duplicate route has been removed
