@@ -379,6 +379,11 @@ class User(Base):
     full_name = Column(String(255), nullable=True, comment='Full name')
     phone = Column(String(50), nullable=True, comment='Phone number')
 
+    # Telegram Integration
+    telegram_chat_id = Column(String(50), nullable=True, unique=True, index=True, comment='Telegram chat ID for notifications')
+    telegram_username = Column(String(100), nullable=True, comment='Telegram username')
+    telegram_linked_at = Column(DateTime, nullable=True, comment='When Telegram was linked')
+
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow, comment='Account creation time')
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, comment='Last update time')
@@ -420,7 +425,10 @@ class User(Base):
             'last_login_at': self.last_login_at.isoformat() if self.last_login_at else None,
             'full_name': self.full_name,
             'phone': self.phone,
-            'is_admin': getattr(self, 'is_admin', False)  # Admin flag
+            'is_admin': getattr(self, 'is_admin', False),  # Admin flag
+            'telegram_linked': bool(self.telegram_chat_id),  # Telegram link status
+            'telegram_username': self.telegram_username,
+            'telegram_linked_at': self.telegram_linked_at.isoformat() if self.telegram_linked_at else None
         }
 
         if include_sensitive:

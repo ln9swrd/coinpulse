@@ -78,6 +78,7 @@ class SurgeTelegramBot:
 📢 *명령어*
 /start - 알림 시작
 /stop - 알림 중지
+/link - CoinPulse 계정 연동
 /status - 현재 급등 후보 확인
 /stats - 백테스트 통계
 /help - 도움말
@@ -168,6 +169,7 @@ KRW-XLM: +110.51% (2024-11-20)
 *명령어 목록*
 /start - 알림 시작
 /stop - 알림 중지
+/link - CoinPulse 계정 연동
 /status - 현재 급등 후보 확인
 /stats - 백테스트 통계
 /help - 이 도움말
@@ -195,6 +197,90 @@ KRW-XLM: +110.51% (2024-11-20)
             help_message,
             parse_mode='Markdown'
         )
+
+    async def link_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """
+        /link command - Link Telegram account to CoinPulse user account
+
+        Usage: /link <6-digit-code>
+        """
+        chat_id = update.effective_chat.id
+        telegram_username = update.effective_user.username
+
+        # Check if code is provided
+        if not context.args or len(context.args) == 0:
+            await update.message.reply_text(
+                "🔗 *Telegram 계정 연동*\n\n"
+                "CoinPulse 계정과 Telegram을 연동하여 트레이딩 시그널 알림을 받으세요!\n\n"
+                "*사용법:*\n"
+                "1. CoinPulse 웹사이트에서 로그인\n"
+                "2. 설정 페이지에서 연동 코드 생성\n"
+                "3. `/link <코드>` 명령어로 연동\n\n"
+                "*예시:*\n"
+                "`/link 123456`\n\n"
+                "🌐 *웹사이트*\n"
+                f"{self.base_url}/settings.html",
+                parse_mode='Markdown'
+            )
+            return
+
+        # Get the code
+        code = context.args[0]
+
+        # Validate code format (6 digits)
+        if not code.isdigit() or len(code) != 6:
+            await update.message.reply_text(
+                "❌ *잘못된 코드 형식*\n\n"
+                "연동 코드는 6자리 숫자여야 합니다.\n"
+                "예: `/link 123456`",
+                parse_mode='Markdown'
+            )
+            return
+
+        # Call the verification API
+        try:
+            import requests
+
+            verify_url = f"{self.base_url}/api/telegram/link/verify"
+            payload = {
+                'code': code,
+                'telegram_chat_id': str(chat_id),
+                'telegram_username': telegram_username
+            }
+
+            response = requests.post(verify_url, json=payload, timeout=10)
+            data = response.json()
+
+            if response.status_code == 200 and data.get('success'):
+                user_info = data.get('user', {})
+                await update.message.reply_text(
+                    "✅ *연동 성공!*\n\n"
+                    f"계정: {user_info.get('email', 'Unknown')}\n"
+                    f"Telegram: @{telegram_username}\n\n"
+                    "이제 트레이딩 시그널 알림을 받으실 수 있습니다! 🎉\n\n"
+                    "🔔 *알림 설정*\n"
+                    f"{self.base_url}/settings.html",
+                    parse_mode='Markdown'
+                )
+                logger.info(f"[TelegramBot] Account linked: chat_id={chat_id}, user={user_info.get('email')}")
+            else:
+                error_message = data.get('error', 'Unknown error')
+                await update.message.reply_text(
+                    f"❌ *연동 실패*\n\n"
+                    f"{error_message}\n\n"
+                    "다시 시도해주세요.",
+                    parse_mode='Markdown'
+                )
+                logger.warning(f"[TelegramBot] Link failed: {error_message}")
+
+        except Exception as e:
+            await update.message.reply_text(
+                "❌ *오류 발생*\n\n"
+                "서버 연결에 실패했습니다.\n"
+                "잠시 후 다시 시도해주세요.",
+                parse_mode='Markdown'
+            )
+            logger.error(f"[TelegramBot] Link error: {e}")
 
     async def send_signal_notification(self, signal_data: Dict):
         """
@@ -351,6 +437,7 @@ https://t.me/coinpulse_surge_sinsi_bot
         self.app.add_handler(CommandHandler("status", self.status_command))
         self.app.add_handler(CommandHandler("stats", self.stats_command))
         self.app.add_handler(CommandHandler("help", self.help_command))
+        self.app.add_handler(CommandHandler("link", self.link_command))
 
         logger.info("[TelegramBot] Bot initialized with command handlers")
 

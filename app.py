@@ -30,6 +30,8 @@ from backend.services import ChartService, HoldingsService
 # Import all route blueprints
 from backend.routes.auth_routes import auth_bp
 from backend.routes.user_routes import user_bp  # User API routes (plan, profile)
+from backend.routes.user_signals_routes import user_signals_bp  # User signals history
+from backend.routes.telegram_link_routes import telegram_link_bp  # Telegram account linking
 from backend.routes.holdings_routes import holdings_bp
 from backend.routes.auto_trading_routes import auto_trading_bp
 from backend.routes.subscription_routes import subscription_bp  # ✅ Re-enabled
@@ -200,6 +202,8 @@ def register_blueprints():
     blueprints = [
         (auth_bp, '/api/auth'),
         (user_bp, None),  # User API routes (already has /api/user prefix)
+        (user_signals_bp, None),  # User signals routes (already has /api/user/signals prefix)
+        (telegram_link_bp, None),  # Telegram linking routes (already has /api/telegram prefix)
         (holdings_bp, None),  # Holdings routes (already has /api prefix in routes)
         (auto_trading_bp, '/api'),
         (payment_bp, '/api/payment'),  # Payment routes
