@@ -370,6 +370,7 @@ class User(Base):
     is_active = Column(Boolean, default=True, index=True, comment='Account active status')
     is_verified = Column(Boolean, default=False, comment='Email verification status (new name)')
     email_verified_at = Column(DateTime, nullable=True, comment='Email verification timestamp')
+    is_admin = Column(Boolean, default=False, nullable=False, comment='Admin user flag')
 
     # Authentication & Session
     last_login_at = Column(DateTime, nullable=True, comment='Last successful login')
@@ -425,7 +426,7 @@ class User(Base):
             'last_login_at': self.last_login_at.isoformat() if self.last_login_at else None,
             'full_name': self.full_name,
             'phone': self.phone,
-            'is_admin': getattr(self, 'is_admin', False),  # Admin flag
+            'is_admin': self.is_admin,  # Admin flag
             'telegram_linked': bool(self.telegram_chat_id),  # Telegram link status
             'telegram_username': self.telegram_username,
             'telegram_linked_at': self.telegram_linked_at.isoformat() if self.telegram_linked_at else None
