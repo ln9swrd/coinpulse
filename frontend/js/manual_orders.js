@@ -145,7 +145,7 @@ WorkingTradingChart.prototype.submitBuyOrder = async function() {
     const market = this.currentMarket || 'KRW-BTC';
 
     try {
-        const response = await fetch('http://localhost:8081/api/trading/order', {
+        const response = await fetch('${window.location.origin}/api/trading/order', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -202,7 +202,7 @@ WorkingTradingChart.prototype.submitSellOrder = async function() {
     const market = this.currentMarket || 'KRW-BTC';
 
     try {
-        const response = await fetch('http://localhost:8081/api/trading/order', {
+        const response = await fetch('${window.location.origin}/api/trading/order', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -244,7 +244,7 @@ WorkingTradingChart.prototype.loadPendingOrders = async function() {
     if (!orderList) return;
 
     try {
-        const response = await fetch('http://localhost:8081/api/trading/orders?state=wait');
+        const response = await fetch('${window.location.origin}/api/trading/orders?state=wait');
         const result = await response.json();
 
         if (!response.ok || !result.success) {
@@ -290,7 +290,7 @@ WorkingTradingChart.prototype.cancelOrder = async function(uuid) {
     }
 
     try {
-        const response = await fetch(`http://localhost:8081/api/trading/order/${uuid}`, {
+        const response = await fetch(`${window.location.origin}/api/trading/order/${uuid}`, {
             method: 'DELETE'
         });
 
@@ -314,7 +314,7 @@ WorkingTradingChart.prototype.updateAvailableBalances = async function() {
 
     try {
         // Get KRW balance for buying
-        const response = await fetch('http://localhost:8081/api/account/balance');
+        const response = await fetch('${window.location.origin}/api/account/balance');
         const result = await response.json();
 
         if (response.ok && result.success) {
@@ -328,7 +328,7 @@ WorkingTradingChart.prototype.updateAvailableBalances = async function() {
 
         // Get current coin holding for selling
         const market = this.currentMarket || 'KRW-BTC';
-        const holdingsResponse = await fetch('http://localhost:8081/api/holdings');
+        const holdingsResponse = await fetch('${window.location.origin}/api/holdings');
         const holdingsResult = await holdingsResponse.json();
 
         if (holdingsResponse.ok && holdingsResult.success) {
@@ -452,7 +452,7 @@ WorkingTradingChart.prototype.displayOrdersOnChart = async function() {
 
     try {
         const market = this.selectedMarket || 'KRW-XRP';
-        const response = await fetch(`http://localhost:8081/api/trading/orders?state=wait&market=${market}`);
+        const response = await fetch(`${window.location.origin}/api/trading/orders?state=wait&market=${market}`);
         const result = await response.json();
 
         if (!response.ok || !result.success) {
@@ -585,7 +585,7 @@ WorkingTradingChart.prototype.modifyOrder = async function(uuid, newPrice) {
 
     try {
         // Cancel old order
-        const cancelResponse = await fetch(`http://localhost:8081/api/trading/order/${uuid}`, {
+        const cancelResponse = await fetch(`${window.location.origin}/api/trading/order/${uuid}`, {
             method: 'DELETE'
         });
 
@@ -604,7 +604,7 @@ WorkingTradingChart.prototype.modifyOrder = async function(uuid, newPrice) {
         }
 
         // Create new order with new price
-        const createResponse = await fetch('http://localhost:8081/api/trading/order', {
+        const createResponse = await fetch('${window.location.origin}/api/trading/order', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

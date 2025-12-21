@@ -8,7 +8,7 @@ class PolicyModalController {
         this.modal = document.getElementById('policy-modal');
         this.currentCoin = 'KRW-BTC';
         this.policies = null;
-        this.apiBaseUrl = 'http://localhost:8081';
+        this.apiBaseUrl = window.location.origin;
         this.init();
     }
 
