@@ -148,7 +148,8 @@ def get_surge_candidates():
         print("[Surge] Analyzing candidates (cache miss)...")
 
         # Smart pre-filtering: Get volume surge candidates (1 API call + filtering)
-        monitored_markets = get_volume_surge_candidates(max_count=30)
+        # max_count=20 to balance between coverage and API rate limits
+        monitored_markets = get_volume_surge_candidates(max_count=20)
         print(f"[Surge] Analyzing {len(monitored_markets)} pre-filtered markets")
 
         candidates = []
@@ -179,8 +180,8 @@ def get_surge_candidates():
                         'recommendation': analysis['recommendation']
                     })
 
-                # Rate limit (0.1s between requests)
-                time.sleep(0.1)
+                # Rate limit (0.5s between requests to avoid 429 errors)
+                time.sleep(0.5)
 
             except Exception as e:
                 print(f"[Surge] Error analyzing {market}: {e}")
