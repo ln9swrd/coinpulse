@@ -431,25 +431,43 @@
     </div>
 
     <script>
+        (function() {
+            // Force API_BASE to origin (avoid path prefix issues)
+            window.API_BASE = window.location.origin;
+
+            // Get token from localStorage
+            function getAuthToken() {
+                return localStorage.getItem('access_token') || localStorage.getItem('auth_token');
+            }
+
         // Global variables
         let referralCode = '';
         let referralLink = '';
 
-        // Load referral data on page load
-        document.addEventListener('DOMContentLoaded', async () => {
+        // Initialize on page load
+        async function init() {
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+
             await loadReferralCode();
             await loadReferralStats();
-        });
+        }
+
+        // Load referral data on page load
+        document.addEventListener('DOMContentLoaded', init);
 
         /**
          * Load user's referral code
          */
         async function loadReferralCode() {
             try {
-                const response = await fetch(`${window.location.origin}/api/referral/code`, {
+                const response = await fetch(`${API_BASE}/api/referral/code`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Authorization': `Bearer ${getAuthToken()}`,
                         'Content-Type': 'application/json'
                     }
                 });
@@ -479,10 +497,10 @@
          */
         async function loadReferralStats() {
             try {
-                const response = await fetch(`${window.location.origin}/api/referral/stats`, {
+                const response = await fetch(`${API_BASE}/api/referral/stats`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Authorization': `Bearer ${getAuthToken()}`,
                         'Content-Type': 'application/json'
                     }
                 });
@@ -637,6 +655,9 @@
             const url = encodeURIComponent(referralLink);
             window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
         }
+
+            // Initialize on page load - already set up in DOMContentLoaded above
+        })();
     </script>
 </body>
 </html>
