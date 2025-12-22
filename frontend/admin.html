@@ -242,6 +242,21 @@
             background: #f8f9fa;
         }
 
+        /* Inactive user row */
+        tr.inactive-user {
+            opacity: 0.6;
+            background: #f8f9fa;
+        }
+
+        tr.inactive-user td {
+            color: #6c757d;
+            text-decoration: line-through;
+        }
+
+        tr.inactive-user:hover {
+            background: #e9ecef;
+        }
+
         /* Badges */
         .badge {
             display: inline-block;
@@ -467,6 +482,11 @@
                     <div class="search-box">
                         <input type="text" id="userSearch" placeholder="🔍 사용자 검색..." onkeyup="filterUsers()">
                     </div>
+                    <select id="userStatusFilter" onchange="loadUsers()" style="padding: 12px 20px; border: 2px solid #e9ecef; border-radius: 12px; font-size: 14px; cursor: pointer;">
+                        <option value="active">활성 사용자</option>
+                        <option value="inactive">비활성 사용자</option>
+                        <option value="all">전체 사용자</option>
+                    </select>
                 </div>
                 <div class="table-container">
                     <table>
@@ -755,11 +775,17 @@
         // Users
         async function loadUsers() {
             try {
-                const response = await fetch(`${API_BASE}/users`, { headers: getHeaders() });
+                // Get filter value
+                const statusFilter = document.getElementById('userStatusFilter').value;
+
+                const response = await fetch(`${API_BASE}/users?status=${statusFilter}`, {
+                    headers: getHeaders()
+                });
                 const data = await response.json();
 
                 if (data.success) {
                     renderUsers(data.users);
+                    console.log(`[Admin] Loaded ${data.users.length} users (filter: ${statusFilter})`);
                 } else {
                     alert('사용자 로드 실패: ' + data.error);
                 }
@@ -772,12 +798,12 @@
             const tbody = document.getElementById('usersTable');
 
             if (!users || users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="empty-state-icon">👥</div><div class="empty-state-text">아직 사용자가 없습니다</div></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="empty-state-icon">👥</div><div class="empty-state-text">해당 조건의 사용자가 없습니다</div></td></tr>';
                 return;
             }
 
             tbody.innerHTML = users.map(user => `
-                <tr>
+                <tr class="${user.is_active ? '' : 'inactive-user'}">
                     <td>${user.email}</td>
                     <td>${user.username || '-'}</td>
                     <td><span class="badge badge-${getPlanBadge(user.plan_code)}">${(user.plan_code || 'FREE').toUpperCase()}</span></td>
@@ -786,7 +812,10 @@
                     <td>${user.expires_at ? new Date(user.expires_at).toLocaleDateString('ko-KR') : '-'}</td>
                     <td>
                         <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px; margin-right: 5px;" onclick="editUser(${user.id}, '${user.email}', '${(user.plan_code || 'FREE').toUpperCase()}')">플랜 변경</button>
-                        <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="deleteUser(${user.id}, '${user.email}')">삭제</button>
+                        ${user.is_active
+                            ? `<button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="deleteUser(${user.id}, '${user.email}')">삭제</button>`
+                            : `<button class="btn btn-success" style="padding: 6px 12px; font-size: 12px;" onclick="restoreUser(${user.id}, '${user.email}')">복원</button>`
+                        }
                     </td>
                 </tr>
             `).join('');
@@ -810,27 +839,70 @@
         }
 
         async function deleteUser(userId, email) {
-            if (!confirm(`정말로 사용자 "${email}"를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`)) {
+            if (!confirm(`정말로 사용자 "${email}"를 삭제하시겠습니까?\n\n⚠️ 사용자 계정이 비활성화됩니다.`)) {
                 return;
             }
 
             try {
+                console.log(`[Admin] Deleting user ${userId} (${email})`);
+
                 const response = await fetch(`${API_BASE}/users/${userId}`, {
                     method: 'DELETE',
                     headers: getHeaders()
                 });
 
+                console.log('[Admin] Delete response:', response.status);
                 const data = await response.json();
+                console.log('[Admin] Delete data:', data);
 
                 if (data.success) {
-                    alert('사용자가 성공적으로 삭제되었습니다.');
-                    loadUsers(); // 목록 새로고침
+                    alert('✓ 사용자가 성공적으로 비활성화되었습니다.\n\n"전체 사용자" 필터에서 확인할 수 있습니다.');
+
+                    // 목록과 통계 모두 새로고침
+                    await loadUsers();
+                    await loadDashboard();
+
+                    console.log('[Admin] User list refreshed after deletion');
                 } else {
-                    alert('사용자 삭제 실패: ' + data.error);
+                    alert('❌ 사용자 삭제 실패: ' + data.error);
                 }
             } catch (error) {
-                console.error('사용자 삭제 실패:', error);
-                alert('사용자 삭제 중 오류가 발생했습니다.');
+                console.error('[Admin] Delete error:', error);
+                alert('❌ 사용자 삭제 중 오류가 발생했습니다.\n\n' + error.message);
+            }
+        }
+
+        async function restoreUser(userId, email) {
+            if (!confirm(`사용자 "${email}"를 복원하시겠습니까?\n\n계정이 다시 활성화됩니다.`)) {
+                return;
+            }
+
+            try {
+                console.log(`[Admin] Restoring user ${userId} (${email})`);
+
+                const response = await fetch(`${API_BASE}/users/${userId}/restore`, {
+                    method: 'POST',
+                    headers: getHeaders()
+                });
+
+                console.log('[Admin] Restore response:', response.status);
+                const data = await response.json();
+                console.log('[Admin] Restore data:', data);
+
+                if (data.success) {
+                    alert('✓ 사용자가 성공적으로 복원되었습니다.');
+
+                    // 목록과 통계 모두 새로고침
+                    await loadUsers();
+                    await loadDashboard();
+
+                    console.log('[Admin] User list refreshed after restoration');
+                } else {
+                    alert('❌ 사용자 복원 실패: ' + data.error);
+                }
+            } catch (error) {
+                console.error('[Admin] Restore error:', error);
+                alert('❌ 사용자 복원 중 오류가 발생했습니다.\n\n' + error.message);
             }
         }
 

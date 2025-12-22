@@ -26,8 +26,19 @@ def generate_payment_code():
 def get_users():
     """전체 사용자 목록 조회"""
     try:
+        # Get filter parameter (default: active users only)
+        status_filter = request.args.get('status', 'active')
+
         with get_db_session() as session:
-            query = text("""
+            # Build WHERE clause based on filter
+            where_clause = ""
+            if status_filter == 'active':
+                where_clause = "WHERE u.is_active = true"
+            elif status_filter == 'inactive':
+                where_clause = "WHERE u.is_active = false"
+            # 'all' or any other value: no WHERE clause
+
+            query = text(f"""
                 SELECT
                     u.id, u.username, u.email, u.is_active, u.created_at, u.last_login_at,
                     COALESCE(s.plan, 'free') as plan_code,
@@ -36,6 +47,7 @@ def get_users():
                     CASE WHEN u.upbit_access_key IS NOT NULL AND u.upbit_access_key != '' THEN true ELSE false END as has_upbit_keys
                 FROM users u
                 LEFT JOIN user_subscriptions s ON u.id = s.user_id
+                {where_clause}
                 ORDER BY u.created_at DESC
             """)
             result = session.execute(query)
@@ -179,6 +191,55 @@ def delete_user(user_id):
 
     except Exception as e:
         print(f"[Admin] Error deleting user: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@users_admin_bp.route('/users/<int:user_id>/restore', methods=['POST'])
+@admin_required
+def restore_user(user_id):
+    """사용자 계정 복원 (비활성 → 활성)"""
+    try:
+        with get_db_session() as session:
+            # 사용자 존재 확인
+            user_query = text("SELECT id, username, email, is_active FROM users WHERE id = :user_id")
+            result = session.execute(user_query, {'user_id': user_id})
+            user = result.fetchone()
+
+            if not user:
+                return jsonify({
+                    'success': False,
+                    'error': 'User not found'
+                }), 404
+
+            if user[3]:  # is_active
+                return jsonify({
+                    'success': False,
+                    'error': 'User is already active'
+                }), 400
+
+            # 사용자 활성화
+            update_query = text("""
+                UPDATE users
+                SET is_active = true,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = :user_id
+            """)
+            session.execute(update_query, {'user_id': user_id})
+
+            session.commit()
+
+            print(f"[Admin] User {user_id} ({user[2]}) restored by admin")
+
+        return jsonify({
+            'success': True,
+            'message': 'User account restored successfully'
+        })
+
+    except Exception as e:
+        print(f"[Admin] Error restoring user: {e}")
         return jsonify({
             'success': False,
             'error': str(e)
