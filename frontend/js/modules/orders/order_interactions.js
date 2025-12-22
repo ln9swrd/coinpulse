@@ -379,24 +379,62 @@ class OrderInteractions {
         try {
             console.log('[OrderInteractions] Modifying order...', orderLine);
 
-            // Show loading
-            alert('주문을 수정하고 있습니다...\n잠시만 기다려주세요.');
+            // Validate order has UUID
+            if (!orderLine.uuid) {
+                alert('주문 UUID를 찾을 수 없습니다.\n\n차트를 새로고침한 후 다시 시도해주세요.');
+                this.updateOrderLinePosition(orderLine, orderLine.price);
+                return;
+            }
+
+            // Validate API handler
+            if (!window.apiHandler) {
+                throw new Error('API Handler not available');
+            }
 
             // Step 1: Cancel existing order
-            // TODO: Get order UUID (need to track this when creating order lines)
-            // For now, show error message
+            console.log('[OrderInteractions] Step 1: Canceling existing order...');
+            const cancelResult = await window.apiHandler.cancelOrder(orderLine.uuid);
 
-            alert('주문 수정 기능은 현재 개발 중입니다.\n\n' +
-                  'Upbit API에서는 주문 수정 API를 제공하지 않아,\n' +
-                  '기존 주문을 취소하고 새 주문을 생성해야 합니다.\n\n' +
-                  '수동으로 주문을 취소한 후 새 주문을 생성해주세요.');
+            if (!cancelResult || !cancelResult.success) {
+                throw new Error('기존 주문 취소 실패: ' + (cancelResult?.error || 'Unknown error'));
+            }
 
-            // Restore original price
-            this.updateOrderLinePosition(orderLine, orderLine.price);
+            console.log('[OrderInteractions] Order canceled successfully');
+
+            // Step 2: Place new order with new price
+            console.log('[OrderInteractions] Step 2: Placing new order at price:', newPrice);
+
+            const orderData = {
+                market: orderLine.market || this.chart.currentMarket,
+                price: Math.round(newPrice).toString(),
+                volume: orderLine.volume.toString()
+            };
+
+            let placeResult;
+            if (orderLine.side === 'bid') {
+                placeResult = await window.apiHandler.placeOrder(orderData);
+            } else {
+                placeResult = await window.apiHandler.sellOrder(orderData);
+            }
+
+            if (!placeResult || !placeResult.success) {
+                throw new Error('새 주문 생성 실패: ' + (placeResult?.error || 'Unknown error'));
+            }
+
+            console.log('[OrderInteractions] New order placed successfully:', placeResult.order?.uuid);
+
+            // Step 3: Refresh order lines
+            alert('주문이 성공적으로 수정되었습니다!\n\n' +
+                  `기존 가격: ₩${orderLine.price.toLocaleString('ko-KR')}\n` +
+                  `새 가격: ₩${Math.round(newPrice).toLocaleString('ko-KR')}`);
+
+            if (this.chart && this.chart.updateAvgPriceAndPendingOrders) {
+                await this.chart.updateAvgPriceAndPendingOrders();
+            }
 
         } catch (error) {
             console.error('[OrderInteractions] Order modification failed:', error);
-            alert('주문 수정에 실패했습니다.\n\n' + error.message);
+            alert('주문 수정에 실패했습니다.\n\n' + error.message + '\n\n원래 가격으로 복원합니다.');
 
             // Restore original price
             this.updateOrderLinePosition(orderLine, orderLine.price);

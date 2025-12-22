@@ -18,6 +18,9 @@
         "holdings": "/api/holdings",
         "orders": "/api/orders",
         "policies": "/api/policies",
+        "buy": "/api/trading/buy",
+        "sell": "/api/trading/sell",
+        "cancel": "/api/trading/cancel",
         "health": "/api/health"
       }
     }

@@ -524,3 +524,122 @@ def get_order_by_uuid(uuid):
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+
+@holdings_bp.route('/api/trading/buy', methods=['POST'])
+@require_auth
+def place_buy_order():
+    """
+    Place a limit buy order
+
+    Expected JSON body:
+    {
+        "market": "KRW-BTC",
+        "price": "50000000",
+        "volume": "0.001"
+    }
+    """
+    try:
+        data = request.get_json()
+
+        if not data or 'market' not in data or 'price' not in data or 'volume' not in data:
+            return jsonify({"success": False, "error": "Missing required fields: market, price, volume"}), 400
+
+        user_upbit_api = get_user_upbit_api()
+        if not user_upbit_api:
+            return jsonify({"success": False, "error": "API keys not configured"}), 400
+
+        market = data['market']
+        price = str(data['price'])
+        volume = str(data['volume'])
+
+        logger.info(f"[Trading] Placing buy order: {market} @ {price} x {volume}")
+
+        result = user_upbit_api.place_limit_buy_order(market, price, volume)
+
+        if result:
+            logger.info(f"[Trading] Buy order placed successfully: {result.get('uuid')}")
+            return jsonify({"success": True, "order": result})
+        else:
+            logger.error(f"[Trading] Failed to place buy order")
+            return jsonify({"success": False, "error": "Failed to place order"}), 500
+
+    except Exception as e:
+        logger.error(f"[Trading] Error placing buy order: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@holdings_bp.route('/api/trading/sell', methods=['POST'])
+@require_auth
+def place_sell_order():
+    """
+    Place a limit sell order
+
+    Expected JSON body:
+    {
+        "market": "KRW-BTC",
+        "price": "50000000",
+        "volume": "0.001"
+    }
+    """
+    try:
+        data = request.get_json()
+
+        if not data or 'market' not in data or 'price' not in data or 'volume' not in data:
+            return jsonify({"success": False, "error": "Missing required fields: market, price, volume"}), 400
+
+        user_upbit_api = get_user_upbit_api()
+        if not user_upbit_api:
+            return jsonify({"success": False, "error": "API keys not configured"}), 400
+
+        market = data['market']
+        price = str(data['price'])
+        volume = str(data['volume'])
+
+        logger.info(f"[Trading] Placing sell order: {market} @ {price} x {volume}")
+
+        result = user_upbit_api.place_limit_sell_order(market, price, volume)
+
+        if result:
+            logger.info(f"[Trading] Sell order placed successfully: {result.get('uuid')}")
+            return jsonify({"success": True, "order": result})
+        else:
+            logger.error(f"[Trading] Failed to place sell order")
+            return jsonify({"success": False, "error": "Failed to place order"}), 500
+
+    except Exception as e:
+        logger.error(f"[Trading] Error placing sell order: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@holdings_bp.route('/api/trading/cancel/<uuid>', methods=['DELETE'])
+@require_auth
+def cancel_order(uuid):
+    """
+    Cancel an existing order by UUID
+
+    URL parameter:
+    - uuid: Order UUID to cancel
+    """
+    try:
+        if not uuid:
+            return jsonify({"success": False, "error": "Order UUID is required"}), 400
+
+        user_upbit_api = get_user_upbit_api()
+        if not user_upbit_api:
+            return jsonify({"success": False, "error": "API keys not configured"}), 400
+
+        logger.info(f"[Trading] Canceling order: {uuid}")
+
+        result = user_upbit_api.cancel_order(uuid)
+
+        if result:
+            logger.info(f"[Trading] Order canceled successfully: {uuid}")
+            return jsonify({"success": True, "order": result})
+        else:
+            logger.error(f"[Trading] Failed to cancel order: {uuid}")
+            return jsonify({"success": False, "error": "Failed to cancel order"}), 500
+
+    except Exception as e:
+        logger.error(f"[Trading] Error canceling order {uuid}: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
