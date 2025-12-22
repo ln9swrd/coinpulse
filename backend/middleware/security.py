@@ -428,18 +428,9 @@ def setup_security_middleware(app):
         # Permissions Policy
         response.headers['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=()'
 
-        # Cross-Origin-Opener-Policy (COOP)
-        # Allow popups and window.postMessage for Socket.IO and iframe communication
-        if os.getenv('ENV') == 'production':
-            response.headers['Cross-Origin-Opener-Policy'] = 'same-origin-allow-popups'
-        else:
-            # Development: Most permissive setting
-            response.headers['Cross-Origin-Opener-Policy'] = 'unsafe-none'
-
-        # Cross-Origin-Embedder-Policy (COEP)
-        # Required for SharedArrayBuffer, but can block resources
-        # Set to 'unsafe-none' to allow all resources
-        response.headers['Cross-Origin-Embedder-Policy'] = 'unsafe-none'
+        # NOTE: COOP and COEP headers are now managed by Nginx reverse proxy
+        # to avoid duplicate header conflicts. See /etc/nginx/conf.d/coinpulse.conf
+        # Lines removed: Cross-Origin-Opener-Policy, Cross-Origin-Embedder-Policy
 
         return response
 
