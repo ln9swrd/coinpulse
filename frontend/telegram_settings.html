@@ -289,7 +289,8 @@
 
     <script>
         (function() {
-            window.API_BASE = window.API_BASE || window.location.origin;
+            // Force API_BASE to origin (avoid path prefix issues)
+            window.API_BASE = window.location.origin;
 
             // Get token from localStorage
             function getAuthToken() {

@@ -594,9 +594,10 @@
                     </div>
                 `;
 
+                const token = localStorage.getItem('access_token') || localStorage.getItem('auth_token');
                 const response = await fetch(`${window.API_BASE}/api/orders`, {
                     headers: {
-                        'Authorization': `Bearer ${this.auth.getToken()}`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
 
