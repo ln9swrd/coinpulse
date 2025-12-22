@@ -103,6 +103,23 @@
                     <span class="error-message" id="confirm-password-error"></span>
                 </div>
 
+                <!-- Referral Code Input (Optional) -->
+                <div class="form-group">
+                    <label for="referral-code">추천 코드 (선택사항)</label>
+                    <input
+                        type="text"
+                        id="referral-code"
+                        name="referral-code"
+                        placeholder="친구의 추천 코드를 입력하세요"
+                        autocomplete="off"
+                        style="text-transform: uppercase;"
+                    >
+                    <span class="info-message" style="display: block; margin-top: 8px; font-size: 13px; color: #10b981;">
+                        💎 추천 코드를 입력하면 30일 무료 프리미엄을 받을 수 있습니다!
+                    </span>
+                    <span class="error-message" id="referral-code-error"></span>
+                </div>
+
                 <!-- Terms and Conditions -->
                 <div class="form-group">
                     <label class="checkbox-label">
@@ -192,8 +209,17 @@
                 const usernameInput = document.getElementById('username');
                 const passwordInput = document.getElementById('password');
                 const confirmPasswordInput = document.getElementById('confirm-password');
+                const referralCodeInput = document.getElementById('referral-code');
                 const agreeTermsCheckbox = document.getElementById('agree-terms');
                 const signupBtn = signupForm.querySelector('button[type="submit"]');
+
+                // Check for referral code in URL (?ref=CODE)
+                const urlParams = new URLSearchParams(window.location.search);
+                const refCode = urlParams.get('ref');
+                if (refCode && referralCodeInput) {
+                    referralCodeInput.value = refCode.toUpperCase();
+                    console.log('[Signup] Referral code from URL:', refCode);
+                }
 
                 // Password toggle functionality
                 const togglePasswordBtn = document.querySelector('.toggle-password');
@@ -300,13 +326,45 @@
 
                         console.log('[Signup] Success:', response);
 
-                        // Show success message
-                        showMessage('success', '계정이 성공적으로 생성되었습니다! 로그인 페이지로 이동합니다...');
+                        // Apply referral code if provided
+                        const referralCode = referralCodeInput ? referralCodeInput.value.trim().toUpperCase() : '';
+                        if (referralCode) {
+                            try {
+                                console.log('[Signup] Applying referral code:', referralCode);
+
+                                const referralResponse = await fetch(`${window.location.origin}/api/referral/apply`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        referral_code: referralCode,
+                                        email: email
+                                    })
+                                });
+
+                                const referralData = await referralResponse.json();
+
+                                if (referralData.success) {
+                                    console.log('[Signup] Referral code applied successfully:', referralData);
+                                    showMessage('success', `계정이 생성되고 추천 보상 ${referralData.reward_days}일이 지급되었습니다! 로그인 페이지로 이동합니다...`);
+                                } else {
+                                    console.warn('[Signup] Referral code application failed:', referralData.error);
+                                    showMessage('success', '계정이 성공적으로 생성되었습니다! (추천 코드: ' + referralData.error + ') 로그인 페이지로 이동합니다...');
+                                }
+                            } catch (referralError) {
+                                console.error('[Signup] Referral error:', referralError);
+                                showMessage('success', '계정이 성공적으로 생성되었습니다! (추천 코드 처리 실패) 로그인 페이지로 이동합니다...');
+                            }
+                        } else {
+                            // No referral code
+                            showMessage('success', '계정이 성공적으로 생성되었습니다! 로그인 페이지로 이동합니다...');
+                        }
 
                         // Redirect to login page after short delay
                         setTimeout(() => {
                             window.location.href = '/login.html';
-                        }, 2000);
+                        }, 3000);
 
                     } catch (error) {
                         console.error('[Signup] Error:', error);
