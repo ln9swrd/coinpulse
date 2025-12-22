@@ -293,7 +293,7 @@
 
         // Get token from localStorage
         function getAuthToken() {
-            return localStorage.getItem('access_token');
+            return localStorage.getItem('access_token') || localStorage.getItem('auth_token');
         }
 
         // Show alert
