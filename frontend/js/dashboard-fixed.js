@@ -219,7 +219,7 @@
                 await new Promise(resolve => setTimeout(resolve, 100));
 
                 // Initialize page-specific scripts
-                this.initPageScripts(pageName);
+                await this.initPageScripts(pageName);
 
             } catch (error) {
                 console.error(`[Dashboard] Error loading ${pageName}:`, error);
@@ -723,6 +723,104 @@
 
         async loadSettingsPage() {
             return `
+                <style>
+                    .coin-search-container {
+                        position: relative;
+                        margin-bottom: 16px;
+                    }
+                    .coin-search-wrapper {
+                        position: relative;
+                    }
+                    .coin-dropdown {
+                        position: absolute;
+                        top: 100%;
+                        left: 0;
+                        right: 0;
+                        margin-top: 4px;
+                        background: var(--card-bg, white);
+                        border: 1px solid var(--border-color, #e5e7eb);
+                        border-radius: 8px;
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                        max-height: 300px;
+                        overflow-y: auto;
+                        z-index: 1000;
+                    }
+                    .coin-dropdown-loading {
+                        padding: 16px;
+                        text-align: center;
+                        color: var(--text-muted, #666);
+                    }
+                    .coin-dropdown-list {
+                        padding: 4px 0;
+                    }
+                    .coin-dropdown-item {
+                        padding: 12px 16px;
+                        cursor: pointer;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        transition: background 0.2s;
+                    }
+                    .coin-dropdown-item:hover {
+                        background: var(--hover-bg, #f3f4f6);
+                    }
+                    .coin-dropdown-item.disabled {
+                        opacity: 0.5;
+                        cursor: not-allowed;
+                    }
+                    .coin-dropdown-item.disabled:hover {
+                        background: transparent;
+                    }
+                    .coin-dropdown-item-info {
+                        display: flex;
+                        flex-direction: column;
+                    }
+                    .coin-dropdown-item-name {
+                        font-weight: 600;
+                        margin-bottom: 2px;
+                    }
+                    .coin-dropdown-item-symbol {
+                        font-size: 12px;
+                        color: var(--text-muted, #666);
+                    }
+                    .coin-dropdown-no-results {
+                        padding: 16px;
+                        text-align: center;
+                        color: var(--text-muted, #666);
+                    }
+                    .selected-coins-tags {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 8px;
+                        margin-bottom: 12px;
+                        min-height: 40px;
+                    }
+                    .coin-tag {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 8px;
+                        padding: 8px 12px;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        border-radius: 20px;
+                        font-size: 14px;
+                        font-weight: 500;
+                    }
+                    .coin-tag-remove {
+                        cursor: pointer;
+                        width: 16px;
+                        height: 16px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        background: rgba(255, 255, 255, 0.3);
+                        border-radius: 50%;
+                        transition: background 0.2s;
+                    }
+                    .coin-tag-remove:hover {
+                        background: rgba(255, 255, 255, 0.5);
+                    }
+                </style>
                 <div class="settings-page">
                     <!-- Settings Tabs -->
                     <div class="settings-tabs">
@@ -923,48 +1021,32 @@
                                 <!-- Coin Selection Section -->
                                 <div class="coin-selector-section">
                                     <h3>코인 선택 (최대 5개)</h3>
-                                    <div class="coin-selector-grid" id="coin-selector-grid">
-                                        <div class="coin-selector-item" data-coin="BTC">
-                                            <input type="checkbox" id="coin-BTC" value="BTC">
-                                            <label for="coin-BTC">비트코인 (BTC)</label>
+
+                                    <!-- Search Input with Dropdown -->
+                                    <div class="coin-search-container">
+                                        <div class="coin-search-wrapper">
+                                            <input
+                                                type="text"
+                                                id="coin-search-input"
+                                                placeholder="코인 이름 또는 심볼을 검색하세요 (예: 비트코인, BTC)"
+                                                autocomplete="off"
+                                                style="width: 100%; padding: 12px 40px 12px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px;"
+                                            >
+                                            <svg style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; pointer-events: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                            </svg>
                                         </div>
-                                        <div class="coin-selector-item" data-coin="ETH">
-                                            <input type="checkbox" id="coin-ETH" value="ETH">
-                                            <label for="coin-ETH">이더리움 (ETH)</label>
-                                        </div>
-                                        <div class="coin-selector-item" data-coin="XRP">
-                                            <input type="checkbox" id="coin-XRP" value="XRP">
-                                            <label for="coin-XRP">리플 (XRP)</label>
-                                        </div>
-                                        <div class="coin-selector-item" data-coin="ADA">
-                                            <input type="checkbox" id="coin-ADA" value="ADA">
-                                            <label for="coin-ADA">에이다 (ADA)</label>
-                                        </div>
-                                        <div class="coin-selector-item" data-coin="SOL">
-                                            <input type="checkbox" id="coin-SOL" value="SOL">
-                                            <label for="coin-SOL">솔라나 (SOL)</label>
-                                        </div>
-                                        <div class="coin-selector-item" data-coin="DOGE">
-                                            <input type="checkbox" id="coin-DOGE" value="DOGE">
-                                            <label for="coin-DOGE">도지코인 (DOGE)</label>
-                                        </div>
-                                        <div class="coin-selector-item" data-coin="DOT">
-                                            <input type="checkbox" id="coin-DOT" value="DOT">
-                                            <label for="coin-DOT">폴카닷 (DOT)</label>
-                                        </div>
-                                        <div class="coin-selector-item" data-coin="MATIC">
-                                            <input type="checkbox" id="coin-MATIC" value="MATIC">
-                                            <label for="coin-MATIC">폴리곤 (MATIC)</label>
-                                        </div>
-                                        <div class="coin-selector-item" data-coin="LTC">
-                                            <input type="checkbox" id="coin-LTC" value="LTC">
-                                            <label for="coin-LTC">라이트코인 (LTC)</label>
-                                        </div>
-                                        <div class="coin-selector-item" data-coin="LINK">
-                                            <input type="checkbox" id="coin-LINK" value="LINK">
-                                            <label for="coin-LINK">체인링크 (LINK)</label>
+                                        <div id="coin-dropdown" class="coin-dropdown" style="display: none;">
+                                            <div id="coin-dropdown-loading" class="coin-dropdown-loading">
+                                                코인 목록을 불러오는 중...
+                                            </div>
+                                            <div id="coin-dropdown-list" class="coin-dropdown-list"></div>
                                         </div>
                                     </div>
+
+                                    <!-- Selected Coins Tags -->
+                                    <div class="selected-coins-tags" id="selected-coins-tags"></div>
+
                                     <div class="selected-coins-count">
                                         선택됨: <span id="selected-count">0</span>/5
                                     </div>
@@ -1026,25 +1108,25 @@
         // ============================================
         // Initialize Page-Specific Scripts
         // ============================================
-        initPageScripts(pageName) {
+        async initPageScripts(pageName) {
             switch (pageName) {
                 case 'overview':
-                    this.initOverviewPage();
+                    await this.initOverviewPage();
                     break;
                 case 'trading':
                     // Trading chart has its own scripts
                     break;
                 case 'portfolio':
-                    this.initPortfolioPage();
+                    await this.initPortfolioPage();
                     break;
                 case 'auto-trading':
-                    this.initAutoTradingPage();
+                    await this.initAutoTradingPage();
                     break;
                 case 'swing-trading':
                     // Swing trading iframe has its own scripts
                     break;
                 case 'settings':
-                    this.initSettingsPage();
+                    await this.initSettingsPage();
                     break;
                 case 'pricing':
                     this.initPricingPage();
@@ -2609,14 +2691,14 @@
         // ============================================
         // Settings Page Initialization
         // ============================================
-        initSettingsPage() {
+        async initSettingsPage() {
             console.log('[Dashboard] Initializing settings page');
 
             // Setup settings tabs
             this.setupSettingsTabs();
 
-            // Setup trading settings (coin selection)
-            this.setupTradingSettings();
+            // Setup trading settings (coin selection) - async
+            await this.setupTradingSettings();
 
             // Setup other form handlers
             this.setupProfileForm();
@@ -2649,74 +2731,219 @@
             });
         }
 
-        setupTradingSettings() {
-            const coinItems = document.querySelectorAll('.coin-selector-item');
+        async setupTradingSettings() {
+            const searchInput = document.getElementById('coin-search-input');
+            const dropdown = document.getElementById('coin-dropdown');
+            const dropdownList = document.getElementById('coin-dropdown-list');
+            const dropdownLoading = document.getElementById('coin-dropdown-loading');
+            const selectedTagsContainer = document.getElementById('selected-coins-tags');
             const selectedCountSpan = document.getElementById('selected-count');
             const settingsContainer = document.getElementById('coin-settings-container');
             const saveButton = document.getElementById('save-trading-settings');
 
             let selectedCoins = [];
+            let allCoins = [];
             const MAX_COINS = 5;
+
+            // Korean coin names mapping
+            const coinNamesKo = {
+                'BTC': '비트코인', 'ETH': '이더리움', 'XRP': '리플', 'ADA': '에이다',
+                'SOL': '솔라나', 'DOGE': '도지코인', 'DOT': '폴카닷', 'MATIC': '폴리곤',
+                'LTC': '라이트코인', 'LINK': '체인링크', 'BCH': '비트코인캐시',
+                'AVAX': '아발란체', 'ATOM': '코스모스', 'ETC': '이더리움클래식',
+                'NEAR': '니어프로토콜', 'UNI': '유니스왑', 'ALGO': '알고랜드',
+                'HBAR': '헤데라', 'FIL': '파일코인', 'AAVE': '에이브', 'APT': '앱토스',
+                'OP': '옵티미즘', 'ARB': '아비트럼', 'SUI': '수이', 'STX': '스택스',
+                'IMX': '이뮤터블엑스', 'INJ': '인젝티브', 'TIA': '셀레스티아'
+            };
 
             // Load saved settings from localStorage
             const savedSettings = JSON.parse(localStorage.getItem('trading_settings') || '{}');
             if (savedSettings.selectedCoins) {
                 selectedCoins = savedSettings.selectedCoins;
-                selectedCoins.forEach(coin => {
-                    const checkbox = document.getElementById(`coin-${coin}`);
-                    if (checkbox) {
-                        checkbox.checked = true;
-                        checkbox.closest('.coin-selector-item').classList.add('selected');
-                    }
-                });
+                this.renderSelectedTags(selectedCoins, coinNamesKo);
                 this.updateCoinSettings(selectedCoins, savedSettings);
+                selectedCountSpan.textContent = selectedCoins.length;
             }
 
-            // Coin selection handler
-            coinItems.forEach(item => {
-                const checkbox = item.querySelector('input[type="checkbox"]');
-                const coin = checkbox.value;
+            // Fetch all KRW markets
+            try {
+                dropdownLoading.style.display = 'block';
+                const response = await fetch(`${window.API_BASE || window.location.origin}/api/upbit/market/all`);
+                const markets = await response.json();
 
-                // Click on item or label to toggle checkbox
-                item.addEventListener('click', (e) => {
-                    if (e.target === checkbox) return; // Let checkbox handle its own click
+                // Filter KRW markets and sort by symbol
+                allCoins = markets
+                    .filter(m => m.market.startsWith('KRW-'))
+                    .map(m => {
+                        const symbol = m.market.replace('KRW-', '');
+                        return {
+                            symbol: symbol,
+                            nameKo: m.korean_name || coinNamesKo[symbol] || symbol,
+                            nameEn: m.english_name || symbol
+                        };
+                    })
+                    .sort((a, b) => a.symbol.localeCompare(b.symbol));
 
-                    checkbox.checked = !checkbox.checked;
-                    checkbox.dispatchEvent(new Event('change'));
-                });
+                dropdownLoading.style.display = 'none';
+                console.log(`[Settings] Loaded ${allCoins.length} KRW markets`);
+            } catch (error) {
+                console.error('[Settings] Failed to fetch markets:', error);
+                dropdownLoading.textContent = '코인 목록을 불러오지 못했습니다';
+            }
 
-                checkbox.addEventListener('change', (e) => {
-                    e.stopPropagation();
-
-                    if (checkbox.checked) {
-                        // Check if max limit reached
-                        if (selectedCoins.length >= MAX_COINS) {
-                            checkbox.checked = false;
-                            alert(`최대 ${MAX_COINS}개 코인까지만 선택할 수 있습니다.`);
-                            return;
-                        }
-
-                        selectedCoins.push(coin);
-                        item.classList.add('selected');
-                    } else {
-                        selectedCoins = selectedCoins.filter(c => c !== coin);
-                        item.classList.remove('selected');
-                    }
-
-                    // Update count
-                    selectedCountSpan.textContent = selectedCoins.length;
-
-                    // Update settings cards
-                    this.updateCoinSettings(selectedCoins, savedSettings);
-                });
+            // Search input focus - show dropdown
+            searchInput.addEventListener('focus', () => {
+                if (allCoins.length > 0) {
+                    this.renderCoinDropdown(allCoins, selectedCoins);
+                    dropdown.style.display = 'block';
+                }
             });
+
+            // Search input - filter coins
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+
+                if (!query) {
+                    this.renderCoinDropdown(allCoins, selectedCoins);
+                } else {
+                    const filtered = allCoins.filter(coin =>
+                        coin.symbol.toLowerCase().includes(query) ||
+                        coin.nameKo.includes(query) ||
+                        coin.nameEn.toLowerCase().includes(query)
+                    );
+                    this.renderCoinDropdown(filtered, selectedCoins);
+                }
+
+                dropdown.style.display = 'block';
+            });
+
+            // Click outside to close dropdown
+            document.addEventListener('click', (e) => {
+                if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+
+            // Save selected coins property for access in other methods
+            this._selectedCoins = selectedCoins;
+            this._coinNamesKo = coinNamesKo;
+            this._savedSettings = savedSettings;
 
             // Save button handler
             if (saveButton) {
                 saveButton.addEventListener('click', () => {
-                    this.saveTradingSettings(selectedCoins);
+                    this.saveTradingSettings(this._selectedCoins);
                 });
             }
+        }
+
+        renderCoinDropdown(coins, selectedCoins) {
+            const dropdownList = document.getElementById('coin-dropdown-list');
+            const MAX_COINS = 5;
+
+            if (coins.length === 0) {
+                dropdownList.innerHTML = '<div class="coin-dropdown-no-results">검색 결과가 없습니다</div>';
+                return;
+            }
+
+            let html = '';
+            coins.forEach(coin => {
+                const isSelected = selectedCoins.includes(coin.symbol);
+                const isDisabled = !isSelected && selectedCoins.length >= MAX_COINS;
+
+                html += `
+                    <div class="coin-dropdown-item ${isDisabled ? 'disabled' : ''}" data-symbol="${coin.symbol}">
+                        <div class="coin-dropdown-item-info">
+                            <div class="coin-dropdown-item-name">${coin.nameKo}</div>
+                            <div class="coin-dropdown-item-symbol">${coin.symbol}</div>
+                        </div>
+                        ${isSelected ? '<span style="color: #22c55e; font-weight: 600;">✓</span>' : ''}
+                    </div>
+                `;
+            });
+
+            dropdownList.innerHTML = html;
+
+            // Add click handlers
+            dropdownList.querySelectorAll('.coin-dropdown-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    if (item.classList.contains('disabled')) {
+                        alert(`최대 ${MAX_COINS}개 코인까지만 선택할 수 있습니다.`);
+                        return;
+                    }
+
+                    const symbol = item.dataset.symbol;
+                    this.toggleCoinSelection(symbol);
+                });
+            });
+        }
+
+        toggleCoinSelection(symbol) {
+            const selectedCoins = this._selectedCoins;
+            const coinNamesKo = this._coinNamesKo;
+            const savedSettings = this._savedSettings;
+            const MAX_COINS = 5;
+            const dropdown = document.getElementById('coin-dropdown');
+            const searchInput = document.getElementById('coin-search-input');
+
+            const index = selectedCoins.indexOf(symbol);
+
+            if (index > -1) {
+                // Remove coin
+                selectedCoins.splice(index, 1);
+            } else {
+                // Add coin
+                if (selectedCoins.length >= MAX_COINS) {
+                    alert(`최대 ${MAX_COINS}개 코인까지만 선택할 수 있습니다.`);
+                    return;
+                }
+                selectedCoins.push(symbol);
+            }
+
+            // Update UI
+            this.renderSelectedTags(selectedCoins, coinNamesKo);
+            document.getElementById('selected-count').textContent = selectedCoins.length;
+            this.updateCoinSettings(selectedCoins, savedSettings);
+
+            // Close dropdown and clear search
+            dropdown.style.display = 'none';
+            searchInput.value = '';
+        }
+
+        renderSelectedTags(selectedCoins, coinNamesKo) {
+            const container = document.getElementById('selected-coins-tags');
+
+            if (selectedCoins.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted); font-size: 14px; margin: 12px 0;">선택된 코인이 없습니다. 위 검색창에서 코인을 검색하여 선택하세요.</p>';
+                return;
+            }
+
+            let html = '';
+            selectedCoins.forEach(symbol => {
+                const name = coinNamesKo[symbol] || symbol;
+                html += `
+                    <div class="coin-tag" data-symbol="${symbol}">
+                        <span>${name} (${symbol})</span>
+                        <div class="coin-tag-remove" data-symbol="${symbol}">
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M2 2L10 10M10 2L2 10"/>
+                            </svg>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+
+            // Add remove handlers
+            container.querySelectorAll('.coin-tag-remove').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const symbol = btn.dataset.symbol;
+                    this.toggleCoinSelection(symbol);
+                });
+            });
         }
 
         updateCoinSettings(selectedCoins, savedSettings = {}) {
@@ -2731,18 +2958,8 @@
                 return;
             }
 
-            const coinNames = {
-                'BTC': '비트코인',
-                'ETH': '이더리움',
-                'XRP': '리플',
-                'ADA': '에이다',
-                'SOL': '솔라나',
-                'DOGE': '도지코인',
-                'DOT': '폴카닷',
-                'MATIC': '폴리곤',
-                'LTC': '라이트코인',
-                'LINK': '체인링크'
-            };
+            // Use instance coin names or fallback to symbol
+            const coinNames = this._coinNamesKo || {};
 
             let html = '';
             selectedCoins.forEach(coin => {
@@ -2752,10 +2969,12 @@
                     stopLoss: false
                 };
 
+                const coinName = coinNames[coin] || coin;
+
                 html += `
                     <div class="coin-settings-card" data-coin="${coin}">
                         <div class="coin-settings-header">
-                            <h4>${coinNames[coin]} (${coin})</h4>
+                            <h4>${coinName} (${coin})</h4>
                         </div>
                         <div class="coin-settings-body">
                             <div class="coin-setting-group">
