@@ -141,13 +141,13 @@ def decode_token(token: str) -> dict:
 def require_auth(f):
     """
     Decorator to protect routes with JWT authentication.
+    Passes current_user object to the decorated function.
 
     Usage:
         @app.route('/api/protected')
         @require_auth
-        def protected_route():
-            user_id = request.user_id  # Available after authentication
-            return jsonify({'message': 'Protected data'})
+        def protected_route(current_user):
+            return jsonify({'user_id': current_user.id})
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -180,18 +180,42 @@ def require_auth(f):
                     'message': 'Invalid token type'
                 }), 401
 
-            # Attach user info to request
-            request.user_id = payload.get('user_id')
-            request.user_email = payload.get('email')
-            request.user_username = payload.get('username')
+            # Get user from database
+            from backend.database.connection import get_db_session
+            from backend.database.models import User
+
+            session = get_db_session()
+            try:
+                user = session.query(User).filter(User.id == payload.get('user_id')).first()
+
+                if not user:
+                    return jsonify({
+                        'success': False,
+                        'message': 'User not found'
+                    }), 401
+
+                if not user.is_active:
+                    return jsonify({
+                        'success': False,
+                        'message': 'User account is inactive'
+                    }), 401
+
+                # Attach user info to request for backward compatibility
+                request.user_id = user.id
+                request.user_email = user.email
+                request.user_username = user.username
+
+                # Pass user object to route
+                return f(user, *args, **kwargs)
+
+            finally:
+                session.close()
 
         except Exception as e:
             return jsonify({
                 'success': False,
                 'message': str(e)
             }), 401
-
-        return f(*args, **kwargs)
 
     return decorated_function
 

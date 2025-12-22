@@ -556,12 +556,168 @@
         }
 
         async loadHistoryPage() {
-            return `
+            const html = `
                 <div class="history-page">
-                    <h2>거래 내역</h2>
-                    <p>전체 거래 내역이 여기에 표시됩니다.</p>
+                    <div class="history-controls">
+                        <div class="filter-buttons">
+                            <button class="filter-btn active" data-filter="all">전체</button>
+                            <button class="filter-btn" data-filter="bid">매수</button>
+                            <button class="filter-btn" data-filter="ask">매도</button>
+                        </div>
+                    </div>
+
+                    <div id="history-table-container">
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                            <p>거래 내역을 불러오는 중...</p>
+                        </div>
+                    </div>
                 </div>
             `;
+
+            // Load orders after rendering
+            setTimeout(() => this.loadOrderHistory(), 100);
+
+            return html;
+        }
+
+        async loadOrderHistory(filter = 'all') {
+            try {
+                const container = document.getElementById('history-table-container');
+                if (!container) return;
+
+                // Show loading
+                container.innerHTML = `
+                    <div class="loading-spinner">
+                        <div class="spinner"></div>
+                        <p>거래 내역을 불러오는 중...</p>
+                    </div>
+                `;
+
+                const response = await fetch(`${window.API_BASE}/api/orders`, {
+                    headers: {
+                        'Authorization': `Bearer ${this.auth.getToken()}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load orders');
+                }
+
+                const data = await response.json();
+                let orders = data.orders || [];
+
+                // Apply filter
+                if (filter !== 'all') {
+                    orders = orders.filter(order => order.side === filter);
+                }
+
+                if (orders.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M12 6v6l4 2"></path>
+                            </svg>
+                            <h3>거래 내역 없음</h3>
+                            <p>아직 거래 내역이 없습니다</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Build table
+                let tableHTML = `
+                    <div class="history-table-wrapper">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>시간</th>
+                                    <th>코인</th>
+                                    <th>타입</th>
+                                    <th>가격</th>
+                                    <th>수량</th>
+                                    <th>총액</th>
+                                    <th>상태</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                orders.forEach(order => {
+                    const date = new Date(order.created_at || order.executed_at);
+                    const dateStr = date.toLocaleDateString('ko-KR', {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    const market = order.market || 'N/A';
+                    const coin = market.replace('KRW-', '');
+                    const side = order.side === 'bid' ? '매수' : '매도';
+                    const sideClass = order.side === 'bid' ? 'buy' : 'sell';
+                    const price = parseFloat(order.price || 0).toLocaleString('ko-KR');
+                    const volume = parseFloat(order.volume || 0).toFixed(8);
+                    const total = (parseFloat(order.price || 0) * parseFloat(order.volume || 0)).toLocaleString('ko-KR');
+                    const state = order.state === 'done' ? '완료' : order.state === 'cancel' ? '취소' : '대기';
+
+                    tableHTML += `
+                        <tr>
+                            <td>${dateStr}</td>
+                            <td><strong>${coin}</strong></td>
+                            <td><span class="side-badge ${sideClass}">${side}</span></td>
+                            <td>₩${price}</td>
+                            <td>${volume}</td>
+                            <td>₩${total}</td>
+                            <td><span class="state-badge">${state}</span></td>
+                        </tr>
+                    `;
+                });
+
+                tableHTML += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+
+                container.innerHTML = tableHTML;
+
+                // Setup filter buttons
+                this.setupHistoryFilters();
+
+            } catch (error) {
+                console.error('Error loading order history:', error);
+                const container = document.getElementById('history-table-container');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="error-state">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <h3>오류 발생</h3>
+                            <p>거래 내역을 불러올 수 없습니다</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        setupHistoryFilters() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Update active state
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    // Load with filter
+                    const filter = btn.dataset.filter;
+                    this.loadOrderHistory(filter);
+                });
+            });
         }
 
         async loadSettingsPage() {
@@ -759,39 +915,65 @@
                         <div class="settings-tab-content" data-tab-content="trading">
                             <div class="settings-section">
                                 <h2>거래 설정</h2>
-                                <form id="trading-prefs-form" class="settings-form">
-                                    <div class="form-group">
-                                        <label for="default-market">기본 거래 쌍</label>
-                                        <select id="default-market">
-                                            <option value="KRW-BTC">KRW-BTC</option>
-                                            <option value="KRW-ETH">KRW-ETH</option>
-                                            <option value="KRW-XRP">KRW-XRP</option>
-                                            <option value="KRW-ADA">KRW-ADA</option>
-                                            <option value="KRW-SOL">KRW-SOL</option>
-                                        </select>
+
+                                <!-- Coin Selection Section -->
+                                <div class="coin-selector-section">
+                                    <h3>관심 코인 선택 (최대 5개)</h3>
+                                    <div class="coin-selector-grid" id="coin-selector-grid">
+                                        <div class="coin-selector-item" data-coin="BTC">
+                                            <input type="checkbox" id="coin-BTC" value="BTC">
+                                            <label for="coin-BTC">비트코인 (BTC)</label>
+                                        </div>
+                                        <div class="coin-selector-item" data-coin="ETH">
+                                            <input type="checkbox" id="coin-ETH" value="ETH">
+                                            <label for="coin-ETH">이더리움 (ETH)</label>
+                                        </div>
+                                        <div class="coin-selector-item" data-coin="XRP">
+                                            <input type="checkbox" id="coin-XRP" value="XRP">
+                                            <label for="coin-XRP">리플 (XRP)</label>
+                                        </div>
+                                        <div class="coin-selector-item" data-coin="ADA">
+                                            <input type="checkbox" id="coin-ADA" value="ADA">
+                                            <label for="coin-ADA">에이다 (ADA)</label>
+                                        </div>
+                                        <div class="coin-selector-item" data-coin="SOL">
+                                            <input type="checkbox" id="coin-SOL" value="SOL">
+                                            <label for="coin-SOL">솔라나 (SOL)</label>
+                                        </div>
+                                        <div class="coin-selector-item" data-coin="DOGE">
+                                            <input type="checkbox" id="coin-DOGE" value="DOGE">
+                                            <label for="coin-DOGE">도지코인 (DOGE)</label>
+                                        </div>
+                                        <div class="coin-selector-item" data-coin="DOT">
+                                            <input type="checkbox" id="coin-DOT" value="DOT">
+                                            <label for="coin-DOT">폴카닷 (DOT)</label>
+                                        </div>
+                                        <div class="coin-selector-item" data-coin="MATIC">
+                                            <input type="checkbox" id="coin-MATIC" value="MATIC">
+                                            <label for="coin-MATIC">폴리곤 (MATIC)</label>
+                                        </div>
+                                        <div class="coin-selector-item" data-coin="LTC">
+                                            <input type="checkbox" id="coin-LTC" value="LTC">
+                                            <label for="coin-LTC">라이트코인 (LTC)</label>
+                                        </div>
+                                        <div class="coin-selector-item" data-coin="LINK">
+                                            <input type="checkbox" id="coin-LINK" value="LINK">
+                                            <label for="coin-LINK">체인링크 (LINK)</label>
+                                        </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="risk-tolerance">위험 허용도</label>
-                                        <select id="risk-tolerance">
-                                            <option value="conservative">보수적</option>
-                                            <option value="moderate">중립</option>
-                                            <option value="aggressive">공격적</option>
-                                        </select>
+                                    <div class="selected-coins-count">
+                                        선택됨: <span id="selected-count">0</span>/5
                                     </div>
-                                    <div class="form-group checkbox-group">
-                                        <label>
-                                            <input type="checkbox" id="auto-trading-enabled">
-                                            <span>자동 거래 활성화</span>
-                                        </label>
-                                    </div>
-                                    <div class="form-group checkbox-group">
-                                        <label>
-                                            <input type="checkbox" id="stop-loss-enabled">
-                                            <span>손절매 활성화</span>
-                                        </label>
-                                    </div>
-                                    <button type="submit" class="btn-primary">설정 저장</button>
-                                </form>
+                                </div>
+
+                                <!-- Individual Coin Settings -->
+                                <div class="coin-settings-section" id="coin-settings-container">
+                                    <p style="text-align: center; color: var(--text-muted); padding: 40px;">
+                                        관심 코인을 선택하면 각 코인별 설정이 여기에 표시됩니다.
+                                    </p>
+                                </div>
+
+                                <button type="button" class="btn-primary" id="save-trading-settings">전체 설정 저장</button>
                             </div>
                         </div>
 
@@ -2357,6 +2539,256 @@
                     e.preventDefault();
                     this.logout();
                 });
+            });
+        }
+
+        // ============================================
+        // Settings Page Initialization
+        // ============================================
+        initSettingsPage() {
+            console.log('[Dashboard] Initializing settings page');
+
+            // Setup settings tabs
+            this.setupSettingsTabs();
+
+            // Setup trading settings (coin selection)
+            this.setupTradingSettings();
+
+            // Setup other form handlers
+            this.setupProfileForm();
+            this.setupPasswordForm();
+            this.setupAPIKeysForm();
+            this.setupNotificationsForm();
+        }
+
+        setupSettingsTabs() {
+            const tabs = document.querySelectorAll('.settings-tab');
+            const tabContents = document.querySelectorAll('.settings-tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabName = tab.dataset.tab;
+
+                    // Update active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    // Update active content
+                    tabContents.forEach(content => {
+                        if (content.dataset.tabContent === tabName) {
+                            content.classList.add('active');
+                        } else {
+                            content.classList.remove('active');
+                        }
+                    });
+                });
+            });
+        }
+
+        setupTradingSettings() {
+            const coinItems = document.querySelectorAll('.coin-selector-item');
+            const selectedCountSpan = document.getElementById('selected-count');
+            const settingsContainer = document.getElementById('coin-settings-container');
+            const saveButton = document.getElementById('save-trading-settings');
+
+            let selectedCoins = [];
+            const MAX_COINS = 5;
+
+            // Load saved settings from localStorage
+            const savedSettings = JSON.parse(localStorage.getItem('trading_settings') || '{}');
+            if (savedSettings.selectedCoins) {
+                selectedCoins = savedSettings.selectedCoins;
+                selectedCoins.forEach(coin => {
+                    const checkbox = document.getElementById(`coin-${coin}`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        checkbox.closest('.coin-selector-item').classList.add('selected');
+                    }
+                });
+                this.updateCoinSettings(selectedCoins, savedSettings);
+            }
+
+            // Coin selection handler
+            coinItems.forEach(item => {
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                const coin = checkbox.value;
+
+                // Click on item or label to toggle checkbox
+                item.addEventListener('click', (e) => {
+                    if (e.target === checkbox) return; // Let checkbox handle its own click
+
+                    checkbox.checked = !checkbox.checked;
+                    checkbox.dispatchEvent(new Event('change'));
+                });
+
+                checkbox.addEventListener('change', (e) => {
+                    e.stopPropagation();
+
+                    if (checkbox.checked) {
+                        // Check if max limit reached
+                        if (selectedCoins.length >= MAX_COINS) {
+                            checkbox.checked = false;
+                            alert(`최대 ${MAX_COINS}개 코인까지만 선택할 수 있습니다.`);
+                            return;
+                        }
+
+                        selectedCoins.push(coin);
+                        item.classList.add('selected');
+                    } else {
+                        selectedCoins = selectedCoins.filter(c => c !== coin);
+                        item.classList.remove('selected');
+                    }
+
+                    // Update count
+                    selectedCountSpan.textContent = selectedCoins.length;
+
+                    // Update settings cards
+                    this.updateCoinSettings(selectedCoins, savedSettings);
+                });
+            });
+
+            // Save button handler
+            if (saveButton) {
+                saveButton.addEventListener('click', () => {
+                    this.saveTradingSettings(selectedCoins);
+                });
+            }
+        }
+
+        updateCoinSettings(selectedCoins, savedSettings = {}) {
+            const container = document.getElementById('coin-settings-container');
+
+            if (selectedCoins.length === 0) {
+                container.innerHTML = `
+                    <p style="text-align: center; color: var(--text-muted); padding: 40px;">
+                        관심 코인을 선택하면 각 코인별 설정이 여기에 표시됩니다.
+                    </p>
+                `;
+                return;
+            }
+
+            const coinNames = {
+                'BTC': '비트코인',
+                'ETH': '이더리움',
+                'XRP': '리플',
+                'ADA': '에이다',
+                'SOL': '솔라나',
+                'DOGE': '도지코인',
+                'DOT': '폴카닷',
+                'MATIC': '폴리곤',
+                'LTC': '라이트코인',
+                'LINK': '체인링크'
+            };
+
+            let html = '';
+            selectedCoins.forEach(coin => {
+                const settings = savedSettings[coin] || {
+                    risk: 'moderate',
+                    autoTrading: false,
+                    stopLoss: false
+                };
+
+                html += `
+                    <div class="coin-settings-card" data-coin="${coin}">
+                        <div class="coin-settings-header">
+                            <h4>${coinNames[coin]} (${coin})</h4>
+                        </div>
+                        <div class="coin-settings-body">
+                            <div class="coin-setting-group">
+                                <label>위험 허용도</label>
+                                <select class="risk-select" data-coin="${coin}">
+                                    <option value="conservative" ${settings.risk === 'conservative' ? 'selected' : ''}>보수적</option>
+                                    <option value="moderate" ${settings.risk === 'moderate' ? 'selected' : ''}>중립</option>
+                                    <option value="aggressive" ${settings.risk === 'aggressive' ? 'selected' : ''}>공격적</option>
+                                </select>
+                            </div>
+                            <div class="coin-setting-group">
+                                <div class="coin-setting-toggle">
+                                    <input type="checkbox" id="auto-${coin}" ${settings.autoTrading ? 'checked' : ''}>
+                                    <label for="auto-${coin}">자동 거래 활성화</label>
+                                </div>
+                            </div>
+                            <div class="coin-setting-group">
+                                <div class="coin-setting-toggle">
+                                    <input type="checkbox" id="stop-${coin}" ${settings.stopLoss ? 'checked' : ''}>
+                                    <label for="stop-${coin}">손절매 활성화</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        saveTradingSettings(selectedCoins) {
+            const settings = {
+                selectedCoins: selectedCoins
+            };
+
+            // Collect settings for each coin
+            selectedCoins.forEach(coin => {
+                const riskSelect = document.querySelector(`.risk-select[data-coin="${coin}"]`);
+                const autoCheckbox = document.getElementById(`auto-${coin}`);
+                const stopCheckbox = document.getElementById(`stop-${coin}`);
+
+                settings[coin] = {
+                    risk: riskSelect?.value || 'moderate',
+                    autoTrading: autoCheckbox?.checked || false,
+                    stopLoss: stopCheckbox?.checked || false
+                };
+            });
+
+            // Save to localStorage
+            localStorage.setItem('trading_settings', JSON.stringify(settings));
+
+            // Show success message
+            alert('거래 설정이 저장되었습니다.');
+            console.log('[Dashboard] Trading settings saved:', settings);
+        }
+
+        setupProfileForm() {
+            const form = document.getElementById('profile-form');
+            if (!form) return;
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                // TODO: Implement profile update
+                alert('프로필 업데이트 기능은 준비 중입니다.');
+            });
+        }
+
+        setupPasswordForm() {
+            const form = document.getElementById('password-form');
+            if (!form) return;
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                // TODO: Implement password change
+                alert('비밀번호 변경 기능은 준비 중입니다.');
+            });
+        }
+
+        setupAPIKeysForm() {
+            const form = document.getElementById('api-keys-form');
+            if (!form) return;
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                // TODO: Implement API keys save
+                alert('API 키 저장 기능은 준비 중입니다.');
+            });
+        }
+
+        setupNotificationsForm() {
+            const form = document.getElementById('notifications-form');
+            if (!form) return;
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                // TODO: Implement notifications save
+                alert('알림 설정 저장 기능은 준비 중입니다.');
             });
         }
 
