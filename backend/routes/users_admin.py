@@ -32,13 +32,14 @@ def get_users():
                     u.id, u.username, u.email, u.is_active, u.created_at, u.last_login_at,
                     COALESCE(s.plan, 'free') as plan_code,
                     s.status as subscription_status,
-                    s.expires_at
+                    s.expires_at,
+                    CASE WHEN u.upbit_access_key IS NOT NULL AND u.upbit_access_key != '' THEN true ELSE false END as has_upbit_keys
                 FROM users u
                 LEFT JOIN user_subscriptions s ON u.id = s.user_id
                 ORDER BY u.created_at DESC
             """)
             result = session.execute(query)
-            
+
             users = []
             for row in result:
                 users.append({
@@ -50,7 +51,8 @@ def get_users():
                     'last_login_at': row[5].isoformat() if row[5] else None,
                     'plan_code': row[6],
                     'subscription_status': row[7],
-                    'expires_at': row[8].isoformat() if row[8] else None
+                    'expires_at': row[8].isoformat() if row[8] else None,
+                    'has_upbit_keys': bool(row[9])
                 })
         
         return jsonify({

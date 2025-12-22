@@ -476,12 +476,13 @@
                                 <th>사용자명</th>
                                 <th>현재 플랜</th>
                                 <th>상태</th>
+                                <th>업비트 키</th>
                                 <th>만료일</th>
                                 <th>작업</th>
                             </tr>
                         </thead>
                         <tbody id="usersTable">
-                            <tr><td colspan="6" class="loading">로딩 중...</td></tr>
+                            <tr><td colspan="7" class="loading">로딩 중...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -771,7 +772,7 @@
             const tbody = document.getElementById('usersTable');
 
             if (!users || users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-state-icon">👥</div><div class="empty-state-text">아직 사용자가 없습니다</div></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="empty-state-icon">👥</div><div class="empty-state-text">아직 사용자가 없습니다</div></td></tr>';
                 return;
             }
 
@@ -781,6 +782,7 @@
                     <td>${user.username || '-'}</td>
                     <td><span class="badge badge-${getPlanBadge(user.plan_code)}">${(user.plan_code || 'FREE').toUpperCase()}</span></td>
                     <td><span class="badge badge-${user.is_active ? 'success' : 'danger'}">${user.is_active ? '활성' : '비활성'}</span></td>
+                    <td><span class="badge badge-${user.has_upbit_keys ? 'success' : 'danger'}">${user.has_upbit_keys ? '✓ 등록됨' : '✗ 미등록'}</span></td>
                     <td>${user.expires_at ? new Date(user.expires_at).toLocaleDateString('ko-KR') : '-'}</td>
                     <td>
                         <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px; margin-right: 5px;" onclick="editUser(${user.id}, '${user.email}', '${(user.plan_code || 'FREE').toUpperCase()}')">플랜 변경</button>
