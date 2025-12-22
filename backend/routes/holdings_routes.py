@@ -136,7 +136,6 @@ def get_holdings():
                 # Upbit allows fetching multiple tickers at once
                 markets_param = ','.join(markets)
                 logger.info(f"[Holdings] User {user_id}: Fetching prices for {len(markets)} markets")
-                import requests
                 response = requests.get(
                     f'https://api.upbit.com/v1/ticker',
                     params={'markets': markets_param},
@@ -152,7 +151,6 @@ def get_holdings():
                 elif response.status_code == 404:
                     # Batch request failed (likely due to delisted coins), try individual requests
                     logger.warning(f"[Holdings] Batch fetch failed (404), trying individual requests")
-                    import time
                     for market in markets:
                         try:
                             resp = requests.get(
