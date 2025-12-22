@@ -2769,8 +2769,10 @@
             // Fetch all KRW markets
             try {
                 dropdownLoading.style.display = 'block';
-                const response = await fetch(`${window.API_BASE || window.location.origin}/api/upbit/market/all`);
-                const markets = await response.json();
+                // Use origin directly for Upbit public endpoint (not /api/admin)
+                const response = await fetch(`${window.location.origin}/api/upbit/market/all`);
+                const data = await response.json();
+                const markets = data.markets || data || [];
 
                 // Filter KRW markets and sort by symbol
                 allCoins = markets
