@@ -40,7 +40,7 @@ class OrderInteractions {
             return;
         }
 
-        this.chartContainer = document.getElementById('chart');
+        this.chartContainer = document.getElementById('chart-container');
         if (!this.chartContainer) {
             console.error('[OrderInteractions] Chart container not found');
             return;
