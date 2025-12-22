@@ -72,6 +72,9 @@ class WorkingTradingChart {
         // Drawing Tools Module (trendlines, fibonacci, etc.)
         this.drawingTools = null; // Will be initialized after chart is ready
 
+        // Order Interactions Module (drag/cancel orders)
+        this.orderInteractions = null; // Will be initialized after chart is ready
+
         console.log('[Working] Chart class initialized');
 
         // Initialize delegated modules
@@ -195,6 +198,15 @@ class WorkingTradingChart {
                 this.drawingTools.loadDrawings();
             } else {
                 console.warn('[Working] DrawingTools module not available');
+            }
+
+            // Initialize OrderInteractions module
+            if (typeof OrderInteractions !== 'undefined') {
+                this.orderInteractions = new OrderInteractions(this);
+                this.orderInteractions.init();
+                console.log('[Working] OrderInteractions module initialized');
+            } else {
+                console.warn('[Working] OrderInteractions module not available');
             }
 
             console.log('[Working] Main initialization completed');
@@ -1885,7 +1897,9 @@ WorkingTradingChart.prototype.drawPendingOrderLines = async function() {
                         series: priceLine,
                         price: price,
                         side: order.side,
-                        volume: volume
+                        volume: volume,
+                        uuid: order.uuid,  // For order cancellation
+                        market: order.market  // Market symbol
                     });
                 }
             }
