@@ -11,6 +11,10 @@ WorkingTradingChart.prototype.initializeManualOrders = function() {
     this.updateOrderPanelCoin();
     this.updateAvailableBalances();
 
+    // Store selected percentages
+    this.selectedBuyPercent = null;
+    this.selectedSellPercent = null;
+
     // Buy price/quantity inputs - calculate total
     const buyPrice = document.getElementById('buy-price');
     const buyQuantity = document.getElementById('buy-quantity');
@@ -22,6 +26,11 @@ WorkingTradingChart.prototype.initializeManualOrders = function() {
             const quantity = parseFloat(buyQuantity.value) || 0;
             const total = price * quantity;
             buyTotal.textContent = total.toLocaleString() + '원';
+
+            // If percentage was selected and price just changed, recalculate quantity
+            if (this.selectedBuyPercent && price > 0) {
+                this.calculateBuyQuantity(this.selectedBuyPercent);
+            }
         };
 
         buyPrice.addEventListener('input', updateBuyTotal);
@@ -39,6 +48,11 @@ WorkingTradingChart.prototype.initializeManualOrders = function() {
             const quantity = parseFloat(sellQuantity.value) || 0;
             const total = price * quantity;
             sellTotal.textContent = total.toLocaleString() + '원';
+
+            // If percentage was selected and price just changed, recalculate quantity
+            if (this.selectedSellPercent && price > 0) {
+                this.calculateSellQuantity(this.selectedSellPercent);
+            }
         };
 
         sellPrice.addEventListener('input', updateSellTotal);
@@ -55,6 +69,7 @@ WorkingTradingChart.prototype.initializeManualOrders = function() {
             btn.classList.add('active');
 
             const percent = parseInt(btn.dataset.percent);
+            this.selectedBuyPercent = percent; // Store selected percentage
             this.calculateBuyQuantity(percent);
         });
     });
@@ -69,6 +84,7 @@ WorkingTradingChart.prototype.initializeManualOrders = function() {
             btn.classList.add('active');
 
             const percent = parseInt(btn.dataset.percent);
+            this.selectedSellPercent = percent; // Store selected percentage
             this.calculateSellQuantity(percent);
         });
     });
@@ -385,18 +401,27 @@ WorkingTradingChart.prototype.calculateBuyQuantity = function(percent) {
     const buyQuantity = document.getElementById('buy-quantity');
     const buyTotal = document.getElementById('buy-total-amount');
 
-    const price = parseFloat(buyPrice.value);
-    if (!price || price <= 0) {
-        alert('먼저 차트에서 매수 가격을 선택하세요');
+    const balance = this.krwBalance || 0;
+
+    if (balance === 0) {
+        alert('KRW 잔액이 없습니다');
         return;
     }
 
-    const balance = this.krwBalance || 0;
     const amountToUse = balance * (percent / 100);
-    const quantity = Math.floor(amountToUse / price);
 
-    buyQuantity.value = quantity;
-    buyTotal.textContent = (price * quantity).toLocaleString() + '원';
+    // Calculate quantity if price is set
+    const price = parseFloat(buyPrice.value);
+    if (price && price > 0) {
+        const quantity = amountToUse / price;
+        buyQuantity.value = quantity.toFixed(8);
+        buyTotal.textContent = (price * quantity).toLocaleString() + '원';
+        console.log(`[ManualOrders] Buy quantity set: ${quantity.toFixed(8)} (${percent}% of ${balance.toLocaleString()}원)`);
+    } else {
+        // No price set - show amount to use
+        buyTotal.textContent = `${amountToUse.toLocaleString()}원 (가격 입력 필요)`;
+        console.log(`[ManualOrders] Buy amount reserved: ${amountToUse.toLocaleString()}원 (${percent}% of ${balance.toLocaleString()}원)`);
+    }
 };
 
 // Calculate sell quantity based on percentage
@@ -407,17 +432,27 @@ WorkingTradingChart.prototype.calculateSellQuantity = function(percent) {
     const sellQuantity = document.getElementById('sell-quantity');
     const sellTotal = document.getElementById('sell-total-amount');
 
-    const price = parseFloat(sellPrice.value);
-    if (!price || price <= 0) {
-        alert('먼저 차트에서 매도 가격을 선택하세요');
+    const holding = this.coinHolding || 0;
+
+    if (holding === 0) {
+        alert('보유 중인 코인이 없습니다');
         return;
     }
 
-    const holding = this.coinHolding || 0;
     const quantityToSell = holding * (percent / 100);
 
-    sellQuantity.value = quantityToSell.toFixed(4);
-    sellTotal.textContent = (price * quantityToSell).toLocaleString() + '원';
+    // Set quantity
+    sellQuantity.value = quantityToSell.toFixed(8);
+
+    // Calculate total if price is set
+    const price = parseFloat(sellPrice.value);
+    if (price && price > 0) {
+        sellTotal.textContent = (price * quantityToSell).toLocaleString() + '원';
+    } else {
+        sellTotal.textContent = '가격 입력 필요';
+    }
+
+    console.log(`[ManualOrders] Sell quantity set: ${quantityToSell.toFixed(8)} (${percent}% of ${holding.toFixed(8)})`);
 };
 
 // Enable chart click to set order price
