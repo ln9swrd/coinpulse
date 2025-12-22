@@ -439,9 +439,9 @@
             return localStorage.getItem('access_token') || localStorage.getItem('auth_token');
         }
 
-        // Global variables
-        let referralCode = '';
-        let referralLink = '';
+        // Global variables (use window object to avoid redeclaration errors)
+        window.referralCode = window.referralCode || '';
+        window.referralLink = window.referralLink || '';
 
         // Initialize on page load
         async function init() {
@@ -474,13 +474,13 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    referralCode = data.code;
-                    referralLink = data.link;
+                    window.referralCode = data.code;
+                    window.referralLink = data.link;
 
-                    document.getElementById('referral-code').textContent = referralCode;
-                    document.getElementById('referral-link').textContent = referralLink;
+                    document.getElementById('referral-code').textContent = window.referralCode;
+                    document.getElementById('referral-link').textContent = window.referralLink;
 
-                    console.log('[Referral] Code loaded:', referralCode);
+                    console.log('[Referral] Code loaded:', window.referralCode);
                 } else {
                     throw new Error(data.error || 'Failed to load referral code');
                 }
@@ -581,7 +581,7 @@
          */
         async function copyReferralLink() {
             try {
-                await navigator.clipboard.writeText(referralLink);
+                await navigator.clipboard.writeText(window.referralLink);
 
                 const btn = document.getElementById('copy-link-btn');
                 const originalText = btn.textContent;
@@ -605,9 +605,9 @@
          */
         async function copyReferralCode() {
             try {
-                await navigator.clipboard.writeText(referralCode);
+                await navigator.clipboard.writeText(window.referralCode);
 
-                alert('✓ 추천 코드가 복사되었습니다!\n\n' + referralCode);
+                alert('✓ 추천 코드가 복사되었습니다!\n\n' + window.referralCode);
                 console.log('[Referral] Code copied to clipboard');
             } catch (error) {
                 console.error('[Referral] Failed to copy code:', error);
@@ -619,7 +619,7 @@
          * Share via KakaoTalk
          */
         function shareKakao() {
-            const message = `🎁 코인펄스 초대장!\n\n자동 트레이딩 플랫폼 코인펄스에 가입하고 베이직 플랜(₩49,000) 30일 무료를 받으세요!\n\n${referralLink}`;
+            const message = `🎁 코인펄스 초대장!\n\n자동 트레이딩 플랫폼 코인펄스에 가입하고 베이직 플랜(₩49,000) 30일 무료를 받으세요!\n\n${window.referralLink}`;
 
             // Check if Kakao SDK is available
             if (typeof Kakao !== 'undefined' && Kakao.isInitialized()) {
@@ -627,8 +627,8 @@
                     objectType: 'text',
                     text: message,
                     link: {
-                        webUrl: referralLink,
-                        mobileWebUrl: referralLink
+                        webUrl: window.referralLink,
+                        mobileWebUrl: window.referralLink
                     }
                 });
             } else {
@@ -642,8 +642,8 @@
          * Share via Telegram
          */
         function shareTelegram() {
-            const message = encodeURIComponent(`🎁 코인펄스 초대장!\n\n자동 트레이딩 플랫폼 코인펄스에 가입하고 베이직 플랜(₩49,000) 30일 무료를 받으세요!\n\n${referralLink}`);
-            window.open(`https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${message}`, '_blank');
+            const message = encodeURIComponent(`🎁 코인펄스 초대장!\n\n자동 트레이딩 플랫폼 코인펄스에 가입하고 베이직 플랜(₩49,000) 30일 무료를 받으세요!\n\n${window.referralLink}`);
+            window.open(`https://t.me/share/url?url=${encodeURIComponent(window.referralLink)}&text=${message}`, '_blank');
         }
 
         /**
@@ -651,7 +651,7 @@
          */
         function shareTwitter() {
             const text = encodeURIComponent(`🎁 코인펄스 초대장! 자동 트레이딩 플랫폼에 가입하고 베이직 플랜 30일 무료를 받으세요!`);
-            const url = encodeURIComponent(referralLink);
+            const url = encodeURIComponent(window.referralLink);
             window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
         }
 
