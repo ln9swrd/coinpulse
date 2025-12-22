@@ -859,7 +859,7 @@
                 }
 
                 // BASIC plan - limit max_positions to 1
-                if (plan === 'basic' && features.max_bots === 1) {
+                if (plan === 'basic' && features.max_auto_trading_alerts === 1) {
                     const maxPositionsInput = document.getElementById('max-positions');
                     if (maxPositionsInput) {
                         maxPositionsInput.max = 1;
@@ -870,7 +870,7 @@
                         const hint = document.createElement('small');
                         hint.style.color = '#f59e0b';
                         hint.style.fontWeight = 'bold';
-                        hint.textContent = '베이직 플랜: 최대 1개의 봇만 사용 가능합니다. 프로 플랜으로 업그레이드하면 무제한으로 사용할 수 있습니다.';
+                        hint.textContent = '베이직 플랜: 최대 1개의 자동매매 알림만 사용 가능합니다. 프로 플랜으로 업그레이드하면 무제한으로 사용할 수 있습니다.';
 
                         // Remove existing hint if any
                         const existingHint = formGroup.querySelector('small[style*="color: #f59e0b"]');

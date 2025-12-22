@@ -61,61 +61,38 @@ class UserFeatureOverride(Base):
 
 
 # Default feature sets for each plan
+# Updated 2025.12.22: Simplified structure with 3 plans (Free, Basic, Pro)
+# Key changes:
+# - Removed: email_alerts, indicators, api_access, webhook_access, data_export, advanced_strategies, enterprise plan
+# - Changed: max_bots → max_auto_trading_alerts
+# - Added: surge_monitoring, telegram_alerts, advanced_indicators
 PLAN_FEATURES = {
     'free': {
         'manual_trading': False,
-        'max_bots': 0,
-        'indicators': ['basic'],
-        'advanced_strategies': False,
+        'max_auto_trading_alerts': 0,  # Cannot use auto-trading alerts
+        'telegram_alerts': False,
+        'surge_monitoring': True,  # Basic surge monitoring available
+        'advanced_indicators': False,
         'backtesting': False,
-        'api_access': False,
-        'webhook_access': False,
-        'priority_support': False,
-        'email_alerts': True,
-        'realtime_alerts': False,
-        'data_export': False
+        'priority_support': False
     },
     'basic': {
         'manual_trading': True,
-        'max_bots': 1,
-        'indicators': ['basic', 'intermediate'],
-        'advanced_strategies': False,
+        'max_auto_trading_alerts': 1,  # Limited to 1 alert
+        'telegram_alerts': False,
+        'surge_monitoring': True,
+        'advanced_indicators': False,
         'backtesting': False,
-        'api_access': False,
-        'webhook_access': False,
-        'priority_support': False,
-        'email_alerts': True,
-        'realtime_alerts': False,
-        'data_export': False
+        'priority_support': False
     },
     'pro': {
         'manual_trading': True,
-        'max_bots': -1,  # Unlimited
-        'indicators': ['basic', 'intermediate', 'advanced', 'ai'],
-        'advanced_strategies': True,
-        'backtesting': True,
-        'api_access': True,
-        'webhook_access': True,
-        'priority_support': True,
-        'email_alerts': True,
-        'realtime_alerts': True,
-        'data_export': True
-    },
-    'enterprise': {
-        'manual_trading': True,
-        'max_bots': -1,  # Unlimited
-        'indicators': ['basic', 'intermediate', 'advanced', 'ai', 'custom'],
-        'advanced_strategies': True,
-        'backtesting': True,
-        'api_access': True,
-        'webhook_access': True,
-        'priority_support': True,
-        'email_alerts': True,
-        'realtime_alerts': True,
-        'data_export': True,
-        'white_label': True,  # Enterprise only
-        'dedicated_support': True,  # Enterprise only
-        'custom_strategies': True  # Enterprise only
+        'max_auto_trading_alerts': -1,  # Unlimited
+        'telegram_alerts': True,  # Real-time Telegram notifications
+        'surge_monitoring': True,
+        'advanced_indicators': True,  # Advanced technical indicators
+        'backtesting': True,  # Strategy backtesting
+        'priority_support': True  # Priority customer support
     }
 }
 

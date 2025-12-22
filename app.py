@@ -532,7 +532,7 @@ def get_user_plan():
             'plan': 'free',
             'features': {
                 'manual_trading': False,
-                'max_bots': 0
+                'max_auto_trading_alerts': 0
             }
         }), 401
 

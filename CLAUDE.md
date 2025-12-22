@@ -1186,6 +1186,62 @@ class ModuleName {
 - **로그**: `logs/` (7일 압축/삭제)
 - **모듈화**: 500줄 초과 시 분리 필수
 
+---
+
+## 💎 요금제 구조 (2025.12.22 업데이트)
+
+### 핵심 원칙
+- **3가지 플랜만**: Free, Basic, Pro
+- **명확한 용어**: "봇" → "자동매매 알림"
+- **핵심 기능만**: 사용자가 실제 사용하는 기능만 포함
+
+### 요금제별 기능
+
+| 기능 | Free | Basic | Pro | 설명 |
+|------|------|-------|-----|------|
+| **manual_trading** | ❌ | ✅ | ✅ | 수동 거래 가능 여부 |
+| **max_auto_trading_alerts** | 0 | 1 | 무제한 | 자동매매 알림 개수 |
+| **telegram_alerts** | ❌ | ❌ | ✅ | 텔레그램 실시간 알림 |
+| **surge_monitoring** | ✅ | ✅ | ✅ | 급등 모니터링 (기본) |
+| **advanced_indicators** | ❌ | ❌ | ✅ | 고급 기술적 지표 |
+| **backtesting** | ❌ | ❌ | ✅ | 전략 백테스팅 |
+| **priority_support** | ❌ | ❌ | ✅ | 우선 고객 지원 |
+
+### 플랜 상세 설명
+
+#### Free (무료)
+- 급등 모니터링만 가능
+- 자동매매 알림 사용 불가
+- 기본 기능 체험
+
+#### Basic (베이직)
+- 수동 거래 가능
+- **1개의 자동매매 알림** 설정 가능
+- 급등 모니터링 + 기본 지표
+
+#### Pro (프로)
+- 수동 거래 가능
+- **무제한 자동매매 알림**
+- 텔레그램 실시간 알림
+- 고급 지표 + 백테스팅
+- 우선 고객 지원
+
+### 제거된 기능 (2025.12.22)
+- ~~email_alerts~~ (이메일 알림 제거)
+- ~~indicators~~ (advanced_indicators로 통합)
+- ~~api_access~~ (현재 미사용)
+- ~~webhook_access~~ (현재 미사용)
+- ~~data_export~~ (현재 미사용)
+- ~~advanced_strategies~~ (기본 기능으로 통합)
+- ~~enterprise 플랜~~ (사용 안함)
+
+### 코드 참조
+- **정의**: `backend/models/plan_features.py` - PLAN_FEATURES 딕셔너리
+- **API**: `app.py` - `/api/user/plan` 엔드포인트
+- **UI**: `frontend/auto_trading_settings.html` - 요금제별 접근 제어
+
+---
+
 ## 참고 문서
 
 ### 관리자 가이드 (docs/admin/) - 2025.12.13 신규

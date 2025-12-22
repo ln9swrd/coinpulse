@@ -150,8 +150,8 @@ def set_feature_override(user_id):
     Request JSON:
     {
         "features": {
-            "max_bots": 5,
-            "api_access": true,
+            "max_auto_trading_alerts": 5,
+            "telegram_alerts": true,
             "backtesting": true
         },
         "reason": "Beta tester special access",
