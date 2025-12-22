@@ -186,7 +186,7 @@ def apply_referral_code():
                 # 구독 생성
                 referrer_sub = Subscription(
                     user_id=code_obj.user_id,
-                    plan='premium',
+                    plan='basic',
                     status='active',
                     expires_at=datetime.utcnow() + timedelta(days=30)
                 )
@@ -202,7 +202,7 @@ def apply_referral_code():
             else:
                 referred_sub = Subscription(
                     user_id=referred_user.id,
-                    plan='premium',
+                    plan='basic',
                     status='active',
                     expires_at=datetime.utcnow() + timedelta(days=30)
                 )

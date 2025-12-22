@@ -356,11 +356,11 @@
             <h1>
                 🎁 친구 초대하기
             </h1>
-            <p>친구를 초대하고 서로 30일 무료 프리미엄을 받으세요!</p>
+            <p>친구를 초대하고 서로 베이직 플랜 30일 무료를 받으세요!</p>
 
             <div class="reward-highlight">
                 <h3>💎 초대 보상</h3>
-                <p>친구가 가입하면 <strong>추천인과 친구 모두</strong> 30일 무료 프리미엄 혜택이 자동으로 지급됩니다.</p>
+                <p>친구가 가입하면 <strong>추천인과 친구 모두</strong> 베이직 플랜(₩49,000) 30일 무료 혜택이 자동으로 지급됩니다.</p>
             </div>
         </div>
 
@@ -602,7 +602,7 @@
          * Share via KakaoTalk
          */
         function shareKakao() {
-            const message = `🎁 코인펄스 초대장!\n\n자동 트레이딩 플랫폼 코인펄스에 가입하고 30일 무료 프리미엄을 받으세요!\n\n${referralLink}`;
+            const message = `🎁 코인펄스 초대장!\n\n자동 트레이딩 플랫폼 코인펄스에 가입하고 베이직 플랜(₩49,000) 30일 무료를 받으세요!\n\n${referralLink}`;
 
             // Check if Kakao SDK is available
             if (typeof Kakao !== 'undefined' && Kakao.isInitialized()) {
@@ -625,7 +625,7 @@
          * Share via Telegram
          */
         function shareTelegram() {
-            const message = encodeURIComponent(`🎁 코인펄스 초대장!\n\n자동 트레이딩 플랫폼 코인펄스에 가입하고 30일 무료 프리미엄을 받으세요!\n\n${referralLink}`);
+            const message = encodeURIComponent(`🎁 코인펄스 초대장!\n\n자동 트레이딩 플랫폼 코인펄스에 가입하고 베이직 플랜(₩49,000) 30일 무료를 받으세요!\n\n${referralLink}`);
             window.open(`https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${message}`, '_blank');
         }
 
@@ -633,7 +633,7 @@
          * Share via Twitter
          */
         function shareTwitter() {
-            const text = encodeURIComponent(`🎁 코인펄스 초대장! 자동 트레이딩 플랫폼에 가입하고 30일 무료 프리미엄을 받으세요!`);
+            const text = encodeURIComponent(`🎁 코인펄스 초대장! 자동 트레이딩 플랫폼에 가입하고 베이직 플랜 30일 무료를 받으세요!`);
             const url = encodeURIComponent(referralLink);
             window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
         }
