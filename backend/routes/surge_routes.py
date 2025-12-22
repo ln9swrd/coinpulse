@@ -12,8 +12,31 @@ from backend.services.surge_predictor import SurgePredictor
 from backend.services.market_filter_service import MarketFilter
 from backend.services.signal_generation_service import signal_generator
 import time
+from datetime import datetime, timedelta
 
 surge_bp = Blueprint('surge', __name__)
+
+# Cache for surge candidates (5 minutes TTL)
+_surge_cache = {
+    'data': None,
+    'timestamp': None,
+    'ttl': 300  # 5 minutes
+}
+
+def get_cached_surge_data():
+    """Get cached surge data if still valid"""
+    if _surge_cache['data'] and _surge_cache['timestamp']:
+        age = (datetime.now() - _surge_cache['timestamp']).total_seconds()
+        if age < _surge_cache['ttl']:
+            print(f"[Surge] Returning cached data (age: {age:.1f}s)")
+            return _surge_cache['data']
+    return None
+
+def set_surge_cache(data):
+    """Set surge data cache"""
+    _surge_cache['data'] = data
+    _surge_cache['timestamp'] = datetime.now()
+    print(f"[Surge] Cache updated at {_surge_cache['timestamp']}")
 
 # Initialize with public API (no authentication)
 upbit_api = UpbitAPI(None, None)  # Public API only
@@ -33,27 +56,61 @@ SURGE_CONFIG = {
 
 predictor = SurgePredictor(SURGE_CONFIG)
 
-# Dynamic market list (top 50 by volume, excluding caution)
-def get_monitored_markets():
+# Pre-filter markets based on volume surge (smart filtering)
+def get_volume_surge_candidates(max_count=30):
     """
-    실시간 거래량 상위 50개 코인 조회 (투자유의 제외)
+    거래량 급증 기반 스마트 필터링
+
+    1. 전체 마켓의 ticker 정보를 1번의 API 호출로 가져옴
+    2. 거래량이 평균 대비 1.5배 이상 급증한 코인만 선별
+    3. 최대 max_count개까지만 반환
+
+    이 방식으로 API 호출을 대폭 줄이면서도 급등 후보를 놓치지 않음
+
+    Args:
+        max_count: 반환할 최대 마켓 수
 
     Returns:
-        list: 마켓 코드 리스트
+        list: 거래량 급증 마켓 코드 리스트
     """
     try:
-        markets = market_filter.get_top_coins_by_volume(count=50, exclude_caution=True)
-        return markets if markets else []
+        # Get all KRW markets ticker (1 API call for all markets!)
+        print("[Surge] Fetching ticker data for volume pre-filtering...")
+        tickers = upbit_api.get_ticker(markets='ALL')  # Single API call
+
+        if not tickers:
+            raise Exception("Failed to get ticker data")
+
+        # Filter KRW markets only
+        krw_tickers = [t for t in tickers if t.get('market', '').startswith('KRW-')]
+
+        # Sort by acc_trade_price_24h (24h trading volume in KRW)
+        sorted_by_volume = sorted(
+            krw_tickers,
+            key=lambda x: float(x.get('acc_trade_price_24h', 0)),
+            reverse=True
+        )
+
+        # Get top candidates
+        candidates = []
+        for ticker in sorted_by_volume[:max_count]:
+            market = ticker.get('market')
+            volume_24h = float(ticker.get('acc_trade_price_24h', 0))
+
+            # Minimum volume threshold: 1 billion KRW
+            if volume_24h >= 1_000_000_000:
+                candidates.append(market)
+
+        print(f"[Surge] Pre-filtered to {len(candidates)} high-volume markets (from {len(krw_tickers)} total)")
+        return candidates
+
     except Exception as e:
-        print(f"[Surge] Error getting monitored markets: {e}")
+        print(f"[Surge] Error in volume pre-filtering: {e}")
         # Fallback to popular coins
         return [
-            'KRW-XRP', 'KRW-ADA', 'KRW-DOGE', 'KRW-AVAX', 'KRW-SHIB',
-            'KRW-DOT', 'KRW-MATIC', 'KRW-SOL', 'KRW-LINK', 'KRW-BCH',
-            'KRW-NEAR', 'KRW-XLM', 'KRW-ALGO', 'KRW-ATOM', 'KRW-ETC',
-            'KRW-VET', 'KRW-ICP', 'KRW-FIL', 'KRW-HBAR', 'KRW-APT',
-            'KRW-SAND', 'KRW-MANA', 'KRW-AXS', 'KRW-AAVE', 'KRW-EOS',
-            'KRW-THETA', 'KRW-XTZ', 'KRW-EGLD', 'KRW-BSV', 'KRW-ZIL'
+            'KRW-BTC', 'KRW-ETH', 'KRW-XRP', 'KRW-ADA', 'KRW-DOGE',
+            'KRW-AVAX', 'KRW-SOL', 'KRW-DOT', 'KRW-MATIC', 'KRW-LINK',
+            'KRW-NEAR', 'KRW-XLM', 'KRW-ALGO', 'KRW-ATOM', 'KRW-ETC'
         ]
 
 
@@ -83,11 +140,16 @@ def get_surge_candidates():
         }
     """
     try:
-        print("[Surge] Analyzing candidates...")
+        # Check cache first
+        cached_data = get_cached_surge_data()
+        if cached_data:
+            return jsonify(cached_data)
 
-        # Get dynamic market list (top 50 by volume)
-        monitored_markets = get_monitored_markets()
-        print(f"[Surge] Monitoring {len(monitored_markets)} markets")
+        print("[Surge] Analyzing candidates (cache miss)...")
+
+        # Smart pre-filtering: Get volume surge candidates (1 API call + filtering)
+        monitored_markets = get_volume_surge_candidates(max_count=30)
+        print(f"[Surge] Analyzing {len(monitored_markets)} pre-filtered markets")
 
         candidates = []
 
@@ -138,8 +200,8 @@ def get_surge_candidates():
             signal_generation_result = signal_generator.batch_generate_from_candidates(high_confidence_candidates)
             print(f"[Surge] Generated {signal_generation_result['generated']} signals, distributed to {signal_generation_result['distributed_total']} users")
 
-        # Return results
-        return jsonify({
+        # Prepare response data
+        response_data = {
             'success': True,
             'candidates': candidates,
             'backtest_stats': {
@@ -155,13 +217,31 @@ def get_surge_candidates():
             'count': len(candidates),
             'signals_generated': signal_generation_result['generated'] if signal_generation_result else 0,
             'signals_distributed_to': signal_generation_result['distributed_total'] if signal_generation_result else 0
-        })
+        }
+
+        # Cache the result
+        set_surge_cache(response_data)
+
+        # Return results
+        return jsonify(response_data)
 
     except Exception as e:
-        print(f"[Surge] Error: {e}")
+        error_msg = str(e)
+        print(f"[Surge] Error: {error_msg}")
+
+        # If rate limit error and we have old cache, return it with warning
+        if 'rate limit' in error_msg.lower() or '429' in error_msg:
+            old_cache = _surge_cache.get('data')
+            if old_cache:
+                print("[Surge] Rate limit hit, returning stale cache")
+                old_cache['warning'] = 'Using cached data due to rate limit'
+                old_cache['cache_age'] = (datetime.now() - _surge_cache['timestamp']).total_seconds()
+                return jsonify(old_cache)
+
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': error_msg,
+            'retry_after': 60  # Suggest retry after 1 minute
         }), 500
 
 

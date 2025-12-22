@@ -163,6 +163,39 @@ class UpbitAPI:
             print(f"[UpbitAPI] Price query error: {str(e)}")
             return {}
 
+    def get_ticker(self, markets='ALL'):
+        """
+        Get ticker information for markets.
+
+        Args:
+            markets (str or list): 'ALL' for all KRW markets, or list/string of specific markets
+
+        Returns:
+            list: List of ticker data or empty list on error
+                Each ticker contains: market, trade_price, acc_trade_price_24h, etc.
+        """
+        try:
+            if markets == 'ALL':
+                # Get all KRW markets first
+                all_markets = self.get_markets()
+                krw_markets = [m['market'] for m in all_markets if m['market'].startswith('KRW-')]
+                markets_str = ','.join(krw_markets)
+            elif isinstance(markets, list):
+                markets_str = ','.join(markets)
+            else:
+                markets_str = markets
+
+            response = requests.get(f'{self.base_url}/v1/ticker?markets={markets_str}')
+
+            if response.status_code == 200:
+                return response.json()
+            else:
+                print(f"[UpbitAPI] Ticker query failed: {response.status_code}, {response.text}")
+                return []
+        except Exception as e:
+            print(f"[UpbitAPI] Ticker query error: {str(e)}")
+            return []
+
     # ==================== Candle Data ====================
 
     def get_candles_days(self, market, count=200, to=None):
