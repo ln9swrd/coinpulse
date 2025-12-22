@@ -1920,9 +1920,15 @@
             // Load existing API keys
             try {
                 console.log('[Settings] Loading API keys...');
+                const token = localStorage.getItem('access_token');
+                if (!token) {
+                    console.error('[Settings] No access token found');
+                    return;
+                }
+
                 const response = await fetch('/api/auth/me?include_api_keys=true', {
                     headers: {
-                        'Authorization': `Bearer ${window.api.accessToken}`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
 
