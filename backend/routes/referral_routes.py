@@ -6,7 +6,8 @@ from flask import Blueprint, request, jsonify, g
 from datetime import datetime, timedelta
 from backend.database import get_db_session
 from backend.models.referral import ReferralCode, Referral
-from backend.database.models import User, UserSubscription
+from backend.database.models import User
+from backend.models.subscription_models import Subscription
 from backend.middleware.auth_middleware import require_auth
 from sqlalchemy import func
 
@@ -175,7 +176,7 @@ def apply_referral_code():
 
             # 보상 지급: 추천인과 피추천인 모두에게 30일 무료
             # 추천인 보상
-            referrer_sub = session.query(UserSubscription).filter_by(user_id=code_obj.user_id).first()
+            referrer_sub = session.query(Subscription).filter_by(user_id=code_obj.user_id).first()
             if referrer_sub:
                 if referrer_sub.expires_at:
                     referrer_sub.expires_at = referrer_sub.expires_at + timedelta(days=30)
@@ -183,7 +184,7 @@ def apply_referral_code():
                     referrer_sub.expires_at = datetime.utcnow() + timedelta(days=30)
             else:
                 # 구독 생성
-                referrer_sub = UserSubscription(
+                referrer_sub = Subscription(
                     user_id=code_obj.user_id,
                     plan='premium',
                     status='active',
@@ -192,14 +193,14 @@ def apply_referral_code():
                 session.add(referrer_sub)
 
             # 피추천인 보상
-            referred_sub = session.query(UserSubscription).filter_by(user_id=referred_user.id).first()
+            referred_sub = session.query(Subscription).filter_by(user_id=referred_user.id).first()
             if referred_sub:
                 if referred_sub.expires_at:
                     referred_sub.expires_at = referred_sub.expires_at + timedelta(days=30)
                 else:
                     referred_sub.expires_at = datetime.utcnow() + timedelta(days=30)
             else:
-                referred_sub = UserSubscription(
+                referred_sub = Subscription(
                     user_id=referred_user.id,
                     plan='premium',
                     status='active',
