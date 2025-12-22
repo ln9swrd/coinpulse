@@ -20,7 +20,8 @@ surge_bp = Blueprint('surge', __name__)
 _surge_cache = {
     'data': None,
     'timestamp': None,
-    'ttl': 300  # 5 minutes
+    'ttl': 300,  # 5 minutes
+    'is_fetching': False  # Lock to prevent concurrent fetches
 }
 
 def get_cached_surge_data():
@@ -36,6 +37,7 @@ def set_surge_cache(data):
     """Set surge data cache"""
     _surge_cache['data'] = data
     _surge_cache['timestamp'] = datetime.now()
+    _surge_cache['is_fetching'] = False
     print(f"[Surge] Cache updated at {_surge_cache['timestamp']}")
 
 # Initialize with public API (no authentication)
@@ -145,11 +147,27 @@ def get_surge_candidates():
         if cached_data:
             return jsonify(cached_data)
 
+        # Check if already fetching (prevent concurrent API calls)
+        if _surge_cache['is_fetching']:
+            print("[Surge] Already fetching, returning stale cache or wait message")
+            old_data = _surge_cache.get('data')
+            if old_data:
+                old_data['warning'] = 'Using stale cache while refreshing'
+                return jsonify(old_data)
+            else:
+                return jsonify({
+                    'success': False,
+                    'message': 'Analysis in progress, please try again in 10 seconds',
+                    'retry_after': 10
+                }), 202
+
+        # Set lock
+        _surge_cache['is_fetching'] = True
         print("[Surge] Analyzing candidates (cache miss)...")
 
         # Smart pre-filtering: Get volume surge candidates (1 API call + filtering)
-        # max_count=20 to balance between coverage and API rate limits
-        monitored_markets = get_volume_surge_candidates(max_count=20)
+        # max_count=10 to stay well under Upbit rate limits (5초 소요)
+        monitored_markets = get_volume_surge_candidates(max_count=10)
         print(f"[Surge] Analyzing {len(monitored_markets)} pre-filtered markets")
 
         candidates = []
@@ -229,6 +247,9 @@ def get_surge_candidates():
     except Exception as e:
         error_msg = str(e)
         print(f"[Surge] Error: {error_msg}")
+
+        # Release lock
+        _surge_cache['is_fetching'] = False
 
         # If rate limit error and we have old cache, return it with warning
         if 'rate limit' in error_msg.lower() or '429' in error_msg:
