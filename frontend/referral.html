@@ -432,7 +432,7 @@
 
     <script>
         // Force API_BASE to origin (avoid path prefix issues)
-        window.API_BASE = window.location.origin;
+        window.API_BASE = window.API_BASE || window.location.origin;
 
         // Get token from localStorage
         function getAuthToken() {
@@ -445,14 +445,18 @@
 
         // Initialize on page load
         async function init() {
+            console.log('[Referral] Initializing...');
             const token = getAuthToken();
             if (!token) {
+                console.warn('[Referral] No auth token, redirecting to login');
                 window.location.href = '/login.html';
                 return;
             }
 
+            console.log('[Referral] Auth token found, loading data');
             await loadReferralCode();
             await loadReferralStats();
+            console.log('[Referral] Initialization complete');
         }
 
         // Load referral data on page load
@@ -468,16 +472,23 @@
          * Load user's referral code
          */
         async function loadReferralCode() {
+            console.log('[Referral] Loading referral code...');
             try {
-                const response = await fetch(`${API_BASE}/api/referral/code`, {
+                const token = getAuthToken();
+                console.log('[Referral] Using API_BASE:', window.API_BASE);
+                console.log('[Referral] Auth token:', token ? 'exists' : 'missing');
+
+                const response = await fetch(`${window.API_BASE}/api/referral/code`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${getAuthToken()}`,
+                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     }
                 });
 
+                console.log('[Referral] Code response status:', response.status);
                 const data = await response.json();
+                console.log('[Referral] Code response data:', data);
 
                 if (data.success) {
                     window.referralCode = data.code;
@@ -501,8 +512,9 @@
          * Load referral statistics
          */
         async function loadReferralStats() {
+            console.log('[Referral] Loading referral stats...');
             try {
-                const response = await fetch(`${API_BASE}/api/referral/stats`, {
+                const response = await fetch(`${window.API_BASE}/api/referral/stats`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${getAuthToken()}`,
