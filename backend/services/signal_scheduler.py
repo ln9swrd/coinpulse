@@ -94,8 +94,8 @@ class SignalScheduler:
                             'recommendation': analysis['recommendation']
                         })
 
-                    # Rate limit (0.1s between requests)
-                    time.sleep(0.1)
+                    # Rate limit (0.5s between requests to avoid 429 errors)
+                    time.sleep(0.5)
 
                 except Exception as e:
                     print(f"[Scheduler] Error analyzing {market}: {e}")
@@ -141,24 +141,21 @@ class SignalScheduler:
 
     def _get_monitored_markets(self):
         """
-        Get list of markets to monitor (top 50 by volume, excluding caution)
+        Get list of markets to monitor (top 10 by volume, excluding caution)
+        Reduced from 50 to 10 to avoid Upbit API rate limits
 
         Returns:
             list: Market codes
         """
         try:
-            markets = self.market_filter.get_top_coins_by_volume(count=50, exclude_caution=True)
+            markets = self.market_filter.get_top_coins_by_volume(count=10, exclude_caution=True)
             return markets if markets else []
         except Exception as e:
             print(f"[Scheduler] Error getting monitored markets: {e}")
-            # Fallback to popular coins
+            # Fallback to popular coins (reduced to 10)
             return [
-                'KRW-XRP', 'KRW-ADA', 'KRW-DOGE', 'KRW-AVAX', 'KRW-SHIB',
-                'KRW-DOT', 'KRW-MATIC', 'KRW-SOL', 'KRW-LINK', 'KRW-BCH',
-                'KRW-NEAR', 'KRW-XLM', 'KRW-ALGO', 'KRW-ATOM', 'KRW-ETC',
-                'KRW-VET', 'KRW-ICP', 'KRW-FIL', 'KRW-HBAR', 'KRW-APT',
-                'KRW-SAND', 'KRW-MANA', 'KRW-AXS', 'KRW-AAVE', 'KRW-EOS',
-                'KRW-THETA', 'KRW-XTZ', 'KRW-EGLD', 'KRW-BSV', 'KRW-ZIL'
+                'KRW-BTC', 'KRW-ETH', 'KRW-XRP', 'KRW-ADA', 'KRW-SOL',
+                'KRW-DOGE', 'KRW-AVAX', 'KRW-DOT', 'KRW-MATIC', 'KRW-LINK'
             ]
 
     def start(self):
@@ -204,9 +201,10 @@ class SignalScheduler:
         print("[Scheduler] Started successfully")
         print("=" * 80 + "\n")
 
-        # Run immediately on startup
-        print("[Scheduler] Running initial analysis...")
-        self.analyze_and_generate_signals()
+        # Disabled immediate run to avoid rate limits on startup
+        # The first run will happen after 15 minutes as per schedule
+        # print("[Scheduler] Running initial analysis...")
+        # self.analyze_and_generate_signals()
 
     def stop(self):
         """Stop the scheduler"""
