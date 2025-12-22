@@ -25,7 +25,8 @@
     // ============================================
     class AuthManager {
         constructor() {
-            this.token = localStorage.getItem('auth_token') || null;
+            // Try both keys for backward compatibility
+            this.token = localStorage.getItem('auth_token') || localStorage.getItem('access_token') || null;
             this.user = JSON.parse(localStorage.getItem('user_data') || 'null');
             this.init();
         }
@@ -115,7 +116,9 @@
                     this.token = response.token;
                     this.user = response.user;
 
+                    // Store with both keys for compatibility
                     localStorage.setItem('auth_token', this.token);
+                    localStorage.setItem('access_token', this.token);  // For dashboard compatibility
                     localStorage.setItem('user_data', JSON.stringify(this.user));
 
                     if (rememberMe) {
@@ -446,6 +449,7 @@
             this.token = null;
             this.user = null;
             localStorage.removeItem('auth_token');
+            localStorage.removeItem('access_token');  // Remove both keys
             localStorage.removeItem('user_data');
             localStorage.removeItem('remember_me');
             window.location.href = 'index.html';
