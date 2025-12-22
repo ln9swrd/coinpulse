@@ -53,6 +53,14 @@ class PlanConfig(Base):
     data_export = Column(Boolean, default=False, nullable=False)  # 데이터 내보내기
     api_access = Column(Boolean, default=False, nullable=False)   # API 접근
 
+    # 기능 제한 - 알림 (Email Notifications) ✉️
+    email_notifications_enabled = Column(Boolean, default=False, nullable=False)  # 이메일 알림 활성화
+    daily_email_limit = Column(Integer, default=0, nullable=False)  # 일일 이메일 발송 한도 (0 = 무제한)
+    signal_notifications = Column(Boolean, default=False, nullable=False)  # 시그널 알림
+    portfolio_notifications = Column(Boolean, default=False, nullable=False)  # 포트폴리오 알림
+    trade_notifications = Column(Boolean, default=False, nullable=False)  # 거래 실행 알림
+    system_notifications = Column(Boolean, default=False, nullable=False)  # 시스템 알림
+
     # 기능 제한 - 지원
     support_level = Column(String(50), default='community', nullable=False)
     # 'community', 'email', 'priority', 'dedicated'
@@ -112,6 +120,14 @@ class PlanConfig(Base):
                 'white_labeling': self.white_labeling,
                 'sla_guarantee': self.sla_guarantee,
                 'custom_development': self.custom_development
+            },
+            'notifications': {
+                'email_enabled': self.email_notifications_enabled,
+                'daily_email_limit': self.daily_email_limit if self.daily_email_limit > 0 else None,
+                'signal_notifications': self.signal_notifications,
+                'portfolio_notifications': self.portfolio_notifications,
+                'trade_notifications': self.trade_notifications,
+                'system_notifications': self.system_notifications
             },
             'support': {
                 'level': self.support_level,
