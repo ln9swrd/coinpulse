@@ -260,20 +260,22 @@ def update_user_plan(user_id):
 
                 insert_query = text("""
                     INSERT INTO user_subscriptions (
-                        user_id, plan_code, status,
-                        payment_method, started_at, expires_at,
+                        user_id, plan, status,
+                        started_at, current_period_start, current_period_end,
+                        billing_period, amount, currency,
                         created_at, updated_at
                     )
                     VALUES (
-                        :user_id, :plan_code, 'active',
-                        'manual', CURRENT_TIMESTAMP, :expires_at,
+                        :user_id, :plan, 'active',
+                        CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :expires_at,
+                        'monthly', 0, 'KRW',
                         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
                     )
                 """)
 
                 session.execute(insert_query, {
                     "user_id": user_id,
-                    "plan_code": plan_code,
+                    "plan": plan_code,
                     "expires_at": expires_at
                 })
 
