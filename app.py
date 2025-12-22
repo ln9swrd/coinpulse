@@ -362,6 +362,158 @@ def api_status():
     }), 200
 
 
+@app.route('/api/trading/policies', methods=['GET', 'POST'])
+def manage_trading_policies():
+    """
+    Trading policies management (USER-SPECIFIC)
+
+    GET: Return user's trading configuration as policies format
+    POST: Update user's trading configuration from policies format
+
+    Note: This endpoint bridges the old policies format (from simple_dual_server.py)
+    with the new UserConfig database model.
+    """
+    from backend.database import get_db_session, UserConfig
+    from backend.middleware.auth_middleware import require_auth
+    from flask import g
+
+    # Require authentication
+    try:
+        # Get token from Authorization header
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            # Return empty policies for unauthenticated users (backward compatibility)
+            if request.method == 'GET':
+                return jsonify({
+                    "auto_trading_enabled": False,
+                    "coins": {}
+                })
+            else:
+                return jsonify({"success": False, "error": "Authentication required"}), 401
+
+        # Verify token
+        token = auth_header.split(' ')[1]
+        from backend.middleware.auth_middleware import verify_access_token
+        user_data = verify_access_token(token)
+        if not user_data:
+            if request.method == 'GET':
+                return jsonify({
+                    "auto_trading_enabled": False,
+                    "coins": {}
+                })
+            else:
+                return jsonify({"success": False, "error": "Invalid token"}), 401
+
+        user_id = user_data['user_id']
+
+    except Exception as e:
+        logger.error(f"[TradingPolicies] Auth error: {e}")
+        if request.method == 'GET':
+            return jsonify({
+                "auto_trading_enabled": False,
+                "coins": {}
+            })
+        else:
+            return jsonify({"success": False, "error": "Authentication failed"}), 401
+
+    session = get_db_session()
+    try:
+        if request.method == 'GET':
+            # Get user's config from database
+            config = session.query(UserConfig).filter_by(user_id=user_id).first()
+
+            if not config:
+                # Return default policies if no config exists
+                return jsonify({
+                    "auto_trading_enabled": False,
+                    "coins": {}
+                })
+
+            # Convert UserConfig to policies format
+            monitored_coins = config.monitored_coins or []
+            coins_policies = {}
+            for coin in monitored_coins:
+                coins_policies[coin] = {
+                    "enabled": True,
+                    "budget": config.budget_per_position_krw,
+                    "take_profit": float(config.take_profit_min),
+                    "stop_loss": float(config.stop_loss_min)
+                }
+
+            policies = {
+                "auto_trading_enabled": config.auto_trading_enabled,
+                "swing_trading_enabled": config.swing_trading_enabled,
+                "test_mode": config.test_mode,
+                "coins": coins_policies,
+                "budget": {
+                    "total": config.total_budget_krw,
+                    "per_position": config.budget_per_position_krw,
+                    "max_positions": config.max_concurrent_positions
+                },
+                "risk": {
+                    "take_profit_min": float(config.take_profit_min),
+                    "take_profit_max": float(config.take_profit_max),
+                    "stop_loss_min": float(config.stop_loss_min),
+                    "stop_loss_max": float(config.stop_loss_max),
+                    "emergency_stop_loss": float(config.emergency_stop_loss)
+                }
+            }
+
+            return jsonify(policies)
+
+        elif request.method == 'POST':
+            # Update user's config from policies format
+            data = request.get_json()
+            if not data:
+                return jsonify({"success": False, "error": "No data provided"}), 400
+
+            # Get or create user config
+            config = session.query(UserConfig).filter_by(user_id=user_id).first()
+            if not config:
+                config = UserConfig(user_id=user_id)
+                session.add(config)
+
+            # Update config from policies
+            config.auto_trading_enabled = data.get('auto_trading_enabled', False)
+            config.swing_trading_enabled = data.get('swing_trading_enabled', False)
+            config.test_mode = data.get('test_mode', True)
+
+            # Update budget settings
+            if 'budget' in data:
+                budget = data['budget']
+                config.total_budget_krw = budget.get('total', config.total_budget_krw)
+                config.budget_per_position_krw = budget.get('per_position', config.budget_per_position_krw)
+                config.max_concurrent_positions = budget.get('max_positions', config.max_concurrent_positions)
+
+            # Update risk settings
+            if 'risk' in data:
+                risk = data['risk']
+                config.take_profit_min = risk.get('take_profit_min', config.take_profit_min)
+                config.take_profit_max = risk.get('take_profit_max', config.take_profit_max)
+                config.stop_loss_min = risk.get('stop_loss_min', config.stop_loss_min)
+                config.stop_loss_max = risk.get('stop_loss_max', config.stop_loss_max)
+                config.emergency_stop_loss = risk.get('emergency_stop_loss', config.emergency_stop_loss)
+
+            # Update monitored coins
+            if 'coins' in data:
+                monitored_coins = [coin for coin, settings in data['coins'].items() if settings.get('enabled')]
+                config.monitored_coins = monitored_coins
+
+            session.commit()
+
+            return jsonify({
+                "success": True,
+                "message": "Policies saved successfully"
+            })
+
+    except Exception as e:
+        session.rollback()
+        logger.error(f"[TradingPolicies] Error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+    finally:
+        session.close()
+
+
 # ============================================================================
 # Error Handlers
 # ============================================================================
