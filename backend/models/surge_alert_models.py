@@ -1,21 +1,168 @@
 # -*- coding: utf-8 -*-
 """
-Surge Alert Models
-급등 알림 시스템 모델
+Surge Alert System Models
+급등 알림 자동매매 및 투자조언 알림 모델
 
-참고 문서: docs/features/SURGE_ALERT_SYSTEM.md
+참고 문서: docs/features/SURGE_ALERT_SYSTEM.md v2.0
 """
 
-from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, ForeignKey, Index, BigInteger, Text
+from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, ForeignKey, Index, BigInteger, Text, JSON
 from datetime import datetime
 from backend.database.connection import Base
+
+
+class UserAdvisoryCoin(Base):
+    """
+    투자조언 알림 코인 (Investment Advisory)
+
+    사용자가 선택한 코인에 대한 투자 조언 알림
+    - 알림만 제공 (자동 실행 없음)
+    - 요금제별 개수 제한 (Free: 0, Basic: 3, Pro: 5)
+    """
+    __tablename__ = 'user_advisory_coins'
+    __table_args__ = {'extend_existing': True}
+
+    # Primary key
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    # User reference
+    user_id = Column(Integer, nullable=False, index=True)
+
+    # Coin info
+    coin = Column(String(10), nullable=False)  # 'BTC', 'ETH', etc.
+    market = Column(String(20), nullable=False)  # 'KRW-BTC'
+
+    # Settings
+    alert_enabled = Column(Boolean, default=True, nullable=False)
+
+    # Timestamps
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Unique constraint
+    __table_args__ = (
+        Index('idx_user_advisory_coins_user', 'user_id'),
+        Index('idx_user_advisory_coins_unique', 'user_id', 'coin', unique=True),
+        {'extend_existing': True}
+    )
+
+    def to_dict(self):
+        """Convert to dictionary for JSON serialization"""
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'coin': self.coin,
+            'market': self.market,
+            'alert_enabled': self.alert_enabled,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+    @staticmethod
+    def coin_to_market(coin):
+        """Convert coin symbol to market code"""
+        return f"KRW-{coin.upper()}"
+
+    def __repr__(self):
+        return f"<UserAdvisoryCoin(id={self.id}, user_id={self.user_id}, coin={self.coin})>"
+
+
+class SurgeAutoTradingSettings(Base):
+    """
+    급등 알림 자동매매 설정
+
+    시스템이 급등 감지 시 자동 매수 설정
+    - 예산 및 1회 금액 설정
+    - 위험 관리 (손절/익절)
+    - 필터링 옵션
+    """
+    __tablename__ = 'surge_auto_trading_settings'
+    __table_args__ = {'extend_existing': True}
+
+    # Primary key
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    # User reference (unique - one setting per user)
+    user_id = Column(Integer, nullable=False, unique=True, index=True)
+
+    # Basic settings
+    enabled = Column(Boolean, default=False, nullable=False)
+    total_budget = Column(BigInteger, nullable=False, default=1000000)  # 총 예산 (원)
+    amount_per_trade = Column(BigInteger, nullable=False, default=100000)  # 1회 투자금액 (원)
+
+    # Risk management
+    risk_level = Column(String(20), default='moderate', nullable=False)  # conservative/moderate/aggressive
+    stop_loss_enabled = Column(Boolean, default=True, nullable=False)
+    stop_loss_percent = Column(Float, default=-5.0, nullable=False)  # -5%
+    take_profit_enabled = Column(Boolean, default=True, nullable=False)
+    take_profit_percent = Column(Float, default=10.0, nullable=False)  # +10%
+
+    # Filtering
+    min_confidence = Column(Float, default=80.0, nullable=False)  # Minimum confidence threshold
+    max_positions = Column(Integer, default=5, nullable=False)  # Maximum concurrent positions
+    excluded_coins = Column(JSON, nullable=True)  # ['DOGE', 'SHIB'] - coins to exclude
+
+    # Notifications
+    telegram_enabled = Column(Boolean, default=True, nullable=False)
+
+    # Statistics
+    total_trades = Column(Integer, default=0, nullable=False)
+    successful_trades = Column(Integer, default=0, nullable=False)
+    total_profit_loss = Column(BigInteger, default=0, nullable=False)
+
+    # Timestamps
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        """Convert to dictionary for JSON serialization"""
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'enabled': self.enabled,
+            'total_budget': self.total_budget,
+            'amount_per_trade': self.amount_per_trade,
+            'risk_level': self.risk_level,
+            'stop_loss_enabled': self.stop_loss_enabled,
+            'stop_loss_percent': self.stop_loss_percent,
+            'take_profit_enabled': self.take_profit_enabled,
+            'take_profit_percent': self.take_profit_percent,
+            'min_confidence': self.min_confidence,
+            'max_positions': self.max_positions,
+            'excluded_coins': self.excluded_coins or [],
+            'telegram_enabled': self.telegram_enabled,
+            'total_trades': self.total_trades,
+            'successful_trades': self.successful_trades,
+            'total_profit_loss': self.total_profit_loss,
+            'success_rate': (self.successful_trades / self.total_trades * 100) if self.total_trades > 0 else 0,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+    def get_remaining_budget(self):
+        """Calculate remaining budget"""
+        # TODO: Calculate based on current positions
+        return self.total_budget
+
+    def can_trade(self):
+        """Check if trading is possible"""
+        return (
+            self.enabled and
+            self.get_remaining_budget() >= self.amount_per_trade
+        )
+
+    def __repr__(self):
+        return f"<SurgeAutoTradingSettings(id={self.id}, user_id={self.user_id}, enabled={self.enabled})>"
 
 
 class SurgeAlert(Base):
     """
     급등 알림 기록
 
-    사용자에게 전송된 급등 알림을 기록하여 주간 한도를 추적
+    급등 감지 및 자동매매 실행 기록
+    - 주간 한도 추적
+    - 자동매매 실행 여부
+    - 손익 추적
     """
     __tablename__ = 'surge_alerts'
     __table_args__ = {'extend_existing': True}
@@ -32,32 +179,45 @@ class SurgeAlert(Base):
 
     # Signal info
     confidence = Column(Float, nullable=False)   # 85.5
-    signal_type = Column(String(20), nullable=False)  # 'favorite', 'high_confidence', 'additional_buy'
 
     # Price info
-    current_price = Column(BigInteger, nullable=True)   # Current price at signal time
-    target_price = Column(BigInteger, nullable=True)    # Predicted target price
-    expected_return = Column(Float, nullable=True)      # Expected return %
+    entry_price = Column(BigInteger, nullable=True)      # Entry price at signal time
+    target_price = Column(BigInteger, nullable=True)     # Predicted target price
+    stop_loss_price = Column(BigInteger, nullable=True)  # Stop loss price
+
+    # Auto trading info
+    auto_traded = Column(Boolean, default=False, nullable=False)  # Was auto-traded?
+    trade_amount = Column(BigInteger, nullable=True)      # Trade amount in KRW
+    trade_quantity = Column(Float, nullable=True)         # Quantity purchased
+    order_id = Column(String(50), nullable=True)          # Upbit order ID
+
+    # Result info
+    status = Column(String(20), nullable=True)            # pending/executed/stopped/completed
+    profit_loss = Column(BigInteger, nullable=True)       # Profit/loss in KRW
+    profit_loss_percent = Column(Float, nullable=True)    # Profit/loss %
 
     # Alert metadata
-    reason = Column(Text, nullable=True)         # Why this alert was sent
-    alert_message = Column(Text, nullable=True)  # Telegram message content
-    telegram_sent = Column(Boolean, default=False)  # Successfully sent via Telegram
+    reason = Column(Text, nullable=True)                  # Why this alert was sent
+    alert_message = Column(Text, nullable=True)           # Telegram message content
+    telegram_sent = Column(Boolean, default=False)        # Successfully sent via Telegram
     telegram_message_id = Column(String(100), nullable=True)  # Telegram message ID
 
     # Timing
     sent_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    executed_at = Column(DateTime, nullable=True)         # When trade was executed
+    closed_at = Column(DateTime, nullable=True)           # When position was closed
     week_number = Column(Integer, nullable=False, index=True)  # 202452 (YYYYWW format)
 
     # User action
-    user_action = Column(String(20), nullable=True)  # 'bought', 'ignored', 'added_to_favorites'
+    user_action = Column(String(20), nullable=True)       # bought/ignored/closed
     action_timestamp = Column(DateTime, nullable=True)
 
-    # Indexes for efficient queries
+    # Indexes
     __table_args__ = (
         Index('idx_surge_alerts_user_week', 'user_id', 'week_number'),
         Index('idx_surge_alerts_market', 'market'),
         Index('idx_surge_alerts_sent_at', 'sent_at'),
+        Index('idx_surge_alerts_auto_traded', 'auto_traded'),
         {'extend_existing': True}
     )
 
@@ -69,13 +229,21 @@ class SurgeAlert(Base):
             'market': self.market,
             'coin': self.coin,
             'confidence': self.confidence,
-            'signal_type': self.signal_type,
-            'current_price': self.current_price,
+            'entry_price': self.entry_price,
             'target_price': self.target_price,
-            'expected_return': self.expected_return,
+            'stop_loss_price': self.stop_loss_price,
+            'auto_traded': self.auto_traded,
+            'trade_amount': self.trade_amount,
+            'trade_quantity': self.trade_quantity,
+            'order_id': self.order_id,
+            'status': self.status,
+            'profit_loss': self.profit_loss,
+            'profit_loss_percent': self.profit_loss_percent,
             'reason': self.reason,
             'telegram_sent': self.telegram_sent,
             'sent_at': self.sent_at.isoformat() if self.sent_at else None,
+            'executed_at': self.executed_at.isoformat() if self.executed_at else None,
+            'closed_at': self.closed_at.isoformat() if self.closed_at else None,
             'week_number': self.week_number,
             'user_action': self.user_action,
             'action_timestamp': self.action_timestamp.isoformat() if self.action_timestamp else None
@@ -89,119 +257,62 @@ class SurgeAlert(Base):
         return int(f"{now.year}{week_num:02d}")
 
     def __repr__(self):
-        return f"<SurgeAlert(id={self.id}, user_id={self.user_id}, market={self.market}, confidence={self.confidence}, week={self.week_number})>"
-
-
-class UserFavoriteCoin(Base):
-    """
-    사용자 관심 코인 설정
-
-    사용자가 우선적으로 모니터링하고 알림을 받을 코인 (최대 5개)
-    """
-    __tablename__ = 'user_favorite_coins'
-    __table_args__ = {'extend_existing': True}
-
-    # Primary key
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-    # User reference
-    user_id = Column(Integer, nullable=False, index=True)
-
-    # Coin info
-    coin = Column(String(10), nullable=False)  # 'BTC', 'ETH', 'XRP', etc.
-    market = Column(String(20), nullable=False)  # 'KRW-BTC' (computed from coin)
-
-    # Alert settings
-    alert_enabled = Column(Boolean, default=True, nullable=False)  # Receive surge alerts
-    auto_trading_enabled = Column(Boolean, default=False, nullable=False)  # Auto execute trades (Pro only)
-
-    # Risk settings
-    risk_level = Column(String(20), default='moderate', nullable=False)  # 'conservative', 'moderate', 'aggressive'
-    stop_loss_enabled = Column(Boolean, default=False, nullable=False)  # Enable stop-loss
-
-    # Additional settings (for future use)
-    min_confidence = Column(Float, nullable=True)  # Minimum confidence threshold (default: plan-based)
-    max_position_size = Column(BigInteger, nullable=True)  # Maximum position size in KRW
-
-    # Timestamps
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    # Unique constraint: one user can't have duplicate coins
-    __table_args__ = (
-        Index('idx_user_favorite_coins_user', 'user_id'),
-        Index('idx_user_favorite_coins_unique', 'user_id', 'coin', unique=True),
-        {'extend_existing': True}
-    )
-
-    def to_dict(self):
-        """Convert to dictionary for JSON serialization"""
-        return {
-            'id': self.id,
-            'user_id': self.user_id,
-            'coin': self.coin,
-            'market': self.market,
-            'alert_enabled': self.alert_enabled,
-            'auto_trading_enabled': self.auto_trading_enabled,
-            'risk_level': self.risk_level,
-            'stop_loss_enabled': self.stop_loss_enabled,
-            'min_confidence': self.min_confidence,
-            'max_position_size': self.max_position_size,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
-        }
-
-    @staticmethod
-    def coin_to_market(coin):
-        """Convert coin symbol to market code"""
-        return f"KRW-{coin.upper()}"
-
-    def __repr__(self):
-        return f"<UserFavoriteCoin(id={self.id}, user_id={self.user_id}, coin={self.coin}, alert={self.alert_enabled})>"
+        return f"<SurgeAlert(id={self.id}, user_id={self.user_id}, market={self.market}, auto_traded={self.auto_traded})>"
 
 
 # 초기화 함수
 def init_db(engine):
     """Create database tables"""
     Base.metadata.create_all(engine)
-    print("[SurgeAlert] Database tables created: surge_alerts, user_favorite_coins")
+    print("[SurgeAlert] Database tables created: user_advisory_coins, surge_auto_trading_settings, surge_alerts")
 
 
 if __name__ == "__main__":
-    print("Surge Alert Models")
+    print("Surge Alert System Models v2.0")
     print("=" * 60)
 
-    # Example usage
-    print("\n1. SurgeAlert Example:")
+    print("\n1. UserAdvisoryCoin (투자조언 알림)")
+    advisory = UserAdvisoryCoin(
+        user_id=1,
+        coin="BTC",
+        market="KRW-BTC",
+        alert_enabled=True
+    )
+    print(f"   User: {advisory.user_id}")
+    print(f"   Coin: {advisory.coin}")
+    print(f"   Market: {advisory.market}")
+
+    print("\n2. SurgeAutoTradingSettings (급등 자동매매)")
+    settings = SurgeAutoTradingSettings(
+        user_id=1,
+        enabled=True,
+        total_budget=1000000,
+        amount_per_trade=100000,
+        risk_level='moderate',
+        stop_loss_percent=-5.0,
+        take_profit_percent=10.0
+    )
+    print(f"   Enabled: {settings.enabled}")
+    print(f"   Budget: {settings.total_budget:,}원")
+    print(f"   Per Trade: {settings.amount_per_trade:,}원")
+    print(f"   Can Trade: {settings.can_trade()}")
+
+    print("\n3. SurgeAlert (급등 알림 기록)")
     alert = SurgeAlert(
         user_id=1,
-        market="KRW-BTC",
-        coin="BTC",
+        market="KRW-DOGE",
+        coin="DOGE",
         confidence=85.5,
-        signal_type="favorite",
-        current_price=52000000,
-        target_price=54000000,
-        expected_return=3.8,
+        entry_price=180,
+        auto_traded=True,
+        trade_amount=100000,
+        trade_quantity=555.5,
         week_number=SurgeAlert.get_current_week_number()
     )
     print(f"   Market: {alert.market}")
     print(f"   Confidence: {alert.confidence}%")
-    print(f"   Expected Return: {alert.expected_return}%")
-    print(f"   Week Number: {alert.week_number}")
+    print(f"   Auto Traded: {alert.auto_traded}")
+    print(f"   Amount: {alert.trade_amount:,}원")
+    print(f"   Week: {alert.week_number}")
 
-    print("\n2. UserFavoriteCoin Example:")
-    favorite = UserFavoriteCoin(
-        user_id=1,
-        coin="BTC",
-        market=UserFavoriteCoin.coin_to_market("BTC"),
-        alert_enabled=True,
-        auto_trading_enabled=False,
-        risk_level="moderate",
-        stop_loss_enabled=True
-    )
-    print(f"   Coin: {favorite.coin}")
-    print(f"   Market: {favorite.market}")
-    print(f"   Alert Enabled: {favorite.alert_enabled}")
-    print(f"   Risk Level: {favorite.risk_level}")
-
-    print("\n✅ Models defined successfully")
+    print("\n✅ Models defined successfully (v2.0)")
