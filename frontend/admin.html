@@ -748,27 +748,44 @@
         // Dashboard
         async function loadDashboard() {
             try {
-                // Load all stats in parallel
+                // Load all stats in parallel (use status=all for accurate total count)
                 const [users, payments, beta, plans] = await Promise.all([
-                    fetch(`${API_BASE}/users`, { headers: getHeaders() }).then(r => r.json()),
+                    fetch(`${API_BASE}/users?status=all`, { headers: getHeaders() }).then(r => r.json()),
                     fetch(`${API_BASE}/payment-requests?status=pending`, { headers: getHeaders() }).then(r => r.json()),
                     fetch(`${API_BASE}/beta-testers`, { headers: getHeaders() }).then(r => r.json()),
                     fetch(`${API_BASE}/plans`, { headers: getHeaders() }).then(r => r.json())
                 ]);
 
-                // Update stats
-                document.getElementById('statTotalUsers').textContent = users.count || 0;
-                document.getElementById('statPendingPayments').textContent = payments.count || 0;
-                document.getElementById('statBetaTesters').textContent = beta.testers?.length || 0;
-                
+                // Update stats (check if elements exist first)
+                const statTotalUsers = document.getElementById('statTotalUsers');
+                if (statTotalUsers) {
+                    statTotalUsers.textContent = users.count || 0;
+                }
+
+                const statPendingPayments = document.getElementById('statPendingPayments');
+                if (statPendingPayments) {
+                    statPendingPayments.textContent = payments.count || 0;
+                }
+
+                const statBetaTesters = document.getElementById('statBetaTesters');
+                if (statBetaTesters) {
+                    statBetaTesters.textContent = beta.testers?.length || 0;
+                }
+
                 // Calculate active subscriptions
-                const activeSubscriptions = users.users?.filter(u => 
+                const activeSubscriptions = users.users?.filter(u =>
                     u.subscription_status === 'active' && u.plan_code !== 'free'
                 ).length || 0;
-                document.getElementById('statActiveSubscriptions').textContent = activeSubscriptions;
+
+                const statActiveSubscriptions = document.getElementById('statActiveSubscriptions');
+                if (statActiveSubscriptions) {
+                    statActiveSubscriptions.textContent = activeSubscriptions;
+                }
+
+                console.log('[Admin] Dashboard loaded successfully');
 
             } catch (error) {
-                console.error('Failed to load dashboard:', error);
+                console.error('[Admin] Failed to load dashboard:', error);
             }
         }
 
