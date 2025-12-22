@@ -227,11 +227,20 @@ def update_user_plan(user_id):
                 "error": "plan_code required"
             }), 400
 
-        if plan_code not in ['FREE', 'PREMIUM']:
+        # Updated 2025.12.22: Support new plan codes (free, basic, pro)
+        valid_plans = ['free', 'basic', 'pro', 'FREE', 'PREMIUM']  # Support legacy codes
+        if plan_code not in valid_plans:
             return jsonify({
                 "success": False,
-                "error": "Invalid plan_code. Must be FREE or PREMIUM"
+                "error": f"Invalid plan_code. Must be one of: {', '.join(valid_plans)}"
             }), 400
+
+        # Convert legacy plan codes to new format
+        plan_mapping = {
+            'FREE': 'free',
+            'PREMIUM': 'pro'
+        }
+        plan_code = plan_mapping.get(plan_code, plan_code)
 
         with get_db_session() as session:
             # 기존 구독 비활성화
@@ -245,7 +254,7 @@ def update_user_plan(user_id):
             session.execute(deactivate_query, {"user_id": user_id})
 
             # 새 구독 생성
-            if plan_code != 'FREE':
+            if plan_code != 'free':
                 expires_at = datetime.now() + timedelta(days=duration_days)
 
                 insert_query = text("""
@@ -274,7 +283,7 @@ def update_user_plan(user_id):
                 "message": f"User plan updated to {plan_code}",
                 "user_id": user_id,
                 "plan_code": plan_code,
-                "expires_at": expires_at.isoformat() if plan_code != 'FREE' else None,
+                "expires_at": expires_at.isoformat() if plan_code != 'free' else None,
                 "notes": notes
             }), 200
 
