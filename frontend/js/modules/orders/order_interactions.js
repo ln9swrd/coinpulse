@@ -167,31 +167,52 @@ class OrderInteractions {
             return null;
         }
 
-        // Convert Y position to price
-        const priceScale = this.chart.chart.priceScale('right');
-        const chartHeight = this.chartContainer.clientHeight;
+        // Convert Y position to price using candleSeries
+        if (!this.chart.candleSeries) {
+            console.warn('[OrderInteractions] Candle series not available');
+            return null;
+        }
+
+        const priceAtMouse = this.chart.candleSeries.coordinateToPrice(y);
+
+        if (priceAtMouse === null || priceAtMouse === undefined) {
+            return null;
+        }
+
+        // Find order line whose price is closest to mouse position
+        let closestOrder = null;
+        let minDistance = Infinity;
 
         for (const orderLine of this.chart.pendingOrderLines) {
-            const orderY = priceScale.priceToCoordinate(orderLine.price);
+            const priceDiff = Math.abs(orderLine.price - priceAtMouse);
+            const priceDistancePercent = (priceDiff / orderLine.price) * 100;
 
-            // Check if click is within tolerance
-            if (Math.abs(y - orderY) < this.clickTolerance) {
-                return orderLine;
+            // Check if within tolerance (0.5% of price)
+            if (priceDistancePercent < 0.5 && priceDiff < minDistance) {
+                minDistance = priceDiff;
+                closestOrder = orderLine;
             }
         }
 
-        return null;
+        return closestOrder;
     }
 
     /**
      * Calculate price delta based on Y movement
      */
     calculatePriceDelta(startY, currentY) {
-        const priceScale = this.chart.chart.priceScale('right');
+        if (!this.chart.candleSeries) {
+            console.warn('[OrderInteractions] Candle series not available');
+            return 0;
+        }
 
-        // Get price at start and current Y
-        const startPrice = priceScale.coordinateToPrice(startY);
-        const currentPrice = priceScale.coordinateToPrice(currentY);
+        // Get price at start and current Y using candleSeries
+        const startPrice = this.chart.candleSeries.coordinateToPrice(startY);
+        const currentPrice = this.chart.candleSeries.coordinateToPrice(currentY);
+
+        if (startPrice === null || currentPrice === null) {
+            return 0;
+        }
 
         return currentPrice - startPrice;
     }
