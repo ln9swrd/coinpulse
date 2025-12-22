@@ -431,14 +431,13 @@
     </div>
 
     <script>
-        (function() {
-            // Force API_BASE to origin (avoid path prefix issues)
-            window.API_BASE = window.location.origin;
+        // Force API_BASE to origin (avoid path prefix issues)
+        window.API_BASE = window.location.origin;
 
-            // Get token from localStorage
-            function getAuthToken() {
-                return localStorage.getItem('access_token') || localStorage.getItem('auth_token');
-            }
+        // Get token from localStorage
+        function getAuthToken() {
+            return localStorage.getItem('access_token') || localStorage.getItem('auth_token');
+        }
 
         // Global variables
         let referralCode = '';
@@ -656,8 +655,7 @@
             window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
         }
 
-            // Initialize on page load - already set up in DOMContentLoaded above
-        })();
+        // Initialize on page load - already set up in DOMContentLoaded above
     </script>
 </body>
 </html>
