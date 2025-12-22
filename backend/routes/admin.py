@@ -254,6 +254,7 @@ def update_user_plan(user_id):
             session.execute(deactivate_query, {"user_id": user_id})
 
             # 새 구독 생성
+            expires_at = None  # Initialize to avoid NameError when plan is 'free'
             if plan_code != 'free':
                 expires_at = datetime.now() + timedelta(days=duration_days)
 
@@ -283,7 +284,7 @@ def update_user_plan(user_id):
                 "message": f"User plan updated to {plan_code}",
                 "user_id": user_id,
                 "plan_code": plan_code,
-                "expires_at": expires_at.isoformat() if plan_code != 'free' else None,
+                "expires_at": expires_at.isoformat() if expires_at else None,
                 "notes": notes
             }), 200
 
