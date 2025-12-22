@@ -14,6 +14,7 @@ import requests
 import datetime
 from datetime import timezone
 import logging
+import time
 
 from backend.middleware.user_api_keys import get_user_upbit_api, get_user_from_token
 from backend.middleware.auth_middleware import require_auth
@@ -27,15 +28,46 @@ logger = logging.getLogger(__name__)
 # Config (will be set by app.py)
 UPBIT_BASE_URL = 'https://api.upbit.com'
 
+# User-specific holdings cache (short TTL for real-time updates)
+_holdings_cache = {}  # {user_id: {'data': ..., 'timestamp': ...}}
+HOLDINGS_CACHE_TTL = 5  # 5 seconds cache
+
+
+def cleanup_holdings_cache():
+    """Remove expired cache entries (called periodically)"""
+    now = time.time()
+    expired_users = [
+        user_id for user_id, entry in _holdings_cache.items()
+        if now - entry['timestamp'] > 60  # Remove entries older than 60 seconds
+    ]
+    for user_id in expired_users:
+        del _holdings_cache[user_id]
+    if expired_users:
+        logger.info(f"[Holdings] Cache cleanup: removed {len(expired_users)} expired entries")
+
 
 @holdings_bp.route('/api/holdings')
 @require_auth
 def get_holdings():
-    """Get holdings data from Upbit API (USER-SPECIFIC)"""
+    """Get holdings data from Upbit API (USER-SPECIFIC) with caching"""
+    start_time = time.time()
+
     try:
-        print("[Holdings] Request received")
+        # Get user_id early for caching
+        user_id = g.user_id
+
+        # Check cache first
+        cache_entry = _holdings_cache.get(user_id)
+        if cache_entry:
+            age = time.time() - cache_entry['timestamp']
+            if age < HOLDINGS_CACHE_TTL:
+                logger.info(f"[Holdings] User {user_id}: Cache hit (age: {age:.2f}s)")
+                return jsonify(cache_entry['data'])
+
+        print(f"[Holdings] User {user_id}: Request received (cache miss)")
 
         # Get user-specific Upbit API instance
+        api_start = time.time()
         user_upbit_api = get_user_upbit_api()
 
         if not user_upbit_api:
@@ -47,6 +79,8 @@ def get_holdings():
 
         # Get accounts from user's Upbit API
         accounts = user_upbit_api.get_accounts()
+        api_time = time.time() - api_start
+        logger.info(f"[Holdings] User {user_id}: Accounts fetch took {api_time:.3f}s")
 
         if not accounts:
             return jsonify({
@@ -97,17 +131,19 @@ def get_holdings():
         # Batch fetch all prices at once (prevents rate limiting)
         price_map = {}
         if markets:
+            price_start = time.time()
             try:
                 # Upbit allows fetching multiple tickers at once
                 markets_param = ','.join(markets)
-                logger.info(f"[Holdings] Fetching prices for {len(markets)} markets")
+                logger.info(f"[Holdings] User {user_id}: Fetching prices for {len(markets)} markets")
                 import requests
                 response = requests.get(
                     f'https://api.upbit.com/v1/ticker',
                     params={'markets': markets_param},
                     timeout=5
                 )
-                logger.info(f"[Holdings] Price fetch response status: {response.status_code}")
+                price_time = time.time() - price_start
+                logger.info(f"[Holdings] User {user_id}: Price fetch took {price_time:.3f}s (status: {response.status_code})")
                 if response.status_code == 200:
                     ticker_data = response.json()
                     logger.info(f"[Holdings] Received {len(ticker_data)} tickers")
@@ -183,11 +219,8 @@ def get_holdings():
         total_profit_loss_krw = total_value_krw - total_invested_krw - krw_balance
         total_profit_rate = (total_profit_loss_krw / total_invested_krw * 100) if total_invested_krw > 0 else 0
 
-        # Get user_id from Flask g object (set by @require_auth decorator)
-        user_id = g.user_id
-        print(f"[Holdings] User {user_id}: {len(coins)} coins, ₩{total_value_krw:,.0f}")
-
-        return jsonify({
+        # Prepare response
+        response_data = {
             "success": True,
             "krw": krw_balance,
             "coins": coins,
@@ -198,7 +231,19 @@ def get_holdings():
                 "total_profit_rate": total_profit_rate,
                 "coin_count": len(coins)
             }
-        })
+        }
+
+        # Cache the response (5 second TTL)
+        _holdings_cache[user_id] = {
+            'data': response_data,
+            'timestamp': time.time()
+        }
+
+        # Log total time
+        total_time = time.time() - start_time
+        print(f"[Holdings] User {user_id}: {len(coins)} coins, ₩{total_value_krw:,.0f} (total: {total_time:.3f}s)")
+
+        return jsonify(response_data)
 
     except Exception as e:
         print(f"[Holdings] Error: {str(e)}")
