@@ -61,38 +61,45 @@ class UserFeatureOverride(Base):
 
 
 # Default feature sets for each plan
-# Updated 2025.12.22: Simplified structure with 3 plans (Free, Basic, Pro)
+# Updated 2025.12.22: Revised structure based on user feedback
 # Key changes:
-# - Removed: email_alerts, indicators, api_access, webhook_access, data_export, advanced_strategies, enterprise plan
-# - Changed: max_bots → max_auto_trading_alerts
-# - Added: surge_monitoring, telegram_alerts, advanced_indicators
+# - Free: Portfolio tracking, price monitoring, surge detection (view only)
+# - Basic: 3 alerts/week, telegram, advanced indicators (advertised lower than actual)
+# - Pro: 10 alerts/week, all features (advertised lower than actual)
+# Note: Actual limits are higher than advertised (marketing strategy)
 PLAN_FEATURES = {
     'free': {
         'manual_trading': False,
         'max_auto_trading_alerts': 0,  # Cannot use auto-trading alerts
+        'max_alerts_per_week': 0,  # Display: No alerts
         'telegram_alerts': False,
-        'surge_monitoring': True,  # Basic surge monitoring available
+        'surge_monitoring': True,  # Price surge detection (view only)
         'advanced_indicators': False,
         'backtesting': False,
-        'priority_support': False
+        'priority_support': False,
+        'trade_history_days': 7
     },
     'basic': {
         'manual_trading': True,
-        'max_auto_trading_alerts': 1,  # Limited to 1 alert
-        'telegram_alerts': False,
+        'max_auto_trading_alerts': 5,  # Actual: 5/week (advertise 3/week)
+        'max_alerts_per_week': 3,  # Display: 3 alerts/week
+        'telegram_alerts': True,  # Telegram notifications
         'surge_monitoring': True,
-        'advanced_indicators': False,
+        'advanced_indicators': True,  # Advanced technical indicators
         'backtesting': False,
-        'priority_support': False
+        'priority_support': False,
+        'trade_history_days': 90
     },
     'pro': {
         'manual_trading': True,
-        'max_auto_trading_alerts': -1,  # Unlimited
+        'max_auto_trading_alerts': 20,  # Actual: 20/week (advertise 10/week)
+        'max_alerts_per_week': 10,  # Display: 10 alerts/week
         'telegram_alerts': True,  # Real-time Telegram notifications
         'surge_monitoring': True,
         'advanced_indicators': True,  # Advanced technical indicators
-        'backtesting': True,  # Strategy backtesting
-        'priority_support': True  # Priority customer support
+        'backtesting': True,  # Strategy simulation/backtesting
+        'priority_support': True,  # Priority customer support
+        'trade_history_days': -1  # Unlimited
     }
 }
 
