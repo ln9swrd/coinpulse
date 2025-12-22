@@ -328,7 +328,7 @@
 
     <script>
         (function() {
-            const API_BASE = window.location.origin;
+            window.API_BASE = window.API_BASE || window.location.origin;
             let currentFilter = 'all';
 
             // Get token from localStorage

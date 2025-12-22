@@ -547,7 +547,7 @@
 
     <script>
         (function() {
-            const API_BASE = window.location.origin;
+            window.API_BASE = window.API_BASE || window.location.origin;
 
             // Get token from localStorage
             function getAuthToken() {
