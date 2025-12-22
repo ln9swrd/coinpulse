@@ -1978,39 +1978,34 @@
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>1개 트레이딩 봇</span>
-                                </li>
-                                <li class="feature-included">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                    <span>기본 기술적 지표</span>
-                                </li>
-                                <li class="feature-included">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
                                     <span>포트폴리오 추적</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>이메일 알림</span>
+                                    <span>급등 모니터링 (참고용)</span>
                                 </li>
                                 <li class="feature-excluded">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <line x1="18" y1="6" x2="6" y2="18"></line>
                                         <line x1="6" y1="6" x2="18" y2="18"></line>
                                     </svg>
-                                    <span>고급 전략</span>
+                                    <span>수동 매매</span>
                                 </li>
                                 <li class="feature-excluded">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <line x1="18" y1="6" x2="6" y2="18"></line>
                                         <line x1="6" y1="6" x2="18" y2="18"></line>
                                     </svg>
-                                    <span>API 접근</span>
+                                    <span>자동매매 알림</span>
+                                </li>
+                                <li class="feature-excluded">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                    <span>텔레그램 메시지</span>
                                 </li>
                             </ul>
                             <button class="plan-cta plan-cta-secondary" data-plan="free">
@@ -2034,32 +2029,33 @@
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>수동 거래 가능</span>
+                                    <span>수동 매매</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>자동매매 봇 1개</span>
+                                    <span>급등 모니터링</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>기본 기술적 지표</span>
-                                </li>
-                                <li class="feature-included">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                    <span>이메일 알림</span>
+                                    <span>자동매매 알림 1개</span>
                                 </li>
                                 <li class="feature-excluded">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <line x1="18" y1="6" x2="6" y2="18"></line>
                                         <line x1="6" y1="6" x2="18" y2="18"></line>
                                     </svg>
-                                    <span>고급 전략</span>
+                                    <span>텔레그램 메시지</span>
+                                </li>
+                                <li class="feature-excluded">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                    <span>고급 지표</span>
                                 </li>
                                 <li class="feature-excluded">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -2091,37 +2087,43 @@
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>무제한 자동매매 봇</span>
+                                    <span>수동 매매</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>모든 기술적 지표</span>
+                                    <span>급등 모니터링</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>고급 전략 + AI 기반 전략</span>
+                                    <span>무제한 자동매매 알림</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>백테스팅 & 성능 분석</span>
+                                    <span>텔레그램 메시지</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>API & Webhook 접근</span>
+                                    <span>고급 기술적 지표</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>실시간 알림 + 우선 지원</span>
+                                    <span>백테스팅 기능</span>
+                                </li>
+                                <li class="feature-included">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span>우선 고객 지원</span>
                                 </li>
                             </ul>
                             <button class="plan-cta plan-cta-primary" data-plan="pro">
