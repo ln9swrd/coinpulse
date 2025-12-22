@@ -122,6 +122,67 @@ def update_user_subscription():
             'error': str(e)
         }), 500
 
+
+@users_admin_bp.route('/users/<int:user_id>', methods=['DELETE'])
+@admin_required
+def delete_user(user_id):
+    """사용자 계정 삭제 (소프트 삭제)"""
+    try:
+        with get_db_session() as session:
+            # 자신을 삭제하려는 경우 방지
+            from flask import g
+            if hasattr(g, 'user_id') and g.user_id == user_id:
+                return jsonify({
+                    'success': False,
+                    'error': 'Cannot delete your own account'
+                }), 403
+
+            # 사용자 존재 확인
+            user_query = text("SELECT id, username, email FROM users WHERE id = :user_id")
+            result = session.execute(user_query, {'user_id': user_id})
+            user = result.fetchone()
+
+            if not user:
+                return jsonify({
+                    'success': False,
+                    'error': 'User not found'
+                }), 404
+
+            # 소프트 삭제: is_active를 False로 설정
+            update_query = text("""
+                UPDATE users
+                SET is_active = false,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = :user_id
+            """)
+            session.execute(update_query, {'user_id': user_id})
+
+            # 구독 비활성화
+            subscription_query = text("""
+                UPDATE user_subscriptions
+                SET status = 'cancelled',
+                    expires_at = CURRENT_TIMESTAMP
+                WHERE user_id = :user_id
+            """)
+            session.execute(subscription_query, {'user_id': user_id})
+
+            session.commit()
+
+            print(f"[Admin] User {user_id} ({user[2]}) deleted by admin")
+
+        return jsonify({
+            'success': True,
+            'message': 'User account deactivated successfully'
+        })
+
+    except Exception as e:
+        print(f"[Admin] Error deleting user: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
 # ============================================
 # 결제 요청 관리 API
 # ============================================
