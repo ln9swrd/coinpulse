@@ -567,10 +567,6 @@
         async loadSettingsPage() {
             return `
                 <div class="settings-page">
-                    <div class="settings-header">
-                        <h1>설정</h1>
-                    </div>
-
                     <!-- Settings Tabs -->
                     <div class="settings-tabs">
                         <button class="settings-tab active" data-tab="account">
