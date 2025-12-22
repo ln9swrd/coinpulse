@@ -166,8 +166,8 @@ class RateLimiter:
         if path_without_query.startswith('/socket.io/'):
             return True, 0
 
-        # Exclude Surge monitoring endpoints (frequent polling)
-        if path_without_query.startswith('/api/surge/'):
+        # Exclude Surge monitoring endpoints (frequent polling and PUBLIC access)
+        if path_without_query.startswith('/api/surge'):
             return True, 0
 
         # Check if IP is blocked
