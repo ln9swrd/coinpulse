@@ -28,7 +28,6 @@
 
     <!-- 통합 CSS 파일 (정리됨: 그리기 목록 가시성 강화) -->
     <link rel="stylesheet" href="css/integrated.css?v=20251109_coin_image_icons">
-    <link rel="stylesheet" href="css/policy_modal.css?v=20251026">
 
     <!-- 외부 JavaScript 파일 -->
     <script src="js/api_client.js?v=20251220_auto_fixed"></script>
@@ -64,9 +63,6 @@
 
     <!-- Manual Orders Extension -->
     <script src="js/manual_orders.js?v=20251028_draggable"></script>
-
-    <!-- Policy Modal Controller -->
-    <script src="js/policy_modal_controller.js?v=20251028_text_policy"></script>
 </head>
 <body>
     <div class="container">
@@ -75,7 +71,7 @@
             <div class="coinpulse-header">
                 <span class="coinpulse-title">코인펄스</span>
                 <span class="separator">|</span>
-                <span class="policy-management">정책 관리</span>
+                <span class="policy-management">트레이딩 차트</span>
             </div>
 
             <!-- Current Coin Policy Status -->
@@ -117,8 +113,10 @@
                     </button>
                 </div>
 
-                <!-- 정책 설정 -->
-                <button class="btn btn-policy" id="policy-btn">정책 설정</button>
+                <!-- 자동거래 설정 -->
+                <a href="auto_trading_settings.html" style="text-decoration: none;">
+                    <button class="btn btn-policy">⚙️ 자동거래 설정</button>
+                </a>
             </div>
         </div>
 
@@ -571,241 +569,6 @@
         </div>
 
         <!-- 정책 설정 모달 -->
-        <div class="policy-modal" id="policy-modal">
-            <div class="policy-modal-overlay" id="policy-modal-overlay"></div>
-            <div class="policy-modal-container">
-                <div class="policy-modal-header">
-                    <h2>자동매매 정책 설정</h2>
-                    <button class="policy-modal-close" id="close-policy-modal">×</button>
-                </div>
-
-                <div class="policy-modal-body">
-                    <!-- Quick Status -->
-                    <div class="policy-quick-status">
-                        <div class="policy-status-card">
-                            <div class="policy-status-icon active">●</div>
-                            <div class="policy-status-info">
-                                <div class="policy-status-label">자동매매</div>
-                                <div class="policy-status-value" id="modal-auto-status">비활성</div>
-                            </div>
-                            <div class="policy-toggle-switch" id="modal-auto-toggle">
-                                <div class="policy-toggle-slider"></div>
-                            </div>
-                        </div>
-
-                        <div class="policy-status-card">
-                            <div class="policy-status-icon">📊</div>
-                            <div class="policy-status-info">
-                                <div class="policy-status-label">활성 정책</div>
-                                <div class="policy-status-value" id="active-policies-count">0/0</div>
-                            </div>
-                        </div>
-
-                        <div class="policy-status-card">
-                            <div class="policy-status-icon">💰</div>
-                            <div class="policy-status-info">
-                                <div class="policy-status-label">총 포지션</div>
-                                <div class="policy-status-value" id="total-position">0%</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tabs -->
-                    <div class="policy-modal-tabs">
-                        <button class="policy-modal-tab active" data-tab="quick">빠른 설정</button>
-                        <button class="policy-modal-tab" data-tab="advanced">고급 설정</button>
-                        <button class="policy-modal-tab" data-tab="logs">로그</button>
-                    </div>
-
-                    <!-- Tab Content: Quick Setup -->
-                    <div class="policy-tab-content active" id="policy-quick-tab">
-                        <!-- Coin Selector Section -->
-                        <div class="policy-coin-selector">
-                            <label for="coin-selector">코인 선택</label>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <select id="coin-selector" style="flex: 1;">
-                                    <option value="KRW-BTC">₿ 비트코인 (BTC)</option>
-                                    <option value="KRW-ETH">Ξ 이더리움 (ETH)</option>
-                                    <option value="KRW-XRP">✕ 리플 (XRP)</option>
-                                    <option value="KRW-ADA">₳ 에이다 (ADA)</option>
-                                    <option value="KRW-DOGE">Ð 도지코인 (DOGE)</option>
-                                </select>
-                                <button class="btn btn-small" id="add-coin-btn">+ 추가</button>
-                            </div>
-                        </div>
-
-                        <!-- Preset Section - 2D Selection -->
-                        <div class="policy-preset-section">
-                            <h4>빠른 프리셋 선택</h4>
-                            <p class="policy-preset-hint">거래 스타일과 리스크 레벨을 선택하세요</p>
-
-                            <!-- Style Selector -->
-                            <div class="preset-style-selector">
-                                <button class="preset-style-btn active" data-style="long">
-                                    📈 장기 (스윙)
-                                </button>
-                                <button class="preset-style-btn" data-style="short">
-                                    ⚡ 단타 (데이)
-                                </button>
-                            </div>
-
-                            <!-- Risk Level Presets -->
-                            <div class="policy-preset-buttons">
-                                <button class="policy-preset-btn" data-preset="long-conservative">
-                                    <div class="preset-icon">🛡️</div>
-                                    <div class="preset-name">안정형</div>
-                                    <div class="preset-desc">손절 3% | 익절 8%</div>
-                                    <div class="preset-time">시간: 1일</div>
-                                </button>
-                                <button class="policy-preset-btn" data-preset="long-balanced">
-                                    <div class="preset-icon">⚖️</div>
-                                    <div class="preset-name">균형형</div>
-                                    <div class="preset-desc">손절 5% | 익절 15%</div>
-                                    <div class="preset-time">시간: 4시간</div>
-                                </button>
-                                <button class="policy-preset-btn" data-preset="long-aggressive">
-                                    <div class="preset-icon">🚀</div>
-                                    <div class="preset-name">공격형</div>
-                                    <div class="preset-desc">손절 8% | 익절 25%</div>
-                                    <div class="preset-time">시간: 4시간</div>
-                                </button>
-                                <button class="policy-preset-btn" data-preset="manual" style="background: linear-gradient(135deg, #f59e0b, #d97706); border-color: #f59e0b;">
-                                    <div class="preset-icon">✋</div>
-                                    <div class="preset-name">수동</div>
-                                    <div class="preset-desc">자동매매 사용 안 함</div>
-                                    <div class="preset-time">수동 거래 전용</div>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Settings Grid - 2 Columns -->
-                        <div class="policy-settings-divider">
-                            <span>세부 설정</span>
-                        </div>
-
-                        <div class="policy-quick-settings">
-                            <div class="policy-quick-setting">
-                                <label>전략</label>
-                                <select id="quick-strategy">
-                                    <option value="trend_following">추세 추종</option>
-                                    <option value="momentum">모멘텀</option>
-                                    <option value="mean_reversion">평균 회귀</option>
-                                </select>
-                            </div>
-
-                            <div class="policy-quick-setting">
-                                <label>시간프레임</label>
-                                <select id="quick-timeframe">
-                                    <option value="5m">5분</option>
-                                    <option value="15m">15분</option>
-                                    <option value="1h">1시간</option>
-                                    <option value="4h">4시간</option>
-                                    <option value="1d">1일</option>
-                                </select>
-                            </div>
-
-                            <div class="policy-quick-setting">
-                                <label>손절 비율 (%)</label>
-                                <input type="number" id="quick-stop-loss" value="3" step="0.5" min="0" max="20">
-                            </div>
-
-                            <div class="policy-quick-setting">
-                                <label>익절 비율 (%)</label>
-                                <input type="number" id="quick-take-profit" value="10" step="0.5" min="0" max="50">
-                            </div>
-
-                            <div class="policy-quick-setting">
-                                <label>포지션 크기 (%)</label>
-                                <input type="number" id="quick-position-size" value="5" step="0.5" min="0.5" max="20">
-                            </div>
-
-                            <div class="policy-quick-setting">
-                                <label>이 코인에 활성화</label>
-                                <div class="policy-toggle-switch active" id="quick-coin-toggle">
-                                    <div class="policy-toggle-slider"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tab Content: Advanced -->
-                    <div class="policy-tab-content" id="policy-advanced-tab">
-                        <div class="policy-advanced-section">
-                            <h3>전체 코인 정책</h3>
-                            <div class="policy-table-wrapper">
-                                <table class="policy-table">
-                                    <thead>
-                                        <tr>
-                                            <th>코인</th>
-                                            <th>전략</th>
-                                            <th>시간프레임</th>
-                                            <th>손절(%)</th>
-                                            <th>익절(%)</th>
-                                            <th>포지션(%)</th>
-                                            <th>상태</th>
-                                            <th>액션</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="policies-table-body">
-                                        <tr>
-                                            <td colspan="8" style="text-align: center; padding: 40px; color: #6b7280;">
-                                                정책 로딩 중...
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="policy-global-section" style="margin-top: 30px;">
-                            <h3>전역 설정</h3>
-                            <div class="policy-global-grid">
-                                <div class="policy-setting-item">
-                                    <label>체크 주기 (초)</label>
-                                    <input type="number" id="modal-check-interval" value="60" min="10" max="600">
-                                </div>
-                                <div class="policy-setting-item">
-                                    <label>최대 포지션 크기 (%)</label>
-                                    <input type="number" id="modal-max-position" value="10" min="1" max="50">
-                                </div>
-                                <div class="policy-setting-item">
-                                    <label>리스크 레벨</label>
-                                    <select id="modal-risk-level">
-                                        <option value="low">낮음</option>
-                                        <option value="medium">중간</option>
-                                        <option value="high">높음</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tab Content: Logs -->
-                    <div class="policy-tab-content" id="policy-logs-tab">
-                        <div class="policy-logs-header">
-                            <h3>최근 거래 활동</h3>
-                            <button class="btn btn-small" id="refresh-policy-logs">🔄 새로고침</button>
-                        </div>
-                        <div class="policy-logs-container" id="modal-policy-logs">
-                            <div class="policy-log-entry">로그 대기 중...</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="policy-modal-footer">
-                    <div class="policy-footer-left">
-                        <button class="btn btn-secondary" id="run-test-cycle">▶️ 테스트 실행</button>
-                    </div>
-                    <div class="policy-footer-right">
-                        <button class="btn btn-success" id="save-policy-modal">💾 변경사항 저장</button>
-                        <button class="btn btn-secondary" id="cancel-policy-modal">취소</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-
         <!-- 로딩 오버레이 -->
         <div id="loading-overlay" class="loading-overlay">
             <div class="loading-spinner"></div>

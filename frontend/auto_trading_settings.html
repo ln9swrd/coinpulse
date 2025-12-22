@@ -276,11 +276,29 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>⚙️ 자동거래 세부 설정</h1>
-            <p>자동거래 전략과 리스크 관리 설정을 구성하세요</p>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>⚙️ 자동거래 세부 설정</h1>
+                    <p>자동거래 전략과 리스크 관리 설정을 구성하세요</p>
+                </div>
+                <div id="plan-badge" style="display: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; font-size: 16px;">
+                    <!-- Plan badge will be inserted here -->
+                </div>
+            </div>
         </div>
 
         <div id="alertContainer"></div>
+
+        <!-- Plan Restriction Notice -->
+        <div id="plan-restriction" style="display: none;" class="card">
+            <div style="text-align: center; padding: 40px;">
+                <h2 style="color: #ef4444; margin-bottom: 20px;">🔒 자동거래 기능 제한</h2>
+                <p id="restriction-message" style="font-size: 16px; line-height: 1.8; color: #666; margin-bottom: 30px;"></p>
+                <button onclick="window.location.href='subscription.html'" style="padding: 15px 40px; font-size: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                    💎 요금제 업그레이드
+                </button>
+            </div>
+        </div>
 
         <!-- Strategy Presets -->
         <div class="card">
@@ -762,12 +780,126 @@
                 }
             };
 
+            // Check user plan and apply restrictions
+            async function checkUserPlan() {
+                const token = getAuthToken();
+                if (!token) {
+                    return null;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE}/api/user/plan`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        return data;
+                    }
+
+                    return null;
+                } catch (error) {
+                    console.error('Check plan error:', error);
+                    return null;
+                }
+            }
+
+            // Apply plan restrictions
+            function applyPlanRestrictions(planData) {
+                const plan = planData.plan;
+                const features = planData.features;
+
+                // Update plan badge
+                const planBadge = document.getElementById('plan-badge');
+                const planNames = {
+                    'free': '무료 플랜',
+                    'basic': '베이직 플랜',
+                    'pro': '프로 플랜',
+                    'enterprise': '엔터프라이즈 플랜'
+                };
+                const planColors = {
+                    'free': '#94a3b8',
+                    'basic': '#3b82f6',
+                    'pro': '#8b5cf6',
+                    'enterprise': '#f59e0b'
+                };
+
+                planBadge.textContent = planNames[plan] || plan;
+                planBadge.style.background = planColors[plan] || '#gray';
+                planBadge.style.color = 'white';
+                planBadge.style.display = 'block';
+
+                // Check if manual trading is allowed
+                if (!features.manual_trading) {
+                    // FREE plan - show restriction notice and hide settings
+                    const restrictionDiv = document.getElementById('plan-restriction');
+                    const restrictionMessage = document.getElementById('restriction-message');
+
+                    restrictionMessage.textContent =
+                        '무료 플랜에서는 자동거래 기능을 사용할 수 없습니다.\n' +
+                        '베이직 플랜 이상으로 업그레이드하시면 자동거래 기능을 사용할 수 있습니다.';
+
+                    restrictionDiv.style.display = 'block';
+
+                    // Hide all setting cards
+                    const cards = document.querySelectorAll('.card:not(#plan-restriction)');
+                    cards.forEach(card => {
+                        if (card.id !== 'plan-restriction') {
+                            card.style.display = 'none';
+                        }
+                    });
+
+                    const settingsGrid = document.querySelector('.settings-grid');
+                    if (settingsGrid) settingsGrid.style.display = 'none';
+
+                    return false; // Cannot use auto-trading
+                }
+
+                // BASIC plan - limit max_positions to 1
+                if (plan === 'basic' && features.max_bots === 1) {
+                    const maxPositionsInput = document.getElementById('max-positions');
+                    if (maxPositionsInput) {
+                        maxPositionsInput.max = 1;
+                        maxPositionsInput.value = Math.min(1, parseInt(maxPositionsInput.value));
+
+                        // Add hint below the input
+                        const formGroup = maxPositionsInput.closest('.form-group');
+                        const hint = document.createElement('small');
+                        hint.style.color = '#f59e0b';
+                        hint.style.fontWeight = 'bold';
+                        hint.textContent = '베이직 플랜: 최대 1개의 봇만 사용 가능합니다. 프로 플랜으로 업그레이드하면 무제한으로 사용할 수 있습니다.';
+
+                        // Remove existing hint if any
+                        const existingHint = formGroup.querySelector('small[style*="color: #f59e0b"]');
+                        if (existingHint) existingHint.remove();
+
+                        formGroup.appendChild(hint);
+                    }
+                }
+
+                // PRO/ENTERPRISE plan - no restrictions
+                return true;
+            }
+
             // Initialize
             async function init() {
                 const token = getAuthToken();
                 if (!token) {
                     window.location.href = '/login.html';
                     return;
+                }
+
+                // Check user plan
+                const planData = await checkUserPlan();
+                if (planData) {
+                    const canUse = applyPlanRestrictions(planData);
+                    if (!canUse) {
+                        // User cannot use auto-trading
+                        return;
+                    }
                 }
 
                 // Load existing settings

@@ -514,6 +514,80 @@ def manage_trading_policies():
         session.close()
 
 
+@app.route('/api/user/plan', methods=['GET'])
+def get_user_plan():
+    """
+    Get current user's plan and feature limits
+
+    Returns:
+        JSON with plan info and features
+    """
+    # Get token from Authorization header
+    auth_header = request.headers.get('Authorization')
+
+    if not auth_header:
+        return jsonify({
+            'success': False,
+            'message': 'Authorization required',
+            'plan': 'free',
+            'features': {
+                'manual_trading': False,
+                'max_bots': 0
+            }
+        }), 401
+
+    try:
+        # Extract token (format: "Bearer <token>")
+        token = auth_header.split(' ')[1]
+
+        # Verify token
+        from backend.utils.auth_utils import decode_token
+        payload = decode_token(token)
+        user_id = payload.get('user_id')
+
+        if not user_id:
+            raise Exception('Invalid token payload')
+
+        # Get user's subscription
+        from backend.models.subscription_models import Subscription, SubscriptionStatus
+        from backend.models.plan_features import PLAN_FEATURES
+
+        session = get_db_session()
+        try:
+            subscription = session.query(Subscription).filter(
+                Subscription.user_id == user_id,
+                Subscription.status.in_([SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIAL])
+            ).first()
+
+            # Default to free plan if no active subscription
+            if not subscription:
+                plan = 'free'
+            else:
+                plan = subscription.plan.value
+
+            # Get features for this plan
+            features = PLAN_FEATURES.get(plan, PLAN_FEATURES['free'])
+
+            return jsonify({
+                'success': True,
+                'plan': plan,
+                'features': features,
+                'subscription': subscription.to_dict() if subscription else None
+            })
+
+        finally:
+            session.close()
+
+    except Exception as e:
+        logger.error(f"[UserPlan] Error: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'plan': 'free',
+            'features': PLAN_FEATURES['free']
+        }), 500
+
+
 # ============================================================================
 # Error Handlers
 # ============================================================================
