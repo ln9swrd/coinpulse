@@ -456,7 +456,13 @@
         }
 
         // Load referral data on page load
-        document.addEventListener('DOMContentLoaded', init);
+        // Check if DOM is already loaded (for dynamic loading in dashboard)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            // DOM already loaded, call init immediately
+            init();
+        }
 
         /**
          * Load user's referral code
