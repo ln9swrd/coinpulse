@@ -289,6 +289,9 @@ def update_user_plan(user_id):
             }), 200
 
     except Exception as e:
+        import traceback
+        error_trace = traceback.format_exc()
+        print(f"[ERROR] Plan update failed: {error_trace}")
         return jsonify({
             "success": False,
             "error": str(e)
