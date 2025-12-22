@@ -7,6 +7,7 @@
 2. **솔직한 소통**: 불확실하면 "모른다"고 인정, 과장 금지
 3. **과거 경험 활용**: 작업 전 대화 기록 검색, 성공 패턴 우선 적용
 4. **실용성 우선**: 80% 확실한 빠른 해결책 > 100% 완벽한 느린 해결책
+5. **하드코딩 절대 금지**: 모든 데이터는 파일/데이터베이스/API에서 참조 (상세: "코드 작성 규칙" 섹션 참조)
 
 ### 작업 분류
 - **Type A** (5분): 간단한 질문/확인, 파일 읽기, 명령어 실행 → 즉시 처리
@@ -550,11 +551,35 @@ backend/
 - `clean_upbit_server.py` (8080), `simple_dual_server.py` (8081)
 
 ### 코드 작성 규칙
-1. **파일 기반 설정 우선 원칙**:
-   - 모든 변수와 상수는 하드코딩 금지
-   - JSON 설정 파일에서 값을 불러와서 사용
-   - 포트, URL, API 키 등 모든 설정값은 파일 기반으로 관리
-   - JavaScript에서 `config.json` 동적 로드 필수
+1. **하드코딩 절대 금지 원칙** (2025.12.22 강화):
+   - **모든 데이터는 외부 소스에서 참조**: 파일, 데이터베이스, API
+   - **설정값**: JSON 설정 파일에서 로드 (포트, URL, API 키, 타임아웃 등)
+   - **비즈니스 로직**: 데이터베이스에서 조회 (요금제 기능, 가격, 제한사항)
+   - **UI 텍스트**: 다국어 파일 또는 CMS (향후 i18n 대응)
+   - **정책/규칙**: 설정 파일 또는 DB 테이블 (변경 시 코드 수정 없이 적용)
+
+   **❌ 금지 사례:**
+   ```python
+   # 하드코딩 (금지)
+   if plan == 'pro':
+       max_alerts = 999
+       has_telegram = True
+   ```
+
+   **✅ 권장 사례:**
+   ```python
+   # 데이터베이스/파일 참조 (권장)
+   features = get_plan_features(plan)  # PLAN_FEATURES dict에서 조회
+   max_alerts = features['max_auto_trading_alerts']
+   has_telegram = features['telegram_alerts']
+   ```
+
+   **적용 대상:**
+   - 요금제 기능 목록 → `PLAN_FEATURES` (backend/models/plan_features.py)
+   - 가격 정보 → `PLAN_PRICING` (backend/models/subscription_models.py)
+   - 서버 설정 → `config.json` 파일
+   - API 엔드포인트 → 환경 변수 또는 설정 파일
+   - HTML 내 요금제 UI → API로 동적 로드 (하드코딩 시 DB와 불일치 위험)
 2. **포트 관리 전략**:
    - 포트가 선점된 경우 포트 번호 변경 금지
    - 점유하고 있는 프로세스를 강제 중지 후 해당 포트 사용
