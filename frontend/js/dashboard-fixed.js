@@ -569,7 +569,6 @@
                 <div class="settings-page">
                     <div class="settings-header">
                         <h1>설정</h1>
-                        <p>계정 및 거래 설정 관리</p>
                     </div>
 
                     <!-- Settings Tabs -->
