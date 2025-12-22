@@ -123,11 +123,13 @@ class RateLimiter:
             '/api/user/plan',
             '/api/holdings',
             '/api/orders',
+            '/api/trading/orders',  # Alternative route for orders
             '/api/account/balance',
             '/api/subscription/current',  # User subscription status
             '/api/subscription/transactions',  # User transaction history
             '/api/user/signals/stats',  # User signal statistics
-            '/api/telegram/link/status'  # Telegram link status
+            '/api/telegram/link/status',  # Telegram link status
+            '/api/trading/policies'  # Trading policy configuration
         ]
         if path_without_query in auth_get_endpoints:
             return True, 0

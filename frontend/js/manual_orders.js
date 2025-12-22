@@ -244,7 +244,16 @@ WorkingTradingChart.prototype.loadPendingOrders = async function() {
     if (!orderList) return;
 
     try {
-        const response = await fetch(`${window.location.origin}/api/trading/orders?state=wait`);
+        // Get JWT token from localStorage
+        const accessToken = localStorage.getItem('access_token');
+        const headers = {};
+        if (accessToken) {
+            headers['Authorization'] = `Bearer ${accessToken}`;
+        }
+
+        const response = await fetch(`${window.location.origin}/api/trading/orders?state=wait`, {
+            headers: headers
+        });
         const result = await response.json();
 
         if (!response.ok || !result.success) {
@@ -290,8 +299,16 @@ WorkingTradingChart.prototype.cancelOrder = async function(uuid) {
     }
 
     try {
+        // Get JWT token from localStorage
+        const accessToken = localStorage.getItem('access_token');
+        const headers = {};
+        if (accessToken) {
+            headers['Authorization'] = `Bearer ${accessToken}`;
+        }
+
         const response = await fetch(`${window.location.origin}/api/trading/order/${uuid}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: headers
         });
 
         const result = await response.json();
@@ -313,8 +330,17 @@ WorkingTradingChart.prototype.updateAvailableBalances = async function() {
     console.log('[ManualOrders] Updating available balances');
 
     try {
+        // Get JWT token from localStorage
+        const accessToken = localStorage.getItem('access_token');
+        const headers = {};
+        if (accessToken) {
+            headers['Authorization'] = `Bearer ${accessToken}`;
+        }
+
         // Get KRW balance for buying
-        const response = await fetch(`${window.location.origin}/api/account/balance`);
+        const response = await fetch(`${window.location.origin}/api/account/balance`, {
+            headers: headers
+        });
         const result = await response.json();
 
         if (response.ok && result.success) {
