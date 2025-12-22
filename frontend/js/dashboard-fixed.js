@@ -1862,6 +1862,21 @@
                             accessKeyInput.value = data.user.upbit_access_key;
                             accessKeyInput.setAttribute('readonly', 'readonly');
                             accessKeyInput.style.backgroundColor = 'var(--input-disabled-bg, #f5f5f5)';
+                            accessKeyInput.style.color = '#2563eb';
+                            accessKeyInput.style.fontWeight = '600';
+
+                            // Add visual indicator
+                            const accessKeyLabel = accessKeyInput.previousElementSibling;
+                            if (accessKeyLabel && accessKeyLabel.tagName === 'LABEL') {
+                                const existingBadge = accessKeyLabel.querySelector('.key-loaded-badge');
+                                if (!existingBadge) {
+                                    const badge = document.createElement('span');
+                                    badge.className = 'key-loaded-badge';
+                                    badge.textContent = '✓ 등록됨';
+                                    badge.style.cssText = 'color: #22c55e; font-size: 12px; font-weight: 600; margin-left: 8px;';
+                                    accessKeyLabel.appendChild(badge);
+                                }
+                            }
 
                             // Show edit button
                             if (editBtn) {
@@ -1869,19 +1884,64 @@
                                 editBtn.addEventListener('click', () => {
                                     accessKeyInput.removeAttribute('readonly');
                                     accessKeyInput.style.backgroundColor = '';
+                                    accessKeyInput.style.color = '';
+                                    accessKeyInput.style.fontWeight = '';
                                     accessKeyInput.focus();
                                     editBtn.style.display = 'none';
                                     console.log('[Settings] Access key edit mode enabled');
                                 });
                             }
 
-                            console.log('[Settings] Access key loaded');
+                            console.log('[Settings] Access key loaded and displayed');
                         }
 
                         // Display masked secret key as placeholder
                         if (data.user.upbit_secret_key_masked) {
                             secretKeyInput.placeholder = `저장된 키: ${data.user.upbit_secret_key_masked} (변경하려면 새 키 입력)`;
+                            secretKeyInput.style.backgroundColor = 'var(--input-disabled-bg, #f5f5f5)';
+
+                            // Add visual indicator
+                            const secretKeyLabel = secretKeyInput.previousElementSibling;
+                            if (secretKeyLabel && secretKeyLabel.tagName === 'LABEL') {
+                                const existingBadge = secretKeyLabel.querySelector('.key-loaded-badge');
+                                if (!existingBadge) {
+                                    const badge = document.createElement('span');
+                                    badge.className = 'key-loaded-badge';
+                                    badge.textContent = '✓ 등록됨';
+                                    badge.style.cssText = 'color: #22c55e; font-size: 12px; font-weight: 600; margin-left: 8px;';
+                                    secretKeyLabel.appendChild(badge);
+                                }
+                            }
+
                             console.log('[Settings] Secret key masked displayed');
+                        }
+
+                        // Show success message if both keys are loaded
+                        if (data.user.upbit_access_key && data.user.upbit_secret_key_masked) {
+                            // Create success notification
+                            const successMsg = document.createElement('div');
+                            successMsg.style.cssText = `
+                                background: #dcfce7;
+                                border: 1px solid #86efac;
+                                border-radius: 8px;
+                                padding: 12px 16px;
+                                margin-bottom: 16px;
+                                color: #166534;
+                                font-size: 14px;
+                                display: flex;
+                                align-items: center;
+                                gap: 8px;
+                            `;
+                            successMsg.innerHTML = `
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                <span><strong>API 키가 등록되어 있습니다.</strong> 변경하려면 "변경" 버튼을 클릭하세요.</span>
+                            `;
+
+                            // Insert before form
+                            form.parentElement.insertBefore(successMsg, form);
                         }
                     }
                 }
