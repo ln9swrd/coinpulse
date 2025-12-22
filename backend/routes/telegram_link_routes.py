@@ -4,11 +4,11 @@ Telegram Linking Routes
 API endpoints for linking Telegram accounts to user accounts
 """
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, g
 from datetime import datetime, timedelta
 from backend.database.connection import get_db_session
 from backend.database.models import User, TelegramLinkCode
-from backend.utils.auth_utils import require_auth as token_required
+from backend.middleware.auth_middleware import require_auth
 import random
 import string
 
@@ -21,8 +21,8 @@ def generate_link_code():
 
 
 @telegram_link_bp.route('/api/telegram/link/generate', methods=['POST'])
-@token_required
-def generate_linking_code(current_user):
+@require_auth
+def generate_linking_code():
     """
     Generate a new Telegram linking code for the current user.
 
@@ -36,9 +36,16 @@ def generate_linking_code(current_user):
     """
     try:
         session = get_db_session()
+        user_id = g.user_id
+
+        # Get user
+        user = session.query(User).filter(User.id == user_id).first()
+        if not user:
+            session.close()
+            return jsonify({'success': False, 'error': 'User not found'}), 404
 
         # Check if already linked
-        if current_user.telegram_chat_id:
+        if user.telegram_chat_id:
             session.close()
             return jsonify({
                 'success': False,
@@ -47,7 +54,7 @@ def generate_linking_code(current_user):
 
         # Invalidate any existing unused codes for this user
         existing_codes = session.query(TelegramLinkCode).filter(
-            TelegramLinkCode.user_id == current_user.id,
+            TelegramLinkCode.user_id == user_id,
             TelegramLinkCode.used == False
         ).all()
 
@@ -60,7 +67,7 @@ def generate_linking_code(current_user):
         expires_at = datetime.utcnow() + timedelta(minutes=15)
 
         link_code = TelegramLinkCode(
-            user_id=current_user.id,
+            user_id=user_id,
             code=new_code,
             expires_at=expires_at
         )
@@ -200,8 +207,8 @@ def verify_linking_code():
 
 
 @telegram_link_bp.route('/api/telegram/link/status', methods=['GET'])
-@token_required
-def get_link_status(current_user):
+@require_auth
+def get_link_status():
     """
     Get the current Telegram linking status for the user.
 
@@ -214,12 +221,22 @@ def get_link_status(current_user):
         }
     """
     try:
+        session = get_db_session()
+        user_id = g.user_id
+
+        # Get user
+        user = session.query(User).filter(User.id == user_id).first()
+        session.close()
+
+        if not user:
+            return jsonify({'success': False, 'error': 'User not found'}), 404
+
         return jsonify({
             'success': True,
-            'linked': bool(current_user.telegram_chat_id),
-            'telegram_chat_id': current_user.telegram_chat_id if current_user.telegram_chat_id else None,
-            'telegram_username': current_user.telegram_username,
-            'linked_at': current_user.telegram_linked_at.isoformat() if current_user.telegram_linked_at else None,
+            'linked': bool(user.telegram_chat_id),
+            'telegram_chat_id': user.telegram_chat_id if user.telegram_chat_id else None,
+            'telegram_username': user.telegram_username,
+            'linked_at': user.telegram_linked_at.isoformat() if user.telegram_linked_at else None,
             'timestamp': datetime.utcnow().isoformat()
         })
 
@@ -231,8 +248,8 @@ def get_link_status(current_user):
 
 
 @telegram_link_bp.route('/api/telegram/link/unlink', methods=['POST'])
-@token_required
-def unlink_telegram(current_user):
+@require_auth
+def unlink_telegram():
     """
     Unlink the Telegram account from the current user.
 
@@ -244,8 +261,9 @@ def unlink_telegram(current_user):
     """
     try:
         session = get_db_session()
+        user_id = g.user_id
 
-        user = session.query(User).filter(User.id == current_user.id).first()
+        user = session.query(User).filter(User.id == user_id).first()
 
         if not user.telegram_chat_id:
             session.close()
