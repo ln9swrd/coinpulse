@@ -49,12 +49,12 @@ class RateLimiter:
             }
         else:
             self.limits = {
-                # Production: Relaxed limits (increased for dashboard)
-                'default': {'requests': 120, 'window': 60},
-                'auth': {'requests': 10, 'window': 60},  # 10 login attempts per minute
-                'api': {'requests': 100, 'window': 60},  # 100 API calls per minute
-                'trading': {'requests': 30, 'window': 60},  # 30 trading calls per minute
-                'admin': {'requests': 5000, 'window': 60}  # 5000 admin calls per minute (effectively unlimited for admin panel)
+                # Production: Very relaxed limits (optimized for real-time dashboard & auto-trading)
+                'default': {'requests': 600, 'window': 60},  # 600 requests/min (10 req/s)
+                'auth': {'requests': 20, 'window': 60},  # 20 login attempts per minute
+                'api': {'requests': 600, 'window': 60},  # 600 API calls/min (10 req/s)
+                'trading': {'requests': 300, 'window': 60},  # 300 trading calls/min (5 req/s)
+                'admin': {'requests': 5000, 'window': 60}  # 5000 admin calls per minute (effectively unlimited)
             }
 
     def _get_limit_for_path(self, path):
@@ -160,6 +160,14 @@ class RateLimiter:
         if path_without_query.startswith('/api/upbit/candles/') or \
            path_without_query.startswith('/api/upbit/ticker') or \
            path_without_query.startswith('/api/upbit/market/'):
+            return True, 0
+
+        # Exclude WebSocket (Socket.IO) endpoints (real-time communication)
+        if path_without_query.startswith('/socket.io/'):
+            return True, 0
+
+        # Exclude Surge monitoring endpoints (frequent polling)
+        if path_without_query.startswith('/api/surge/'):
             return True, 0
 
         # Check if IP is blocked
