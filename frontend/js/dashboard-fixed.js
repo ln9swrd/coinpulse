@@ -741,9 +741,9 @@
                         </button>
                         <button class="settings-tab" data-tab="trading">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                             </svg>
-                            <span>거래</span>
+                            <span>관심 코인</span>
                         </button>
                         <button class="settings-tab" data-tab="notifications">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -911,14 +911,17 @@
                             </div>
                         </div>
 
-                        <!-- Trading Preferences Tab -->
+                        <!-- Favorite Coins Tab -->
                         <div class="settings-tab-content" data-tab-content="trading">
                             <div class="settings-section">
-                                <h2>거래 설정</h2>
+                                <h2>관심 코인 설정</h2>
+                                <p style="color: var(--text-muted); margin-bottom: 20px;">
+                                    급등 알림을 우선적으로 받을 코인을 선택하세요. 선택한 코인의 급등 신호가 감지되면 텔레그램으로 알림을 받습니다.
+                                </p>
 
                                 <!-- Coin Selection Section -->
                                 <div class="coin-selector-section">
-                                    <h3>관심 코인 선택 (최대 5개)</h3>
+                                    <h3>코인 선택 (최대 5개)</h3>
                                     <div class="coin-selector-grid" id="coin-selector-grid">
                                         <div class="coin-selector-item" data-coin="BTC">
                                             <input type="checkbox" id="coin-BTC" value="BTC">
@@ -2684,7 +2687,7 @@
             selectedCoins.forEach(coin => {
                 const settings = savedSettings[coin] || {
                     risk: 'moderate',
-                    autoTrading: false,
+                    alertEnabled: true,
                     stopLoss: false
                 };
 
@@ -2704,8 +2707,8 @@
                             </div>
                             <div class="coin-setting-group">
                                 <div class="coin-setting-toggle">
-                                    <input type="checkbox" id="auto-${coin}" ${settings.autoTrading ? 'checked' : ''}>
-                                    <label for="auto-${coin}">자동 거래 활성화</label>
+                                    <input type="checkbox" id="alert-${coin}" ${settings.alertEnabled !== false ? 'checked' : ''}>
+                                    <label for="alert-${coin}">급등 알림 받기</label>
                                 </div>
                             </div>
                             <div class="coin-setting-group">
@@ -2730,12 +2733,12 @@
             // Collect settings for each coin
             selectedCoins.forEach(coin => {
                 const riskSelect = document.querySelector(`.risk-select[data-coin="${coin}"]`);
-                const autoCheckbox = document.getElementById(`auto-${coin}`);
+                const alertCheckbox = document.getElementById(`alert-${coin}`);
                 const stopCheckbox = document.getElementById(`stop-${coin}`);
 
                 settings[coin] = {
                     risk: riskSelect?.value || 'moderate',
-                    autoTrading: autoCheckbox?.checked || false,
+                    alertEnabled: alertCheckbox?.checked !== false,
                     stopLoss: stopCheckbox?.checked || false
                 };
             });

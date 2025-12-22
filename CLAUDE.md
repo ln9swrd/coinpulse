@@ -995,6 +995,34 @@ echo Success!
   - 응답 시간: X-Response-Time: 0.070s
   - 로그: "[Performance] Middleware configured - gzip compression + cache headers enabled"
 
+#### Phase 8: 급등 알림 시스템 정리 (완료 - 2025.12.22)
+- ✅ **시스템 사양 문서 작성**: docs/features/SURGE_ALERT_SYSTEM.md
+  - 용어 정의 (급등 모니터링, 급등 신호, 급등 알림, 관심 코인)
+  - 시스템 동작 흐름 (스캔 → 필터링 → 알림 전송)
+  - 요금제별 기능 (Free: view only, Basic: 주 3회, Pro: 주 10회)
+  - 시나리오별 동작 (5가지 시나리오 정의)
+  - 데이터베이스 스키마 (surge_alerts, user_favorite_coins)
+
+- ✅ **plan_features.py 용어 통일**:
+  - `max_auto_trading_alerts` → `max_surge_alerts`
+  - `favorite_coins` 필드 추가
+  - 상세 주석 추가 (시스템 개요, 요금제별 제공량)
+  - 참고 문서 링크 추가
+
+- ✅ **프론트엔드 UI 개선**:
+  - "거래 탭" → "관심 코인" 탭으로 명칭 변경
+  - 설정 설명 추가: "급등 알림을 우선적으로 받을 코인 선택"
+  - "자동 거래 활성화" → "급등 알림 받기" 체크박스로 변경
+  - 별 아이콘으로 탭 아이콘 변경
+
+- ✅ **주요 개선사항**:
+  - 용어 혼란 해소 (자동매매 알림 vs 급등 알림 명확히 구분)
+  - 관심 코인 개념 도입 (최대 5개 선택)
+  - 요금제별 알림 횟수 제한 명확화
+  - 이미 보유 중인 코인 처리 정책 정의
+
+**참고 문서**: [SURGE_ALERT_SYSTEM.md](docs/features/SURGE_ALERT_SYSTEM.md)
+
 #### 데이터베이스 통합 (Priority 1 완료 - 2025.11.19)
 - ✅ **OrderSyncService 구현**: backend/services/order_sync_service.py (270줄)
   - Initial full sync: 최대 10,000개 주문 동기화

@@ -55,6 +55,8 @@ from backend.routes.payment_confirmation_admin import payment_confirm_admin_bp  
 from backend.routes.telegram_webhook import telegram_webhook_bp  # Telegram bot webhook for auto payment processing
 from backend.routes.referral_routes import referral_bp  # Referral system (friend invitation)
 from backend.models.referral import ReferralCode, Referral  # Import models to register with SQLAlchemy
+from backend.routes.favorite_coins_routes import favorite_coins_bp  # Favorite coins management (Phase 8)
+from backend.routes.surge_alert_routes import surge_alert_bp  # Surge alert history (Phase 8)
 
 # Import WebSocket service (Phase 3)
 from backend.services.websocket_service import init_websocket_service, setup_socketio_handlers
@@ -228,7 +230,9 @@ def register_blueprints():
         (payment_confirm_bp, None),  # Payment confirmation (already has /api/payment-confirm prefix)
         (payment_confirm_admin_bp, None),  # Admin payment confirmation (already has /api/admin/payment-confirmations prefix)
         (telegram_webhook_bp, None),  # Telegram bot webhook for auto payment processing (already has /api/telegram prefix)
-        (referral_bp, None)  # Referral system (already has /api/referral prefix)
+        (referral_bp, None),  # Referral system (already has /api/referral prefix)
+        (favorite_coins_bp, None),  # Favorite coins management (Phase 8, already has /api/user/favorite-coins prefix)
+        (surge_alert_bp, None)  # Surge alert history (Phase 8, already has /api/surge/alerts prefix)
     ]
 
     for blueprint, url_prefix in blueprints:
