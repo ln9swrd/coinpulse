@@ -52,18 +52,23 @@ export class PageLoader {
             } else {
                 console.log('[PageLoader] Fetching page:', url);
                 const response = await fetch(url, {
-                    signal: this.abortController.signal
+                    signal: this.abortController.signal,
+                    cache: 'no-cache'  // Force fresh fetch
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Failed to load page: ${response.status} ${response.statusText}`);
+                    // Do NOT cache failed responses
+                    const error = new Error(`Failed to load page: ${response.status} ${response.statusText}`);
+                    error.status = response.status;
+                    throw error;
                 }
 
                 html = await response.text();
 
-                // Cache the result
-                if (useCache) {
+                // Only cache successful responses
+                if (useCache && html && html.length > 0) {
                     this.cache.set(url, html);
+                    console.log('[PageLoader] Cached page:', url);
                 }
             }
 
@@ -91,7 +96,21 @@ export class PageLoader {
             }
 
             console.error('[PageLoader] Failed to load page:', error);
-            this.showErrorState(container, error.message);
+
+            // Clear cache for this URL to allow retry
+            this.clearCache(url);
+
+            // Show error with specific message based on error type
+            let errorMessage = error.message;
+            if (error.status === 404) {
+                errorMessage = '요청한 페이지를 찾을 수 없습니다. (404)';
+            } else if (error.status >= 500) {
+                errorMessage = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+            } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                errorMessage = '네트워크 연결을 확인해주세요.';
+            }
+
+            this.showErrorState(container, errorMessage, url);
         } finally {
             this.abortController = null;
         }
@@ -208,8 +227,11 @@ export class PageLoader {
      *
      * @param {HTMLElement} container - Container element
      * @param {string} message - Error message
+     * @param {string} url - Failed page URL (for retry)
      */
-    showErrorState(container, message) {
+    showErrorState(container, message, url = null) {
+        const retryButtonId = 'page-loader-retry-btn';
+
         container.innerHTML = `
             <div style="
                 display: flex;
@@ -228,21 +250,45 @@ export class PageLoader {
                 <p style="margin: 0; font-size: 14px; color: #666;">
                     ${message}
                 </p>
-                <button onclick="window.location.reload()" style="
-                    margin-top: 20px;
-                    padding: 10px 24px;
-                    background: #667eea;
-                    color: white;
-                    border: none;
-                    border-radius: 6px;
-                    font-size: 14px;
-                    font-weight: 600;
-                    cursor: pointer;
-                ">
-                    새로고침
-                </button>
+                <div style="margin-top: 20px; display: flex; gap: 12px;">
+                    ${url ? `<button id="${retryButtonId}" style="
+                        padding: 10px 24px;
+                        background: #667eea;
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        font-size: 14px;
+                        font-weight: 600;
+                        cursor: pointer;
+                    ">
+                        다시 시도
+                    </button>` : ''}
+                    <button onclick="window.location.reload()" style="
+                        padding: 10px 24px;
+                        background: #9ca3af;
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        font-size: 14px;
+                        font-weight: 600;
+                        cursor: pointer;
+                    ">
+                        새로고침
+                    </button>
+                </div>
             </div>
         `;
+
+        // Add retry button handler
+        if (url) {
+            const retryBtn = container.querySelector(`#${retryButtonId}`);
+            if (retryBtn) {
+                retryBtn.addEventListener('click', () => {
+                    console.log('[PageLoader] Retrying page load:', url);
+                    this.loadPage(url, container, { useCache: false });  // Force fresh fetch
+                });
+            }
+        }
     }
 
     /**
