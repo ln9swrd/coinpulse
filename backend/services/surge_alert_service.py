@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 Surge Alert Service
-급등 알림 전송 및 관리 서비스
+급등 알림 자동매매 서비스
 
-참고 문서: docs/features/SURGE_ALERT_SYSTEM.md
+참고 문서: docs/features/SURGE_ALERT_SYSTEM.md v2.0
 """
 
 import os
@@ -13,7 +13,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
-from backend.models.surge_alert_models import SurgeAlert, UserFavoriteCoin
+from backend.models.surge_alert_models import SurgeAlert, SurgeAutoTradingSettings
 from backend.models.plan_features import get_user_features, PLAN_FEATURES
 from backend.database.connection import get_db_session
 
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class SurgeAlertService:
-    """급등 알림 서비스"""
+    """급등 알림 자동매매 서비스 v2.0"""
 
     def __init__(self, session: Session = None):
         """
@@ -31,29 +31,34 @@ class SurgeAlertService:
             session: SQLAlchemy session (optional, creates new if not provided)
         """
         self.session = session or get_db_session()
-        logger.info("[SurgeAlertService] Initialized")
+        logger.info("[SurgeAlertService] Initialized (v2.0)")
 
-    def get_weekly_alert_count(self, user_id: int) -> int:
+    def get_weekly_alert_count(self, user_id: int, auto_traded_only: bool = True) -> int:
         """
-        Get user's alert count for current week
+        Get user's auto-traded alert count for current week
 
         Args:
             user_id: User ID
+            auto_traded_only: Count only auto-traded alerts (default True)
 
         Returns:
-            Number of alerts sent this week
+            Number of auto-traded alerts this week
         """
         try:
             current_week = SurgeAlert.get_current_week_number()
 
-            count = self.session.query(func.count(SurgeAlert.id))\
+            query = self.session.query(func.count(SurgeAlert.id))\
                 .filter(
                     SurgeAlert.user_id == user_id,
                     SurgeAlert.week_number == current_week
-                )\
-                .scalar()
+                )
 
-            logger.info(f"[SurgeAlert] User {user_id} has {count} alerts this week ({current_week})")
+            if auto_traded_only:
+                query = query.filter(SurgeAlert.auto_traded == True)
+
+            count = query.scalar()
+
+            logger.info(f"[SurgeAlert] User {user_id} has {count} auto-traded alerts this week ({current_week})")
             return count or 0
 
         except Exception as e:
@@ -73,148 +78,163 @@ class SurgeAlertService:
         features = PLAN_FEATURES.get(plan.lower(), PLAN_FEATURES['free'])
         return features.get('max_surge_alerts', 0)
 
-    def can_send_alert(self, user_id: int, plan: str) -> Tuple[bool, str]:
+    def get_user_settings(self, user_id: int) -> Optional[SurgeAutoTradingSettings]:
         """
-        Check if user can receive an alert
+        Get user's auto-trading settings
 
         Args:
             user_id: User ID
-            plan: User's plan ('free', 'basic', 'pro')
 
         Returns:
-            (can_send: bool, reason: str)
+            SurgeAutoTradingSettings or None
         """
-        # Free plan: no alerts
-        if plan.lower() == 'free':
-            return False, "Free plan does not support alerts"
+        try:
+            settings = self.session.query(SurgeAutoTradingSettings)\
+                .filter(SurgeAutoTradingSettings.user_id == user_id)\
+                .first()
 
-        # Check weekly limit
+            return settings
+
+        except Exception as e:
+            logger.error(f"[SurgeAlert] Error getting settings for user {user_id}: {str(e)}")
+            return None
+
+    def get_open_positions_count(self, user_id: int) -> int:
+        """
+        Get count of open positions for user
+
+        Args:
+            user_id: User ID
+
+        Returns:
+            Number of open positions
+        """
+        try:
+            count = self.session.query(func.count(SurgeAlert.id))\
+                .filter(
+                    SurgeAlert.user_id == user_id,
+                    SurgeAlert.auto_traded == True,
+                    SurgeAlert.status.in_(['pending', 'executed'])
+                )\
+                .scalar()
+
+            return count or 0
+
+        except Exception as e:
+            logger.error(f"[SurgeAlert] Error getting open positions for user {user_id}: {str(e)}")
+            return 0
+
+    def can_auto_trade(
+        self,
+        user_id: int,
+        plan: str,
+        settings: SurgeAutoTradingSettings,
+        confidence: float,
+        coin: str
+    ) -> Tuple[bool, str]:
+        """
+        Check if auto-trade can be executed
+
+        Args:
+            user_id: User ID
+            plan: User's plan
+            settings: User's auto-trading settings
+            confidence: Signal confidence
+            coin: Coin symbol
+
+        Returns:
+            (can_trade: bool, reason: str)
+        """
+        # 1. Check plan allows auto-trading
+        features = get_user_features(plan)
+        if not features.get('surge_auto_trading', False):
+            return False, "Plan does not support auto-trading"
+
+        # 2. Check if enabled
+        if not settings or not settings.enabled:
+            return False, "Auto-trading is disabled"
+
+        # 3. Check weekly limit
         max_alerts = self.get_max_alerts_for_plan(plan)
-        current_count = self.get_weekly_alert_count(user_id)
+        current_count = self.get_weekly_alert_count(user_id, auto_traded_only=True)
 
         if current_count >= max_alerts:
             return False, f"Weekly limit reached ({current_count}/{max_alerts})"
 
+        # 4. Check budget
+        if not settings.can_trade():
+            return False, "Insufficient budget"
+
+        # 5. Check confidence threshold
+        if confidence < settings.min_confidence:
+            return False, f"Confidence {confidence}% below threshold {settings.min_confidence}%"
+
+        # 6. Check max positions
+        open_positions = self.get_open_positions_count(user_id)
+        if open_positions >= settings.max_positions:
+            return False, f"Maximum positions reached ({open_positions}/{settings.max_positions})"
+
+        # 7. Check excluded coins
+        if settings.excluded_coins and coin.upper() in settings.excluded_coins:
+            return False, f"Coin {coin} is in exclusion list"
+
         return True, "OK"
 
-    def get_user_favorite_coins(self, user_id: int) -> List[UserFavoriteCoin]:
-        """
-        Get user's favorite coins with alert enabled
-
-        Args:
-            user_id: User ID
-
-        Returns:
-            List of UserFavoriteCoin objects
-        """
-        try:
-            favorites = self.session.query(UserFavoriteCoin)\
-                .filter(
-                    UserFavoriteCoin.user_id == user_id,
-                    UserFavoriteCoin.alert_enabled == True
-                )\
-                .all()
-
-            logger.info(f"[SurgeAlert] User {user_id} has {len(favorites)} favorite coins with alerts enabled")
-            return favorites
-
-        except Exception as e:
-            logger.error(f"[SurgeAlert] Error getting favorites for user {user_id}: {str(e)}")
-            return []
-
-    def is_coin_in_favorites(self, user_id: int, coin: str) -> bool:
-        """
-        Check if a coin is in user's favorites with alert enabled
-
-        Args:
-            user_id: User ID
-            coin: Coin symbol (e.g., 'BTC')
-
-        Returns:
-            True if coin is in favorites with alert enabled
-        """
-        try:
-            exists = self.session.query(UserFavoriteCoin)\
-                .filter(
-                    UserFavoriteCoin.user_id == user_id,
-                    UserFavoriteCoin.coin == coin.upper(),
-                    UserFavoriteCoin.alert_enabled == True
-                )\
-                .first()
-
-            return exists is not None
-
-        except Exception as e:
-            logger.error(f"[SurgeAlert] Error checking favorite for user {user_id}, coin {coin}: {str(e)}")
-            return False
-
-    def get_confidence_threshold(self, plan: str, is_favorite: bool) -> float:
-        """
-        Get confidence threshold based on plan and favorite status
-
-        Args:
-            plan: User's plan
-            is_favorite: Is the coin in user's favorites?
-
-        Returns:
-            Minimum confidence threshold (%)
-        """
-        if plan.lower() == 'pro':
-            return 75.0 if is_favorite else 85.0
-        elif plan.lower() == 'basic':
-            return 80.0 if is_favorite else 90.0
-        else:
-            return 100.0  # Free plan: never send
-
-    def should_send_alert(
+    def execute_auto_trade(
         self,
         user_id: int,
-        plan: str,
+        settings: SurgeAutoTradingSettings,
         market: str,
         coin: str,
-        confidence: float,
-        holdings: Dict = None
-    ) -> Tuple[bool, str, str]:
+        current_price: int
+    ) -> Tuple[bool, Optional[Dict]]:
         """
-        Determine if alert should be sent to user
+        Execute auto-trade purchase
 
         Args:
             user_id: User ID
-            plan: User's plan
+            settings: Auto-trading settings
             market: Market code (e.g., 'KRW-BTC')
-            coin: Coin symbol (e.g., 'BTC')
-            confidence: Prediction confidence (0-100)
-            holdings: User's current holdings (optional)
+            coin: Coin symbol
+            current_price: Current price
 
         Returns:
-            (should_send: bool, signal_type: str, reason: str)
+            (success: bool, trade_info: dict or None)
         """
-        # 1. Check if user can receive alerts
-        can_send, reason = self.can_send_alert(user_id, plan)
-        if not can_send:
-            return False, None, reason
+        try:
+            # Calculate quantity based on amount_per_trade
+            amount = settings.amount_per_trade
+            quantity = amount / current_price
 
-        # 2. Check if coin is in favorites
-        is_favorite = self.is_coin_in_favorites(user_id, coin)
+            # TODO: Integrate with Upbit API to place actual order
+            # For now, simulate trade
+            logger.info(f"[SurgeAlert] Simulating auto-trade: {coin} x {quantity:.8f} for {amount:,} KRW")
 
-        # 3. Get confidence threshold
-        threshold = self.get_confidence_threshold(plan, is_favorite)
+            # Calculate stop loss and take profit prices
+            stop_loss_price = None
+            if settings.stop_loss_enabled:
+                stop_loss_price = int(current_price * (1 + settings.stop_loss_percent / 100))
 
-        # 4. Check confidence
-        if confidence < threshold:
-            return False, None, f"Confidence {confidence}% below threshold {threshold}%"
+            take_profit_price = None
+            if settings.take_profit_enabled:
+                take_profit_price = int(current_price * (1 + settings.take_profit_percent / 100))
 
-        # 5. Determine signal type
-        signal_type = "favorite" if is_favorite else "high_confidence"
+            trade_info = {
+                'order_id': f'SIM-{user_id}-{int(datetime.utcnow().timestamp())}',  # Simulated order ID
+                'amount': amount,
+                'quantity': quantity,
+                'price': current_price,
+                'stop_loss_price': stop_loss_price,
+                'take_profit_price': take_profit_price,
+                'executed_at': datetime.utcnow()
+            }
 
-        # 6. Check if user already owns this coin
-        if holdings and market in holdings:
-            holding = holdings[market]
-            if holding.get('balance', 0) > 0:
-                signal_type = "additional_buy"
-                logger.info(f"[SurgeAlert] User {user_id} already owns {coin}, signal type: additional_buy")
+            logger.info(f"[SurgeAlert] Auto-trade executed successfully for user {user_id}")
+            return True, trade_info
 
-        return True, signal_type, "OK"
+        except Exception as e:
+            logger.error(f"[SurgeAlert] Error executing auto-trade for user {user_id}: {str(e)}")
+            return False, None
 
     def record_alert(
         self,
@@ -222,10 +242,13 @@ class SurgeAlertService:
         market: str,
         coin: str,
         confidence: float,
-        signal_type: str,
-        current_price: int = None,
+        entry_price: int = None,
         target_price: int = None,
-        expected_return: float = None,
+        stop_loss_price: int = None,
+        auto_traded: bool = False,
+        trade_amount: int = None,
+        trade_quantity: float = None,
+        order_id: str = None,
         reason: str = None,
         alert_message: str = None,
         telegram_sent: bool = False,
@@ -239,10 +262,13 @@ class SurgeAlertService:
             market: Market code
             coin: Coin symbol
             confidence: Prediction confidence
-            signal_type: Type of signal ('favorite', 'high_confidence', 'additional_buy')
-            current_price: Current price in KRW
-            target_price: Target price in KRW
-            expected_return: Expected return %
+            entry_price: Entry price
+            target_price: Target price
+            stop_loss_price: Stop loss price
+            auto_traded: Was auto-traded?
+            trade_amount: Trade amount in KRW
+            trade_quantity: Quantity purchased
+            order_id: Order ID
             reason: Reason for alert
             alert_message: Telegram message content
             telegram_sent: Successfully sent via Telegram
@@ -257,22 +283,27 @@ class SurgeAlertService:
                 market=market,
                 coin=coin,
                 confidence=confidence,
-                signal_type=signal_type,
-                current_price=current_price,
+                entry_price=entry_price,
                 target_price=target_price,
-                expected_return=expected_return,
+                stop_loss_price=stop_loss_price,
+                auto_traded=auto_traded,
+                trade_amount=trade_amount,
+                trade_quantity=trade_quantity,
+                order_id=order_id,
+                status='executed' if auto_traded else 'pending',
                 reason=reason,
                 alert_message=alert_message,
                 telegram_sent=telegram_sent,
                 telegram_message_id=telegram_message_id,
                 sent_at=datetime.utcnow(),
+                executed_at=datetime.utcnow() if auto_traded else None,
                 week_number=SurgeAlert.get_current_week_number()
             )
 
             self.session.add(alert)
             self.session.commit()
 
-            logger.info(f"[SurgeAlert] Recorded alert for user {user_id}: {market} ({signal_type})")
+            logger.info(f"[SurgeAlert] Recorded alert for user {user_id}: {market} (auto_traded={auto_traded})")
             return alert
 
         except Exception as e:
@@ -288,8 +319,10 @@ class SurgeAlertService:
         current_price: int,
         target_price: int,
         expected_return: float,
-        signal_type: str,
-        holding_info: Dict = None
+        auto_traded: bool = False,
+        trade_amount: int = None,
+        stop_loss_price: int = None,
+        take_profit_price: int = None
     ) -> str:
         """
         Format alert message for Telegram
@@ -301,8 +334,10 @@ class SurgeAlertService:
             current_price: Current price
             target_price: Target price
             expected_return: Expected return %
-            signal_type: Signal type
-            holding_info: Current holding info (for additional_buy type)
+            auto_traded: Was auto-traded?
+            trade_amount: Trade amount (if auto-traded)
+            stop_loss_price: Stop loss price (if set)
+            take_profit_price: Take profit price (if set)
 
         Returns:
             Formatted message string
@@ -323,44 +358,29 @@ class SurgeAlertService:
 
         coin_name = coin_names.get(coin, coin)
 
-        if signal_type == "additional_buy":
-            # Additional buy opportunity message
-            holding_value = holding_info.get('avg_buy_price', 0) if holding_info else 0
-            holding_return = holding_info.get('profit_rate', 0) if holding_info else 0
-
+        if auto_traded:
+            # Auto-traded message
             message = f"""
-📈 *추가 매수 기회*
+🤖 *급등 알림 자동매매*
 
 코인: {coin} ({coin_name})
-현재 보유: ₩{holding_value:,} ({holding_return:+.2f}%)
-추가 급등 예상: {confidence:.1f}% 신뢰도
+신뢰도: {confidence:.1f}%
+매수 완료: {trade_amount:,}원
 
-현재가: ₩{current_price:,}
-예상 목표가: ₩{target_price:,} (+{expected_return:.2f}%)
-
-추가 매수 시 예상 평균 수익률: +{(holding_return + expected_return) / 2:.2f}%
-
-💡 이미 보유 중인 코인의 추가 상승이 예상됩니다.
+매수가: ₩{current_price:,}
+목표가: ₩{target_price:,} (+{expected_return:.2f}%)
 """
+            if stop_loss_price:
+                message += f"손절가: ₩{stop_loss_price:,} ({(stop_loss_price - current_price) / current_price * 100:.1f}%)\n"
+            if take_profit_price:
+                message += f"익절가: ₩{take_profit_price:,} (+{(take_profit_price - current_price) / current_price * 100:.1f}%)\n"
 
-        elif signal_type == "high_confidence":
-            # High confidence non-favorite coin message
-            message = f"""
-🔥 *고신뢰도 급등 알림*
-
-코인: {coin} ({coin_name})
-신뢰도: {confidence:.1f}% ⭐
-현재가: ₩{current_price:,}
-예상 목표가: ₩{target_price:,}
-예상 상승률: +{expected_return:.2f}%
-
-💡 관심 코인에 추가하면 우선 알림을 받을 수 있습니다.
-"""
+            message += "\n💡 자동매매가 실행되었습니다. 포지션을 확인하세요."
 
         else:
-            # Regular favorite coin alert
+            # Regular surge alert (no auto-trade)
             message = f"""
-📈 *급등 알림*
+🔥 *급등 신호 감지*
 
 코인: {coin} ({coin_name})
 신뢰도: {confidence:.1f}%
@@ -368,10 +388,11 @@ class SurgeAlertService:
 예상 목표가: ₩{target_price:,} (+{expected_return:.2f}%)
 
 📊 검증된 알고리즘 (81.25% 적중률)
+💡 자동매매를 활성화하여 자동 거래하세요.
 """
 
         # Add call-to-action
-        message += f"\n[상세보기] https://coinpulse.sinsi.ai/dashboard.html?coin={market}"
+        message += f"\n\n[상세보기] https://coinpulse.sinsi.ai/dashboard.html?coin={market}"
 
         return message.strip()
 
@@ -385,11 +406,10 @@ class SurgeAlertService:
         current_price: int,
         target_price: int,
         expected_return: float,
-        holdings: Dict = None,
         telegram_chat_id: str = None
     ) -> Tuple[bool, Optional[SurgeAlert]]:
         """
-        Send surge alert to a user
+        Send surge alert and optionally execute auto-trade
 
         Args:
             user_id: User ID
@@ -400,30 +420,42 @@ class SurgeAlertService:
             current_price: Current price
             target_price: Target price
             expected_return: Expected return %
-            holdings: User's holdings
             telegram_chat_id: Telegram chat ID (optional)
 
         Returns:
             (success: bool, alert: SurgeAlert or None)
         """
-        # 1. Check if should send
-        should_send, signal_type, reason = self.should_send_alert(
-            user_id, plan, market, coin, confidence, holdings
-        )
+        # 1. Get user's auto-trading settings
+        settings = self.get_user_settings(user_id)
 
-        if not should_send:
-            logger.info(f"[SurgeAlert] Not sending alert to user {user_id}: {reason}")
-            return False, None
+        # 2. Check if can auto-trade
+        auto_traded = False
+        trade_info = None
 
-        # 2. Get holding info for additional_buy type
-        holding_info = None
-        if signal_type == "additional_buy" and holdings and market in holdings:
-            holding_info = holdings[market]
+        if settings:
+            can_trade, reason = self.can_auto_trade(user_id, plan, settings, confidence, coin)
+
+            if can_trade:
+                # Execute auto-trade
+                success, trade_info = self.execute_auto_trade(
+                    user_id, settings, market, coin, current_price
+                )
+
+                if success:
+                    auto_traded = True
+                    logger.info(f"[SurgeAlert] Auto-trade executed for user {user_id}: {market}")
+                else:
+                    logger.warning(f"[SurgeAlert] Auto-trade failed for user {user_id}: {market}")
+            else:
+                logger.info(f"[SurgeAlert] Auto-trade not executed for user {user_id}: {reason}")
 
         # 3. Format message
         message = self.format_alert_message(
             coin, market, confidence, current_price, target_price,
-            expected_return, signal_type, holding_info
+            expected_return, auto_traded,
+            trade_info.get('amount') if trade_info else None,
+            trade_info.get('stop_loss_price') if trade_info else None,
+            trade_info.get('take_profit_price') if trade_info else None
         )
 
         # 4. Send via Telegram (if chat_id provided)
@@ -446,10 +478,13 @@ class SurgeAlertService:
             market=market,
             coin=coin,
             confidence=confidence,
-            signal_type=signal_type,
-            current_price=current_price,
+            entry_price=current_price,
             target_price=target_price,
-            expected_return=expected_return,
+            stop_loss_price=trade_info.get('stop_loss_price') if trade_info else None,
+            auto_traded=auto_traded,
+            trade_amount=trade_info.get('amount') if trade_info else None,
+            trade_quantity=trade_info.get('quantity') if trade_info else None,
+            order_id=trade_info.get('order_id') if trade_info else None,
             reason=f"Surge prediction with {confidence:.1f}% confidence",
             alert_message=message,
             telegram_sent=telegram_sent,
@@ -457,7 +492,7 @@ class SurgeAlertService:
         )
 
         if alert:
-            logger.info(f"[SurgeAlert] Successfully sent alert to user {user_id}: {market} ({signal_type})")
+            logger.info(f"[SurgeAlert] Successfully processed alert for user {user_id}: {market} (auto_traded={auto_traded})")
             return True, alert
         else:
             logger.error(f"[SurgeAlert] Failed to record alert for user {user_id}")
@@ -512,26 +547,26 @@ class SurgeAlertService:
             current_week = SurgeAlert.get_current_week_number()
 
             # This week's count
-            week_count = self.get_weekly_alert_count(user_id)
+            week_count = self.get_weekly_alert_count(user_id, auto_traded_only=True)
 
             # Total count
             total_count = self.session.query(func.count(SurgeAlert.id))\
-                .filter(SurgeAlert.user_id == user_id)\
-                .scalar() or 0
-
-            # User actions count
-            action_count = self.session.query(func.count(SurgeAlert.id))\
                 .filter(
                     SurgeAlert.user_id == user_id,
-                    SurgeAlert.user_action.isnot(None)
+                    SurgeAlert.auto_traded == True
                 )\
                 .scalar() or 0
+
+            # Get settings for statistics
+            settings = self.get_user_settings(user_id)
 
             return {
                 'week_count': week_count,
                 'total_count': total_count,
-                'action_count': action_count,
-                'action_rate': (action_count / total_count * 100) if total_count > 0 else 0,
+                'total_trades': settings.total_trades if settings else 0,
+                'successful_trades': settings.successful_trades if settings else 0,
+                'total_profit_loss': settings.total_profit_loss if settings else 0,
+                'success_rate': (settings.successful_trades / settings.total_trades * 100) if settings and settings.total_trades > 0 else 0,
                 'current_week': current_week
             }
 
@@ -540,8 +575,10 @@ class SurgeAlertService:
             return {
                 'week_count': 0,
                 'total_count': 0,
-                'action_count': 0,
-                'action_rate': 0
+                'total_trades': 0,
+                'successful_trades': 0,
+                'total_profit_loss': 0,
+                'success_rate': 0
             }
 
 
@@ -566,21 +603,20 @@ def get_surge_alert_service(session: Session = None) -> SurgeAlertService:
 
 
 if __name__ == "__main__":
-    print("Surge Alert Service")
+    print("Surge Alert Service v2.0")
     print("=" * 60)
 
     # Example usage
     service = get_surge_alert_service()
 
-    print("\n1. Testing alert eligibility:")
-    can_send, reason = service.can_send_alert(user_id=1, plan='basic')
-    print(f"   Can send to basic user: {can_send} ({reason})")
+    print("\n1. Testing weekly count:")
+    count = service.get_weekly_alert_count(user_id=1)
+    print(f"   Weekly count: {count}")
 
-    print("\n2. Testing confidence thresholds:")
+    print("\n2. Testing max alerts:")
     for plan in ['free', 'basic', 'pro']:
-        threshold_fav = service.get_confidence_threshold(plan, is_favorite=True)
-        threshold_reg = service.get_confidence_threshold(plan, is_favorite=False)
-        print(f"   {plan.upper()}: favorite={threshold_fav}%, regular={threshold_reg}%")
+        max_alerts = service.get_max_alerts_for_plan(plan)
+        print(f"   {plan.upper()}: {max_alerts} alerts/week")
 
     print("\n3. Testing message formatting:")
     message = service.format_alert_message(
@@ -590,8 +626,11 @@ if __name__ == "__main__":
         current_price=52000000,
         target_price=54000000,
         expected_return=3.8,
-        signal_type='favorite'
+        auto_traded=True,
+        trade_amount=100000,
+        stop_loss_price=49400000,
+        take_profit_price=57200000
     )
     print(f"   Message:\n{message}")
 
-    print("\n✅ Service initialized successfully")
+    print("\n✅ Service initialized successfully (v2.0)")

@@ -61,29 +61,36 @@ class UserFeatureOverride(Base):
 
 
 # Default feature sets for each plan
-# Updated 2025.12.22: 관심 코인 기반 급등 알림 시스템
+# Updated 2025.12.22 v2.0: 투자조언 알림 + 급등 알림 자동매매
 #
-# 시스템 개요:
-# - 급등 모니터링: AI가 전체 마켓을 스캔하여 급등 신호 감지
-# - 관심 코인: 사용자가 선택한 우선 모니터링 코인 (최대 5개)
-# - 급등 알림: 텔레그램으로 전송되는 매수 추천 알림
+# 두 가지 독립적인 시스템:
+# 1. 투자조언 알림 (Investment Advisory)
+#    - 사용자가 선택한 코인에 대한 투자 조언
+#    - 알림만 제공 (자동 실행 없음)
+#    - 요금제별 코인 개수 제한
 #
-# 요금제별 제공량:
-# - Free: 대시보드에서만 확인 가능 (알림 없음)
-# - Basic: 주 3회 표시 (실제 5회 제공)
-# - Pro: 주 10회 표시 (실제 20회 제공)
+# 2. 급등 알림 자동매매 (Surge Auto Trading)
+#    - 시스템이 전체 마켓 스캔하여 급등 감지
+#    - 자동 매수 실행 (예산/금액 설정 기반)
+#    - 요금제별 주간 횟수 제한
 #
 # 마케팅 전략: 실제 제공량을 표시량보다 높게 설정하여 고객 만족도 향상
 #
-# 참고 문서: docs/features/SURGE_ALERT_SYSTEM.md
+# 참고 문서: docs/features/SURGE_ALERT_SYSTEM.md v2.0
 PLAN_FEATURES = {
     'free': {
         'manual_trading': False,
-        'max_surge_alerts': 0,  # 급등 알림 불가 (대시보드에서만 확인)
-        'max_alerts_per_week': 0,  # 표시: 알림 없음
+        # 투자조언 알림
+        'advisory_coins': False,  # 투자조언 코인 설정 불가
+        'max_advisory_coins': 0,  # 선택 가능 코인 수: 0개
+        # 급등 알림 자동매매
+        'surge_auto_trading': False,  # 급등 자동매매 불가
+        'max_surge_alerts': 0,  # 주간 자동매수 횟수: 0회
+        'max_alerts_per_week': 0,  # 표시: 0회
+        'surge_monitoring': True,  # 급등 모니터링 (대시보드 확인만)
         'telegram_alerts': False,
-        'surge_monitoring': True,  # 급등 모니터링 (view only)
-        'favorite_coins': False,  # 관심 코인 설정 불가
+        'max_surge_budget': 0,  # 총 예산 제한: 불가
+        # 기타
         'advanced_indicators': False,
         'backtesting': False,
         'priority_support': False,
@@ -91,11 +98,17 @@ PLAN_FEATURES = {
     },
     'basic': {
         'manual_trading': True,
-        'max_surge_alerts': 5,  # 실제: 주 5회 급등 알림
+        # 투자조언 알림
+        'advisory_coins': True,  # 투자조언 코인 설정 가능
+        'max_advisory_coins': 3,  # 선택 가능 코인 수: 3개
+        # 급등 알림 자동매매
+        'surge_auto_trading': True,  # 급등 자동매매 가능
+        'max_surge_alerts': 5,  # 실제: 주 5회 자동매수
         'max_alerts_per_week': 3,  # 표시: 주 3회
-        'telegram_alerts': True,  # 텔레그램 급등 알림
         'surge_monitoring': True,
-        'favorite_coins': True,  # 관심 코인 설정 가능 (최대 5개)
+        'telegram_alerts': True,
+        'max_surge_budget': 5000000,  # 총 예산 제한: 500만원
+        # 기타
         'advanced_indicators': True,
         'backtesting': False,
         'priority_support': False,
@@ -103,11 +116,17 @@ PLAN_FEATURES = {
     },
     'pro': {
         'manual_trading': True,
-        'max_surge_alerts': 20,  # 실제: 주 20회 급등 알림
+        # 투자조언 알림
+        'advisory_coins': True,  # 투자조언 코인 설정 가능
+        'max_advisory_coins': 5,  # 선택 가능 코인 수: 5개
+        # 급등 알림 자동매매
+        'surge_auto_trading': True,  # 급등 자동매매 가능
+        'max_surge_alerts': 20,  # 실제: 주 20회 자동매수
         'max_alerts_per_week': 10,  # 표시: 주 10회
-        'telegram_alerts': True,  # 실시간 텔레그램 알림
         'surge_monitoring': True,
-        'favorite_coins': True,  # 관심 코인 설정 가능 (최대 5개)
+        'telegram_alerts': True,
+        'max_surge_budget': -1,  # 총 예산 제한: 무제한
+        # 기타
         'advanced_indicators': True,
         'backtesting': True,
         'priority_support': True,
