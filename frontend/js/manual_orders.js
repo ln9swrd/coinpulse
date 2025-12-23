@@ -15,26 +15,53 @@ WorkingTradingChart.prototype.initializeManualOrders = function() {
     this.selectedBuyPercent = null;
     this.selectedSellPercent = null;
 
-    // Buy price/quantity inputs - calculate total
+    // Buy price/total/quantity inputs - bidirectional calculation
     const buyPrice = document.getElementById('buy-price');
     const buyQuantity = document.getElementById('buy-quantity');
     const buyTotal = document.getElementById('buy-total-amount');
 
     if (buyPrice && buyQuantity && buyTotal) {
-        const updateBuyTotal = () => {
+        // Price changed → calculate total if quantity exists, or calculate quantity if total exists
+        buyPrice.addEventListener('input', () => {
             const price = parseFloat(buyPrice.value) || 0;
             const quantity = parseFloat(buyQuantity.value) || 0;
-            const total = price * quantity;
-            buyTotal.textContent = total.toLocaleString() + '원';
+            const total = parseFloat(buyTotal.value) || 0;
 
-            // If percentage was selected and price just changed, recalculate quantity
+            if (price > 0) {
+                if (quantity > 0) {
+                    // Price + Quantity → Total
+                    buyTotal.value = Math.floor(price * quantity);
+                } else if (total > 0) {
+                    // Price + Total → Quantity
+                    buyQuantity.value = (total / price).toFixed(8);
+                }
+            }
+
+            // If percentage was selected and price changed, recalculate
             if (this.selectedBuyPercent && price > 0) {
                 this.calculateBuyQuantity(this.selectedBuyPercent);
             }
-        };
+        });
 
-        buyPrice.addEventListener('input', updateBuyTotal);
-        buyQuantity.addEventListener('input', updateBuyTotal);
+        // Quantity changed → calculate total
+        buyQuantity.addEventListener('input', () => {
+            const price = parseFloat(buyPrice.value) || 0;
+            const quantity = parseFloat(buyQuantity.value) || 0;
+
+            if (price > 0 && quantity > 0) {
+                buyTotal.value = Math.floor(price * quantity);
+            }
+        });
+
+        // Total changed → calculate quantity
+        buyTotal.addEventListener('input', () => {
+            const price = parseFloat(buyPrice.value) || 0;
+            const total = parseFloat(buyTotal.value) || 0;
+
+            if (price > 0 && total > 0) {
+                buyQuantity.value = (total / price).toFixed(8);
+            }
+        });
     }
 
     // Sell price/quantity inputs - calculate total
@@ -144,17 +171,20 @@ WorkingTradingChart.prototype.submitBuyOrder = async function() {
 
     const priceInput = document.getElementById('buy-price');
     const quantityInput = document.getElementById('buy-quantity');
+    const totalInput = document.getElementById('buy-total-amount');
 
     const price = parseFloat(priceInput.value);
     const quantity = parseFloat(quantityInput.value);
+    const total = parseFloat(totalInput.value);
 
     if (!price || price <= 0) {
         alert('매수 가격을 입력하세요');
         return;
     }
 
-    if (!quantity || quantity <= 0) {
-        alert('매수 수량을 입력하세요');
+    // Either quantity or total must be provided
+    if ((!quantity || quantity <= 0) && (!total || total <= 0)) {
+        alert('총 매수금액 또는 수량을 입력하세요');
         return;
     }
 
@@ -169,30 +199,44 @@ WorkingTradingChart.prototype.submitBuyOrder = async function() {
             return;
         }
 
+        // Build order payload
+        const orderPayload = {
+            market: market,
+            side: 'bid',
+            price: price,
+            ord_type: 'limit'
+        };
+
+        // If quantity is provided, use it; otherwise calculate from total
+        if (quantity && quantity > 0) {
+            orderPayload.volume = quantity;
+        } else if (total && total > 0) {
+            // Calculate quantity from total
+            orderPayload.volume = total / price;
+        }
+
+        console.log('[ManualOrders] Buy order payload:', orderPayload);
+
         const response = await fetch(`${window.location.origin}/api/trading/buy`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${accessToken}`
             },
-            body: JSON.stringify({
-                market: market,
-                side: 'bid',
-                price: price,
-                volume: quantity,
-                ord_type: 'limit'
-            })
+            body: JSON.stringify(orderPayload)
         });
 
         const result = await response.json();
 
         if (response.ok && result.success) {
-            alert(`매수 주문 성공!\n코인: ${market}\n가격: ${price.toLocaleString()}원\n수량: ${quantity}`);
+            const finalQuantity = orderPayload.volume;
+            const finalTotal = price * finalQuantity;
+            alert(`매수 주문 성공!\n코인: ${market}\n가격: ${price.toLocaleString()}원\n수량: ${finalQuantity.toFixed(8)}\n총액: ${finalTotal.toLocaleString()}원`);
 
             // Clear inputs
             priceInput.value = '';
             quantityInput.value = '';
-            document.getElementById('buy-total-amount').textContent = '0원';
+            totalInput.value = '';
 
             // Reload pending orders and holdings
             await this.loadPendingOrders();
@@ -455,17 +499,20 @@ WorkingTradingChart.prototype.calculateBuyQuantity = function(percent) {
 
     const amountToUse = balance * (percent / 100);
 
+    // Set total amount to use (percentage of balance)
+    buyTotal.value = Math.floor(amountToUse);
+    console.log(`[ManualOrders] Buy total amount set: ${Math.floor(amountToUse).toLocaleString()}원 (${percent}% of ${balance.toLocaleString()}원)`);
+
     // Calculate quantity if price is set
     const price = parseFloat(buyPrice.value);
     if (price && price > 0) {
         const quantity = amountToUse / price;
         buyQuantity.value = quantity.toFixed(8);
-        buyTotal.textContent = (price * quantity).toLocaleString() + '원';
-        console.log(`[ManualOrders] Buy quantity set: ${quantity.toFixed(8)} (${percent}% of ${balance.toLocaleString()}원)`);
+        console.log(`[ManualOrders] Buy quantity calculated: ${quantity.toFixed(8)}`);
     } else {
-        // No price set - show amount to use
-        buyTotal.textContent = `${amountToUse.toLocaleString()}원 (가격 입력 필요)`;
-        console.log(`[ManualOrders] Buy amount reserved: ${amountToUse.toLocaleString()}원 (${percent}% of ${balance.toLocaleString()}원)`);
+        // No price set - clear quantity
+        buyQuantity.value = '';
+        console.log(`[ManualOrders] Price not set, quantity cleared`);
     }
 };
 

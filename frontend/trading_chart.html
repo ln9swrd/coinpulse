@@ -65,7 +65,7 @@
     <script src="js/trading_chart_working.js?v=20251113_phase2_refactored"></script>
 
     <!-- Manual Orders Extension -->
-    <script src="js/manual_orders.js?v=20251223_auth_complete"></script>
+    <script src="js/manual_orders.js?v=20251223_buy_total_amount"></script>
 </head>
 <body>
     <div class="container">
@@ -461,18 +461,20 @@
                                 <input type="number" id="buy-price" placeholder="가격 입력 (원)" step="1">
                             </div>
                             <div class="order-input-group">
-                                <label>수량 비율 <span class="balance-info" id="buy-balance-info">잔액: 0원</span></label>
+                                <label>총 매수금액 (원) <span class="balance-info" id="buy-balance-info">잔액: 0원</span></label>
                                 <div class="quantity-percentage-buttons">
                                     <button class="btn-percentage" data-side="buy" data-percent="10">10%</button>
                                     <button class="btn-percentage" data-side="buy" data-percent="25">25%</button>
                                     <button class="btn-percentage" data-side="buy" data-percent="50">50%</button>
                                     <button class="btn-percentage" data-side="buy" data-percent="100">100%</button>
                                 </div>
-                                <input type="number" id="buy-quantity" placeholder="수량 입력" step="0.00000001" min="0">
+                                <input type="number" id="buy-total-amount" placeholder="총 매수금액 입력 (원)" step="1" min="0">
+                                <div class="input-hint">💡 총 매수금액 또는 아래 수량을 입력하세요</div>
                             </div>
-                            <div class="order-total">
-                                <span>총액:</span>
-                                <span id="buy-total-amount">0원</span>
+                            <div class="order-input-group">
+                                <label>수량 (선택)</label>
+                                <input type="number" id="buy-quantity" placeholder="수량 입력 (선택)" step="0.00000001" min="0">
+                                <div class="input-hint">💡 총액 입력 시 수량 자동 계산됨</div>
                             </div>
                         </div>
                         <button class="btn-order btn-buy" id="submit-buy-order">
