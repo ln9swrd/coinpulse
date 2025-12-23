@@ -116,15 +116,31 @@ class SurgePredictionBacktest:
                 analysis = self.predictor.analyze_coin(market, candle_data, current_price)
 
                 if analysis['score'] >= self.min_score:
+                    # Calculate dynamic target prices based on signal strength
+                    target_result = self.predictor.get_target_prices(
+                        entry_price=int(current_price),
+                        analysis_result=analysis,
+                        settings={
+                            'use_dynamic_target': True,
+                            'target_calculation_mode': 'dynamic',
+                            'min_target_percent': 5.0,
+                            'max_target_percent': 18.0
+                        }
+                    )
+
                     candidates.append({
                         'date': test_date.strftime('%Y-%m-%d'),
                         'market': market,
                         'score': analysis['score'],
                         'buy_price': current_price,
+                        'target_price': target_result['target_price'],
+                        'target_percent': target_result['target_percent'],
+                        'stop_loss_price': target_result['stop_loss_price'],
+                        'stop_loss_percent': target_result['stop_loss_percent'],
                         'signals': analysis['signals'],
                         'recommendation': analysis['recommendation']
                     })
-                    print(f"  [OK] {market}: Score {analysis['score']} - {analysis['recommendation']}")
+                    print(f"  [OK] {market}: Score {analysis['score']}, Target +{target_result['target_percent']:.1f}% - {analysis['recommendation']}")
 
                 # Rate limit (10 requests per second)
                 time.sleep(0.1)
@@ -149,6 +165,9 @@ class SurgePredictionBacktest:
         for candidate in candidates:
             market = candidate['market']
             buy_price = candidate['buy_price']
+            target_price = candidate.get('target_price', buy_price * 1.05)  # Fallback to +5%
+            target_percent = candidate.get('target_percent', 5.0)
+            stop_loss_price = candidate.get('stop_loss_price', buy_price * 0.95)
 
             try:
                 # Get price after holding_days
@@ -161,21 +180,38 @@ class SurgePredictionBacktest:
                 # Calculate return
                 return_pct = ((sell_price - buy_price) / buy_price) * 100
 
+                # Determine success based on dynamic target
+                # Success if: sell price >= target OR any positive return
+                target_hit = sell_price >= target_price
+                any_profit = return_pct > 0
+                success = target_hit or any_profit
+
                 result = {
                     'date': candidate['date'],
                     'market': market,
                     'score': candidate['score'],
                     'buy_price': buy_price,
+                    'target_price': target_price,
+                    'target_percent': target_percent,
+                    'stop_loss_price': stop_loss_price,
                     'sell_price': sell_price,
                     'return_pct': return_pct,
-                    'success': return_pct > 0,
+                    'target_hit': target_hit,
+                    'success': success,
                     'signals': candidate['signals']
                 }
 
                 results.append(result)
 
-                status = "[WIN]" if return_pct > 0 else "[LOSS]"
-                print(f"  {status} {market}: {return_pct:+.2f}% (Buy: {buy_price:,.0f} -> Sell: {sell_price:,.0f})")
+                # Enhanced status display
+                if target_hit:
+                    status = "[TARGET HIT!]"
+                elif any_profit:
+                    status = "[WIN]"
+                else:
+                    status = "[LOSS]"
+
+                print(f"  {status} {market}: {return_pct:+.2f}% (Buy: {buy_price:,.0f} -> Sell: {sell_price:,.0f}, Target: {target_price:,.0f} [{target_percent:+.1f}%])")
 
                 time.sleep(0.1)
 
@@ -246,7 +282,7 @@ class SurgePredictionBacktest:
         print(f"\n[SAVE] Results saved to: {output_file}")
 
     def calculate_summary(self, results):
-        """결과 요약 통계 계산"""
+        """결과 요약 통계 계산 (동적 목표가 포함)"""
         if not results:
             return {}
 
@@ -254,11 +290,18 @@ class SurgePredictionBacktest:
         winning_trades = [r for r in results if r['success']]
         losing_trades = [r for r in results if not r['success']]
 
+        # Target hit statistics
+        target_hit_trades = [r for r in results if r.get('target_hit', False)]
+        target_hit_rate = (len(target_hit_trades) / total_trades * 100) if total_trades > 0 else 0
+
         win_rate = (len(winning_trades) / total_trades * 100) if total_trades > 0 else 0
 
         avg_return = sum(r['return_pct'] for r in results) / total_trades if total_trades > 0 else 0
         avg_win = sum(r['return_pct'] for r in winning_trades) / len(winning_trades) if winning_trades else 0
         avg_loss = sum(r['return_pct'] for r in losing_trades) / len(losing_trades) if losing_trades else 0
+
+        # Average dynamic target percent
+        avg_target_percent = sum(r.get('target_percent', 0) for r in results) / total_trades if total_trades > 0 else 0
 
         best_trade = max(results, key=lambda x: x['return_pct']) if results else None
         worst_trade = min(results, key=lambda x: x['return_pct']) if results else None
@@ -268,6 +311,9 @@ class SurgePredictionBacktest:
             'winning_trades': len(winning_trades),
             'losing_trades': len(losing_trades),
             'win_rate': round(win_rate, 2),
+            'target_hit_trades': len(target_hit_trades),
+            'target_hit_rate': round(target_hit_rate, 2),
+            'avg_target_percent': round(avg_target_percent, 2),
             'avg_return': round(avg_return, 2),
             'avg_win': round(avg_win, 2),
             'avg_loss': round(avg_loss, 2),
@@ -298,11 +344,13 @@ def main():
             summary = backtest.calculate_summary(results)
 
             print("\n" + "="*60)
-            print("BACKTEST SUMMARY")
+            print("BACKTEST SUMMARY (Dynamic Targets)")
             print("="*60)
             print(f"Total Trades: {summary['total_trades']}")
             print(f"Winning Trades: {summary['winning_trades']} ({summary['win_rate']:.2f}%)")
             print(f"Losing Trades: {summary['losing_trades']}")
+            print(f"\nTarget Hit Trades: {summary['target_hit_trades']} ({summary['target_hit_rate']:.2f}%)")
+            print(f"Average Target: {summary['avg_target_percent']:+.2f}%")
             print(f"\nAverage Return: {summary['avg_return']:+.2f}%")
             print(f"Average Win: {summary['avg_win']:+.2f}%")
             print(f"Average Loss: {summary['avg_loss']:+.2f}%")
