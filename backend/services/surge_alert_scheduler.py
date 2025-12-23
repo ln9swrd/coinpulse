@@ -5,11 +5,12 @@
 """
 import asyncio
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Set, Dict, List
 import logging
 import os
 from dotenv import load_dotenv
+from sqlalchemy import text
 
 # Load environment variables
 load_dotenv()
@@ -17,6 +18,7 @@ load_dotenv()
 from backend.common import UpbitAPI, load_api_keys
 from backend.services.surge_predictor import SurgePredictor
 from backend.services.telegram_bot import SurgeTelegramBot, TELEGRAM_AVAILABLE
+from backend.models.database import get_db_session
 
 # Logging setup
 logging.basicConfig(
@@ -116,6 +118,61 @@ class SurgeAlertScheduler:
 
         return candidates
 
+    def save_to_database(self, candidate: Dict):
+        """
+        Save surge alert to database
+
+        Args:
+            candidate: Surge candidate data
+        """
+        try:
+            with get_db_session() as session:
+                # Calculate week number (ISO week)
+                now = datetime.now()
+                week_number = now.isocalendar()[1]
+
+                # Extract coin from market (e.g., "KRW-BTC" -> "BTC")
+                coin = candidate['market'].split('-')[1] if '-' in candidate['market'] else candidate['market']
+
+                # Prepare alert data
+                query = text("""
+                    INSERT INTO surge_alerts (
+                        user_id, market, coin, confidence, signal_type,
+                        current_price, target_price, expected_return, reason,
+                        alert_message, telegram_sent, sent_at, week_number, auto_traded
+                    ) VALUES (
+                        :user_id, :market, :coin, :confidence, :signal_type,
+                        :current_price, :target_price, :expected_return, :reason,
+                        :alert_message, :telegram_sent, :sent_at, :week_number, :auto_traded
+                    )
+                """)
+
+                # Use system user_id = 1 (or admin) for surge alerts
+                params = {
+                    'user_id': 1,  # System user
+                    'market': candidate['market'],
+                    'coin': coin,
+                    'confidence': candidate['score'] / 100.0,  # Convert score to 0-1 range
+                    'signal_type': 'surge',
+                    'current_price': int(candidate.get('current_price', 0)),
+                    'target_price': int(candidate.get('target_price', 0)),
+                    'expected_return': candidate.get('expected_return', 0.0),
+                    'reason': candidate.get('reason', ''),
+                    'alert_message': f"급등 예측: {candidate['market']} (신뢰도: {candidate['score']}점)",
+                    'telegram_sent': True,
+                    'sent_at': now,
+                    'week_number': week_number,
+                    'auto_traded': False
+                }
+
+                session.execute(query, params)
+                session.commit()
+
+                logger.info(f"[SurgeAlertScheduler] Saved to DB: {candidate['market']}")
+
+        except Exception as e:
+            logger.error(f"[SurgeAlertScheduler] Failed to save to DB: {e}")
+
     async def check_and_alert(self):
         """
         Check for new surge candidates and send alerts
@@ -144,6 +201,9 @@ class SurgeAlertScheduler:
 
                 # Send alert
                 await self.telegram_bot.send_surge_alert(candidate)
+
+                # Save to database
+                self.save_to_database(candidate)
 
                 # Mark as alerted
                 self.alerted_candidates.add(market)
