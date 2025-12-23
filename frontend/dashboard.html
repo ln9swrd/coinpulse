@@ -807,13 +807,19 @@
                         }
 
                         console.log('[Dashboard] User profile loaded:', user);
+                        console.log('[Dashboard] is_admin:', user.is_admin, 'type:', typeof user.is_admin);
 
                         // Show admin menu if user is admin
                         if (user.is_admin) {
+                            console.log('[Dashboard] User is admin - showing admin menu');
+
                             // Top bar dropdown admin menu
                             const adminMenuItem = document.getElementById('admin-menu-item');
                             if (adminMenuItem) {
                                 adminMenuItem.style.display = 'flex';
+                                console.log('[Dashboard] Admin dropdown menu shown');
+                            } else {
+                                console.warn('[Dashboard] Admin dropdown menu element not found!');
                             }
 
                             // Sidebar admin section
@@ -821,12 +827,21 @@
                             const adminMenuLink = document.getElementById('admin-menu-link');
                             if (adminSectionTitle) {
                                 adminSectionTitle.style.display = 'block';
+                                console.log('[Dashboard] Admin section title shown');
+                            } else {
+                                console.warn('[Dashboard] Admin section title element not found!');
                             }
                             if (adminMenuLink) {
                                 adminMenuLink.style.display = 'flex';
+                                console.log('[Dashboard] Admin sidebar link shown');
+                            } else {
+                                console.warn('[Dashboard] Admin sidebar link element not found!');
                             }
 
                             console.log('[Dashboard] Admin menus enabled for:', user.email);
+                        } else {
+                            console.log('[Dashboard] User is NOT admin - hiding admin menu');
+                            console.log('[Dashboard] Email:', user.email);
                         }
 
                         // Check if user has Upbit API keys
