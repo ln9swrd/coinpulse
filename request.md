@@ -1,49 +1,120 @@
-랜딩페이지
-1.
-"더 스마트하게 트레이딩하세요" 이 부분에 적절한 그림을 추가해줘. 저작권 문제없는 그림으로
+1. 대시보드 - 설정
+API키 : 입력이 되면 키 필드에 값을 보여줘
 
-2.
-"1
-총 사용자
-1
-활성 사용자
-0
-총 거래
-실시간" 이 부분은 당분간 안 보이게 하고
+2. 대시보드 - 설정
+관심 코인 : 콤보박스로 사용자가 선택할 수 있게 하고 코인을 검색할 수 있게 해줘
 
-3.
-핵심기능의 세부사항이 제대로 구현되었는지 검토해봐.
+3. 대시보드 - 설정
+알림 : 실제 구현 여부 검증
 
-4. 요금제
-각 요금제와 관리기능에서 제대로 구현했는지 체크해봐
-커뮤니티 지원은 뭘 의미하는 거지?
-요금제별 코인 모니터링 개수를 제한하는 건 좋은데 어떤 의미지?
-자동매매 전략을 요금제별로 개수 제한을 하는 게 합리적일까?
-데이터 내보내기는 무엇을 의미하지?
-이메일 지원은 무엇을 의미하지?
-API 접근 무슨 의미?
-우선 지원 무슨 의미?
-14일 무료 체엄은 어떤 의미?
-전담지원은 무엇을 의미하나?
+4. 대시보드 - 요금제
+프리 : 급등 모니터링을 급등 알림으로 바꾸고 지원 안하는 걸로 변경
+베이식 : 자동매매 알림 주 3회를 급등알림 주 최소 3회로 변경
+프로 : 자동매매 알림 주 10회를 급등알림 주 최소 10회로 변경
 
-"💳 모든 결제는 Toss Payments를 통해 안전하게 처리됩니다" 삭제
-현재는 계좌이체만 가능하잖아
+급등알림이 발생하지 않을 경우의 면책조항도 추가해줘.
 
-5. "간단한 3단계 시작"
-API 연결 업비트의 Key 생성과, 코인펄스 각 사용자의 업비트 키 등록은 구현된 거야?
-튜토리얼 내지 예시가 있어야 할 거 같아.
 
-"업비트 API 키를 안전하게 연결합니다. 읽기/거래 권한만 필요하며, 출금 권한은 사용하지 않습니다."
-코인펄스는 현재 업비트에 거래만 하는 거잖아. 적절하게 변경해.
+5. 대시보드 - 친구 초대하기
+내 추천 코드 : 로딩중 
+최근 초대 내역 : 로딩중
+구현기능 검증해줘
 
-계정생성, 전략설정도 각 예시화면이 있어야 할 거 같아
+6. 대시보드 - 텔레그램 연동
+연동 상태에
+오류: File not found 나오고 있고 
+api/admin/api/telegram/link/status:1  Failed to load resource: the server responded with a status of 404 (NOT FOUND)
 
-6. 푸터
-지원에
-문서, FAQ, 문의하기 구현된 거야?
+텔레그램 연동 설정이 필요한가?
 
-법적고지에
-이용약과, 개인정보처리방침 구현된 건가?
+7. 대시보드 - 내 시그널
+requests.js:1  GET https://coinpulse.sinsi.ai/api/admin/api/user/signals/stats 404 (NOT FOUND)
+(anonymous) @ requests.js:1
+(anonymous) @ traffic.js:1
+fetch @ traffic.js:1
+loadStats @ VM1842:32
+loadData @ VM1842:25
+init @ VM1842:19
+(anonymous) @ VM1842:209
+(anonymous) @ VM1842:210
+executeScripts @ page-loader.js:155
+loadPage @ page-loader.js:79
+loadExternalPage @ dashboard.html:1642
+handleNavigation @ dashboard.html:1726
+requests.js:1  GET https://coinpulse.sinsi.ai/api/admin/api/user/signals?status=all&limit=50 404 (NOT FOUND)
+(anonymous) @ requests.js:1
+(anonymous) @ traffic.js:1
+fetch @ traffic.js:1
+loadSignals @ VM1842:62
+loadData @ VM1842:26
+init @ VM1842:19
+(anonymous) @ VM1842:209
+(anonymous) @ VM1842:210
+executeScripts @ page-loader.js:155
+loadPage @ page-loader.js:79
+loadExternalPage @ dashboard.html:1642
+handleNavigation @ dashboard.html:1726
+VM1842:153 Error loading signals: TypeError: Cannot set properties of null (setting 'innerHTML')
+    at loadSignals (<anonymous>:72:41)
+    at async Promise.all (index 1)
+    at async loadData (<anonymous>:24:13)
+    at async init (<anonymous>:19:13)
+loadSignals @ VM1842:153
+await in loadSignals
+loadData @ VM1842:26
+init @ VM1842:19
+(anonymous) @ VM1842:209
+(anonymous) @ VM1842:210
+executeScripts @ page-loader.js:155
+loadPage @ page-loader.js:79
+loadExternalPage @ dashboard.html:1642
+handleNavigation @ dashboard.html:1726
+VM1842:154 Uncaught (in promise) TypeError: Cannot set properties of null (setting 'innerHTML')
+    at loadSignals (<anonymous>:154:66)
+    at async Promise.all (index 1)
+    at async loadData (<anonymous>:24:13)
+    at async init (<anonymous>:19:13)
+loadSignals @ VM1842:154
+await in loadSignals
+loadData @ VM1842:26
+init @ VM1842:19
+(anonymous) @ VM1842:209
+(anonymous) @ VM1842:210
+executeScripts @ page-loader.js:155
+loadPage @ page-loader.js:79
+loadExternalPage @ dashboard.html:1642
+handleNavigation @ dashboard.html:1726
 
-"⚠️ 투자 위험 고지: 암호화폐 거래는 높은 위험을 수반하며 원금 손실 가능성이 있습니다. 과거 수익률이 미래 수익을 보장하지 않으며, 투자 전 충분한 검토가 필요합니다. 본 서비스는 자동매매 보조 도구이며, 최종 투자 결정과 그에 따른 책임은 사용자 본인에게 있습니다. 본 서비스는 현재 베타 테스트 단계이며, 정식 출시 전까지 기능 및 요금제가 변경될 수 있습니다."
-빨간 박스를 포함해서 화면 가운데로 정렬시켜줘
+8. 대시보드 - 급등 예측
+급등 예측 모니터링을 하고 있나?
+유효한 정보가 하나도 없어...
+"내 시그널"과는 별개인가?
+"내 시그널"은 뭐지?
+
+8. 대시보드 - 자동 거래
+ln9swrd@gmail.com 베이식 요금제 인데
+요금제 업그레이드가 보이네...
+
+
+9. 대시보드 - 거래 내역
+오류 발생....
+dashboard-fixed.js?v=20251221_auto_fixed:690 Error loading order history: TypeError: Cannot read properties of undefined (reading 'getToken')
+    at DashboardManager.loadOrderHistory (dashboard-fixed.js?v=20251221_auto_fixed:599:62)
+    at dashboard-fixed.js?v=20251221_auto_fixed:579:35
+loadOrderHistory @ dashboard-fixed.js?v=20251221_auto_fixed:690
+(anonymous) @ dashboard-fixed.js?v=20251221_auto_fixed:579
+setTimeout
+loadHistoryPage @ dashboard-fixed.js?v=20251221_auto_fixed:579
+loadPage @ dashboard-fixed.js?v=20251221_auto_fixed:204
+(anonymous) @ dashboard-fixed.js?v=20251221_auto_fixed:135
+
+10. 대시보드 - 포트폴리오
+로딩 속도를 더 빨리해줘
+
+11. 대시보드 - 거래 차트
+수동 주문 기능이 제대로 구현되었는지 검증해줘
+xrp에 매도 주문이 있는데 그 주문을 차트에서 드래그해서 가격을 변경하는 것과
+주문을 선택해서 취소하는 기능을 구현해줘
+
+
+12. 대시보드 -  잘 나오던 페이지도 다시 클릭해서 이동하면 Page not found가 보여 자주
