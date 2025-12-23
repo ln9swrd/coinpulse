@@ -118,6 +118,35 @@ class SurgeAlertScheduler:
 
         return candidates
 
+    def is_already_saved_today(self, market: str) -> bool:
+        """
+        Check if market was already saved today in database
+
+        Args:
+            market: Market symbol (e.g., 'KRW-BTC')
+
+        Returns:
+            True if already saved today, False otherwise
+        """
+        try:
+            with get_db_session() as session:
+                today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+
+                result = session.execute(
+                    text("""
+                        SELECT COUNT(*) FROM surge_alerts
+                        WHERE market = :market
+                        AND sent_at >= :today_start
+                    """),
+                    {'market': market, 'today_start': today_start}
+                )
+                count = result.scalar()
+                return count > 0
+
+        except Exception as e:
+            logger.error(f"[SurgeAlertScheduler] Error checking if already saved: {e}")
+            return False  # Default to False to allow saving
+
     def save_to_database(self, candidate: Dict):
         """
         Save surge alert to database with entry/target/stop-loss prices
@@ -204,28 +233,35 @@ class SurgeAlertScheduler:
 
             # Send alerts for new candidates
             new_alerts = 0
+            new_db_records = 0
             for candidate in candidates:
                 market = candidate['market']
 
-                # Skip if already alerted
-                if market in self.alerted_candidates:
-                    logger.debug(f"[SurgeAlertScheduler] {market} already alerted, skipping")
-                    continue
+                # Check if already sent telegram alert (in-memory check for telegram spam prevention)
+                telegram_already_sent = market in self.alerted_candidates
 
-                # Send alert
-                await self.telegram_bot.send_surge_alert(candidate)
+                # Check if already saved to DB today (database check for history tracking)
+                db_already_saved = self.is_already_saved_today(market)
 
-                # Save to database
-                self.save_to_database(candidate)
+                # Send telegram alert only if not already sent
+                if not telegram_already_sent:
+                    await self.telegram_bot.send_surge_alert(candidate)
+                    self.alerted_candidates.add(market)
+                    new_alerts += 1
+                    logger.info(f"[SurgeAlertScheduler] Telegram alert sent: {market} ({candidate['score']}점)")
 
-                # Mark as alerted
-                self.alerted_candidates.add(market)
-                new_alerts += 1
-
-                logger.info(f"[SurgeAlertScheduler] New alert sent: {market} ({candidate['score']}점)")
+                # Save to database only if not already saved today
+                if not db_already_saved:
+                    self.save_to_database(candidate)
+                    new_db_records += 1
+                    logger.info(f"[SurgeAlertScheduler] Saved to DB: {market}")
+                else:
+                    logger.debug(f"[SurgeAlertScheduler] {market} already in DB today, skipping save")
 
             if new_alerts > 0:
-                logger.info(f"[SurgeAlertScheduler] Sent {new_alerts} new alerts")
+                logger.info(f"[SurgeAlertScheduler] Sent {new_alerts} new telegram alerts")
+            if new_db_records > 0:
+                logger.info(f"[SurgeAlertScheduler] Saved {new_db_records} new DB records")
 
             # Clean up old alerts (remove if not in current candidates)
             current_markets = {c['market'] for c in candidates}
