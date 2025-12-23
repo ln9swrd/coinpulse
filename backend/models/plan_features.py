@@ -61,7 +61,7 @@ class UserFeatureOverride(Base):
 
 
 # Default feature sets for each plan
-# Updated 2025.12.22 v2.0: 투자조언 알림 + 급등 알림 자동매매
+# Updated 2025.12.23 v2.1: 실제 데이터 기반 현실적인 제한
 #
 # 두 가지 독립적인 시스템:
 # 1. 투자조언 알림 (Investment Advisory)
@@ -74,7 +74,9 @@ class UserFeatureOverride(Base):
 #    - 자동 매수 실행 (예산/금액 설정 기반)
 #    - 요금제별 주간 횟수 제한
 #
-# 마케팅 전략: 실제 제공량을 표시량보다 높게 설정하여 고객 만족도 향상
+# 실제 데이터 (2025.12):
+#    - 3주간 급등 시그널: 16개
+#    - 주당 평균: 약 5개
 #
 # 참고 문서: docs/features/SURGE_ALERT_SYSTEM.md v2.0
 PLAN_FEATURES = {
@@ -103,8 +105,8 @@ PLAN_FEATURES = {
         'max_advisory_coins': 3,  # 선택 가능 코인 수: 3개
         # 급등 알림 자동매매
         'surge_auto_trading': True,  # 급등 자동매매 가능
-        'max_surge_alerts': 5,  # 실제: 주 5회 자동매수
-        'max_alerts_per_week': 3,  # 표시: 주 3회
+        'max_surge_alerts': 5,  # 실제: 주 5회 자동매수 (시스템 생성량과 동일)
+        'max_alerts_per_week': 3,  # 표시: 주 3회 (보수적 표시, 실제론 5회 가능)
         'surge_monitoring': True,
         'telegram_alerts': True,
         'max_surge_budget': 5000000,  # 총 예산 제한: 500만원
@@ -121,8 +123,8 @@ PLAN_FEATURES = {
         'max_advisory_coins': 5,  # 선택 가능 코인 수: 5개
         # 급등 알림 자동매매
         'surge_auto_trading': True,  # 급등 자동매매 가능
-        'max_surge_alerts': 20,  # 실제: 주 20회 자동매수
-        'max_alerts_per_week': 10,  # 표시: 주 10회
+        'max_surge_alerts': 10,  # 실제: 주 10회 자동매수 (여유분 포함, 시스템 확장 대비)
+        'max_alerts_per_week': 5,  # 표시: 주 5회 (현실적 표시, 시스템 평균 생성량)
         'surge_monitoring': True,
         'telegram_alerts': True,
         'max_surge_budget': -1,  # 총 예산 제한: 무제한
