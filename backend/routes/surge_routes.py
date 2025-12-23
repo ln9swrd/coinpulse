@@ -190,10 +190,25 @@ def get_surge_candidates():
 
                 # Only include candidates with score >= 60
                 if analysis['score'] >= 60:
+                    # Calculate trading prices
+                    # Entry price = current price
+                    entry_price = int(current_price)
+
+                    # Target price = entry + expected return (typically 10-20% for high scores)
+                    expected_return = 15 if analysis['score'] >= 75 else 10  # Higher target for better scores
+                    target_price = int(entry_price * (1 + expected_return / 100))
+
+                    # Stop loss = entry - 5% (risk management)
+                    stop_loss_price = int(entry_price * 0.95)
+
                     candidates.append({
                         'market': market,
                         'score': analysis['score'],
                         'current_price': current_price,
+                        'entry_price': entry_price,
+                        'target_price': target_price,
+                        'stop_loss_price': stop_loss_price,
+                        'expected_return': expected_return,
                         'signals': analysis['signals'],
                         'recommendation': analysis['recommendation']
                     })
@@ -346,16 +361,36 @@ def get_backtest_results():
         }
     """
     try:
-        print("[Surge] Loading backtest results...")
+        print("[Surge] Loading backtest results from database...")
 
-        # Load backtest results
-        import json
-        with open('docs/backtest_results/multi_date_backtest.json', 'r', encoding='utf-8') as f:
-            backtest_data = json.load(f)
+        from backend.database.connection import get_db_session
+        from backend.models.backtest_models import BacktestResult, BacktestSummary
 
-        # Extract key information
-        summary = backtest_data.get('summary', {})
-        all_results = backtest_data.get('all_results', [])
+        session = get_db_session()
+
+        # Get all results
+        all_results_db = session.query(BacktestResult).order_by(BacktestResult.trade_date).all()
+        all_results = [result.to_dict() for result in all_results_db]
+
+        # Get summary (or calculate if not exists)
+        summary_db = session.query(BacktestSummary).first()
+        if summary_db:
+            summary = summary_db.to_dict()
+        else:
+            # Calculate summary from results
+            total_trades = len(all_results)
+            winning_trades = sum(1 for r in all_results if r['success'])
+            losing_trades = total_trades - winning_trades
+
+            summary = {
+                'total_trades': total_trades,
+                'winning_trades': winning_trades,
+                'losing_trades': losing_trades,
+                'win_rate': (winning_trades / total_trades * 100) if total_trades > 0 else 0,
+                'avg_return': sum(r['return_pct'] for r in all_results) / total_trades if total_trades > 0 else 0,
+                'avg_win': sum(r['return_pct'] for r in all_results if r['success']) / winning_trades if winning_trades > 0 else 0,
+                'avg_loss': sum(r['return_pct'] for r in all_results if not r['success']) / losing_trades if losing_trades > 0 else 0,
+            }
 
         # Group by week
         weekly_breakdown = {}
@@ -378,7 +413,9 @@ def get_backtest_results():
         best_trades = sorted_results[:5]
         worst_trades = sorted_results[-5:]
 
-        print(f"[Surge] Backtest results: {len(all_results)} trades")
+        session.close()
+
+        print(f"[Surge] Backtest results from DB: {len(all_results)} trades")
 
         return jsonify({
             'success': True,
