@@ -208,6 +208,53 @@
             color: white;
         }
 
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        /* Dropdown Button */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: white;
+            min-width: 150px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            z-index: 1000;
+            margin-top: 4px;
+        }
+
+        .dropdown-content button {
+            display: block;
+            width: 100%;
+            padding: 10px 16px;
+            border: none;
+            background: white;
+            text-align: left;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+
+        .dropdown-content button:hover {
+            background: #f8f9fa;
+        }
+
+        .dropdown.active .dropdown-content {
+            display: block;
+        }
+
         /* Table */
         .table-container {
             background: white;
@@ -666,6 +713,66 @@
         </div>
     </div>
 
+    <div id="subscriptionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>구독 상세 관리</h2>
+                <p style="color: #6c757d; font-size: 14px; margin-top: 8px;">사용자의 구독 정보를 상세하게 관리합니다</p>
+            </div>
+            <form id="subscriptionForm">
+                <input type="hidden" id="subUserId">
+                <div class="form-group">
+                    <label>이메일</label>
+                    <input type="email" id="subUserEmail" readonly style="background: #f8f9fa;">
+                </div>
+                <div class="form-group">
+                    <label>플랜 *</label>
+                    <select id="subPlan" required>
+                        <option value="free">무료 (FREE)</option>
+                        <option value="basic">베이직 (BASIC)</option>
+                        <option value="pro">프로 (PRO)</option>
+                        <option value="enterprise">엔터프라이즈 (ENTERPRISE)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>상태 *</label>
+                    <select id="subStatus" required>
+                        <option value="active">활성 (ACTIVE)</option>
+                        <option value="cancelled">취소됨 (CANCELLED)</option>
+                        <option value="expired">만료됨 (EXPIRED)</option>
+                        <option value="pending">대기 중 (PENDING)</option>
+                        <option value="trial">체험판 (TRIAL)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>청구 주기 *</label>
+                    <select id="subBillingPeriod" required>
+                        <option value="monthly">월간 (MONTHLY)</option>
+                        <option value="annual">연간 (ANNUAL)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>시작 날짜 *</label>
+                    <input type="datetime-local" id="subStartDate" required>
+                    <small>구독 시작 날짜</small>
+                </div>
+                <div class="form-group">
+                    <label>종료 날짜 *</label>
+                    <input type="datetime-local" id="subEndDate" required>
+                    <small>구독 만료 날짜</small>
+                </div>
+                <div class="form-group">
+                    <label>사유</label>
+                    <textarea id="subReason" placeholder="변경 사유를 입력하세요" rows="3"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('subscriptionModal')">취소</button>
+                    <button type="submit" class="btn btn-primary">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         // Configuration - Use local variable for admin-specific API base
         const API_BASE = window.location.origin + '/api/admin';
@@ -830,7 +937,17 @@
                     <td><span class="badge badge-${user.is_active ? 'success' : 'danger'}">${user.is_active ? '활성' : '비활성'}</span></td>
                     <td><span class="badge badge-${user.has_upbit_keys ? 'success' : 'danger'}">${user.has_upbit_keys ? '✓ 등록됨' : '✗ 미등록'}</span></td>
                     <td>${user.expires_at ? new Date(user.expires_at).toLocaleDateString('ko-KR') : '-'}</td>
-                    <td>
+                    <td style="white-space: nowrap;">
+                        <div class="dropdown" id="dropdown-${user.id}">
+                            <button class="btn btn-warning" style="padding: 6px 12px; font-size: 12px; margin-right: 5px;" onclick="toggleDropdown(${user.id}, event)">⏱ 연장 ▼</button>
+                            <div class="dropdown-content">
+                                <button onclick="extendSubscription(${user.id}, 30, event)">1개월 (+30일)</button>
+                                <button onclick="extendSubscription(${user.id}, 90, event)">3개월 (+90일)</button>
+                                <button onclick="extendSubscription(${user.id}, 180, event)">6개월 (+180일)</button>
+                                <button onclick="extendSubscription(${user.id}, 365, event)">1년 (+365일)</button>
+                            </div>
+                        </div>
+                        <button class="btn btn-info" style="padding: 6px 12px; font-size: 12px; margin-right: 5px;" onclick="openSubscriptionModal(${user.id}, '${user.email}')">📋 상세</button>
                         <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px; margin-right: 5px;" onclick="editUser(${user.id}, '${user.email}', '${(user.plan_code || 'FREE').toUpperCase()}')">플랜 변경</button>
                         ${user.is_active
                             ? `<button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="deleteUser(${user.id}, '${user.email}')">삭제</button>`
@@ -1222,6 +1339,213 @@
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
         }
+
+        // Subscription Management Functions
+
+        // Toggle dropdown menu
+        function toggleDropdown(userId, event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById(`dropdown-${userId}`);
+
+            // Close all other dropdowns
+            document.querySelectorAll('.dropdown').forEach(d => {
+                if (d.id !== `dropdown-${userId}`) {
+                    d.classList.remove('active');
+                }
+            });
+
+            dropdown.classList.toggle('active');
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!event.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('active'));
+            }
+        });
+
+        // Quick extend subscription
+        async function extendSubscription(userId, days, event) {
+            event.stopPropagation();
+
+            const periods = {
+                30: '1개월',
+                90: '3개월',
+                180: '6개월',
+                365: '1년'
+            };
+
+            if (!confirm(`구독 기간을 ${periods[days]} 연장하시겠습니까?\n(+${days}일)`)) {
+                return;
+            }
+
+            try {
+                console.log(`[Admin] Extending subscription for user ${userId} by ${days} days`);
+
+                const response = await fetch(`${window.location.origin}/api/admin/subscriptions/users/${userId}/extend`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({
+                        days: days,
+                        reason: `Admin quick extend: ${periods[days]}`
+                    })
+                });
+
+                const data = await response.json();
+                console.log('[Admin] Extend response:', data);
+
+                if (data.success) {
+                    const newEndDate = new Date(data.new_end_date).toLocaleDateString('ko-KR');
+                    alert(`✓ 구독이 ${periods[days]} 연장되었습니다!\n\n새 만료일: ${newEndDate}`);
+
+                    // Refresh user list
+                    await loadUsers();
+                    await loadDashboard();
+                } else {
+                    alert(`❌ 구독 연장 실패: ${data.error}\n\n구독이 없는 경우 먼저 "플랜 변경"을 통해 구독을 생성해주세요.`);
+                }
+            } catch (error) {
+                console.error('[Admin] Extend error:', error);
+                alert(`❌ 구독 연장 중 오류가 발생했습니다.\n\n${error.message}`);
+            }
+
+            // Close dropdown
+            document.getElementById(`dropdown-${userId}`).classList.remove('active');
+        }
+
+        // Open subscription detail modal
+        async function openSubscriptionModal(userId, email) {
+            try {
+                console.log(`[Admin] Loading subscription details for user ${userId}`);
+
+                // Fetch subscription details
+                const response = await fetch(`${window.location.origin}/api/admin/subscriptions/users/${userId}`, {
+                    headers: getHeaders()
+                });
+
+                const data = await response.json();
+                console.log('[Admin] Subscription data:', data);
+
+                // Populate form
+                document.getElementById('subUserId').value = userId;
+                document.getElementById('subUserEmail').value = email;
+
+                if (data.subscription) {
+                    const sub = data.subscription;
+
+                    // Set values
+                    document.getElementById('subPlan').value = sub.plan || 'free';
+                    document.getElementById('subStatus').value = sub.status || 'active';
+                    document.getElementById('subBillingPeriod').value = sub.billing_period || 'monthly';
+
+                    // Convert ISO datetime to local datetime-local format
+                    if (sub.current_period_start) {
+                        const startDate = new Date(sub.current_period_start);
+                        document.getElementById('subStartDate').value = startDate.toISOString().slice(0, 16);
+                    } else {
+                        document.getElementById('subStartDate').value = new Date().toISOString().slice(0, 16);
+                    }
+
+                    if (sub.current_period_end) {
+                        const endDate = new Date(sub.current_period_end);
+                        document.getElementById('subEndDate').value = endDate.toISOString().slice(0, 16);
+                    } else {
+                        // Default to 1 month from now
+                        const defaultEnd = new Date();
+                        defaultEnd.setMonth(defaultEnd.getMonth() + 1);
+                        document.getElementById('subEndDate').value = defaultEnd.toISOString().slice(0, 16);
+                    }
+                } else {
+                    // No subscription - set defaults
+                    document.getElementById('subPlan').value = 'free';
+                    document.getElementById('subStatus').value = 'active';
+                    document.getElementById('subBillingPeriod').value = 'monthly';
+
+                    const now = new Date();
+                    document.getElementById('subStartDate').value = now.toISOString().slice(0, 16);
+
+                    const defaultEnd = new Date();
+                    defaultEnd.setMonth(defaultEnd.getMonth() + 1);
+                    document.getElementById('subEndDate').value = defaultEnd.toISOString().slice(0, 16);
+
+                    console.log('[Admin] No subscription found - using defaults');
+                }
+
+                openModal('subscriptionModal');
+
+            } catch (error) {
+                console.error('[Admin] Failed to load subscription:', error);
+                alert('❌ 구독 정보를 불러오는데 실패했습니다.\n\n' + error.message);
+            }
+        }
+
+        // Save subscription details
+        document.getElementById('subscriptionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const userId = document.getElementById('subUserId').value;
+            const plan = document.getElementById('subPlan').value;
+            const billingPeriod = document.getElementById('subBillingPeriod').value;
+            const startDate = document.getElementById('subStartDate').value;
+            const endDate = document.getElementById('subEndDate').value;
+            const reason = document.getElementById('subReason').value || 'Admin subscription update';
+
+            if (!confirm('구독 정보를 저장하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                console.log(`[Admin] Updating subscription for user ${userId}`);
+
+                // Step 1: Change plan (creates/updates subscription)
+                const planResponse = await fetch(`${window.location.origin}/api/admin/subscriptions/users/${userId}/plan`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify({
+                        plan: plan,
+                        billing_period: billingPeriod,
+                        reason: reason
+                    })
+                });
+
+                const planData = await planResponse.json();
+                console.log('[Admin] Plan change response:', planData);
+
+                if (!planData.success) {
+                    alert(`❌ 플랜 변경 실패: ${planData.error}`);
+                    return;
+                }
+
+                // Step 2: Set custom period dates
+                const periodResponse = await fetch(`${window.location.origin}/api/admin/subscriptions/users/${userId}/custom-period`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({
+                        start_date: new Date(startDate).toISOString(),
+                        end_date: new Date(endDate).toISOString(),
+                        reason: reason
+                    })
+                });
+
+                const periodData = await periodResponse.json();
+                console.log('[Admin] Custom period response:', periodData);
+
+                if (periodData.success) {
+                    closeModal('subscriptionModal');
+                    await loadUsers();
+                    await loadDashboard();
+
+                    const endDateStr = new Date(endDate).toLocaleDateString('ko-KR');
+                    alert(`✓ 구독 정보가 저장되었습니다!\n\n플랜: ${plan.toUpperCase()}\n만료일: ${endDateStr}`);
+                } else {
+                    alert(`⚠️ 플랜은 변경되었으나 기간 설정에 실패했습니다.\n\n${periodData.error}`);
+                }
+
+            } catch (error) {
+                console.error('[Admin] Subscription save error:', error);
+                alert(`❌ 구독 정보 저장 중 오류가 발생했습니다.\n\n${error.message}`);
+            }
+        });
 
         // Auto refresh every 30 seconds
         setInterval(loadDashboard, 30000);
