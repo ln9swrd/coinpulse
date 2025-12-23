@@ -327,15 +327,29 @@
     </div>
 
     <script>
-        (function() {
-            // Force API_BASE to origin (avoid path prefix issues)
-            window.API_BASE = window.location.origin;
-            let currentFilter = 'all';
+        // Force API_BASE to origin (avoid path prefix issues)
+        window.API_BASE = window.API_BASE || window.location.origin;
+        window.currentFilter = window.currentFilter || 'all';
 
-            // Get token from localStorage
-            function getAuthToken() {
-                return localStorage.getItem('access_token');
+        // Helper function to safely get element with retry
+        async function waitForElement(elementId, maxRetries = 10, delayMs = 100) {
+            for (let i = 0; i < maxRetries; i++) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    console.log(`[Signals] Element '${elementId}' found on attempt ${i + 1}`);
+                    return element;
+                }
+                console.log(`[Signals] Element '${elementId}' not found, retrying... (${i + 1}/${maxRetries})`);
+                await new Promise(resolve => setTimeout(resolve, delayMs));
             }
+            console.error(`[Signals] Element '${elementId}' not found after ${maxRetries} attempts`);
+            return null;
+        }
+
+        // Get token from localStorage
+        function getAuthToken() {
+            return localStorage.getItem('access_token') || localStorage.getItem('auth_token');
+        }
 
         // Initialize
         async function init() {
@@ -358,7 +372,7 @@
 
         async function loadStats() {
             try {
-                const response = await fetch(`${API_BASE}/api/user/signals/stats`, {
+                const response = await fetch(`${window.API_BASE}/api/user/signals/stats`, {
                     headers: {
                         'Authorization': `Bearer ${getAuthToken()}`
                     }
@@ -367,19 +381,29 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    document.getElementById('totalReceived').textContent = data.total_received;
-                    document.getElementById('executed').textContent = data.executed;
-                    document.getElementById('executionRate').textContent = data.execution_rate + '%';
-                    document.getElementById('winRate').textContent = data.win_rate + '%';
+                    // Wait for elements with defensive checks
+                    const totalEl = document.getElementById('totalReceived');
+                    const executedEl = document.getElementById('executed');
+                    const execRateEl = document.getElementById('executionRate');
+                    const winRateEl = document.getElementById('winRate');
+                    const profitLossEl = document.getElementById('totalProfitLoss');
+                    const thisMonthEl = document.getElementById('thisMonth');
 
-                    const profitLoss = data.total_profit_loss;
-                    const profitLossText = profitLoss >= 0 ?
-                        '+' + profitLoss.toLocaleString() + ' KRW' :
-                        profitLoss.toLocaleString() + ' KRW';
-                    document.getElementById('totalProfitLoss').textContent = profitLossText;
-                    document.getElementById('totalProfitLoss').style.color = profitLoss >= 0 ? '#10b981' : '#ef4444';
+                    if (totalEl) totalEl.textContent = data.total_received;
+                    if (executedEl) executedEl.textContent = data.executed;
+                    if (execRateEl) execRateEl.textContent = data.execution_rate + '%';
+                    if (winRateEl) winRateEl.textContent = data.win_rate + '%';
 
-                    document.getElementById('thisMonth').textContent = data.this_month.received;
+                    if (profitLossEl) {
+                        const profitLoss = data.total_profit_loss;
+                        const profitLossText = profitLoss >= 0 ?
+                            '+' + profitLoss.toLocaleString() + ' KRW' :
+                            profitLoss.toLocaleString() + ' KRW';
+                        profitLossEl.textContent = profitLossText;
+                        profitLossEl.style.color = profitLoss >= 0 ? '#10b981' : '#ef4444';
+                    }
+
+                    if (thisMonthEl) thisMonthEl.textContent = data.this_month.received;
                 }
             } catch (error) {
                 console.error('Error loading stats:', error);
@@ -388,14 +412,19 @@
 
         async function loadSignals() {
             try {
-                const response = await fetch(`${API_BASE}/api/user/signals?status=${currentFilter}&limit=50`, {
+                const response = await fetch(`${window.API_BASE}/api/user/signals?status=${window.currentFilter}&limit=50`, {
                     headers: {
                         'Authorization': `Bearer ${getAuthToken()}`
                     }
                 });
 
                 const data = await response.json();
-                const container = document.getElementById('signalsList');
+                const container = await waitForElement('signalsList');
+
+                if (!container) {
+                    console.error('[Signals] signalsList container not found');
+                    return;
+                }
 
                 if (!data.success) {
                     container.innerHTML = '<div class="empty-state"><h3>오류 발생</h3><p>' + data.error + '</p></div>';
@@ -491,7 +520,7 @@
                 btn.addEventListener('click', () => {
                     filterBtns.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    currentFilter = btn.dataset.status;
+                    window.currentFilter = btn.dataset.status;
                     loadSignals();
                 });
             });
@@ -534,9 +563,14 @@
             }
         }
 
-            // Initialize on page load
+        // Initialize on page load
+        // Check if DOM is already loaded (for dynamic loading in dashboard)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            // DOM already loaded, call init immediately
             init();
-        })();
+        }
     </script>
 </body>
 </html>

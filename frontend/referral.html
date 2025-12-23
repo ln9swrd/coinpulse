@@ -434,6 +434,21 @@
         // Force API_BASE to origin (avoid path prefix issues)
         window.API_BASE = window.API_BASE || window.location.origin;
 
+        // Helper function to safely get element with retry
+        async function waitForElement(elementId, maxRetries = 10, delayMs = 100) {
+            for (let i = 0; i < maxRetries; i++) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    console.log(`[Referral] Element '${elementId}' found on attempt ${i + 1}`);
+                    return element;
+                }
+                console.log(`[Referral] Element '${elementId}' not found, retrying... (${i + 1}/${maxRetries})`);
+                await new Promise(resolve => setTimeout(resolve, delayMs));
+            }
+            console.error(`[Referral] Element '${elementId}' not found after ${maxRetries} attempts`);
+            return null;
+        }
+
         // Get token from localStorage
         function getAuthToken() {
             return localStorage.getItem('access_token') || localStorage.getItem('auth_token');
@@ -494,8 +509,16 @@
                     window.referralCode = data.code;
                     window.referralLink = data.link;
 
-                    document.getElementById('referral-code').textContent = window.referralCode;
-                    document.getElementById('referral-link').textContent = window.referralLink;
+                    // Wait for elements to be available
+                    const codeEl = await waitForElement('referral-code');
+                    const linkEl = await waitForElement('referral-link');
+
+                    if (codeEl) {
+                        codeEl.textContent = window.referralCode;
+                    }
+                    if (linkEl) {
+                        linkEl.textContent = window.referralLink;
+                    }
 
                     console.log('[Referral] Code loaded:', window.referralCode);
                 } else {
@@ -503,8 +526,10 @@
                 }
             } catch (error) {
                 console.error('[Referral] Failed to load code:', error);
-                document.getElementById('referral-code').textContent = '로드 실패';
-                document.getElementById('referral-link').textContent = '페이지를 새로고침 해주세요';
+                const codeEl = document.getElementById('referral-code');
+                const linkEl = document.getElementById('referral-link');
+                if (codeEl) codeEl.textContent = '로드 실패';
+                if (linkEl) linkEl.textContent = '페이지를 새로고침 해주세요';
             }
         }
 
@@ -527,10 +552,14 @@
                 if (data.success) {
                     const stats = data.stats;
 
-                    // Update statistics
-                    document.getElementById('total-referrals').textContent = stats.total_referrals;
-                    document.getElementById('rewarded-referrals').textContent = stats.rewarded_referrals;
-                    document.getElementById('pending-referrals').textContent = stats.pending_referrals;
+                    // Update statistics with defensive checks
+                    const totalEl = document.getElementById('total-referrals');
+                    const rewardedEl = document.getElementById('rewarded-referrals');
+                    const pendingEl = document.getElementById('pending-referrals');
+
+                    if (totalEl) totalEl.textContent = stats.total_referrals;
+                    if (rewardedEl) rewardedEl.textContent = stats.rewarded_referrals;
+                    if (pendingEl) pendingEl.textContent = stats.pending_referrals;
 
                     // Display recent referrals
                     displayRecentReferrals(stats.recent_referrals);
@@ -541,13 +570,16 @@
                 }
             } catch (error) {
                 console.error('[Referral] Failed to load stats:', error);
-                document.getElementById('recent-referrals-container').innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">⚠️</div>
-                        <div class="empty-state-text">통계를 불러올 수 없습니다</div>
-                        <div class="empty-state-subtext">페이지를 새로고침 해주세요</div>
-                    </div>
-                `;
+                const container = document.getElementById('recent-referrals-container');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">⚠️</div>
+                            <div class="empty-state-text">통계를 불러올 수 없습니다</div>
+                            <div class="empty-state-subtext">페이지를 새로고침 해주세요</div>
+                        </div>
+                    `;
+                }
             }
         }
 
@@ -556,6 +588,10 @@
          */
         function displayRecentReferrals(referrals) {
             const container = document.getElementById('recent-referrals-container');
+            if (!container) {
+                console.error('[Referral] recent-referrals-container not found');
+                return;
+            }
 
             if (!referrals || referrals.length === 0) {
                 container.innerHTML = `
