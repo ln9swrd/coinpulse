@@ -372,6 +372,50 @@ def api_status():
     }), 200
 
 
+@app.route('/api/telegram/webhook', methods=['POST'])
+def telegram_webhook():
+    """
+    Telegram bot webhook endpoint
+
+    Receives updates from Telegram and processes them through the bot
+    """
+    try:
+        # Check if telegram_bot is available
+        if not hasattr(app, 'telegram_bot'):
+            logger.warning("[Telegram] Webhook called but bot not initialized")
+            return jsonify({'status': 'error', 'message': 'Bot not initialized'}), 500
+
+        # Get update data from request
+        update_data = request.get_json()
+
+        if not update_data:
+            logger.warning("[Telegram] Webhook called with no data")
+            return jsonify({'status': 'error', 'message': 'No data'}), 400
+
+        logger.debug(f"[Telegram] Received webhook update: {update_data.get('update_id', 'unknown')}")
+
+        # Process update asynchronously
+        import asyncio
+        import threading
+
+        def process_update_async():
+            """Process update in background"""
+            try:
+                asyncio.run(app.telegram_bot.process_update(update_data))
+            except Exception as e:
+                logger.error(f"[Telegram] Error processing update: {e}")
+
+        update_thread = threading.Thread(target=process_update_async, daemon=True)
+        update_thread.start()
+
+        # Return success immediately (Telegram expects quick response)
+        return jsonify({'status': 'ok'}), 200
+
+    except Exception as e:
+        logger.error(f"[Telegram] Webhook error: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
 @app.route('/api/trading/policies', methods=['GET', 'POST'])
 def manage_trading_policies():
     """
@@ -737,19 +781,24 @@ def init_background_services():
                 # Initialize Telegram bot
                 telegram_bot = SurgeTelegramBot(token=telegram_token)
 
-                # Start bot in background
+                # Setup webhook mode instead of polling (resolves 409 Conflict)
                 import asyncio
                 import threading
 
-                def run_telegram_bot():
-                    """Run Telegram bot in separate thread"""
-                    try:
-                        asyncio.run(telegram_bot.start_polling())
-                    except Exception as e:
-                        logger.error(f"Telegram bot error: {e}")
+                # Get webhook URL from environment or use default
+                webhook_base_url = os.getenv('WEBHOOK_BASE_URL', 'https://coinpulse.sinsi.ai')
+                webhook_url = f"{webhook_base_url}/api/telegram/webhook"
 
-                telegram_thread = threading.Thread(target=run_telegram_bot, daemon=True)
-                telegram_thread.start()
+                def setup_telegram_webhook():
+                    """Setup Telegram bot webhook"""
+                    try:
+                        asyncio.run(telegram_bot.start_webhook(webhook_url))
+                        logger.info(f"[Telegram] Webhook mode activated: {webhook_url}")
+                    except Exception as e:
+                        logger.error(f"Telegram webhook setup error: {e}")
+
+                webhook_thread = threading.Thread(target=setup_telegram_webhook, daemon=True)
+                webhook_thread.start()
 
                 # Initialize surge alert scheduler (5 minute interval)
                 surge_alert_scheduler = SurgeAlertScheduler(
@@ -772,7 +821,7 @@ def init_background_services():
                 app.telegram_bot = telegram_bot
                 app.surge_alert_scheduler = surge_alert_scheduler
 
-                logger.info("Telegram bot and surge alert scheduler started (5 minute interval)")
+                logger.info("Telegram bot (webhook mode) and surge alert scheduler started (5 minute interval)")
             else:
                 logger.warning("python-telegram-bot not installed - Telegram alerts disabled")
         else:

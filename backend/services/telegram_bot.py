@@ -655,6 +655,76 @@ https://t.me/coinpulse_surge_sinsi_bot
             await self.app.stop()
             await self.app.shutdown()
 
+    async def start_webhook(self, webhook_url: str):
+        """
+        Start bot with webhook mode (non-blocking, for Flask integration)
+
+        Args:
+            webhook_url: Public webhook URL (e.g., https://coinpulse.sinsi.ai/api/telegram/webhook)
+        """
+        if not self.app:
+            await self.initialize()
+
+        logger.info(f"[TelegramBot] Setting up webhook: {webhook_url}")
+
+        try:
+            # Initialize application
+            await self.app.initialize()
+            await self.app.start()
+
+            # Delete existing webhook first (clears any conflicts)
+            await self.bot.delete_webhook(drop_pending_updates=True)
+            logger.info("[TelegramBot] Deleted existing webhook")
+
+            # Set new webhook
+            await self.bot.set_webhook(
+                url=webhook_url,
+                allowed_updates=['message', 'callback_query', 'inline_query']
+            )
+
+            logger.info(f"[TelegramBot] Webhook set successfully: {webhook_url}")
+
+            # Verify webhook
+            webhook_info = await self.bot.get_webhook_info()
+            logger.info(f"[TelegramBot] Webhook info: {webhook_info.url}, pending: {webhook_info.pending_update_count}")
+
+        except Exception as e:
+            logger.error(f"[TelegramBot] Failed to set webhook: {e}")
+            raise
+
+    async def process_update(self, update_data: dict):
+        """
+        Process an incoming webhook update
+
+        Args:
+            update_data: Update data from Telegram webhook
+        """
+        if not self.app:
+            logger.warning("[TelegramBot] App not initialized, skipping update")
+            return
+
+        try:
+            from telegram import Update
+            update = Update.de_json(update_data, self.bot)
+            await self.app.process_update(update)
+            logger.debug(f"[TelegramBot] Processed update: {update.update_id}")
+        except Exception as e:
+            logger.error(f"[TelegramBot] Error processing update: {e}")
+            raise
+
+    async def stop(self):
+        """Stop bot gracefully"""
+        if self.app:
+            logger.info("[TelegramBot] Stopping bot...")
+            try:
+                if hasattr(self.app, 'updater') and self.app.updater.running:
+                    await self.app.updater.stop()
+                await self.app.stop()
+                await self.app.shutdown()
+                logger.info("[TelegramBot] Bot stopped successfully")
+            except Exception as e:
+                logger.error(f"[TelegramBot] Error stopping bot: {e}")
+
     def run(self):
         """Run bot (blocking)"""
         asyncio.run(self.start_polling())
