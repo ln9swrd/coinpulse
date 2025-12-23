@@ -42,38 +42,63 @@ def set_surge_cache(data):
     _surge_cache['is_fetching'] = False
     print(f"[Surge] Cache updated at {_surge_cache['timestamp']}")
 
-def calculate_backtest_stats(period_start='2024-11-13', period_end='2024-12-07'):
+def calculate_backtest_stats(period_start=None, period_end=None, use_dynamic_period=True):
     """
     Calculate real backtest statistics from database
 
+    Auto-recalculation logic:
+    - If use_dynamic_period=True (default): calculates stats from ALL surge_alerts with confidence >= 60%
+    - If use_dynamic_period=False: uses specified period_start and period_end
+
     Args:
-        period_start: Start date (YYYY-MM-DD)
-        period_end: End date (YYYY-MM-DD)
+        period_start: Start date (YYYY-MM-DD), optional
+        period_end: End date (YYYY-MM-DD), optional
+        use_dynamic_period: If True, ignore date range and use all data (default: True)
 
     Returns:
         Dictionary with backtest statistics
     """
     try:
         with get_db_session() as session:
-            # Get statistics for the period
-            stats_query = text("""
-                SELECT
-                    COUNT(*) as total_trades,
-                    COUNT(CASE WHEN status = 'win' THEN 1 END) as wins,
-                    COUNT(CASE WHEN status = 'lose' THEN 1 END) as losses,
-                    AVG(CASE WHEN status IN ('win', 'lose', 'neutral') THEN profit_loss_percent END) as avg_return,
-                    AVG(CASE WHEN status = 'win' THEN profit_loss_percent END) as avg_win,
-                    AVG(CASE WHEN status = 'lose' THEN profit_loss_percent END) as avg_loss
-                FROM surge_alerts
-                WHERE DATE(sent_at) >= DATE(:start_date)
-                  AND DATE(sent_at) <= DATE(:end_date)
-                  AND status IN ('win', 'lose', 'neutral')
-            """)
-
-            result = session.execute(stats_query, {
-                'start_date': period_start,
-                'end_date': period_end
-            }).first()
+            # Dynamic period: calculate from all surge_alerts with confidence >= 60%
+            if use_dynamic_period:
+                stats_query = text("""
+                    SELECT
+                        COUNT(*) as total_trades,
+                        COUNT(CASE WHEN status = 'win' THEN 1 END) as wins,
+                        COUNT(CASE WHEN status = 'lose' THEN 1 END) as losses,
+                        AVG(CASE WHEN status IN ('win', 'lose', 'neutral') THEN profit_loss_percent END) as avg_return,
+                        AVG(CASE WHEN status = 'win' THEN profit_loss_percent END) as avg_win,
+                        AVG(CASE WHEN status = 'lose' THEN profit_loss_percent END) as avg_loss,
+                        MIN(DATE(sent_at)) as first_date,
+                        MAX(DATE(sent_at)) as last_date
+                    FROM surge_alerts
+                    WHERE status IN ('win', 'lose', 'neutral')
+                      AND confidence >= 0.6
+                """)
+                result = session.execute(stats_query).first()
+                period_str = f"{result.first_date} ~ {result.last_date}" if result.first_date else "No data"
+            else:
+                # Fixed period: use specified date range
+                stats_query = text("""
+                    SELECT
+                        COUNT(*) as total_trades,
+                        COUNT(CASE WHEN status = 'win' THEN 1 END) as wins,
+                        COUNT(CASE WHEN status = 'lose' THEN 1 END) as losses,
+                        AVG(CASE WHEN status IN ('win', 'lose', 'neutral') THEN profit_loss_percent END) as avg_return,
+                        AVG(CASE WHEN status = 'win' THEN profit_loss_percent END) as avg_win,
+                        AVG(CASE WHEN status = 'lose' THEN profit_loss_percent END) as avg_loss
+                    FROM surge_alerts
+                    WHERE DATE(sent_at) >= DATE(:start_date)
+                      AND DATE(sent_at) <= DATE(:end_date)
+                      AND status IN ('win', 'lose', 'neutral')
+                      AND confidence >= 0.6
+                """)
+                result = session.execute(stats_query, {
+                    'start_date': period_start or '2024-11-13',
+                    'end_date': period_end or '2024-12-07'
+                }).first()
+                period_str = f"{period_start or '2024-11-13'} ~ {period_end or '2024-12-07'}"
 
             if result and result.total_trades > 0:
                 win_rate = (result.wins / result.total_trades * 100) if result.total_trades > 0 else 0
@@ -84,8 +109,8 @@ def calculate_backtest_stats(period_start='2024-11-13', period_end='2024-12-07')
                     'avg_win': round(result.avg_win or 0, 2),
                     'avg_loss': round(result.avg_loss or 0, 2),
                     'total_trades': result.total_trades,
-                    'period': f'{period_start} ~ {period_end}',
-                    'source': 'database'
+                    'period': period_str,
+                    'source': 'database_dynamic' if use_dynamic_period else 'database_fixed'
                 }
             else:
                 # Return default/fallback stats if no data
@@ -95,7 +120,7 @@ def calculate_backtest_stats(period_start='2024-11-13', period_end='2024-12-07')
                     'avg_win': 0,
                     'avg_loss': 0,
                     'total_trades': 0,
-                    'period': f'{period_start} ~ {period_end}',
+                    'period': period_str,
                     'source': 'no_data',
                     'note': 'No backtest data available for this period'
                 }
@@ -392,8 +417,8 @@ def get_surge_candidates_legacy():
             signal_generation_result = signal_generator.batch_generate_from_candidates(high_confidence_candidates)
             print(f"[Surge] Generated {signal_generation_result['generated']} signals, distributed to {signal_generation_result['distributed_total']} users")
 
-        # Calculate backtest statistics dynamically from database
-        backtest_stats = calculate_backtest_stats('2024-11-13', '2024-12-07')
+        # Calculate backtest statistics dynamically from database (auto-recalculation)
+        backtest_stats = calculate_backtest_stats()
 
         # Prepare response data
         response_data = {
