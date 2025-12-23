@@ -405,7 +405,7 @@ def setup_security_middleware(app):
                 "img-src 'self' data: https:; "
                 "font-src 'self' data:; "
                 "connect-src 'self' https://api.upbit.com wss://api.upbit.com; "
-                "frame-ancestors 'none';"
+                "frame-ancestors 'self';"  # Allow iframe from same origin
             )
 
         # Strict Transport Security (HTTPS only)
