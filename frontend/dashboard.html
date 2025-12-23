@@ -1271,10 +1271,13 @@
                 // Requirements: NOT free plan + active status + not expired
                 try {
                     const subscriptionResponse = await window.api.getCurrentSubscription();
+                    console.log('[Dashboard] Subscription API response:', subscriptionResponse);
                     const subscription = subscriptionResponse?.subscription;
+                    console.log('[Dashboard] Subscription object:', subscription);
                     const plan = subscription?.plan || 'free';
                     const status = subscription?.status;
                     const endDate = subscription?.current_period_end;
+                    console.log('[Dashboard] Parsed values:', {plan, status, endDate});
 
                     // Check 1: Free plan
                     if (plan === 'free' || !subscription) {
