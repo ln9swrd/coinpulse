@@ -467,20 +467,26 @@
                 </div>
                 <div class="candidate-price">${price} KRW</div>
                 <div style="background: #f8fafc; border-radius: 8px; padding: 12px; margin: 12px 0; border-left: 3px solid #3b82f6;">
-                    <div style="font-size: 0.85em; color: #64748b; margin-bottom: 8px; font-weight: 600;">📊 매매 가격 정보</div>
+                    <div style="font-size: 0.85em; color: #64748b; margin-bottom: 8px; font-weight: 600;">📊 가격 정보</div>
                     <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.9em;">
                         <div style="display: flex; justify-content: space-between;">
-                            <span style="color: #64748b;">💰 진입가</span>
-                            <span style="font-weight: 600; color: #1e293b;">${formatPrice(candidate.entry_price)} KRW</span>
+                            <span style="color: #64748b;">💰 현재가</span>
+                            <span style="font-weight: 600; color: #1e293b;">${formatPrice(candidate.current_price)} KRW</span>
                         </div>
+                        ${candidate.entry_price ? `
                         <div style="display: flex; justify-content: space-between;">
                             <span style="color: #64748b;">🎯 목표가</span>
-                            <span style="font-weight: 600; color: #10b981;">${formatPrice(candidate.target_price)} KRW (+${candidate.expected_return}%)</span>
+                            <span style="font-weight: 600; color: #10b981;">${formatPrice(candidate.target_price)} KRW (+${candidate.expected_return || 10}%)</span>
                         </div>
                         <div style="display: flex; justify-content: space-between;">
                             <span style="color: #64748b;">🛡️ 손절가</span>
                             <span style="font-weight: 600; color: #dc2626;">${formatPrice(candidate.stop_loss_price)} KRW (-5%)</span>
                         </div>
+                        ` : `
+                        <div style="color: #64748b; font-size: 0.85em; margin-top: 4px;">
+                            💡 자동매매 활성화 시 맞춤형 목표가/손절가가 설정됩니다
+                        </div>
+                        `}
                     </div>
                 </div>
                 <div style="font-size: 0.9em; color: #64748b; margin-bottom: 16px;">
@@ -651,12 +657,18 @@
 
         // 가격 포맷
         function formatPrice(price) {
-            if (price >= 1000) {
-                return price.toLocaleString('ko-KR', { maximumFractionDigits: 0 });
-            } else if (price >= 1) {
-                return price.toLocaleString('ko-KR', { maximumFractionDigits: 2 });
+            // Null/undefined check
+            if (price === null || price === undefined || isNaN(price)) {
+                return '—';
+            }
+
+            const numPrice = Number(price);
+            if (numPrice >= 1000) {
+                return numPrice.toLocaleString('ko-KR', { maximumFractionDigits: 0 });
+            } else if (numPrice >= 1) {
+                return numPrice.toLocaleString('ko-KR', { maximumFractionDigits: 2 });
             } else {
-                return price.toLocaleString('ko-KR', { maximumFractionDigits: 4 });
+                return numPrice.toLocaleString('ko-KR', { maximumFractionDigits: 4 });
             }
         }
 
