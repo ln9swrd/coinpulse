@@ -71,8 +71,8 @@ class SurgeAutoTradingWorker:
         # Track alerted markets to avoid duplicate alerts within same cycle
         self.alerted_in_cycle: Set[str] = set()
 
-        # Minimum score for auto-trading
-        self.min_score = 75  # Higher threshold for auto-trading (vs 60 for manual alerts)
+        # Base minimum score for initial filtering (user-specific filtering happens later)
+        self.base_min_score = 60  # Base threshold to reduce API calls
 
         logger.info(f"[AutoTradingWorker] Initialized (interval: {check_interval}s, coins: {len(self.monitor_coins)})")
 
@@ -100,8 +100,8 @@ class SurgeAutoTradingWorker:
                 # Analyze
                 analysis = self.predictor.analyze_coin(market, candle_data, current_price)
 
-                # Add to candidates if score >= min_score
-                if analysis['score'] >= self.min_score:
+                # Add to candidates if score >= base_min_score (user-specific filtering happens later)
+                if analysis['score'] >= self.base_min_score:
                     coin = market.replace('KRW-', '')
 
                     # Store analysis result for dynamic target calculation per user
@@ -196,6 +196,17 @@ class SurgeAutoTradingWorker:
 
                 for user, settings in active_users:
                     try:
+                        # Check user's minimum confidence threshold
+                        user_min_confidence = getattr(settings, 'min_confidence', 60.0)  # Default: 60% (stored as 60.0 in DB)
+                        candidate_score = candidate['score']  # Score is already in 0-100 range
+
+                        if candidate_score < user_min_confidence:
+                            logger.debug(
+                                f"[AutoTradingWorker] User {user.id} skipped {market}: "
+                                f"score {candidate_score:.1f} < required {user_min_confidence:.1f}"
+                            )
+                            continue
+
                         # Calculate dynamic target prices based on user's settings
                         analysis_result = candidate['analysis']
                         current_price = candidate['current_price']
