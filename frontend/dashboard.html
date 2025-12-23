@@ -472,30 +472,8 @@
                     <span>거래 내역</span>
                 </a>
 
-                <!-- 자동화 섹션 -->
-                <div class="nav-section-title">자동화</div>
-
-                <!-- 자동 거래 (급등 예측 기반) - Phase 8 v2.0 -->
-                <a href="#auto-trading" class="nav-item" data-page="auto-trading">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                        <circle cx="9" cy="11" r="1"></circle>
-                        <circle cx="15" cy="11" r="1"></circle>
-                        <path d="M9 15h6"></path>
-                    </svg>
-                    <span>자동 매매 설정</span>
-                    <span class="badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 8px;">NEW</span>
-                </a>
-
-                <!-- 실시간 모니터링 - 일시적으로 숨김
-                <a href="#realtime" class="nav-item" data-page="realtime">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                    </svg>
-                    <span>실시간 모니터링</span>
-                </a>
-                -->
+                <!-- 급등 & 자동매매 -->
+                <div class="nav-section-title">급등 & 자동매매</div>
 
                 <a href="#surge" class="nav-item" data-page="surge">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -504,8 +482,20 @@
                     <span>급등 예측</span>
                 </a>
 
-                <!-- 시그널 섹션 -->
-                <div class="nav-section-title">시그널</div>
+                <a href="#auto-trading" class="nav-item" data-page="auto-trading">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        <circle cx="9" cy="11" r="1"></circle>
+                        <circle cx="15" cy="11" r="1"></circle>
+                        <path d="M9 15h6"></path>
+                    </svg>
+                    <span>자동매매 설정</span>
+                    <span class="badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 8px;">NEW</span>
+                </a>
+
+                <!-- 시그널 & 알림 -->
+                <div class="nav-section-title">시그널 & 알림</div>
 
                 <a href="#signals" class="nav-item" data-page="signals">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -521,20 +511,8 @@
                     <span>텔레그램 연동</span>
                 </a>
 
-                <!-- 친구 초대 섹션 -->
-                <div class="nav-section-title">친구 초대</div>
-
-                <a href="#referral" class="nav-item" data-page="referral">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="8.5" cy="7" r="4"></circle>
-                        <polyline points="17 11 19 13 23 9"></polyline>
-                    </svg>
-                    <span>친구 초대하기</span>
-                </a>
-
-                <!-- 설정 섹션 -->
-                <div class="nav-section-title">설정</div>
+                <!-- 회원 -->
+                <div class="nav-section-title">회원</div>
 
                 <a href="#pricing" class="nav-item" data-page="pricing">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -542,6 +520,18 @@
                     </svg>
                     <span>요금제</span>
                 </a>
+
+                <a href="#referral" class="nav-item" data-page="referral">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="8.5" cy="7" r="4"></circle>
+                        <polyline points="17 11 19 13 23 9"></polyline>
+                    </svg>
+                    <span>친구 초대</span>
+                </a>
+
+                <!-- 설정 -->
+                <div class="nav-section-title">설정</div>
 
                 <a href="#settings" class="nav-item" data-page="settings">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -1808,7 +1798,7 @@
                 'trading': '거래 차트',
                 'portfolio': '포트폴리오',
                 'history': '거래 내역',
-                'auto-trading': '급등 예측 자동 매매',
+                'auto-trading': '자동매매 설정',
                 'realtime': '실시간 모니터링',
                 'surge': '급등 예측',
                 'signals': '내 시그널',
