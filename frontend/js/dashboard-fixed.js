@@ -1106,7 +1106,7 @@
                     await this.initSettingsPage();
                     break;
                 case 'pricing':
-                    this.initPricingPage();
+                    await this.initPricingPage();
                     break;
                 // Add more page initializers as needed
             }
@@ -2501,7 +2501,7 @@
             `;
         }
 
-        initPricingPage() {
+        async initPricingPage() {
             console.log('[Dashboard] Pricing page initialized');
 
             // Initialize billing toggle
@@ -2510,8 +2510,64 @@
             // Initialize FAQ accordions
             this.initFAQ();
 
+            // Fetch user's current plan and update UI
+            await this.updateCurrentPlan();
+
             // Initialize plan CTAs
             this.initPlanCTAs();
+        }
+
+        async updateCurrentPlan() {
+            try {
+                const token = localStorage.getItem('access_token') || localStorage.getItem('auth_token');
+                const apiUrl = window.location.origin;
+
+                const response = await fetch(`${apiUrl}/api/user/plan`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('[Pricing] User plan data:', data);
+
+                if (data.success && data.plan) {
+                    const currentPlan = (data.plan.plan_code || 'free').toLowerCase();
+                    console.log('[Pricing] Current plan:', currentPlan);
+
+                    // Update all plan buttons
+                    const ctaButtons = document.querySelectorAll('.plan-cta');
+                    ctaButtons.forEach(button => {
+                        const planType = button.getAttribute('data-plan');
+
+                        if (planType === currentPlan) {
+                            // This is the current plan
+                            button.textContent = '현재 플랜';
+                            button.classList.remove('plan-cta-primary');
+                            button.classList.add('plan-cta-secondary');
+                            button.disabled = false; // Keep clickable for info
+                        } else {
+                            // Different plan - show upgrade/start button
+                            if (planType === 'free') {
+                                button.textContent = '무료 플랜으로 변경';
+                            } else if (planType === 'basic') {
+                                button.textContent = currentPlan === 'free' ? '베이직으로 시작하기' : '베이직으로 변경';
+                            } else if (planType === 'pro') {
+                                button.textContent = currentPlan === 'free' ? '프로로 업그레이드' : '프로로 변경';
+                            }
+                            button.disabled = false;
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('[Pricing] Error fetching user plan:', error);
+                // If error, keep default state (free plan)
+            }
         }
 
         initBillingToggle() {
@@ -2592,9 +2648,18 @@
             ctaButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const plan = button.getAttribute('data-plan');
+                    const buttonText = button.textContent.trim();
 
+                    // Check if this is the current plan
+                    if (buttonText === '현재 플랜') {
+                        alert(`현재 ${plan === 'free' ? 'Free' : plan === 'basic' ? 'Basic' : 'Pro'} 플랜을 사용 중입니다.`);
+                        return;
+                    }
+
+                    // Handle plan changes
                     if (plan === 'free') {
-                        alert('이미 무료 플랜을 사용 중입니다.');
+                        alert('무료 플랜으로 변경하시겠습니까? 유료 기능이 제한됩니다.');
+                        // TODO: Implement downgrade logic
                     } else if (plan === 'basic') {
                         // Redirect to payment guide page
                         console.log('[Pricing] Upgrading to Basic');
