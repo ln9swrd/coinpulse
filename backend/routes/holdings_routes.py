@@ -555,7 +555,14 @@ def place_buy_order():
 
         logger.info(f"[Trading] Placing buy order: {market} @ {price} x {volume}")
 
-        result = user_upbit_api.place_limit_buy_order(market, price, volume)
+        # Use place_order with side='bid' for buy orders
+        result = user_upbit_api.place_order(
+            market=market,
+            side='bid',
+            volume=volume,
+            price=price,
+            ord_type='limit'
+        )
 
         if result:
             logger.info(f"[Trading] Buy order placed successfully: {result.get('uuid')}")
@@ -598,7 +605,14 @@ def place_sell_order():
 
         logger.info(f"[Trading] Placing sell order: {market} @ {price} x {volume}")
 
-        result = user_upbit_api.place_limit_sell_order(market, price, volume)
+        # Use place_order with side='ask' for sell orders
+        result = user_upbit_api.place_order(
+            market=market,
+            side='ask',
+            volume=volume,
+            price=price,
+            ord_type='limit'
+        )
 
         if result:
             logger.info(f"[Trading] Sell order placed successfully: {result.get('uuid')}")
