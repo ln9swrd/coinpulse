@@ -504,19 +504,41 @@
 
         async function loadSettings() {
             const token = getAuthToken();
+
+            // Debug: Log token status
+            console.log('[AutoTrading] Token check:', {
+                hasToken: !!token,
+                tokenLength: token ? token.length : 0,
+                tokenPreview: token ? token.substring(0, 20) + '...' : 'NULL'
+            });
+
             if (!token) {
+                console.error('[AutoTrading] No token found in localStorage');
                 showAlert('로그인이 필요합니다.', 'error');
                 setTimeout(() => window.location.href = '/login.html', 1500);
                 return;
             }
 
             try {
-                const response = await fetch(`${API_BASE}/api/surge/auto-trading/settings`, {
+                const apiUrl = `${API_BASE}/api/surge/auto-trading/settings`;
+                console.log('[AutoTrading] Fetching settings from:', apiUrl);
+                console.log('[AutoTrading] Authorization header:', `Bearer ${token.substring(0, 20)}...`);
+
+                const response = await fetch(apiUrl, {
                     headers: {'Authorization': `Bearer ${token}`}
                 });
 
+                console.log('[AutoTrading] Response status:', response.status);
+
                 // Handle authentication errors
                 if (response.status === 401) {
+                    console.error('[AutoTrading] 401 Unauthorized - Token rejected by server');
+                    console.error('[AutoTrading] Token being used:', token.substring(0, 50) + '...');
+
+                    // Try to get error details
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('[AutoTrading] Server error:', errorData);
+
                     localStorage.removeItem('access_token');
                     showAlert('로그인 세션이 만료되었습니다. 다시 로그인해주세요.', 'error');
                     setTimeout(() => window.location.href = '/login.html', 2000);
