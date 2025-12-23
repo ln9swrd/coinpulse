@@ -477,6 +477,33 @@
     (function() {
         'use strict';
 
+        // Coin information mapping
+        const COIN_INFO = {
+            'BTC': { name: '비트코인', logo: 'https://cryptoicon-api.pages.dev/api/icon/btc' },
+            'ETH': { name: '이더리움', logo: 'https://cryptoicon-api.pages.dev/api/icon/eth' },
+            'XRP': { name: '리플', logo: 'https://cryptoicon-api.pages.dev/api/icon/xrp' },
+            'ADA': { name: '에이다', logo: 'https://cryptoicon-api.pages.dev/api/icon/ada' },
+            'SOL': { name: '솔라나', logo: 'https://cryptoicon-api.pages.dev/api/icon/sol' },
+            'DOGE': { name: '도지코인', logo: 'https://cryptoicon-api.pages.dev/api/icon/doge' },
+            'DOT': { name: '폴카닷', logo: 'https://cryptoicon-api.pages.dev/api/icon/dot' },
+            'MATIC': { name: '폴리곤', logo: 'https://cryptoicon-api.pages.dev/api/icon/matic' },
+            'AVAX': { name: '아발란체', logo: 'https://cryptoicon-api.pages.dev/api/icon/avax' },
+            'LINK': { name: '체인링크', logo: 'https://cryptoicon-api.pages.dev/api/icon/link' },
+        };
+
+        // Get coin info with fallback
+        function getCoinInfo(coin) {
+            const upperCoin = coin.toUpperCase();
+            if (COIN_INFO[upperCoin]) {
+                return COIN_INFO[upperCoin];
+            }
+            // Fallback: use first letter as placeholder
+            return {
+                name: coin,
+                logo: `https://cryptoicon-api.pages.dev/api/icon/${coin.toLowerCase()}`
+            };
+        }
+
         // State
         let currentPage = 1;
         let perPage = 50;
@@ -649,6 +676,9 @@
                 const profitLoss = alert.profit_loss || 0;
                 const profitLossPercent = alert.profit_loss_percent ? alert.profit_loss_percent.toFixed(2) : '0.00';
 
+                // Get coin info
+                const coinInfo = getCoinInfo(alert.coin);
+
                 // Status badge color
                 let statusBadge = 'badge-secondary';
                 let statusText = alert.status || 'N/A';
@@ -660,7 +690,17 @@
                 html += `
                     <tr onclick="viewDetail(${alert.id})" style="cursor: pointer;">
                         <td>${alert.id}</td>
-                        <td><strong>${alert.market}</strong></td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <img src="${coinInfo.logo}" alt="${alert.coin}"
+                                     style="width: 24px; height: 24px; border-radius: 50%;"
+                                     onerror="this.style.display='none'">
+                                <div>
+                                    <strong>${coinInfo.name}</strong>
+                                    <div style="font-size: 0.85em; color: #666;">${alert.market}</div>
+                                </div>
+                            </div>
+                        </td>
                         <td>${confidence}%</td>
                         <td>${alert.entry_price ? alert.entry_price.toLocaleString() + '원' : '-'}</td>
                         <td style="color: #10b981; font-weight: 600;">${alert.target_price ? alert.target_price.toLocaleString() + '원' : '-'}</td>
@@ -767,6 +807,22 @@
             loadData();
         }
 
+        function changePerPage() {
+            perPage = parseInt(document.getElementById('per-page').value);
+            currentPage = 1;
+            loadData();
+        }
+
+        function resetFilters() {
+            document.getElementById('filter-market').value = '';
+            document.getElementById('filter-signal-type').value = '';
+            document.getElementById('filter-auto-traded').value = '';
+            document.getElementById('filter-status').value = '';
+            document.getElementById('filter-start-date').value = '';
+            document.getElementById('filter-end-date').value = '';
+            applyFilters();
+        }
+
         // View detail
         function viewDetail(alertId) {
             // TODO: Implement detail modal
@@ -802,6 +858,14 @@
                 alert('CSV 내보내기에 실패했습니다.');
             }
         }
+
+        // Expose functions to global scope for onclick handlers
+        window.goToPage = goToPage;
+        window.changePerPage = changePerPage;
+        window.applyFilters = applyFilters;
+        window.resetFilters = resetFilters;
+        window.viewDetail = viewDetail;
+        window.exportCSV = exportCSV;
 
     })();
     </script>
