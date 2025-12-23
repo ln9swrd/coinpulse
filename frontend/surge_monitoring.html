@@ -263,12 +263,14 @@
 <body>
     <div class="container">
         <!-- Header -->
-        <div class="header">
-            <h1>🚀 CoinPulse 급등 예측 모니터링</h1>
-            <p class="subtitle">AI 기반 5가지 기술적 지표 분석 시스템 (실시간)</p>
-            <span class="verified-badge">✓ 검증 완료 81.25% 적중률</span>
-            <span class="last-update" id="last-update">로딩 중...</span>
-            <button class="refresh-button" id="refresh-btn" onclick="loadCandidates()">새로고침</button>
+        <div class="header" style="padding: 15px 0; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <span class="verified-badge" style="font-size: 0.9em; padding: 6px 14px;">✓ 적중률 81.25%</span>
+                    <span class="last-update" id="last-update" style="margin-left: 12px;">로딩 중...</span>
+                </div>
+                <button class="refresh-button" id="refresh-btn" onclick="loadCandidates()" style="padding: 8px 20px; font-size: 0.9em;">새로고침</button>
+            </div>
         </div>
 
         <!-- Backtest Stats -->
