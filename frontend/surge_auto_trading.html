@@ -894,6 +894,31 @@
                     return;
                 }
 
+                // Record agreement in database if enabling auto-trading
+                if (isEnabling && isAcknowledged) {
+                    try {
+                        const agreementResponse = await fetch(`${API_BASE}/api/agreements/record`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                agreement_type: 'auto_trading_risk',
+                                agreed: true,
+                                version: '1.0'
+                            })
+                        });
+
+                        if (!agreementResponse.ok) {
+                            console.warn('Failed to record agreement, but continuing with settings save');
+                        }
+                    } catch (error) {
+                        console.error('Error recording agreement:', error);
+                        // Continue anyway - agreement check is secondary to settings save
+                    }
+                }
+
                 const excludedCoins = document.getElementById('excluded-coins').value
                     .split(',')
                     .map(c => c.trim().toUpperCase())
