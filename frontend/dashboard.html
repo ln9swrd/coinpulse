@@ -1252,20 +1252,23 @@
                 const container = document.getElementById('auto-trading-container');
                 if (!container) return;
 
-                // Check subscription plan first
-                // Note: Basic, Pro, and Enterprise plans have access to auto-trading
-                // Enterprise is not publicly promoted but technically functional
+                // Check subscription eligibility for auto-trading
+                // Requirements: NOT free plan + active status + not expired
                 try {
                     const subscriptionResponse = await window.api.getCurrentSubscription();
-                    const plan = subscriptionResponse?.subscription?.plan || 'free';
+                    const subscription = subscriptionResponse?.subscription;
+                    const plan = subscription?.plan || 'free';
+                    const status = subscription?.status;
+                    const endDate = subscription?.current_period_end;
 
-                    if (plan === 'free') {
-                        console.log('[Dashboard] Free plan - auto-trading not available');
+                    // Check 1: Free plan
+                    if (plan === 'free' || !subscription) {
+                        console.log('[Dashboard] Free plan or no subscription - auto-trading not available');
                         container.innerHTML = `
                             <div style="text-align: center; padding: 60px 20px;">
                                 <div style="font-size: 64px; margin-bottom: 20px;">💎</div>
                                 <h3 style="margin: 0 0 12px 0; color: #333; font-size: 20px; font-weight: 600;">
-                                    자동 거래는 베이직/프로 기능입니다
+                                    자동 거래는 유료 플랜 기능입니다
                                 </h3>
                                 <p style="margin: 0 0 24px 0; color: #666; font-size: 14px; line-height: 1.6;">
                                     자동 거래 기능을 사용하려면<br>
@@ -1289,6 +1292,81 @@
                         `;
                         return;
                     }
+
+                    // Check 2: Inactive subscription
+                    if (status !== 'active') {
+                        console.log('[Dashboard] Inactive subscription - auto-trading not available');
+                        container.innerHTML = `
+                            <div style="text-align: center; padding: 60px 20px;">
+                                <div style="font-size: 64px; margin-bottom: 20px;">⏸️</div>
+                                <h3 style="margin: 0 0 12px 0; color: #333; font-size: 20px; font-weight: 600;">
+                                    구독이 비활성화되었습니다
+                                </h3>
+                                <p style="margin: 0 0 24px 0; color: #666; font-size: 14px; line-height: 1.6;">
+                                    자동 거래를 사용하려면<br>
+                                    구독을 다시 활성화해주세요.
+                                </p>
+                                <button onclick="window.showPage('pricing')" style="
+                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                    color: white;
+                                    border: none;
+                                    padding: 12px 32px;
+                                    border-radius: 8px;
+                                    font-size: 15px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    transition: all 0.2s;
+                                    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+                                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(102, 126, 234, 0.5)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)';">
+                                    구독 재개
+                                </button>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    // Check 3: Expired subscription
+                    // NOTE: 만료일이 없으면 (null/undefined) 무제한 사용 가능
+                    if (endDate && new Date(endDate) < new Date()) {
+                        console.log('[Dashboard] Expired subscription - auto-trading not available');
+                        const expiredDate = new Date(endDate).toLocaleDateString('ko-KR');
+                        container.innerHTML = `
+                            <div style="text-align: center; padding: 60px 20px;">
+                                <div style="font-size: 64px; margin-bottom: 20px;">⏰</div>
+                                <h3 style="margin: 0 0 12px 0; color: #333; font-size: 20px; font-weight: 600;">
+                                    구독이 만료되었습니다
+                                </h3>
+                                <p style="margin: 0 0 24px 0; color: #666; font-size: 14px; line-height: 1.6;">
+                                    만료일: ${expiredDate}<br>
+                                    자동 거래를 계속 사용하려면 구독을 갱신하세요.
+                                </p>
+                                <button onclick="window.showPage('pricing')" style="
+                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                    color: white;
+                                    border: none;
+                                    padding: 12px 32px;
+                                    border-radius: 8px;
+                                    font-size: 15px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    transition: all 0.2s;
+                                    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+                                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(102, 126, 234, 0.5)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)';">
+                                    구독 갱신
+                                </button>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    // All checks passed - auto-trading available
+                    if (endDate) {
+                        console.log('[Dashboard] Subscription valid - auto-trading available', {plan, status, endDate});
+                    } else {
+                        console.log('[Dashboard] Subscription valid (unlimited - no expiry date) - auto-trading available', {plan, status, endDate: 'unlimited'});
+                    }
+
+                }
                 } catch (error) {
                     console.error('[Dashboard] Failed to check subscription:', error);
                     // Continue to show API key check if subscription check fails

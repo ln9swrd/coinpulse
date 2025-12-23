@@ -936,7 +936,7 @@
                     <td><span class="badge badge-${getPlanBadge(user.plan_code)}">${(user.plan_code || 'FREE').toUpperCase()}</span></td>
                     <td><span class="badge badge-${user.is_active ? 'success' : 'danger'}">${user.is_active ? '활성' : '비활성'}</span></td>
                     <td><span class="badge badge-${user.has_upbit_keys ? 'success' : 'danger'}">${user.has_upbit_keys ? '✓ 등록됨' : '✗ 미등록'}</span></td>
-                    <td>${user.expires_at ? new Date(user.expires_at).toLocaleDateString('ko-KR') : '-'}</td>
+                    <td>${user.expires_at ? new Date(user.expires_at).toLocaleDateString('ko-KR') : '<span style="color: #28a745; font-weight: 600;">♾️ 무제한</span>'}</td>
                     <td style="white-space: nowrap;">
                         <div class="dropdown" id="dropdown-${user.id}">
                             <button class="btn btn-warning" style="padding: 6px 12px; font-size: 12px; margin-right: 5px;" onclick="toggleDropdown(${user.id}, event)">⏱ 연장 ▼</button>
