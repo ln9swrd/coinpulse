@@ -667,9 +667,8 @@
     </div>
 
     <script>
-        // Configuration
-        window.API_BASE = window.API_BASE || window.location.origin + '/api/admin';
-        const API_BASE = window.API_BASE; // Local reference for easier use
+        // Configuration - Use local variable for admin-specific API base
+        const API_BASE = window.location.origin + '/api/admin';
         let adminToken = localStorage.getItem('access_token') || '';
         let currentPaymentId = null;
 

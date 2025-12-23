@@ -6,6 +6,9 @@
 (function() {
     'use strict';
 
+    // Force API_BASE to origin (avoid path prefix issues)
+    window.API_BASE = window.API_BASE || window.location.origin;
+
     // ============================================
     // 1. Dashboard Manager Class
     // ============================================
