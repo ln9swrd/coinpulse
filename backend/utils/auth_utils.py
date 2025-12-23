@@ -3,18 +3,23 @@ Authentication Utilities
 JWT token generation, password hashing, and verification
 """
 
+import os
 import jwt
 import bcrypt
 import secrets
 from datetime import datetime, timedelta
 from functools import wraps
 from flask import request, jsonify
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Configuration
-SECRET_KEY = secrets.token_hex(32)  # Should be in environment variable in production
+SECRET_KEY = os.getenv('JWT_SECRET_KEY', secrets.token_hex(32))  # Use env var or fallback to random
 ALGORITHM = 'HS256'
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
-REFRESH_TOKEN_EXPIRE_DAYS = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 60 * 24)) // 60  # Convert seconds to minutes
+REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES', 2592000)) // 86400  # Convert seconds to days
 
 
 # ============================================
