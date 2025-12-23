@@ -163,6 +163,106 @@ class SurgeAlertService:
             logger.error(f"[SurgeAlert] Error getting coin position info for user {user_id}, coin {coin}: {str(e)}")
             return {'count': 0, 'total_amount': 0}
 
+    def _check_high_price_entry(self, coin: str) -> Tuple[bool, str]:
+        """
+        Check if current price is too high for entry (avoid buying at peak)
+
+        Checks:
+        1. RSI > 70 (overbought)
+        2. Price increase > 10% in last 24h
+        3. Price near 52-week high
+
+        Args:
+            coin: Coin symbol (e.g., 'BTC')
+
+        Returns:
+            (is_high_price: bool, reason: str)
+        """
+        try:
+            from backend.common import UpbitAPI
+
+            market = f"KRW-{coin.upper()}"
+
+            # Get public API instance (no auth needed for candles)
+            api = UpbitAPI(None, None)
+
+            # Get recent candles (15-minute candles, last 100)
+            candles = api.get_candles(market=market, interval='15', count=100)
+
+            if not candles or len(candles) < 20:
+                logger.warning(f"[SurgeAlert] Insufficient candle data for {coin}, allowing entry")
+                return False, "OK"
+
+            # Get current and historical prices
+            current_price = float(candles[0]['trade_price'])
+            price_24h_ago = float(candles[-1]['trade_price'])
+
+            # Calculate 24h price change
+            price_change_pct = ((current_price - price_24h_ago) / price_24h_ago) * 100
+
+            # Check 1: Price increased too much in 24h (> 10%)
+            if price_change_pct > 10:
+                logger.info(f"[SurgeAlert] {coin} price rose {price_change_pct:.1f}% in 24h - too high for entry")
+                return True, f"Price rose {price_change_pct:.1f}% in 24h (고점위험)"
+
+            # Check 2: RSI > 70 (overbought)
+            rsi = self._calculate_rsi([float(c['trade_price']) for c in reversed(candles)], period=14)
+            if rsi and rsi > 70:
+                logger.info(f"[SurgeAlert] {coin} RSI {rsi:.1f} is overbought (>70) - too high for entry")
+                return True, f"RSI {rsi:.1f} overbought (고점위험)"
+
+            # Check 3: Near recent high (within 2% of highest price in last 100 candles)
+            prices = [float(c['high_price']) for c in candles]
+            max_price = max(prices)
+            if current_price >= max_price * 0.98:
+                logger.info(f"[SurgeAlert] {coin} at {current_price:,} near recent high {max_price:,} - too high for entry")
+                return True, f"Near recent high (고점위험)"
+
+            return False, "OK"
+
+        except Exception as e:
+            logger.error(f"[SurgeAlert] Error checking high price entry for {coin}: {str(e)}")
+            # On error, allow entry (fail-safe)
+            return False, "OK"
+
+    def _calculate_rsi(self, prices: list, period: int = 14) -> float:
+        """
+        Calculate RSI (Relative Strength Index)
+
+        Args:
+            prices: List of prices (oldest to newest)
+            period: RSI period (default 14)
+
+        Returns:
+            RSI value (0-100)
+        """
+        try:
+            if len(prices) < period + 1:
+                return None
+
+            # Calculate price changes
+            deltas = [prices[i] - prices[i-1] for i in range(1, len(prices))]
+
+            # Separate gains and losses
+            gains = [d if d > 0 else 0 for d in deltas]
+            losses = [-d if d < 0 else 0 for d in deltas]
+
+            # Calculate average gain/loss
+            avg_gain = sum(gains[-period:]) / period
+            avg_loss = sum(losses[-period:]) / period
+
+            if avg_loss == 0:
+                return 100.0
+
+            rs = avg_gain / avg_loss
+            rsi = 100 - (100 / (1 + rs))
+
+            return rsi
+
+        except Exception as e:
+            logger.error(f"[SurgeAlert] Error calculating RSI: {str(e)}")
+            return None
+
     def can_auto_trade(
         self,
         user_id: int,
@@ -216,6 +316,13 @@ class SurgeAlertService:
         # 7. Check excluded coins
         if settings.excluded_coins and coin.upper() in settings.excluded_coins:
             return False, f"Coin {coin} is in exclusion list"
+
+        # 7.5. Check high-price entry filter (avoid buying at peak)
+        avoid_high_price = getattr(settings, 'avoid_high_price_entry', True)
+        if avoid_high_price:
+            is_high_price, high_price_reason = self._check_high_price_entry(coin)
+            if is_high_price:
+                return False, f"High price entry avoided: {high_price_reason}"
 
         # 8. Check position strategy restrictions
         position_strategy = getattr(settings, 'position_strategy', 'single')

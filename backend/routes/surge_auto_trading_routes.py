@@ -161,6 +161,8 @@ def update_settings(current_user):
             settings.max_positions = data['max_positions']
         if 'excluded_coins' in data:
             settings.excluded_coins = data['excluded_coins']
+        if 'avoid_high_price_entry' in data:
+            settings.avoid_high_price_entry = data['avoid_high_price_entry']
         if 'telegram_enabled' in data:
             settings.telegram_enabled = data['telegram_enabled']
 

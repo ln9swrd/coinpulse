@@ -400,6 +400,17 @@
                     <input type="text" id="excluded-coins" placeholder="DOGE, SHIB">
                     <small>자동 매수에서 제외할 코인 심볼</small>
                 </div>
+
+                <div class="toggle-group">
+                    <div>
+                        <label style="margin: 0; font-size: 15px;">⛔ 고점 진입 방지</label>
+                        <small style="display: block; margin-top: 4px;">24시간 내 10% 이상 상승, RSI 70 이상, 최근 고점 근처인 경우 진입 안 함</small>
+                    </div>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="avoid-high-price-entry" checked>
+                        <span class="toggle-slider"></span>
+                    </div>
+                </div>
             </div>
 
             <!-- Position Strategy -->
@@ -596,6 +607,7 @@
                 document.getElementById('min-confidence').value = settings.min_confidence;
                 document.getElementById('max-positions').value = settings.max_positions;
                 document.getElementById('excluded-coins').value = (settings.excluded_coins || []).join(', ');
+                document.getElementById('avoid-high-price-entry').checked = settings.avoid_high_price_entry !== false;  // Default true
                 document.getElementById('telegram-enabled').checked = settings.telegram_enabled;
 
                 // Load position strategy settings
@@ -647,6 +659,7 @@
                     min_confidence: parseFloat(document.getElementById('min-confidence').value),
                     max_positions: parseInt(document.getElementById('max-positions').value),
                     excluded_coins: excludedCoins,
+                    avoid_high_price_entry: document.getElementById('avoid-high-price-entry').checked,
                     telegram_enabled: document.getElementById('telegram-enabled').checked,
                     position_strategy: document.getElementById('position-strategy').value,
                     allow_duplicate_positions: document.getElementById('allow-duplicate-positions').checked,

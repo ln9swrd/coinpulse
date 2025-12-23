@@ -101,6 +101,7 @@ class SurgeAutoTradingSettings(Base):
     min_confidence = Column(Float, default=80.0, nullable=False)  # Minimum confidence threshold
     max_positions = Column(Integer, default=5, nullable=False)  # Maximum concurrent positions
     excluded_coins = Column(JSON, nullable=True)  # ['DOGE', 'SHIB'] - coins to exclude
+    avoid_high_price_entry = Column(Boolean, default=True, nullable=False)  # 고점 진입 방지 (avoid buying at peak prices)
 
     # Position strategy (NEW - User selectable)
     position_strategy = Column(String(20), default='single', nullable=False)  # 'single' or 'multiple'
@@ -135,6 +136,7 @@ class SurgeAutoTradingSettings(Base):
             'min_confidence': self.min_confidence,
             'max_positions': self.max_positions,
             'excluded_coins': self.excluded_coins or [],
+            'avoid_high_price_entry': self.avoid_high_price_entry,
             'position_strategy': self.position_strategy,
             'max_amount_per_coin': self.max_amount_per_coin,
             'allow_duplicate_positions': self.allow_duplicate_positions,
