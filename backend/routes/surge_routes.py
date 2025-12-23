@@ -194,15 +194,22 @@ def get_surge_candidates():
     """
     급등 예측 후보 코인 목록 (PUBLIC - No auth required)
 
+    ⚡ Cache-first architecture:
+    - 데이터 소스: surge_candidates_cache DB table
+    - 업데이트: surge_alert_scheduler (5분마다)
+    - API 호출: 0회 (초고속 응답)
+
     Returns:
         {
             "candidates": [
                 {
                     "market": "KRW-XLM",
+                    "coin": "XLM",
                     "score": 80,
                     "current_price": 176.5,
                     "signals": {...},
-                    "recommendation": "strong_buy"
+                    "recommendation": "strong_buy",
+                    "analyzed_at": "2025-12-23T20:45:00"
                 }
             ],
             "backtest_stats": {
@@ -210,14 +217,92 @@ def get_surge_candidates():
                 "avg_return": 19.12,
                 "total_trades": 16
             },
-            "monitored_markets": 50,
-            "timestamp": "2025-12-13T10:00:00"
+            "monitored_markets": 30,
+            "timestamp": "2025-12-23T20:45:10",
+            "data_source": "cache",
+            "cache_age_seconds": 10
         }
+    """
+    try:
+        from backend.models.surge_candidates_cache_models import SurgeCandidatesCache
+
+        session = get_db_session()
+        try:
+            # Get all candidates from cache (sorted by score desc)
+            cached_candidates = session.query(SurgeCandidatesCache).order_by(
+                SurgeCandidatesCache.score.desc()
+            ).all()
+
+            # Convert to dict
+            candidates = []
+            for cache in cached_candidates:
+                candidates.append({
+                    'market': cache.market,
+                    'coin': cache.coin,
+                    'score': cache.score,
+                    'current_price': cache.current_price,
+                    'signals': cache.signals or {},
+                    'recommendation': cache.recommendation,
+                    'analyzed_at': cache.analyzed_at.isoformat() if cache.analyzed_at else None
+                })
+
+            # Calculate cache age
+            cache_age_seconds = 0
+            if cached_candidates:
+                latest_analysis = max(c.analyzed_at for c in cached_candidates)
+                cache_age_seconds = int((datetime.now() - latest_analysis).total_seconds())
+
+            # Get backtest stats
+            backtest_stats = calculate_backtest_stats()
+
+            response_data = {
+                'success': True,
+                'candidates': candidates,
+                'count': len(candidates),
+                'monitored_markets': 30,  # Fixed 30 coins monitored by scheduler
+                'backtest_stats': backtest_stats,
+                'timestamp': datetime.now().isoformat(),
+                'data_source': 'cache',  # Data from cache, not live API
+                'cache_age_seconds': cache_age_seconds,
+                'signals_generated': len(candidates),
+                'signals_distributed_to': 0  # Deprecated field
+            }
+
+            return jsonify(response_data)
+
+        finally:
+            session.close()
+
+    except Exception as e:
+        print(f"[Surge] Error getting candidates from cache: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'candidates': [],
+            'count': 0
+        }), 500
+
+
+# ============================================================================
+# LEGACY CODE (Commented out - now using cache-first architecture)
+# ============================================================================
+@surge_bp.route('/surge-candidates-legacy', methods=['GET'])
+def get_surge_candidates_legacy():
+    """
+    [LEGACY] 급등 예측 후보 코인 목록 - 실시간 분석 버전
+
+    ⚠️ This endpoint is deprecated. Use /surge-candidates instead.
+    - High API usage (10+ API calls per request)
+    - Rate limit risk
+    - Slow response (5-10 seconds)
+
+    Use for testing only.
     """
     try:
         # Check cache first
         cached_data = get_cached_surge_data()
         if cached_data:
+            cached_data['warning'] = 'LEGACY ENDPOINT - Use /surge-candidates instead'
             return jsonify(cached_data)
 
         # Check if already fetching (prevent concurrent API calls)

@@ -19,6 +19,7 @@ from backend.common import UpbitAPI, load_api_keys
 from backend.services.surge_predictor import SurgePredictor
 from backend.services.telegram_bot import SurgeTelegramBot, TELEGRAM_AVAILABLE
 from backend.database.connection import get_db_session
+from backend.models.surge_candidates_cache_models import SurgeCandidatesCache
 
 # Logging setup
 logging.basicConfig(
@@ -101,12 +102,15 @@ class SurgeAlertScheduler:
 
                 # Add to candidates if score >= min_score
                 if analysis['score'] >= self.min_score:
+                    coin = market.replace('KRW-', '')
                     candidates.append({
                         'market': market,
+                        'coin': coin,
                         'score': analysis['score'],
-                        'current_price': current_price,
+                        'current_price': int(current_price),
                         'signals': analysis['signals'],
-                        'recommendation': analysis['recommendation']
+                        'recommendation': analysis['recommendation'],
+                        'analysis': analysis  # Store full analysis for cache
                     })
 
                 # Rate limit
@@ -215,6 +219,67 @@ class SurgeAlertScheduler:
         except Exception as e:
             logger.error(f"[SurgeAlertScheduler] Failed to save to DB: {e}")
 
+    def update_candidates_cache(self, candidates: List[Dict]):
+        """
+        Update surge candidates cache table
+
+        모든 분석 결과를 캐시 테이블에 저장
+        /api/surge-candidates가 이 테이블을 조회 (API 호출 0회)
+
+        Args:
+            candidates: List of analyzed candidates
+        """
+        try:
+            with get_db_session() as session:
+                # Get current markets in candidates
+                current_markets = {c['market'] for c in candidates}
+
+                # Delete old candidates not in current analysis
+                deleted = session.query(SurgeCandidatesCache).filter(
+                    ~SurgeCandidatesCache.market.in_(current_markets)
+                ).delete(synchronize_session=False)
+
+                if deleted > 0:
+                    logger.info(f"[SurgeAlertScheduler] Removed {deleted} stale candidates from cache")
+
+                # Upsert candidates (insert or update)
+                for candidate in candidates:
+                    market = candidate['market']
+                    coin = candidate.get('coin', market.replace('KRW-', ''))
+
+                    # Check if exists
+                    existing = session.query(SurgeCandidatesCache).filter_by(market=market).first()
+
+                    if existing:
+                        # Update
+                        existing.coin = coin
+                        existing.score = candidate['score']
+                        existing.current_price = candidate['current_price']
+                        existing.recommendation = candidate['recommendation']
+                        existing.signals = candidate.get('signals', {})
+                        existing.analysis_result = candidate.get('analysis', {})  # Full analysis for target calculation
+                        existing.analyzed_at = datetime.now()
+                        existing.updated_at = datetime.now()
+                    else:
+                        # Insert
+                        cache_record = SurgeCandidatesCache(
+                            market=market,
+                            coin=coin,
+                            score=candidate['score'],
+                            current_price=candidate['current_price'],
+                            recommendation=candidate['recommendation'],
+                            signals=candidate.get('signals', {}),
+                            analysis_result=candidate.get('analysis', {}),
+                            analyzed_at=datetime.now()
+                        )
+                        session.add(cache_record)
+
+                session.commit()
+                logger.info(f"[SurgeAlertScheduler] Updated cache: {len(candidates)} candidates")
+
+        except Exception as e:
+            logger.error(f"[SurgeAlertScheduler] Failed to update cache: {e}")
+
     async def check_and_alert(self):
         """
         Check for new surge candidates and send alerts
@@ -224,6 +289,9 @@ class SurgeAlertScheduler:
         try:
             # Get current candidates
             candidates = self.get_surge_candidates()
+
+            # Update cache (always, even if empty) for /api/surge-candidates
+            self.update_candidates_cache(candidates if candidates else [])
 
             if not candidates:
                 logger.info("[SurgeAlertScheduler] No candidates found")
