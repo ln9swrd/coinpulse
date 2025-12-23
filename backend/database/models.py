@@ -447,6 +447,29 @@ class User(Base):
 
         return data
 
+    @property
+    def plan(self):
+        """
+        Get user's current subscription plan.
+
+        Returns:
+            str: Plan name ('free', 'basic', 'pro', 'enterprise')
+        """
+        from sqlalchemy.orm import object_session
+        from backend.models.subscription_models import Subscription
+
+        session = object_session(self)
+        if not session:
+            return 'free'  # Default to free if no session
+
+        # Query active subscription
+        subscription = session.query(Subscription)\
+            .filter(Subscription.user_id == self.id)\
+            .filter(Subscription.status == 'active')\
+            .first()
+
+        return subscription.plan if subscription else 'free'
+
     def __repr__(self):
         return f"<User(id={self.id}, email='{self.email}', username='{self.username}')>"
 
