@@ -199,7 +199,7 @@ class SurgeAutoTradingWorker:
 
                 for user, settings in active_users:
                     try:
-                        # Send alert and potentially execute trade
+                        # Send alert and potentially execute trade with surge prediction prices
                         success, alert = surge_service.send_alert_to_user(
                             user_id=user.id,
                             plan=user.plan or 'free',
@@ -209,6 +209,8 @@ class SurgeAutoTradingWorker:
                             current_price=candidate['current_price'],
                             target_price=candidate['target_price'],
                             expected_return=candidate['expected_return'],
+                            entry_price=candidate.get('entry_price', candidate['current_price']),
+                            stop_loss_price=candidate.get('stop_loss_price'),
                             telegram_chat_id=user.telegram_chat_id if hasattr(user, 'telegram_chat_id') else None
                         )
 

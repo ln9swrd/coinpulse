@@ -186,17 +186,23 @@ class SurgeAlertService:
         settings: SurgeAutoTradingSettings,
         market: str,
         coin: str,
-        current_price: int
+        entry_price: int,
+        target_price: int = None,
+        stop_loss_price: int = None,
+        use_prediction_prices: bool = True
     ) -> Tuple[bool, Optional[Dict]]:
         """
-        Execute auto-trade purchase
+        Execute auto-trade purchase with surge prediction prices
 
         Args:
             user_id: User ID
             settings: Auto-trading settings
             market: Market code (e.g., 'KRW-BTC')
             coin: Coin symbol
-            current_price: Current price
+            entry_price: Entry price from surge prediction
+            target_price: Target price from surge prediction (optional)
+            stop_loss_price: Stop loss price from surge prediction (optional)
+            use_prediction_prices: Use prediction prices for stop loss/take profit (default True)
 
         Returns:
             (success: bool, trade_info: dict or None)
@@ -204,33 +210,104 @@ class SurgeAlertService:
         try:
             # Calculate quantity based on amount_per_trade
             amount = settings.amount_per_trade
-            quantity = amount / current_price
+            quantity = amount / entry_price
 
-            # TODO: Integrate with Upbit API to place actual order
-            # For now, simulate trade
-            logger.info(f"[SurgeAlert] Simulating auto-trade: {coin} x {quantity:.8f} for {amount:,} KRW")
+            logger.info(f"[SurgeAlert] Executing auto-trade for user {user_id}:")
+            logger.info(f"  Market: {market}")
+            logger.info(f"  Entry Price: {entry_price:,} KRW")
+            logger.info(f"  Amount: {amount:,} KRW")
+            logger.info(f"  Quantity: {quantity:.8f}")
 
-            # Calculate stop loss and take profit prices
-            stop_loss_price = None
-            if settings.stop_loss_enabled:
-                stop_loss_price = int(current_price * (1 + settings.stop_loss_percent / 100))
+            # Determine stop loss and take profit prices
+            if use_prediction_prices and target_price and stop_loss_price:
+                # Use prices from surge prediction
+                final_stop_loss = stop_loss_price
+                final_take_profit = target_price
+                logger.info(f"  Using surge prediction prices:")
+                logger.info(f"    - Target: {target_price:,} KRW")
+                logger.info(f"    - Stop Loss: {stop_loss_price:,} KRW")
+            else:
+                # Use user's settings
+                final_stop_loss = None
+                if settings.stop_loss_enabled:
+                    final_stop_loss = int(entry_price * (1 + settings.stop_loss_percent / 100))
 
-            take_profit_price = None
-            if settings.take_profit_enabled:
-                take_profit_price = int(current_price * (1 + settings.take_profit_percent / 100))
+                final_take_profit = None
+                if settings.take_profit_enabled:
+                    final_take_profit = int(entry_price * (1 + settings.take_profit_percent / 100))
 
-            trade_info = {
-                'order_id': f'SIM-{user_id}-{int(datetime.utcnow().timestamp())}',  # Simulated order ID
-                'amount': amount,
-                'quantity': quantity,
-                'price': current_price,
-                'stop_loss_price': stop_loss_price,
-                'take_profit_price': take_profit_price,
-                'executed_at': datetime.utcnow()
-            }
+                logger.info(f"  Using user settings:")
+                logger.info(f"    - Stop Loss: {settings.stop_loss_percent}%")
+                logger.info(f"    - Take Profit: {settings.take_profit_percent}%")
 
-            logger.info(f"[SurgeAlert] Auto-trade executed successfully for user {user_id}")
-            return True, trade_info
+            # Try to place actual order with Upbit API
+            try:
+                from backend.common import UpbitAPI, load_api_keys
+
+                # Load user's API keys
+                access_key, secret_key = load_api_keys(user_id=user_id)
+
+                if access_key and secret_key:
+                    # Real trade execution
+                    upbit_api = UpbitAPI(access_key, secret_key)
+
+                    # Place market buy order
+                    order_result = upbit_api.place_order(
+                        market=market,
+                        side='bid',
+                        volume=None,
+                        price=amount,
+                        ord_type='price'  # Market order by amount
+                    )
+
+                    if order_result and 'uuid' in order_result:
+                        order_id = order_result['uuid']
+                        executed_volume = float(order_result.get('executed_volume', quantity))
+                        avg_price = float(order_result.get('avg_price', entry_price))
+
+                        logger.info(f"[SurgeAlert] REAL order placed successfully:")
+                        logger.info(f"  Order ID: {order_id}")
+                        logger.info(f"  Executed Volume: {executed_volume:.8f}")
+                        logger.info(f"  Avg Price: {avg_price:,} KRW")
+
+                        trade_info = {
+                            'order_id': order_id,
+                            'amount': amount,
+                            'quantity': executed_volume,
+                            'price': avg_price,
+                            'entry_price': entry_price,
+                            'stop_loss_price': final_stop_loss,
+                            'take_profit_price': final_take_profit,
+                            'executed_at': datetime.utcnow(),
+                            'real_trade': True
+                        }
+
+                        return True, trade_info
+                    else:
+                        logger.error(f"[SurgeAlert] Order placement failed: {order_result}")
+                        raise Exception("Order placement failed")
+
+                else:
+                    raise Exception("No API keys found for user")
+
+            except Exception as api_error:
+                logger.warning(f"[SurgeAlert] Real trade failed: {api_error}, falling back to simulation")
+
+                # Fall back to simulation
+                trade_info = {
+                    'order_id': f'SIM-{user_id}-{int(datetime.utcnow().timestamp())}',
+                    'amount': amount,
+                    'quantity': quantity,
+                    'price': entry_price,
+                    'entry_price': entry_price,
+                    'stop_loss_price': final_stop_loss,
+                    'take_profit_price': final_take_profit,
+                    'executed_at': datetime.utcnow(),
+                    'real_trade': False
+                }
+
+                logger.info(f"[SurgeAlert] Simulated trade executed")
+                return True, trade_info
 
         except Exception as e:
             logger.error(f"[SurgeAlert] Error executing auto-trade for user {user_id}: {str(e)}")
@@ -406,6 +483,8 @@ class SurgeAlertService:
         current_price: int,
         target_price: int,
         expected_return: float,
+        entry_price: int = None,
+        stop_loss_price: int = None,
         telegram_chat_id: str = None
     ) -> Tuple[bool, Optional[SurgeAlert]]:
         """
@@ -420,11 +499,17 @@ class SurgeAlertService:
             current_price: Current price
             target_price: Target price
             expected_return: Expected return %
+            entry_price: Entry price from surge prediction (default: current_price)
+            stop_loss_price: Stop loss price from surge prediction (optional)
             telegram_chat_id: Telegram chat ID (optional)
 
         Returns:
             (success: bool, alert: SurgeAlert or None)
         """
+        # Use current price as entry if not provided
+        if entry_price is None:
+            entry_price = current_price
+
         # 1. Get user's auto-trading settings
         settings = self.get_user_settings(user_id)
 
@@ -436,9 +521,16 @@ class SurgeAlertService:
             can_trade, reason = self.can_auto_trade(user_id, plan, settings, confidence, coin)
 
             if can_trade:
-                # Execute auto-trade
+                # Execute auto-trade with surge prediction prices
                 success, trade_info = self.execute_auto_trade(
-                    user_id, settings, market, coin, current_price
+                    user_id=user_id,
+                    settings=settings,
+                    market=market,
+                    coin=coin,
+                    entry_price=entry_price,
+                    target_price=target_price,
+                    stop_loss_price=stop_loss_price,
+                    use_prediction_prices=True
                 )
 
                 if success:

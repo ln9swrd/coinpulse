@@ -706,6 +706,21 @@ def init_background_services():
     except Exception as e:
         logger.error(f"Failed to start auto-trading worker: {e}")
 
+    # Initialize position monitor service (Auto stop-loss/take-profit)
+    try:
+        from backend.services.position_monitor_service import get_position_monitor
+
+        # 10 seconds interval for real-time monitoring
+        position_monitor = get_position_monitor(check_interval=10)
+        position_monitor.start()
+
+        # Store reference for later use
+        app.position_monitor = position_monitor
+
+        logger.info("Position monitor started (10-second check interval, auto stop-loss/take-profit)")
+    except Exception as e:
+        logger.error(f"Failed to start position monitor: {e}")
+
     # Initialize Telegram alert bot (Optional - requires TELEGRAM_BOT_TOKEN)
     telegram_bot = None
     try:
