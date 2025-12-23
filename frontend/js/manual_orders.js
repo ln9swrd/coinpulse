@@ -370,7 +370,9 @@ WorkingTradingChart.prototype.updateAvailableBalances = async function() {
 
         // Get current coin holding for selling
         const market = this.currentMarket || 'KRW-BTC';
-        const holdingsResponse = await fetch(`${window.location.origin}/api/holdings`);
+        const holdingsResponse = await fetch(`${window.location.origin}/api/holdings`, {
+            headers: headers  // Add Authorization header
+        });
         const holdingsResult = await holdingsResponse.json();
 
         if (holdingsResponse.ok && holdingsResult.success) {
