@@ -101,7 +101,7 @@
                 'auto-trading': '자동매매 설정',
                 'realtime': '실시간 모니터링',
                 'surge': '급등 예측',
-                'signals': '내 시그널',
+                'signals': '급등신호',
                 'telegram': '텔레그램 연동',
                 'referral': '친구 초대하기',
                 'pricing': '요금제',
