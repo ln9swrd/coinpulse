@@ -990,17 +990,37 @@
                         <!-- Favorite Coins Tab -->
                         <div class="settings-tab-content" data-tab-content="trading">
                             <div class="settings-section">
-                                <h2>투자조언 알림 설정</h2>
+                                <h2>투자조언 알림 설정 <span style="background: #fbbf24; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-left: 8px;">준비 중</span></h2>
                                 <p style="color: var(--text-muted); margin-bottom: 20px;">
-                                    선택한 코인에 대한 AI 투자 조언을 받을 수 있습니다. 매수/매도 타이밍, 목표가, 손절가 등을 분석하여 텔레그램으로 알림을 보내드립니다.
+                                    선택한 코인에 대한 AI 투자 조언을 받을 수 있는 기능입니다. 매수/매도 타이밍, 목표가, 손절가 등을 분석하여 텔레그램으로 알림을 보내드립니다.
                                 </p>
-                                <div class="info-alert" style="background: #f0f9ff; border-left: 4px solid #3b82f6; padding: 12px 16px; margin-bottom: 20px; border-radius: 6px;">
-                                    <strong style="color: #1e40af;">💡 참고:</strong>
-                                    <span style="color: #1e40af; font-size: 14px;">투자조언 알림은 알림만 제공하며, 자동 매수되지 않습니다. 자동 매수는 "자동매매 설정"에서 별도로 설정하세요.</span>
+
+                                <!-- Coming Soon Alert -->
+                                <div class="info-alert" style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; margin-bottom: 20px; border-radius: 8px;">
+                                    <div style="display: flex; align-items: start; gap: 12px;">
+                                        <span style="font-size: 32px;">🚧</span>
+                                        <div>
+                                            <strong style="color: #92400e; font-size: 16px; display: block; margin-bottom: 8px;">투자조언 알림 기능 개발 중</strong>
+                                            <p style="color: #92400e; font-size: 14px; line-height: 1.6; margin: 0;">
+                                                현재 투자조언 알림 시스템은 개발 중입니다. AI 기반 투자 조언 엔진과 알림 시스템을 구축하고 있으며,
+                                                곧 베타 테스트를 시작할 예정입니다.
+                                            </p>
+                                            <p style="color: #92400e; font-size: 14px; line-height: 1.6; margin: 12px 0 0 0;">
+                                                <strong>출시 예정 기능:</strong><br>
+                                                • 매수/매도 타이밍 추천 (신뢰도 점수 포함)<br>
+                                                • 목표가 및 손절가 계산<br>
+                                                • 기술적 지표 분석 및 근거 제공<br>
+                                                • 텔레그램 실시간 알림
+                                            </p>
+                                            <p style="color: #92400e; font-size: 13px; margin-top: 12px;">
+                                                💡 현재는 <strong>급등 자동매매</strong> 기능을 이용해주세요. (사이드바 > 자동매매 설정)
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <!-- Coin Selection Section -->
-                                <div class="coin-selector-section">
+                                <!-- Disabled Coin Selection Section -->
+                                <div class="coin-selector-section" style="opacity: 0.5; pointer-events: none; user-select: none;">
                                     <h3>코인 선택 (최대 5개)</h3>
 
                                     <!-- Search Input with Dropdown -->
