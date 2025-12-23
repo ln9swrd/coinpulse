@@ -161,9 +161,20 @@ WorkingTradingChart.prototype.submitBuyOrder = async function() {
     const market = this.currentMarket || 'KRW-BTC';
 
     try {
+        // Get JWT token from localStorage
+        const accessToken = localStorage.getItem('access_token');
+        if (!accessToken) {
+            alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+            window.location.href = '/login.html';
+            return;
+        }
+
         const response = await fetch(`${window.location.origin}/api/trading/buy`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
             body: JSON.stringify({
                 market: market,
                 side: 'bid',
@@ -218,9 +229,20 @@ WorkingTradingChart.prototype.submitSellOrder = async function() {
     const market = this.currentMarket || 'KRW-BTC';
 
     try {
+        // Get JWT token from localStorage
+        const accessToken = localStorage.getItem('access_token');
+        if (!accessToken) {
+            alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+            window.location.href = '/login.html';
+            return;
+        }
+
         const response = await fetch(`${window.location.origin}/api/trading/sell`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
             body: JSON.stringify({
                 market: market,
                 side: 'ask',
