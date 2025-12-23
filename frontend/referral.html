@@ -303,10 +303,12 @@
         }
 
         /**
-         * Load user's referral code
+         * Load user's referral code (with retry logic)
          */
-        async function loadReferralCode() {
-            console.log('[Referral] Loading referral code...');
+        async function loadReferralCode(retryCount = 0) {
+            const MAX_RETRIES = 3;
+            console.log(`[Referral] Loading referral code... (attempt ${retryCount + 1}/${MAX_RETRIES + 1})`);
+
             try {
                 const token = getAuthToken();
                 console.log('[Referral] Using API_BASE:', window.API_BASE);
@@ -339,16 +341,36 @@
                         linkEl.textContent = window.referralLink;
                     }
 
-                    console.log('[Referral] Code loaded:', window.referralCode);
+                    console.log('[Referral] Code loaded successfully:', window.referralCode);
                 } else {
                     throw new Error(data.error || 'Failed to load referral code');
                 }
             } catch (error) {
-                console.error('[Referral] Failed to load code:', error);
-                const codeEl = document.getElementById('referral-code');
-                const linkEl = document.getElementById('referral-link');
-                if (codeEl) codeEl.textContent = '로드 실패';
-                if (linkEl) linkEl.textContent = '페이지를 새로고침 해주세요';
+                console.error(`[Referral] Failed to load code (attempt ${retryCount + 1}):`, error);
+
+                // Retry logic
+                if (retryCount < MAX_RETRIES) {
+                    const retryDelay = 1000 * (retryCount + 1); // 1s, 2s, 3s
+                    console.log(`[Referral] Retrying in ${retryDelay}ms...`);
+
+                    const codeEl = document.getElementById('referral-code');
+                    const linkEl = document.getElementById('referral-link');
+                    if (codeEl) codeEl.textContent = `재시도 중... (${retryCount + 1}/${MAX_RETRIES})`;
+                    if (linkEl) linkEl.textContent = '잠시만 기다려주세요';
+
+                    setTimeout(() => loadReferralCode(retryCount + 1), retryDelay);
+                } else {
+                    // Final failure after all retries
+                    const codeEl = document.getElementById('referral-code');
+                    const linkEl = document.getElementById('referral-link');
+                    if (codeEl) {
+                        codeEl.textContent = '로드 실패';
+                        codeEl.style.color = '#ef4444';
+                    }
+                    if (linkEl) {
+                        linkEl.innerHTML = '<button class="btn btn-sm btn-primary" onclick="loadReferralCode(0)" style="margin-top: 10px;">다시 시도</button>';
+                    }
+                }
             }
         }
 
