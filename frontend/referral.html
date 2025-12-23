@@ -7,42 +7,56 @@
     <link rel="stylesheet" href="css/internal-pages.css">
     <style>
         body {
-            background: #f5f7fa;
+            background: #f8f9fa;
             min-height: 100vh;
-            padding: 20px;
+            padding: 40px 20px;
+        }
+
+        .page-container {
+            max-width: 1000px;
+            margin: 0 auto;
         }
 
         .reward-highlight {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-left: 4px solid #667eea;
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 12px;
             margin-top: 20px;
             text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .reward-highlight h3 {
             font-size: 20px;
             margin-bottom: 8px;
+            color: #1e293b;
         }
 
         .reward-highlight p {
-            color: rgba(255, 255, 255, 0.95);
+            color: #64748b;
             font-size: 14px;
+        }
+
+        .reward-highlight strong {
+            color: #667eea;
+            font-weight: 700;
         }
 
         /* Page-specific styles */
         .referral-code-container {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border: 3px solid #667eea;
+            background: white;
+            border: 2px solid #e5e7eb;
             border-radius: 12px;
             padding: 30px;
             text-align: center;
             margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .referral-code-label {
-            color: #666;
+            color: #64748b;
             font-size: 14px;
             font-weight: 600;
             margin-bottom: 12px;
@@ -57,6 +71,21 @@
             letter-spacing: 3px;
             margin-bottom: 20px;
             font-family: 'Courier New', monospace;
+        }
+
+        /* Statistics Grid - Horizontal Layout */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-3 {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
         }
 
         .referral-link-container {
@@ -347,6 +376,11 @@
                 }
             } catch (error) {
                 console.error(`[Referral] Failed to load code (attempt ${retryCount + 1}):`, error);
+                console.error('[Referral] Error details:', {
+                    message: error.message,
+                    stack: error.stack,
+                    response: error.response
+                });
 
                 // Retry logic
                 if (retryCount < MAX_RETRIES) {
@@ -356,19 +390,28 @@
                     const codeEl = document.getElementById('referral-code');
                     const linkEl = document.getElementById('referral-link');
                     if (codeEl) codeEl.textContent = `재시도 중... (${retryCount + 1}/${MAX_RETRIES})`;
-                    if (linkEl) linkEl.textContent = '잠시만 기다려주세요';
+                    if (linkEl) linkEl.textContent = '잠시만 기다려주세요...';
 
                     setTimeout(() => loadReferralCode(retryCount + 1), retryDelay);
                 } else {
                     // Final failure after all retries
+                    console.error('[Referral] All retry attempts failed');
                     const codeEl = document.getElementById('referral-code');
                     const linkEl = document.getElementById('referral-link');
+
                     if (codeEl) {
                         codeEl.textContent = '로드 실패';
                         codeEl.style.color = '#ef4444';
+                        codeEl.style.fontSize = '18px';
                     }
                     if (linkEl) {
-                        linkEl.innerHTML = '<button class="btn btn-sm btn-primary" onclick="loadReferralCode(0)" style="margin-top: 10px;">다시 시도</button>';
+                        linkEl.innerHTML = `
+                            <div style="color: #ef4444; margin-bottom: 10px;">
+                                추천 코드를 불러올 수 없습니다.
+                                <br><small>에러: ${error.message || '네트워크 오류'}</small>
+                            </div>
+                            <button class="btn btn-sm btn-primary" onclick="loadReferralCode(0)">다시 시도</button>
+                        `;
                     }
                 }
             }
