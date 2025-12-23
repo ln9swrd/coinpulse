@@ -439,41 +439,122 @@
             const signals = candidate.signals;
             const price = formatPrice(candidate.current_price);
 
+            // 추천 등급 결정
+            const recommendation = getRecommendation(candidate.score);
+
             card.innerHTML = `
                 <div class="candidate-header">
                     <div class="candidate-market">${candidate.market}</div>
                     <div class="candidate-score">${candidate.score}점</div>
                 </div>
+                <div style="font-size: 1.1em; color: ${recommendation.color}; font-weight: 600; margin-bottom: 8px;">
+                    ${recommendation.icon} ${recommendation.text}
+                </div>
                 <div class="candidate-price">${price} KRW</div>
+                <div style="font-size: 0.9em; color: #64748b; margin-bottom: 16px;">
+                    💡 ${recommendation.tip}
+                </div>
                 <div class="candidate-signals">
-                    ${createSignalItem('거래량', signals.volume)}
-                    ${createSignalItem('RSI', signals.rsi)}
-                    ${createSignalItem('지지선', signals.support)}
-                    ${createSignalItem('추세', signals.trend)}
-                    ${createSignalItem('모멘텀', signals.momentum)}
+                    ${createSignalItem('거래량', signals.volume, '매수세')}
+                    ${createSignalItem('추세', signals.trend, '방향성')}
+                    ${createSignalItem('모멘텀', signals.momentum, '상승력')}
+                    ${createSignalItem('RSI', signals.rsi, '과열도')}
+                    ${createSignalItem('지지선', signals.support, '조정위험')}
                 </div>
             `;
-
-            // 클릭 시 상세 페이지로 이동 (향후 구현)
-            card.onclick = () => {
-                alert(`${candidate.market} 상세 분석 페이지 (구현 예정)`);
-            };
 
             return card;
         }
 
+        // 추천 등급
+        function getRecommendation(score) {
+            if (score >= 75) {
+                return {
+                    text: '강력 매수 추천',
+                    icon: '🔥',
+                    color: '#dc2626',
+                    tip: '단기 급등 가능성 높음. 분할 매수 권장'
+                };
+            } else if (score >= 65) {
+                return {
+                    text: '매수 추천',
+                    icon: '✅',
+                    color: '#10b981',
+                    tip: '상승 가능성 있음. 손절라인 설정 필수'
+                };
+            } else if (score >= 55) {
+                return {
+                    text: '관심 종목',
+                    icon: '👀',
+                    color: '#3b82f6',
+                    tip: '추가 확인 필요. 신중한 접근 권장'
+                };
+            } else {
+                return {
+                    text: '보류',
+                    icon: '⚠️',
+                    color: '#f59e0b',
+                    tip: '리스크 높음. 대기 권장'
+                };
+            }
+        }
+
         // 시그널 아이템 생성
-        function createSignalItem(label, signal) {
+        function createSignalItem(label, signal, description) {
             if (!signal) return '';
 
+            const interpretation = interpretSignal(label, signal);
             const scoreClass = signal.score >= 15 ? 'positive' : signal.score >= 10 ? '' : 'negative';
 
             return `
                 <div class="signal-item">
-                    <div class="signal-label">${label} (${signal.score}점)</div>
-                    <div class="signal-value ${scoreClass}">${signal.description}</div>
+                    <div class="signal-label">${interpretation.icon} ${description}</div>
+                    <div class="signal-value ${scoreClass}">${interpretation.text}</div>
                 </div>
             `;
+        }
+
+        // 신호 해석
+        function interpretSignal(label, signal) {
+            switch(label) {
+                case '거래량':
+                    const ratio = signal.volume_ratio || 1;
+                    if (ratio >= 3) return { icon: '🔥', text: `폭발적 증가 (${ratio.toFixed(1)}배)` };
+                    if (ratio >= 2) return { icon: '📈', text: `크게 증가 (${ratio.toFixed(1)}배)` };
+                    if (ratio >= 1.5) return { icon: '↗️', text: `증가 (${ratio.toFixed(1)}배)` };
+                    return { icon: '➡️', text: '보통' };
+
+                case '추세':
+                    const days = signal.up_days || 0;
+                    if (days >= 3) return { icon: '🚀', text: `강한 상승 (${days}일)` };
+                    if (days >= 2) return { icon: '📈', text: `상승 중 (${days}일)` };
+                    if (days >= 1) return { icon: '↗️', text: '상승 시작' };
+                    return { icon: '➡️', text: '횡보' };
+
+                case '모멘텀':
+                    const momentum = signal.momentum_percent || 0;
+                    if (momentum >= 5) return { icon: '🚀', text: `강함 (+${momentum.toFixed(1)}%)` };
+                    if (momentum >= 3) return { icon: '📈', text: `양호 (+${momentum.toFixed(1)}%)` };
+                    if (momentum >= 1) return { icon: '↗️', text: `보통 (+${momentum.toFixed(1)}%)` };
+                    return { icon: '➡️', text: '약함' };
+
+                case 'RSI':
+                    const rsi = signal.rsi || 50;
+                    if (rsi >= 70) return { icon: '🔴', text: `과열 (${rsi.toFixed(0)})` };
+                    if (rsi >= 50) return { icon: '🟢', text: `적정 (${rsi.toFixed(0)})` };
+                    if (rsi >= 30) return { icon: '🟡', text: `저평가 (${rsi.toFixed(0)})` };
+                    return { icon: '🔵', text: `매우 저평가 (${rsi.toFixed(0)})` };
+
+                case '지지선':
+                    const distance = signal.distance_percent || 0;
+                    if (distance >= 20) return { icon: '⚠️', text: `고점 위험 (+${distance.toFixed(0)}%)` };
+                    if (distance >= 10) return { icon: '⚡', text: `주의 (+${distance.toFixed(0)}%)` };
+                    if (distance >= 5) return { icon: '✅', text: `안전 (+${distance.toFixed(0)}%)` };
+                    return { icon: '💎', text: `지지선 근처` };
+
+                default:
+                    return { icon: '❓', text: signal.description || '알 수 없음' };
+            }
         }
 
         // 가격 포맷
