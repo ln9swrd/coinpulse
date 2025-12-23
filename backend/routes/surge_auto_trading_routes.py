@@ -90,7 +90,10 @@ def update_settings(current_user):
             "min_confidence": 80.0,
             "max_positions": 5,
             "excluded_coins": ["DOGE", "SHIB"],
-            "telegram_enabled": true
+            "telegram_enabled": true,
+            "position_strategy": "single",
+            "max_amount_per_coin": 500000,
+            "allow_duplicate_positions": false
         }
 
     Returns:
@@ -160,6 +163,19 @@ def update_settings(current_user):
             settings.excluded_coins = data['excluded_coins']
         if 'telegram_enabled' in data:
             settings.telegram_enabled = data['telegram_enabled']
+
+        # Position strategy fields (NEW)
+        if 'position_strategy' in data:
+            if data['position_strategy'] not in ['single', 'multiple']:
+                return jsonify({
+                    'success': False,
+                    'error': 'Invalid position strategy. Must be "single" or "multiple"'
+                }), 400
+            settings.position_strategy = data['position_strategy']
+        if 'max_amount_per_coin' in data:
+            settings.max_amount_per_coin = data['max_amount_per_coin']
+        if 'allow_duplicate_positions' in data:
+            settings.allow_duplicate_positions = data['allow_duplicate_positions']
 
         session.commit()
 

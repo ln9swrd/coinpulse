@@ -124,6 +124,45 @@ class SurgeAlertService:
             logger.error(f"[SurgeAlert] Error getting open positions for user {user_id}: {str(e)}")
             return 0
 
+    def get_coin_position_info(self, user_id: int, coin: str) -> Dict:
+        """
+        Get position information for a specific coin
+
+        Args:
+            user_id: User ID
+            coin: Coin symbol (e.g., 'BTC', 'ETH')
+
+        Returns:
+            Dictionary with position info:
+            {
+                'count': number of open positions,
+                'total_amount': total invested amount in KRW
+            }
+        """
+        try:
+            # Get open positions for this coin
+            positions = self.session.query(SurgeAlert)\
+                .filter(
+                    SurgeAlert.user_id == user_id,
+                    SurgeAlert.coin == coin.upper(),
+                    SurgeAlert.auto_traded == True,
+                    SurgeAlert.status.in_(['pending', 'executed'])
+                )\
+                .all()
+
+            count = len(positions)
+            total_amount = sum(p.trade_amount for p in positions if p.trade_amount)
+
+            logger.debug(f"[SurgeAlert] User {user_id} has {count} positions in {coin} (total: {total_amount:,} KRW)")
+            return {
+                'count': count,
+                'total_amount': total_amount
+            }
+
+        except Exception as e:
+            logger.error(f"[SurgeAlert] Error getting coin position info for user {user_id}, coin {coin}: {str(e)}")
+            return {'count': 0, 'total_amount': 0}
+
     def can_auto_trade(
         self,
         user_id: int,
@@ -177,6 +216,30 @@ class SurgeAlertService:
         # 7. Check excluded coins
         if settings.excluded_coins and coin.upper() in settings.excluded_coins:
             return False, f"Coin {coin} is in exclusion list"
+
+        # 8. Check position strategy restrictions
+        position_strategy = getattr(settings, 'position_strategy', 'single')
+
+        if position_strategy == 'single':
+            # Single position strategy: no duplicate positions allowed in same coin
+            allow_duplicates = getattr(settings, 'allow_duplicate_positions', False)
+
+            if not allow_duplicates:
+                coin_info = self.get_coin_position_info(user_id, coin)
+                if coin_info['count'] > 0:
+                    return False, f"Already have position in {coin} (single position strategy, no duplicates)"
+
+        elif position_strategy == 'multiple':
+            # Multiple position strategy: check max amount per coin
+            max_amount_per_coin = getattr(settings, 'max_amount_per_coin', None)
+
+            if max_amount_per_coin:
+                coin_info = self.get_coin_position_info(user_id, coin)
+                total_invested = coin_info['total_amount']
+                new_total = total_invested + settings.amount_per_trade
+
+                if new_total > max_amount_per_coin:
+                    return False, f"Exceeds max amount per coin {max_amount_per_coin:,} KRW (current: {total_invested:,}, would be: {new_total:,})"
 
         return True, "OK"
 

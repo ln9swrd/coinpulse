@@ -102,6 +102,11 @@ class SurgeAutoTradingSettings(Base):
     max_positions = Column(Integer, default=5, nullable=False)  # Maximum concurrent positions
     excluded_coins = Column(JSON, nullable=True)  # ['DOGE', 'SHIB'] - coins to exclude
 
+    # Position strategy (NEW - User selectable)
+    position_strategy = Column(String(20), default='single', nullable=False)  # 'single' or 'multiple'
+    max_amount_per_coin = Column(BigInteger, nullable=True)  # Max amount per coin (for 'multiple' strategy)
+    allow_duplicate_positions = Column(Boolean, default=False, nullable=False)  # Allow multiple positions per coin
+
     # Notifications
     telegram_enabled = Column(Boolean, default=True, nullable=False)
 
@@ -130,6 +135,9 @@ class SurgeAutoTradingSettings(Base):
             'min_confidence': self.min_confidence,
             'max_positions': self.max_positions,
             'excluded_coins': self.excluded_coins or [],
+            'position_strategy': self.position_strategy,
+            'max_amount_per_coin': self.max_amount_per_coin,
+            'allow_duplicate_positions': self.allow_duplicate_positions,
             'telegram_enabled': self.telegram_enabled,
             'total_trades': self.total_trades,
             'successful_trades': self.successful_trades,
