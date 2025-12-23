@@ -353,17 +353,22 @@
 
         // Initialize
         async function init() {
+            console.log('[Signals] Initializing...');
             const token = getAuthToken();
             if (!token) {
+                console.warn('[Signals] No auth token, redirecting to login');
                 window.location.href = '/login.html';
                 return;
             }
 
+            console.log('[Signals] Auth token found, loading data');
             await loadData();
             setupFilters();
+            console.log('[Signals] Initialization complete');
         }
 
         async function loadData() {
+            console.log('[Signals] Loading stats and signals in parallel');
             await Promise.all([
                 loadStats(),
                 loadSignals()
@@ -411,20 +416,39 @@
         }
 
         async function loadSignals() {
+            console.log('[Signals] Loading signals list...');
             try {
+                // First, check if element exists before making API call
+                console.log('[Signals] Checking if signalsList element exists...');
+                const preCheckEl = document.getElementById('signalsList');
+                console.log('[Signals] Pre-check result:', preCheckEl ? 'Element EXISTS' : 'Element MISSING');
+
+                if (preCheckEl) {
+                    console.log('[Signals] Element found immediately, making API call');
+                } else {
+                    console.warn('[Signals] Element not found, will retry after API call');
+                }
+
                 const response = await fetch(`${window.API_BASE}/api/user/signals?status=${window.currentFilter}&limit=50`, {
                     headers: {
                         'Authorization': `Bearer ${getAuthToken()}`
                     }
                 });
 
+                console.log('[Signals] API response status:', response.status);
                 const data = await response.json();
+                console.log('[Signals] API data received, waiting for container element');
+
                 const container = await waitForElement('signalsList');
 
                 if (!container) {
-                    console.error('[Signals] signalsList container not found');
+                    console.error('[Signals] signalsList container not found after retry');
+                    console.error('[Signals] DOM structure:', document.body ? 'body exists' : 'body missing');
+                    console.error('[Signals] Content container:', document.getElementById('content-container') ? 'exists' : 'missing');
                     return;
                 }
+
+                console.log('[Signals] Container found, rendering signals');
 
                 if (!data.success) {
                     container.innerHTML = '<div class="empty-state"><h3>오류 발생</h3><p>' + data.error + '</p></div>';
