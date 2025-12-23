@@ -8,6 +8,7 @@ import asyncio
 from typing import List, Dict, Optional
 from datetime import datetime
 import logging
+from sqlalchemy import text
 
 try:
     from telegram import Bot, Update
@@ -358,6 +359,44 @@ All trading decisions and risks are your own.
         except Exception as e:
             logger.error(f"[TelegramBot] Failed to send signal notification to {chat_id}: {e}")
 
+    def get_user_plan_by_chat_id(self, chat_id: str) -> Optional[str]:
+        """
+        Get user's subscription plan by telegram chat_id
+
+        Args:
+            chat_id: Telegram chat ID
+
+        Returns:
+            Plan code ('free', 'basic', 'pro') or None if not found
+        """
+        try:
+            from backend.database.connection import get_db_session
+
+            with get_db_session() as session:
+                query = text("""
+                    SELECT us.plan
+                    FROM telegram_link_codes tlc
+                    JOIN user_subscriptions us ON tlc.user_id = us.user_id
+                    WHERE tlc.telegram_chat_id = :chat_id
+                    AND tlc.used = true
+                    AND us.status = 'active'
+                    ORDER BY us.started_at DESC
+                    LIMIT 1
+                """)
+
+                result = session.execute(query, {'chat_id': str(chat_id)}).fetchone()
+
+                if result:
+                    plan = result[0]
+                    return plan.lower() if plan else 'free'
+                else:
+                    # No active subscription found - return free
+                    return 'free'
+
+        except Exception as e:
+            logger.error(f"[TelegramBot] Error getting user plan for chat_id {chat_id}: {e}")
+            return 'free'  # Default to free on error
+
     async def send_surge_alert(self, candidate: Dict):
         """
         Send surge alert to all subscribers
@@ -412,19 +451,49 @@ https://t.me/coinpulse_surge_sinsi_bot
 투자 책임은 본인에게 있습니다.
         """
 
-        # Send to all subscribers
+        # Send to subscribers with plan-based filtering
+        sent_count = 0
+        filtered_count = 0
+
         for chat_id in list(self.subscribers):
             try:
+                # Get user's plan
+                plan = self.get_user_plan_by_chat_id(chat_id)
+
+                # Plan-based filtering
+                if plan == 'free':
+                    # Free users don't receive alerts
+                    logger.debug(f"[TelegramBot] Skipping {chat_id}: Free plan")
+                    filtered_count += 1
+                    continue
+                elif plan == 'basic':
+                    # Basic users only receive high-score alerts (70+)
+                    if score < 70:
+                        logger.debug(f"[TelegramBot] Skipping {chat_id}: Basic plan, score {score} < 70")
+                        filtered_count += 1
+                        continue
+                elif plan == 'pro':
+                    # Pro users receive all alerts (60+)
+                    if score < 60:
+                        logger.debug(f"[TelegramBot] Skipping {chat_id}: Pro plan, score {score} < 60")
+                        filtered_count += 1
+                        continue
+
+                # Send alert
                 await self.bot.send_message(
                     chat_id=chat_id,
                     text=alert_message,
                     parse_mode='Markdown'
                 )
-                logger.info(f"[TelegramBot] Alert sent to {chat_id}: {market} ({score}점)")
+                sent_count += 1
+                logger.info(f"[TelegramBot] Alert sent to {chat_id} ({plan}): {market} ({score}점)")
+
             except Exception as e:
                 logger.error(f"[TelegramBot] Failed to send to {chat_id}: {e}")
                 # Remove invalid chat_id
                 self.subscribers.discard(chat_id)
+
+        logger.info(f"[TelegramBot] Surge alert summary: {sent_count} sent, {filtered_count} filtered by plan")
 
     async def send_execution_notification(self, data: Dict):
         """
