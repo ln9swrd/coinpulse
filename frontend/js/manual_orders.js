@@ -238,9 +238,15 @@ WorkingTradingChart.prototype.submitBuyOrder = async function() {
             quantityInput.value = '';
             totalInput.value = '';
 
-            // Reload pending orders and holdings
+            // Reload pending orders and holdings with delay for API sync
+            console.log('[ManualOrders] Waiting for order to sync...');
+            await new Promise(resolve => setTimeout(resolve, 500)); // Wait 500ms for order to be registered
+
             await this.loadPendingOrders();
             await this.updateAvailableBalances();
+
+            // Force chart update
+            console.log('[ManualOrders] Forcing chart update...');
             await this.displayOrdersOnChart();
         } else {
             throw new Error(result.message || 'Order failed');
@@ -306,9 +312,15 @@ WorkingTradingChart.prototype.submitSellOrder = async function() {
             quantityInput.value = '';
             document.getElementById('sell-total-amount').textContent = '0원';
 
-            // Reload pending orders and holdings
+            // Reload pending orders and holdings with delay for API sync
+            console.log('[ManualOrders] Waiting for order to sync...');
+            await new Promise(resolve => setTimeout(resolve, 500)); // Wait 500ms for order to be registered
+
             await this.loadPendingOrders();
             await this.updateAvailableBalances();
+
+            // Force chart update
+            console.log('[ManualOrders] Forcing chart update...');
             await this.displayOrdersOnChart();
         } else {
             throw new Error(result.message || 'Order failed');
@@ -598,13 +610,18 @@ WorkingTradingChart.prototype.enableChartPriceSelection = function() {
 WorkingTradingChart.prototype.displayOrdersOnChart = async function() {
     console.log('[ManualOrders] Displaying orders on chart');
 
-    if (!this.chart || !this.priceSeries) {
-        console.warn('[ManualOrders] Chart not ready for order display');
+    // Try multiple ways to access the chart
+    const chart = this.chart || (window.chartUtils && window.chartUtils.chart);
+    const priceSeries = this.priceSeries || this.candleSeries || (window.chartUtils && window.chartUtils.candleSeries);
+
+    if (!chart || !priceSeries) {
+        console.warn('[ManualOrders] Chart not ready for order display - chart:', !!chart, 'priceSeries:', !!priceSeries);
         return;
     }
 
     try {
-        const market = this.selectedMarket || 'KRW-XRP';
+        const market = this.currentMarket || this.selectedMarket || 'KRW-XRP';
+        console.log('[ManualOrders] Loading orders for market:', market);
         const response = await fetch(`${window.location.origin}/api/trading/orders?state=wait&market=${market}`);
         const result = await response.json();
 
@@ -613,11 +630,16 @@ WorkingTradingChart.prototype.displayOrdersOnChart = async function() {
         }
 
         const orders = result.orders || [];
+        console.log('[ManualOrders] Found', orders.length, 'pending orders');
 
         // Remove existing order lines
         if (this.orderLines) {
             this.orderLines.forEach(line => {
-                this.priceSeries.removePriceLine(line.line);
+                try {
+                    priceSeries.removePriceLine(line.line);
+                } catch (e) {
+                    console.warn('[ManualOrders] Error removing price line:', e);
+                }
             });
         }
         this.orderLines = [];
@@ -631,7 +653,9 @@ WorkingTradingChart.prototype.displayOrdersOnChart = async function() {
             const lineColor = side === 'bid' ? '#26a69a' : '#ef5350';
             const lineStyle = 2; // Dashed
 
-            const priceLine = this.priceSeries.createPriceLine({
+            console.log('[ManualOrders] Adding order line:', side, price, volume);
+
+            const priceLine = priceSeries.createPriceLine({
                 price: price,
                 color: lineColor,
                 lineWidth: 2,
