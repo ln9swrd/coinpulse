@@ -182,6 +182,14 @@
             const contentContainer = document.getElementById('content-container');
 
             try {
+                // Check if this is an external page (handled by page-loader in dashboard.html)
+                // External pages: trading, signals, telegram, realtime, surge, auto-trading-settings, referral, admin
+                const externalPages = ['trading', 'signals', 'telegram', 'realtime', 'surge', 'auto-trading-settings', 'referral', 'admin'];
+                if (externalPages.includes(pageName)) {
+                    console.log('[Dashboard] External page detected, skipping dashboard-fixed.js loader:', pageName);
+                    return; // Let dashboard.html handle it
+                }
+
                 contentContainer.innerHTML = '<div class="loading-state"><div class="spinner-large"></div><p>Loading...</p></div>';
 
                 // Load page-specific content
