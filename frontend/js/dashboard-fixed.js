@@ -191,9 +191,6 @@
                     case 'overview':
                         content = await this.loadOverviewPage();
                         break;
-                    case 'trading':
-                        content = await this.loadTradingPage();
-                        break;
                     case 'portfolio':
                         content = await this.loadPortfolioPage();
                         break;
@@ -307,24 +304,6 @@
             `;
         }
 
-        async loadTradingPage() {
-            // Get selected market from URL hash or default
-            const hash = window.location.hash;
-            const marketMatch = hash.match(/market=([^&]+)/);
-            const market = marketMatch ? marketMatch[1] : 'KRW-BTC';
-
-            // Build iframe URL with market parameter
-            const iframeUrl = `trading_chart.html?market=${market}`;
-
-            return `
-                <div class="trading-page">
-                    <iframe id="trading-chart-iframe"
-                            src="${iframeUrl}"
-                            style="width: 100%; height: calc(100vh - 140px); border: none;"
-                            title="Trading Chart"></iframe>
-                </div>
-            `;
-        }
 
         async loadPortfolioPage() {
             return `
@@ -544,16 +523,6 @@
             `;
         }
 
-        async loadSwingTradingPage() {
-            return `
-                <div class="swing-trading-page">
-                    <iframe id="swing-trading-iframe"
-                            src="swing_trading.html"
-                            style="width: 100%; height: calc(100vh - 140px); border: none;"
-                            title="Swing Trading"></iframe>
-                </div>
-            `;
-        }
 
         async loadHistoryPage() {
             const html = `
