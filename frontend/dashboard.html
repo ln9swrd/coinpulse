@@ -449,7 +449,7 @@
                 <!-- 거래 섹션 -->
                 <div class="nav-section-title">거래</div>
 
-                <a href="/trading_chart.html" class="nav-item">
+                <a href="#trading" class="nav-item" data-page="trading">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                     </svg>
@@ -1614,12 +1614,13 @@
         const PAGE_ROUTES = {
             'signals': 'my_signals.html',
             'telegram': 'telegram_settings.html',
+            'trading': 'trading_chart.html',
             'realtime': 'realtime_dashboard.html',
             'surge': 'surge_monitoring.html',
             'auto-trading-settings': 'auto_trading_settings.html',
             'referral': 'referral.html',
             'admin': 'admin.html'
-            // Note: 'trading' and 'swing-trading' use direct navigation, not PageLoader
+            // Note: trading chart loaded via PageLoader (full-width layout)
         };
 
         // Get content container

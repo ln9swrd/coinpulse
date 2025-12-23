@@ -375,12 +375,19 @@ WorkingTradingChart.prototype.updateAvailableBalances = async function() {
 
         if (holdingsResponse.ok && holdingsResult.success) {
             const holdings = holdingsResult.holdings || [];
+            console.log('[ManualOrders] Current market:', market);
+            console.log('[ManualOrders] Holdings data:', holdings);
+
             const coinHolding = holdings.find(h => {
-                const hMarket = h.market || `KRW-${h.symbol}`;
+                // Try multiple field formats: market, currency, symbol
+                const hMarket = h.market || `KRW-${h.currency || h.symbol}`;
+                console.log('[ManualOrders] Comparing:', hMarket, '===', market, '?', hMarket === market);
                 return hMarket === market;
             });
 
             const quantity = coinHolding ? parseFloat(coinHolding.balance) : 0;
+            console.log('[ManualOrders] Coin holding found:', coinHolding, 'quantity:', quantity);
+
             const sellBalanceInfo = document.getElementById('sell-balance-info');
             if (sellBalanceInfo) {
                 sellBalanceInfo.textContent = `보유: ${quantity.toFixed(4)}개`;
