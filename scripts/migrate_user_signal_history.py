@@ -43,24 +43,90 @@ def table_exists(session, table_name):
         return False
 
 
+def create_auto_trading_signals_table(session):
+    """Create auto_trading_signals table (parent table)"""
+    table_name = 'auto_trading_signals'
+
+    if table_exists(session, table_name):
+        logger.info(f"SKIP Table '{table_name}' already exists")
+        return True
+
+    logger.info(f"Creating parent table '{table_name}'...")
+
+    session.execute(text("""
+        CREATE TABLE auto_trading_signals (
+            id SERIAL PRIMARY KEY,
+            signal_id VARCHAR(50) UNIQUE NOT NULL,
+
+            -- Market info
+            market VARCHAR(20) NOT NULL,
+            signal_type VARCHAR(10) NOT NULL,
+
+            -- Price info
+            entry_price BIGINT NOT NULL,
+            target_price BIGINT NOT NULL,
+            stop_loss BIGINT NOT NULL,
+
+            -- Meta info
+            confidence INTEGER NOT NULL,
+            reason TEXT NULL,
+            signals_data JSONB NULL,
+
+            -- Time info
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            valid_until TIMESTAMP NOT NULL,
+            status VARCHAR(20) DEFAULT 'pending',
+
+            -- Statistics
+            distributed_to INTEGER DEFAULT 0,
+            executed_count INTEGER DEFAULT 0
+        )
+    """))
+
+    # Create indexes
+    session.execute(text("""
+        CREATE INDEX idx_auto_trading_signals_market
+        ON auto_trading_signals(market)
+    """))
+
+    session.execute(text("""
+        CREATE INDEX idx_auto_trading_signals_created_at
+        ON auto_trading_signals(created_at)
+    """))
+
+    session.execute(text("""
+        CREATE INDEX idx_auto_trading_signals_status
+        ON auto_trading_signals(status)
+    """))
+
+    logger.info("✅ Parent table created successfully")
+    return True
+
+
 def create_user_signal_history_table():
     """Create user_signal_history table"""
 
     logger.info("=" * 60)
-    logger.info("User Signal History Table Migration")
+    logger.info("Trading Signal Tables Migration")
     logger.info("=" * 60)
 
     session = get_db_session()
 
     try:
+        # Step 1: Create parent table first
+        if not create_auto_trading_signals_table(session):
+            return False
+
+        # Step 2: Create child table
         table_name = 'user_signal_history'
 
         # Check if table already exists
         if table_exists(session, table_name):
             logger.info(f"SKIP Table '{table_name}' already exists")
+            session.commit()
             return True
 
-        logger.info(f"Creating table '{table_name}'...")
+        logger.info(f"Creating child table '{table_name}'...")
 
         # Create table
         session.execute(text("""
