@@ -472,6 +472,9 @@
 
     <!-- Note: api_client.js is already loaded by dashboard.html, no need to load again -->
     <script>
+    (function() {
+        'use strict';
+
         // State
         let currentPage = 1;
         let perPage = 50;
@@ -762,6 +765,8 @@
                 alert('CSV 내보내기에 실패했습니다.');
             }
         }
+
+    })();
     </script>
 </body>
 </html>
