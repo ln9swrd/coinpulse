@@ -187,6 +187,8 @@
             color: #1e293b;
             font-weight: 700;
             font-size: 1.05em;
+            white-space: pre-line;
+            line-height: 1.5;
         }
 
         .signal-value.positive {
@@ -519,38 +521,98 @@
             switch(label) {
                 case '거래량':
                     const ratio = signal.volume_ratio || 1;
-                    if (ratio >= 3) return { icon: '🔥', text: `폭발적 증가 (${ratio.toFixed(1)}배)` };
-                    if (ratio >= 2) return { icon: '📈', text: `크게 증가 (${ratio.toFixed(1)}배)` };
-                    if (ratio >= 1.5) return { icon: '↗️', text: `증가 (${ratio.toFixed(1)}배)` };
-                    return { icon: '➡️', text: '보통' };
+                    if (ratio >= 3) return {
+                        icon: '🔥',
+                        text: `폭발적 증가 (${ratio.toFixed(1)}배)\n큰손들이 대량 매수 중. 급등 신호`
+                    };
+                    if (ratio >= 2) return {
+                        icon: '📈',
+                        text: `크게 증가 (${ratio.toFixed(1)}배)\n매수세 강함. 상승 가능성`
+                    };
+                    if (ratio >= 1.5) return {
+                        icon: '↗️',
+                        text: `증가 (${ratio.toFixed(1)}배)\n관심 증가. 모니터링 필요`
+                    };
+                    return {
+                        icon: '➡️',
+                        text: '보통\n일반적인 거래량. 큰 변화 없음'
+                    };
 
                 case '추세':
                     const days = signal.up_days || 0;
-                    if (days >= 3) return { icon: '🚀', text: `강한 상승 (${days}일)` };
-                    if (days >= 2) return { icon: '📈', text: `상승 중 (${days}일)` };
-                    if (days >= 1) return { icon: '↗️', text: '상승 시작' };
-                    return { icon: '➡️', text: '횡보' };
+                    if (days >= 3) return {
+                        icon: '🚀',
+                        text: `강한 상승 (${days}일)\n안정적 상승세. 추세 지속 예상`
+                    };
+                    if (days >= 2) return {
+                        icon: '📈',
+                        text: `상승 중 (${days}일)\n상승 흐름 형성. 추가 상승 가능`
+                    };
+                    if (days >= 1) return {
+                        icon: '↗️',
+                        text: '상승 시작\n초기 상승. 지켜볼 필요'
+                    };
+                    return {
+                        icon: '➡️',
+                        text: '횡보\n방향성 없음. 대기 권장'
+                    };
 
                 case '모멘텀':
                     const momentum = signal.momentum_percent || 0;
-                    if (momentum >= 5) return { icon: '🚀', text: `강함 (+${momentum.toFixed(1)}%)` };
-                    if (momentum >= 3) return { icon: '📈', text: `양호 (+${momentum.toFixed(1)}%)` };
-                    if (momentum >= 1) return { icon: '↗️', text: `보통 (+${momentum.toFixed(1)}%)` };
-                    return { icon: '➡️', text: '약함' };
+                    if (momentum >= 5) return {
+                        icon: '🚀',
+                        text: `강함 (+${momentum.toFixed(1)}%)\n빠른 상승. 단기 급등 중`
+                    };
+                    if (momentum >= 3) return {
+                        icon: '📈',
+                        text: `양호 (+${momentum.toFixed(1)}%)\n꾸준한 상승. 안정적`
+                    };
+                    if (momentum >= 1) return {
+                        icon: '↗️',
+                        text: `보통 (+${momentum.toFixed(1)}%)\n약한 상승. 관망 필요`
+                    };
+                    return {
+                        icon: '➡️',
+                        text: '약함\n상승 동력 부족'
+                    };
 
                 case 'RSI':
                     const rsi = signal.rsi || 50;
-                    if (rsi >= 70) return { icon: '🔴', text: `과열 (${rsi.toFixed(0)})` };
-                    if (rsi >= 50) return { icon: '🟢', text: `적정 (${rsi.toFixed(0)})` };
-                    if (rsi >= 30) return { icon: '🟡', text: `저평가 (${rsi.toFixed(0)})` };
-                    return { icon: '🔵', text: `매우 저평가 (${rsi.toFixed(0)})` };
+                    if (rsi >= 70) return {
+                        icon: '🔴',
+                        text: `과열 (${rsi.toFixed(0)})\n과매수 상태. 조정 가능성 높음`
+                    };
+                    if (rsi >= 50) return {
+                        icon: '🟢',
+                        text: `적정 (${rsi.toFixed(0)})\n정상 범위. 추가 상승 여력`
+                    };
+                    if (rsi >= 30) return {
+                        icon: '🟡',
+                        text: `저평가 (${rsi.toFixed(0)})\n매수 기회. 반등 가능성`
+                    };
+                    return {
+                        icon: '🔵',
+                        text: `매우 저평가 (${rsi.toFixed(0)})\n과매도. 강한 반등 예상`
+                    };
 
                 case '지지선':
                     const distance = signal.distance_percent || 0;
-                    if (distance >= 20) return { icon: '⚠️', text: `고점 위험 (+${distance.toFixed(0)}%)` };
-                    if (distance >= 10) return { icon: '⚡', text: `주의 (+${distance.toFixed(0)}%)` };
-                    if (distance >= 5) return { icon: '✅', text: `안전 (+${distance.toFixed(0)}%)` };
-                    return { icon: '💎', text: `지지선 근처` };
+                    if (distance >= 20) return {
+                        icon: '⚠️',
+                        text: `고점 위험 (+${distance.toFixed(0)}%)\n지지선과 멀어짐. 급락 주의`
+                    };
+                    if (distance >= 10) return {
+                        icon: '⚡',
+                        text: `주의 (+${distance.toFixed(0)}%)\n조정 가능성. 손절 준비`
+                    };
+                    if (distance >= 5) return {
+                        icon: '✅',
+                        text: `안전 (+${distance.toFixed(0)}%)\n적정 범위. 안정적`
+                    };
+                    return {
+                        icon: '💎',
+                        text: `지지선 근처\n매수 적기. 바닥 확인`
+                    };
 
                 default:
                     return { icon: '❓', text: signal.description || '알 수 없음' };
