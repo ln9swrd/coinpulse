@@ -7,13 +7,14 @@
     <link rel="stylesheet" href="css/internal-pages.css">
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f8f9fa;
             min-height: 100vh;
-            padding: 20px;
+            padding: 40px 20px;
         }
 
         .page-container-narrow {
             max-width: 900px;
+            margin: 0 auto;
         }
 
         /* Hero Section */
@@ -34,15 +35,8 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 6px;
-            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
-            background-size: 200% 100%;
-            animation: gradientShift 3s ease infinite;
-        }
-
-        @keyframes gradientShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
         }
 
         .telegram-logo {
@@ -54,13 +48,7 @@
             align-items: center;
             justify-content: center;
             margin: 0 auto 20px;
-            box-shadow: 0 10px 30px rgba(42, 171, 238, 0.4);
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+            box-shadow: 0 4px 12px rgba(42, 171, 238, 0.2);
         }
 
         .telegram-logo svg {
@@ -136,12 +124,6 @@
             height: 8px;
             border-radius: 50%;
             background: white;
-            animation: pulse-dot 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
         }
 
         .status-info {
@@ -249,21 +231,7 @@
             overflow: hidden;
         }
 
-        .code-display::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
-            animation: rotate 20s linear infinite;
-        }
-
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        /* Removed rotating background animation */
 
         .code-text {
             font-size: 64px;
@@ -528,21 +496,7 @@
             color: #64748b;
         }
 
-        .loading::before {
-            content: '';
-            display: block;
-            width: 50px;
-            height: 50px;
-            margin: 0 auto 20px;
-            border: 4px solid #e2e8f0;
-            border-top-color: #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        /* Loading spinner removed */
 
         /* Hidden */
         .hidden {
