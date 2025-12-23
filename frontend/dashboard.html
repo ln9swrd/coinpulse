@@ -492,7 +492,7 @@
                 </a>
                 -->
 
-                <a href="surge_monitoring.html" class="nav-item" target="_blank">
+                <a href="#surge" class="nav-item" data-page="surge">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M18 20V10M12 20V4M6 20v-6"/>
                     </svg>
@@ -1736,30 +1736,31 @@
             console.log('[Dashboard] Loading external page:', pageName, '→', filePath);
 
             try {
-                // Special handling for trading chart - use iframe to prevent CSS conflicts
-                if (pageName === 'trading') {
-                    const chartUrl = `${window.location.origin}/${filePath}`;
-                    console.log('[Dashboard] Loading trading chart via iframe:', chartUrl);
+                // Special handling for pages that need iframe (to prevent CSS conflicts and enable JS execution)
+                if (pageName === 'trading' || pageName === 'surge') {
+                    const pageUrl = `${window.location.origin}/${filePath}`;
+                    const iframeId = pageName === 'trading' ? 'trading-chart-iframe' : 'surge-monitoring-iframe';
+                    console.log(`[Dashboard] Loading ${pageName} page via iframe:`, pageUrl);
 
                     contentContainer.innerHTML = `
                         <div style="width: 100%; height: calc(100vh - 80px); overflow: hidden; background: white;">
                             <iframe
-                                src="${chartUrl}"
+                                src="${pageUrl}"
                                 style="width: 100%; height: 100%; border: none; display: block;"
                                 frameborder="0"
-                                id="trading-chart-iframe"
+                                id="${iframeId}"
                                 allow="clipboard-read; clipboard-write"
-                                onload="console.log('[Dashboard] Trading chart iframe loaded successfully')"
-                                onerror="console.error('[Dashboard] Trading chart iframe load error')"
+                                onload="console.log('[Dashboard] ${pageName} iframe loaded successfully')"
+                                onerror="console.error('[Dashboard] ${pageName} iframe load error')"
                             ></iframe>
                         </div>
                     `;
 
                     // Verify iframe loaded
                     setTimeout(() => {
-                        const iframe = document.getElementById('trading-chart-iframe');
+                        const iframe = document.getElementById(iframeId);
                         if (iframe) {
-                            console.log('[Dashboard] Iframe element exists:', iframe.src);
+                            console.log(`[Dashboard] Iframe element exists for ${pageName}:`, iframe.src);
                             try {
                                 console.log('[Dashboard] Iframe contentWindow:', iframe.contentWindow ? 'accessible' : 'blocked');
                             } catch (e) {
