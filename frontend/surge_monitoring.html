@@ -352,9 +352,11 @@
                 const response = await fetch(`${API_BASE_URL}/api/surge-candidates`);
                 const data = await response.json();
 
-                if (data.success) {
+                if (data.candidates !== undefined) {
                     // 백테스트 통계 업데이트
-                    updateBacktestStats(data.backtest_stats);
+                    if (data.backtest_stats) {
+                        updateBacktestStats(data.backtest_stats);
+                    }
 
                     // 후보 목록 업데이트
                     renderCandidates(data.candidates);
@@ -365,11 +367,12 @@
 
                     // 후보 수
                     document.getElementById('candidate-count').textContent =
-                        `(${data.count}개 발견)`;
+                        `(${data.count || 0}개 발견)`;
                 } else {
-                    showError('데이터를 불러오는 중 오류가 발생했습니다: ' + data.error);
+                    showError('데이터를 불러오는 중 오류가 발생했습니다: ' + (data.error || '알 수 없는 오류'));
                 }
             } catch (error) {
+                console.error('Surge candidates fetch error:', error);
                 showError('서버 연결 오류: ' + error.message);
             } finally {
                 // 버튼 활성화
