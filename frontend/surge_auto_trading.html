@@ -119,9 +119,13 @@
         }
 
         .toggle-switch input {
+            position: absolute;
             opacity: 0;
-            width: 0;
-            height: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 2;
+            margin: 0;
         }
 
         .toggle-slider {
@@ -134,6 +138,7 @@
             background-color: #cbd5e1;
             transition: 0.3s;
             border-radius: 28px;
+            pointer-events: none;
         }
 
         .toggle-slider:before {
