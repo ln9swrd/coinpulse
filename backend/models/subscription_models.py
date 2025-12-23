@@ -66,10 +66,10 @@ class Subscription(Base):
     # User reference (foreign key to users table)
     user_id = Column(Integer, nullable=False, index=True)
 
-    # Subscription details
-    plan = Column(SQLEnum(SubscriptionPlan), nullable=False, default=SubscriptionPlan.FREE)
-    billing_period = Column(SQLEnum(BillingPeriod), nullable=False, default=BillingPeriod.MONTHLY)
-    status = Column(SQLEnum(SubscriptionStatus), nullable=False, default=SubscriptionStatus.PENDING)
+    # Subscription details (using String to match database VARCHAR type)
+    plan = Column(String(50), nullable=False, default='free')
+    billing_period = Column(String(50), nullable=False, default='monthly')
+    status = Column(String(50), nullable=False, default='pending')
 
     # Pricing
     amount = Column(Integer, nullable=False, default=0)  # Amount in KRW
@@ -90,16 +90,16 @@ class Subscription(Base):
     # Relationships
 
     def __repr__(self):
-        return f"<Subscription(id={self.id}, user_id={self.user_id}, plan={self.plan.value}, status={self.status.value})>"
+        return f"<Subscription(id={self.id}, user_id={self.user_id}, plan={self.plan}, status={self.status})>"
 
     def to_dict(self):
         """Convert to dictionary for JSON serialization"""
         return {
             'id': self.id,
             'user_id': self.user_id,
-            'plan': self.plan.value,
-            'billing_period': self.billing_period.value,
-            'status': self.status.value,
+            'plan': self.plan,  # Already string, no .value needed
+            'billing_period': self.billing_period,  # Already string
+            'status': self.status,  # Already string
             'amount': self.amount,
             'currency': self.currency,
             'started_at': self.started_at.isoformat() if self.started_at else None,
@@ -114,7 +114,7 @@ class Subscription(Base):
 
     def is_active(self):
         """Check if subscription is currently active"""
-        if self.status != SubscriptionStatus.ACTIVE:
+        if self.status != 'active':  # Use string comparison
             return False
         if self.current_period_end and datetime.utcnow() > self.current_period_end:
             return False

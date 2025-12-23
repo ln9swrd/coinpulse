@@ -292,7 +292,7 @@ class SubscriptionService:
         try:
             subscription = session.query(Subscription).filter(
                 Subscription.user_id == user_id,
-                Subscription.status == SubscriptionStatus.ACTIVE
+                Subscription.status == 'active'  # Use string instead of enum
             ).order_by(Subscription.created_at.desc()).first()
 
             if subscription:
