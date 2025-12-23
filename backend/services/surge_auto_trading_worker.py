@@ -104,17 +104,14 @@ class SurgeAutoTradingWorker:
                 if analysis['score'] >= self.min_score:
                     coin = market.replace('KRW-', '')
 
-                    # Calculate target price based on expected return
-                    expected_return = analysis.get('expected_return', 10.0)
-                    target_price = int(current_price * (1 + expected_return / 100))
-
+                    # Store analysis result for dynamic target calculation per user
+                    # (Target prices will be calculated per-user based on their settings)
                     candidates.append({
                         'market': market,
                         'coin': coin,
                         'score': analysis['score'],
                         'current_price': int(current_price),
-                        'target_price': target_price,
-                        'expected_return': expected_return,
+                        'analysis': analysis,  # Store full analysis for dynamic target calculation
                         'signals': analysis['signals'],
                         'recommendation': analysis['recommendation']
                     })
@@ -199,18 +196,50 @@ class SurgeAutoTradingWorker:
 
                 for user, settings in active_users:
                     try:
-                        # Send alert and potentially execute trade with surge prediction prices
+                        # Calculate dynamic target prices based on user's settings
+                        analysis_result = candidate['analysis']
+                        current_price = candidate['current_price']
+
+                        # Build settings dict from user's auto-trading settings
+                        user_settings = {
+                            'use_dynamic_target': getattr(settings, 'use_dynamic_target', True),
+                            'target_calculation_mode': getattr(settings, 'target_calculation_mode', 'dynamic'),
+                            'min_target_percent': getattr(settings, 'min_target_percent', 5.0),
+                            'max_target_percent': getattr(settings, 'max_target_percent', 18.0),
+                            'take_profit_percent': getattr(settings, 'take_profit_percent', 10.0),
+                            'stop_loss_percent': getattr(settings, 'stop_loss_percent', -5.0)
+                        }
+
+                        # Calculate dynamic target and stop loss prices
+                        target_result = self.predictor.get_target_prices(
+                            entry_price=current_price,
+                            analysis_result=analysis_result,
+                            settings=user_settings
+                        )
+
+                        target_price = target_result['target_price']
+                        stop_loss_price = target_result['stop_loss_price']
+                        target_percent = target_result['target_percent']
+
+                        logger.info(
+                            f"[AutoTradingWorker] Dynamic target for user {user.id} on {market}: "
+                            f"Entry={current_price:,}, Target={target_price:,} (+{target_percent:.2f}%), "
+                            f"Stop={stop_loss_price:,} ({target_result['stop_loss_percent']:.2f}%), "
+                            f"Mode={target_result['calculation_mode']}"
+                        )
+
+                        # Send alert and potentially execute trade with dynamic prices
                         success, alert = surge_service.send_alert_to_user(
                             user_id=user.id,
                             plan=user.plan or 'free',
                             market=market,
                             coin=candidate['coin'],
                             confidence=candidate['score'],
-                            current_price=candidate['current_price'],
-                            target_price=candidate['target_price'],
-                            expected_return=candidate['expected_return'],
-                            entry_price=candidate.get('entry_price', candidate['current_price']),
-                            stop_loss_price=candidate.get('stop_loss_price'),
+                            current_price=current_price,
+                            target_price=target_price,
+                            expected_return=target_percent,
+                            entry_price=current_price,
+                            stop_loss_price=stop_loss_price,
                             telegram_chat_id=user.telegram_chat_id if hasattr(user, 'telegram_chat_id') else None
                         )
 

@@ -395,6 +395,184 @@ class SurgePredictor:
 
         return min(100, max(0, total))  # Clamp to 0-100
 
+    def calculate_dynamic_target(self, analysis_result, min_target=5.0, max_target=18.0):
+        """
+        Calculate dynamic target price percentage based on signal strength.
+
+        Args:
+            analysis_result: Result from analyze_coin() containing score and signals
+            min_target: Minimum target percentage (default: 5.0%)
+            max_target: Maximum target percentage (default: 18.0%)
+
+        Returns:
+            float: Target percentage (e.g., 12.5 for 12.5%)
+
+        Algorithm:
+            Base target: 5%
+            + Confidence bonus: 0-3% (based on score/100)
+            + Momentum bonus: 0-5% (based on momentum_percent)
+            + Volume bonus: 0-2% (based on volume_ratio)
+            + Trend bonus: 0-3% (based on trend strength)
+            = Total target: 5-18%
+        """
+        try:
+            score = analysis_result.get('score', 0)
+            signals = analysis_result.get('signals', {})
+
+            # Base target (minimum viable target)
+            base_target = 5.0
+
+            # 1. Confidence/Score Bonus (0-3%)
+            # Score 60-100 → 0-3% bonus
+            score_normalized = max(0, min(100, score))
+            confidence_bonus = ((score_normalized - 60) / 40) * 3.0
+            confidence_bonus = max(0, min(3, confidence_bonus))
+
+            # 2. Momentum Bonus (0-5%)
+            # Momentum 0-25% → 0-5% bonus
+            momentum_data = signals.get('momentum', {})
+            momentum_percent = abs(momentum_data.get('momentum_percent', 0))
+            momentum_bonus = (momentum_percent / 25) * 5.0
+            momentum_bonus = max(0, min(5, momentum_bonus))
+
+            # 3. Volume Bonus (0-2%)
+            # Volume ratio 1-8x → 0-2% bonus
+            volume_data = signals.get('volume', {})
+            volume_ratio = volume_data.get('volume_ratio', 1.0)
+            volume_bonus = ((volume_ratio - 1) / 7) * 2.0
+            volume_bonus = max(0, min(2, volume_bonus))
+
+            # 4. Trend Bonus (0-3%)
+            # Trend score 0-20 → 0-3% bonus
+            trend_data = signals.get('trend', {})
+            trend_score = trend_data.get('score', 0)
+            trend_bonus = (trend_score / 20) * 3.0
+            trend_bonus = max(0, min(3, trend_bonus))
+
+            # Calculate total target
+            target_percent = base_target + confidence_bonus + momentum_bonus + volume_bonus + trend_bonus
+
+            # Clamp to user-defined min/max range
+            target_percent = max(min_target, min(max_target, target_percent))
+
+            return round(target_percent, 2)
+
+        except Exception as e:
+            print(f"[SurgePredictor] ERROR calculating dynamic target: {e}")
+            return min_target  # Return safe minimum on error
+
+    def calculate_dynamic_stop_loss(self, target_percent, risk_ratio=0.5):
+        """
+        Calculate stop loss percentage based on target percentage.
+
+        Args:
+            target_percent: Target profit percentage
+            risk_ratio: Risk/reward ratio (default: 0.5 = 1:2 reward/risk)
+
+        Returns:
+            float: Stop loss percentage (negative value, e.g., -6.0 for -6%)
+
+        Example:
+            Target: 12% → Stop loss: -6% (1:2 ratio)
+            Target: 8% → Stop loss: -4% (1:2 ratio)
+        """
+        stop_loss = -(target_percent * risk_ratio)
+        return round(stop_loss, 2)
+
+    def get_target_prices(self, entry_price, analysis_result, settings=None):
+        """
+        Calculate target and stop loss prices based on settings.
+
+        Args:
+            entry_price: Entry price in KRW
+            analysis_result: Analysis result from analyze_coin()
+            settings: User settings dict with:
+                - use_dynamic_target: bool
+                - target_calculation_mode: 'fixed'/'dynamic'/'hybrid'
+                - min_target_percent: float
+                - max_target_percent: float
+                - take_profit_percent: float (for fixed/hybrid)
+                - stop_loss_percent: float
+
+        Returns:
+            dict: {
+                'target_price': int,
+                'stop_loss_price': int,
+                'target_percent': float,
+                'stop_loss_percent': float,
+                'calculation_mode': str
+            }
+        """
+        try:
+            # Default settings
+            if not settings:
+                settings = {
+                    'use_dynamic_target': True,
+                    'target_calculation_mode': 'dynamic',
+                    'min_target_percent': 5.0,
+                    'max_target_percent': 18.0,
+                    'take_profit_percent': 10.0,
+                    'stop_loss_percent': -5.0
+                }
+
+            use_dynamic = settings.get('use_dynamic_target', True)
+            mode = settings.get('target_calculation_mode', 'dynamic')
+            min_target = settings.get('min_target_percent', 5.0)
+            max_target = settings.get('max_target_percent', 18.0)
+            fixed_target = settings.get('take_profit_percent', 10.0)
+            fixed_stop = settings.get('stop_loss_percent', -5.0)
+
+            # Calculate target percentage based on mode
+            if not use_dynamic or mode == 'fixed':
+                # Fixed mode: Use user-defined percentage
+                target_percent = fixed_target
+                calculation_mode = 'fixed'
+
+            elif mode == 'hybrid':
+                # Hybrid mode: Start from fixed value, adjust by signal strength
+                dynamic_target = self.calculate_dynamic_target(analysis_result, min_target, max_target)
+                # Adjust fixed target by signal strength (weighted average)
+                target_percent = (fixed_target + dynamic_target) / 2
+                target_percent = max(min_target, min(max_target, target_percent))
+                calculation_mode = 'hybrid'
+
+            else:  # mode == 'dynamic'
+                # Dynamic mode: Calculate based on signal strength
+                target_percent = self.calculate_dynamic_target(analysis_result, min_target, max_target)
+                calculation_mode = 'dynamic'
+
+            # Calculate stop loss (proportional to target)
+            if mode == 'fixed':
+                stop_loss_percent = fixed_stop
+            else:
+                # Dynamic stop loss: 50% of target (1:2 risk/reward)
+                stop_loss_percent = self.calculate_dynamic_stop_loss(target_percent, risk_ratio=0.5)
+
+            # Calculate actual prices
+            target_price = int(entry_price * (1 + target_percent / 100))
+            stop_loss_price = int(entry_price * (1 + stop_loss_percent / 100))
+
+            return {
+                'target_price': target_price,
+                'stop_loss_price': stop_loss_price,
+                'target_percent': round(target_percent, 2),
+                'stop_loss_percent': round(stop_loss_percent, 2),
+                'calculation_mode': calculation_mode,
+                'signal_score': analysis_result.get('score', 0)
+            }
+
+        except Exception as e:
+            print(f"[SurgePredictor] ERROR calculating target prices: {e}")
+            # Return safe defaults
+            return {
+                'target_price': int(entry_price * 1.05),
+                'stop_loss_price': int(entry_price * 0.95),
+                'target_percent': 5.0,
+                'stop_loss_percent': -5.0,
+                'calculation_mode': 'fixed',
+                'signal_score': 0
+            }
+
     def find_surge_candidates(self, upbit_api, excluded_coins=None):
         """
         Find top surge candidates from all available coins.
