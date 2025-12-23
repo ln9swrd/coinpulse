@@ -6,9 +6,6 @@
 (function() {
     'use strict';
 
-    // Force API_BASE to origin (avoid path prefix issues)
-    window.API_BASE = window.API_BASE || window.location.origin;
-
     // ============================================
     // 1. Dashboard Manager Class
     // ============================================
@@ -566,8 +563,10 @@
                     </div>
                 `;
 
+                // Use defensive API_BASE (avoid global variable conflicts)
+                const API_BASE = window.API_BASE || window.location.origin;
                 const token = localStorage.getItem('access_token') || localStorage.getItem('auth_token');
-                const response = await fetch(`${window.API_BASE}/api/orders`, {
+                const response = await fetch(`${API_BASE}/api/orders`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
