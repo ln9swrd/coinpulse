@@ -111,6 +111,12 @@ class SurgeAutoTradingSettings(Base):
     # Notifications
     telegram_enabled = Column(Boolean, default=True, nullable=False)
 
+    # Dynamic Target Price Settings (NEW)
+    use_dynamic_target = Column(Boolean, default=True, nullable=False)  # 동적 목표가 사용
+    min_target_percent = Column(Float, default=5.0, nullable=False)  # 최소 목표 수익률 (%)
+    max_target_percent = Column(Float, default=18.0, nullable=False)  # 최대 목표 수익률 (%)
+    target_calculation_mode = Column(String(20), default='dynamic', nullable=False)  # fixed/dynamic/hybrid
+
     # Statistics
     total_trades = Column(Integer, default=0, nullable=False)
     successful_trades = Column(Integer, default=0, nullable=False)
@@ -141,6 +147,10 @@ class SurgeAutoTradingSettings(Base):
             'max_amount_per_coin': self.max_amount_per_coin,
             'allow_duplicate_positions': self.allow_duplicate_positions,
             'telegram_enabled': self.telegram_enabled,
+            'use_dynamic_target': self.use_dynamic_target,
+            'min_target_percent': self.min_target_percent,
+            'max_target_percent': self.max_target_percent,
+            'target_calculation_mode': self.target_calculation_mode,
             'total_trades': self.total_trades,
             'successful_trades': self.successful_trades,
             'total_profit_loss': self.total_profit_loss,
