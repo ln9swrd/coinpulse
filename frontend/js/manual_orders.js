@@ -383,10 +383,16 @@ WorkingTradingChart.prototype.updateAvailableBalances = async function() {
         });
         const holdingsResult = await holdingsResponse.json();
 
+        console.log('[ManualOrders] Holdings API response:', holdingsResult);
+        console.log('[ManualOrders] Response status:', holdingsResponse.status);
+        console.log('[ManualOrders] Response OK:', holdingsResponse.ok);
+
         if (holdingsResponse.ok && holdingsResult.success) {
-            const holdings = holdingsResult.holdings || [];
+            const holdings = holdingsResult.holdings || holdingsResult.coins || [];
             console.log('[ManualOrders] Current market:', market);
             console.log('[ManualOrders] Holdings data:', holdings);
+            console.log('[ManualOrders] Holdings type:', typeof holdings);
+            console.log('[ManualOrders] Holdings is array:', Array.isArray(holdings));
 
             const coinHolding = holdings.find(h => {
                 // Try multiple field formats: market, currency, symbol
