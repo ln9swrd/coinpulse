@@ -395,59 +395,59 @@ class SurgePredictor:
 
         return min(100, max(0, total))  # Clamp to 0-100
 
-    def calculate_dynamic_target(self, analysis_result, min_target=5.0, max_target=18.0):
+    def calculate_dynamic_target(self, analysis_result, min_target=3.0, max_target=10.0):
         """
         Calculate dynamic target price percentage based on signal strength.
 
         Args:
             analysis_result: Result from analyze_coin() containing score and signals
-            min_target: Minimum target percentage (default: 5.0%)
-            max_target: Maximum target percentage (default: 18.0%)
+            min_target: Minimum target percentage (default: 3.0%)
+            max_target: Maximum target percentage (default: 10.0%)
 
         Returns:
-            float: Target percentage (e.g., 12.5 for 12.5%)
+            float: Target percentage (e.g., 7.5 for 7.5%)
 
-        Algorithm:
-            Base target: 5%
-            + Confidence bonus: 0-3% (based on score/100)
-            + Momentum bonus: 0-5% (based on momentum_percent)
-            + Volume bonus: 0-2% (based on volume_ratio)
-            + Trend bonus: 0-3% (based on trend strength)
-            = Total target: 5-18%
+        Algorithm (Adjusted for realistic 3-day holding):
+            Base target: 3%
+            + Confidence bonus: 0-2% (based on score/100)
+            + Momentum bonus: 0-3% (based on momentum_percent)
+            + Volume bonus: 0-1% (based on volume_ratio)
+            + Trend bonus: 0-1% (based on trend strength)
+            = Total target: 3-10%
         """
         try:
             score = analysis_result.get('score', 0)
             signals = analysis_result.get('signals', {})
 
-            # Base target (minimum viable target)
-            base_target = 5.0
+            # Base target (minimum viable target for 3-day holding)
+            base_target = 3.0
 
-            # 1. Confidence/Score Bonus (0-3%)
-            # Score 60-100 → 0-3% bonus
+            # 1. Confidence/Score Bonus (0-2%)
+            # Score 60-100 → 0-2% bonus
             score_normalized = max(0, min(100, score))
-            confidence_bonus = ((score_normalized - 60) / 40) * 3.0
-            confidence_bonus = max(0, min(3, confidence_bonus))
+            confidence_bonus = ((score_normalized - 60) / 40) * 2.0
+            confidence_bonus = max(0, min(2, confidence_bonus))
 
-            # 2. Momentum Bonus (0-5%)
-            # Momentum 0-25% → 0-5% bonus
+            # 2. Momentum Bonus (0-3%)
+            # Momentum 0-25% → 0-3% bonus
             momentum_data = signals.get('momentum', {})
             momentum_percent = abs(momentum_data.get('momentum_percent', 0))
-            momentum_bonus = (momentum_percent / 25) * 5.0
-            momentum_bonus = max(0, min(5, momentum_bonus))
+            momentum_bonus = (momentum_percent / 25) * 3.0
+            momentum_bonus = max(0, min(3, momentum_bonus))
 
-            # 3. Volume Bonus (0-2%)
-            # Volume ratio 1-8x → 0-2% bonus
+            # 3. Volume Bonus (0-1%)
+            # Volume ratio 1-8x → 0-1% bonus
             volume_data = signals.get('volume', {})
             volume_ratio = volume_data.get('volume_ratio', 1.0)
-            volume_bonus = ((volume_ratio - 1) / 7) * 2.0
-            volume_bonus = max(0, min(2, volume_bonus))
+            volume_bonus = ((volume_ratio - 1) / 7) * 1.0
+            volume_bonus = max(0, min(1, volume_bonus))
 
-            # 4. Trend Bonus (0-3%)
-            # Trend score 0-20 → 0-3% bonus
+            # 4. Trend Bonus (0-1%)
+            # Trend score 0-20 → 0-1% bonus
             trend_data = signals.get('trend', {})
             trend_score = trend_data.get('score', 0)
-            trend_bonus = (trend_score / 20) * 3.0
-            trend_bonus = max(0, min(3, trend_bonus))
+            trend_bonus = (trend_score / 20) * 1.0
+            trend_bonus = max(0, min(1, trend_bonus))
 
             # Calculate total target
             target_percent = base_target + confidence_bonus + momentum_bonus + volume_bonus + trend_bonus

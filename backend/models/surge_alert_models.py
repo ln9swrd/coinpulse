@@ -111,10 +111,10 @@ class SurgeAutoTradingSettings(Base):
     # Notifications
     telegram_enabled = Column(Boolean, default=True, nullable=False)
 
-    # Dynamic Target Price Settings (NEW)
+    # Dynamic Target Price Settings (NEW - Adjusted for 3-day holding)
     use_dynamic_target = Column(Boolean, default=True, nullable=False)  # 동적 목표가 사용
-    min_target_percent = Column(Float, default=5.0, nullable=False)  # 최소 목표 수익률 (%)
-    max_target_percent = Column(Float, default=18.0, nullable=False)  # 최대 목표 수익률 (%)
+    min_target_percent = Column(Float, default=3.0, nullable=False)  # 최소 목표 수익률 (%)
+    max_target_percent = Column(Float, default=10.0, nullable=False)  # 최대 목표 수익률 (%)
     target_calculation_mode = Column(String(20), default='dynamic', nullable=False)  # fixed/dynamic/hybrid
 
     # Statistics
