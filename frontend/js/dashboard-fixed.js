@@ -183,8 +183,8 @@
 
             try {
                 // Check if this is an external page (handled by page-loader in dashboard.html)
-                // External pages: trading, signals, telegram, realtime, surge, auto-trading-settings, referral, admin
-                const externalPages = ['trading', 'signals', 'telegram', 'realtime', 'surge', 'auto-trading-settings', 'referral', 'admin'];
+                // External pages: trading, signals, telegram, realtime, surge, auto-trading, referral, admin
+                const externalPages = ['trading', 'signals', 'telegram', 'realtime', 'surge', 'auto-trading', 'referral', 'admin'];
                 if (externalPages.includes(pageName)) {
                     console.log('[Dashboard] External page detected, skipping dashboard-fixed.js loader:', pageName);
                     return; // Let dashboard.html handle it
@@ -202,9 +202,7 @@
                     case 'portfolio':
                         content = await this.loadPortfolioPage();
                         break;
-                    case 'auto-trading':
-                        content = await this.loadAutoTradingPage();
-                        break;
+                    // NOTE: auto-trading now handled by dashboard-page-loader.js (loads surge_auto_trading.html via iframe)
                     case 'history':
                         content = await this.loadHistoryPage();
                         break;
