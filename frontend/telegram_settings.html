@@ -4,96 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Telegram 연동 설정 - CoinPulse</title>
+    <link rel="stylesheet" href="css/internal-pages.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .header {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 8px;
-        }
-
-        .header p {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-
-        .card h2 {
-            color: #333;
-            font-size: 20px;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #eee;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-
-        .status-linked {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-not-linked {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: 150px 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .info-label {
-            color: #666;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .info-value {
-            color: #333;
-            font-size: 14px;
-        }
+        /* Page-specific styles */
 
         .code-display {
             background: #f8f9fa;
@@ -145,91 +64,7 @@
             font-size: 14px;
         }
 
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s;
-            margin-right: 10px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
-        }
-
-        .btn-secondary {
-            background: #e0e0e0;
-            color: #666;
-        }
-
-        .btn-secondary:hover {
-            background: #d1d1d1;
-        }
-
-        .btn:disabled {
-            background: #d1d5db;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-        }
-
-        .alert {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-
-        .alert-success {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .alert-error {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .alert-info {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .hidden {
-            display: none;
-        }
-
         @media (max-width: 768px) {
-            .info-grid {
-                grid-template-columns: 1fr;
-                gap: 5px;
-            }
-
             .code-text {
                 font-size: 36px;
             }
@@ -237,8 +72,8 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
+    <div class="page-container-narrow">
+        <div class="page-header">
             <h1>Telegram 연동 설정</h1>
             <p>Telegram으로 실시간 트레이딩 시그널 알림을 받으세요</p>
         </div>
@@ -364,7 +199,7 @@
                 if (data.linked) {
                     // Already linked
                     statusSection.innerHTML = `
-                        <span class="status-badge status-linked">연동됨</span>
+                        <span class="badge badge-success">연동됨</span>
                         <div class="info-grid">
                             <div class="info-label">Telegram 사용자:</div>
                             <div class="info-value">@${data.telegram_username || 'Unknown'}</div>
@@ -376,7 +211,7 @@
                 } else {
                     // Not linked
                     statusSection.innerHTML = `
-                        <span class="status-badge status-not-linked">연동 안 됨</span>
+                        <span class="badge badge-error">연동 안 됨</span>
                         <p style="color: #666; margin-top: 10px;">
                             Telegram 계정을 연동하여 실시간 트레이딩 시그널을 받으세요.
                         </p>
