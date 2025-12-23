@@ -480,8 +480,10 @@
         let perPage = 50;
         let filters = {};
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
+        // Initialize function
+        function init() {
+            console.log('[SurgeHistory] Initializing...');
+
             // Check admin auth
             if (!window.api.isAuthenticated()) {
                 alert('로그인이 필요합니다.');
@@ -492,21 +494,41 @@
             // Load initial data
             loadMarkets();
             loadData();
-        });
+        }
+
+        // Execute immediately if DOM is already loaded (for dynamic page loading),
+        // or wait for DOMContentLoaded (for direct page access)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
 
         // Load available markets
         async function loadMarkets() {
+            console.log('[SurgeHistory] Loading markets...');
             try {
-                const response = await fetch(`${window.location.origin}/api/admin/surge-history/markets`, {
+                const url = `${window.location.origin}/api/admin/surge-history/markets`;
+                console.log('[SurgeHistory] Fetching markets:', url);
+
+                const response = await fetch(url, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                         'Content-Type': 'application/json'
                     }
                 });
 
-                if (!response.ok) throw new Error('Failed to load markets');
+                console.log('[SurgeHistory] Markets response status:', response.status);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('[SurgeHistory] Markets error:', errorText);
+                    throw new Error('Failed to load markets');
+                }
 
                 const data = await response.json();
+                console.log('[SurgeHistory] Markets loaded:', data.markets.length, 'markets');
+
                 const marketSelect = document.getElementById('filter-market');
 
                 data.markets.forEach(m => {
@@ -516,12 +538,13 @@
                     marketSelect.appendChild(option);
                 });
             } catch (error) {
-                console.error('Failed to load markets:', error);
+                console.error('[SurgeHistory] Failed to load markets:', error);
             }
         }
 
         // Load data
         async function loadData() {
+            console.log('[SurgeHistory] Loading data...');
             try {
                 const params = new URLSearchParams({
                     page: currentPage,
@@ -529,12 +552,17 @@
                     ...filters
                 });
 
-                const response = await fetch(`${window.location.origin}/api/admin/surge-history?${params}`, {
+                const url = `${window.location.origin}/api/admin/surge-history?${params}`;
+                console.log('[SurgeHistory] Fetching:', url);
+
+                const response = await fetch(url, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                         'Content-Type': 'application/json'
                     }
                 });
+
+                console.log('[SurgeHistory] Response status:', response.status);
 
                 if (!response.ok) {
                     if (response.status === 401 || response.status === 403) {
@@ -542,10 +570,13 @@
                         window.location.href = '/dashboard.html';
                         return;
                     }
-                    throw new Error('Failed to load data');
+                    const errorText = await response.text();
+                    console.error('[SurgeHistory] Error response:', errorText);
+                    throw new Error(`Failed to load data: ${response.status}`);
                 }
 
                 const data = await response.json();
+                console.log('[SurgeHistory] Data loaded:', data);
 
                 // Update stats
                 updateStats(data.stats);
@@ -556,9 +587,11 @@
                 // Update pagination
                 updatePagination(data.pagination);
 
+                console.log('[SurgeHistory] UI updated successfully');
+
             } catch (error) {
-                console.error('Failed to load data:', error);
-                showError('데이터를 불러오는데 실패했습니다.');
+                console.error('[SurgeHistory] Failed to load data:', error);
+                showError('데이터를 불러오는데 실패했습니다: ' + error.message);
             }
         }
 
