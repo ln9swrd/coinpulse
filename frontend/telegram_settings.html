@@ -296,9 +296,28 @@
             return localStorage.getItem('access_token') || localStorage.getItem('auth_token');
         }
 
+        // Helper function to safely get element with retry
+        async function waitForElement(elementId, maxRetries = 10, delayMs = 100) {
+            for (let i = 0; i < maxRetries; i++) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    console.log(`[Telegram] Element '${elementId}' found on attempt ${i + 1}`);
+                    return element;
+                }
+                console.log(`[Telegram] Element '${elementId}' not found, retrying... (${i + 1}/${maxRetries})`);
+                await new Promise(resolve => setTimeout(resolve, delayMs));
+            }
+            console.error(`[Telegram] Element '${elementId}' not found after ${maxRetries} attempts`);
+            return null;
+        }
+
         // Show alert
         function showAlert(message, type = 'info') {
             const container = document.getElementById('alertContainer');
+            if (!container) {
+                console.warn('[Telegram] Alert container not found');
+                return;
+            }
             const alert = document.createElement('div');
             alert.className = `alert alert-${type}`;
             alert.textContent = message;
@@ -324,14 +343,21 @@
 
                 console.log('[Telegram] Status response:', response.status);
                 const data = await response.json();
+                console.log('[Telegram] Status data:', data);
+
+                // Wait for elements to be available
+                const statusSection = await waitForElement('statusSection');
+                if (!statusSection) {
+                    console.error('[Telegram] statusSection element not available');
+                    return;
+                }
 
                 if (!data.success) {
-                    document.getElementById('statusSection').innerHTML =
+                    statusSection.innerHTML =
                         `<div class="alert alert-error">오류: ${data.error}</div>`;
                     return;
                 }
 
-                const statusSection = document.getElementById('statusSection');
                 const linkSection = document.getElementById('linkSection');
                 const unlinkSection = document.getElementById('unlinkSection');
 
@@ -346,7 +372,7 @@
                             <div class="info-value">${data.linked_at ? new Date(data.linked_at).toLocaleString() : 'Unknown'}</div>
                         </div>
                     `;
-                    unlinkSection.classList.remove('hidden');
+                    if (unlinkSection) unlinkSection.classList.remove('hidden');
                 } else {
                     // Not linked
                     statusSection.innerHTML = `
@@ -355,12 +381,15 @@
                             Telegram 계정을 연동하여 실시간 트레이딩 시그널을 받으세요.
                         </p>
                     `;
-                    linkSection.classList.remove('hidden');
+                    if (linkSection) linkSection.classList.remove('hidden');
                 }
             } catch (error) {
                 console.error('Error loading link status:', error);
-                document.getElementById('statusSection').innerHTML =
-                    '<div class="alert alert-error">상태를 불러올 수 없습니다.</div>';
+                const statusSection = document.getElementById('statusSection');
+                if (statusSection) {
+                    statusSection.innerHTML =
+                        '<div class="alert alert-error">상태를 불러올 수 없습니다.</div>';
+                }
             }
         }
 
@@ -368,6 +397,10 @@
         async function generateCode() {
             console.log('[Telegram] Generating link code...');
             const btn = document.getElementById('generateCodeBtn');
+            if (!btn) {
+                console.error('[Telegram] generateCodeBtn element not found');
+                return;
+            }
             btn.disabled = true;
             btn.textContent = '코드 생성 중...';
 
@@ -389,8 +422,21 @@
                 }
 
                 // Display code
-                document.getElementById('linkCode').textContent = data.code;
-                document.getElementById('codeDisplay').classList.remove('hidden');
+                const linkCodeEl = document.getElementById('linkCode');
+                const codeDisplayEl = document.getElementById('codeDisplay');
+
+                if (linkCodeEl) {
+                    linkCodeEl.textContent = data.code;
+                } else {
+                    console.error('[Telegram] linkCode element not found');
+                }
+
+                if (codeDisplayEl) {
+                    codeDisplayEl.classList.remove('hidden');
+                } else {
+                    console.error('[Telegram] codeDisplay element not found');
+                }
+
                 btn.textContent = '새 코드 생성';
                 btn.disabled = false;
 
@@ -417,6 +463,10 @@
 
             console.log('[Telegram] Unlinking...');
             const btn = document.getElementById('unlinkBtn');
+            if (!btn) {
+                console.error('[Telegram] unlinkBtn element not found');
+                return;
+            }
             btn.disabled = true;
             btn.textContent = '연동 해제 중...';
 
@@ -461,9 +511,23 @@
             console.log('[Telegram] Auth token found, loading status');
             await loadLinkStatus();
 
-            // Setup event listeners
-            document.getElementById('generateCodeBtn').addEventListener('click', generateCode);
-            document.getElementById('unlinkBtn').addEventListener('click', unlinkTelegram);
+            // Setup event listeners with defensive checks
+            const generateBtn = document.getElementById('generateCodeBtn');
+            if (generateBtn) {
+                generateBtn.addEventListener('click', generateCode);
+                console.log('[Telegram] generateCodeBtn event listener attached');
+            } else {
+                console.warn('[Telegram] generateCodeBtn not found, event listener not attached');
+            }
+
+            const unlinkBtn = document.getElementById('unlinkBtn');
+            if (unlinkBtn) {
+                unlinkBtn.addEventListener('click', unlinkTelegram);
+                console.log('[Telegram] unlinkBtn event listener attached');
+            } else {
+                console.warn('[Telegram] unlinkBtn not found, event listener not attached');
+            }
+
             console.log('[Telegram] Initialization complete');
         }
 
