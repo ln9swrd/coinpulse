@@ -9,7 +9,8 @@
             'surge': 'surge_monitoring.html',
             'auto-trading': 'surge_auto_trading.html',  // Surge-based auto-trading settings
             'referral': 'referral.html',
-            'admin': 'admin.html'
+            'admin': 'admin.html',
+            'surge-history': 'surge_history.html'  // Surge prediction history (admin only)
             // Note: trading chart, surge, and auto-trading pages loaded via iframe
         };
 
@@ -106,7 +107,8 @@
                 'referral': '친구 초대하기',
                 'pricing': '요금제',
                 'settings': '설정',
-                'admin': '관리자'
+                'admin': '관리자',
+                'surge-history': '급등예측 이력'
             };
 
             if (pageTitleEl && titles[pageName]) {

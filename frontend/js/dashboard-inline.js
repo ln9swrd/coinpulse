@@ -154,6 +154,7 @@
                             // Sidebar admin section
                             const adminSectionTitle = document.getElementById('admin-section-title');
                             const adminMenuLink = document.getElementById('admin-menu-link');
+                            const surgeHistoryMenuLink = document.getElementById('surge-history-menu-link');
                             if (adminSectionTitle) {
                                 adminSectionTitle.style.display = 'block';
                                 console.log('[Dashboard] Admin section title shown');
@@ -165,6 +166,12 @@
                                 console.log('[Dashboard] Admin sidebar link shown');
                             } else {
                                 console.warn('[Dashboard] Admin sidebar link element not found!');
+                            }
+                            if (surgeHistoryMenuLink) {
+                                surgeHistoryMenuLink.style.display = 'flex';
+                                console.log('[Dashboard] Surge history sidebar link shown');
+                            } else {
+                                console.warn('[Dashboard] Surge history sidebar link element not found!');
                             }
 
                             console.log('[Dashboard] Admin menus enabled for:', user.email);
