@@ -4,18 +4,18 @@ User Signals Routes
 사용자 시그널 히스토리 및 관리 API
 """
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, g
 from datetime import datetime, timedelta
 from backend.database.connection import get_db_session
 from backend.models.trading_signal import TradingSignal, UserSignalHistory, ExecutionStatus, SignalStatus
-from backend.utils.auth_utils import require_auth as token_required
+from backend.middleware.auth_middleware import require_auth
 
 user_signals_bp = Blueprint('user_signals', __name__)
 
 
 @user_signals_bp.route('/api/user/signals', methods=['GET'])
-@token_required
-def get_user_signals(current_user):
+@require_auth
+def get_user_signals():
     """
     Get user's signal history
 
@@ -42,7 +42,7 @@ def get_user_signals(current_user):
         }
     """
     try:
-        user_id = current_user.id
+        user_id = g.user_id
         status_filter = request.args.get('status', 'all')
         limit = int(request.args.get('limit', 50))
         offset = int(request.args.get('offset', 0))
@@ -130,8 +130,8 @@ def get_user_signals(current_user):
 
 
 @user_signals_bp.route('/api/user/signals/stats', methods=['GET'])
-@token_required
-def get_user_signal_stats(current_user):
+@require_auth
+def get_user_signal_stats():
     """
     Get user's signal statistics
 
@@ -152,7 +152,7 @@ def get_user_signal_stats(current_user):
         }
     """
     try:
-        user_id = current_user.id
+        user_id = g.user_id
         session = get_db_session()
 
         # Total received
@@ -227,8 +227,8 @@ def get_user_signal_stats(current_user):
 
 
 @user_signals_bp.route('/api/user/signals/<int:history_id>/execute', methods=['POST'])
-@token_required
-def execute_signal(current_user, history_id):
+@require_auth
+def execute_signal(history_id):
     """
     Execute a trading signal (simulate order placement).
 
@@ -246,7 +246,7 @@ def execute_signal(current_user, history_id):
         }
     """
     try:
-        user_id = current_user.id
+        user_id = g.user_id
         data = request.json or {}
 
         session = get_db_session()
@@ -321,8 +321,8 @@ def execute_signal(current_user, history_id):
 
 
 @user_signals_bp.route('/api/user/signals/<int:history_id>/close', methods=['POST'])
-@token_required
-def close_signal_position(current_user, history_id):
+@require_auth
+def close_signal_position(history_id):
     """
     Close a signal position and record profit/loss.
 
@@ -342,7 +342,7 @@ def close_signal_position(current_user, history_id):
         }
     """
     try:
-        user_id = current_user.id
+        user_id = g.user_id
         data = request.json or {}
 
         close_price = data.get('close_price')
@@ -412,8 +412,8 @@ def close_signal_position(current_user, history_id):
 
 
 @user_signals_bp.route('/api/user/signals/<int:history_id>/performance', methods=['GET'])
-@token_required
-def get_signal_performance(current_user, history_id):
+@require_auth
+def get_signal_performance(history_id):
     """
     Get real-time performance of an executed signal.
 
@@ -436,7 +436,7 @@ def get_signal_performance(current_user, history_id):
         }
     """
     try:
-        user_id = current_user.id
+        user_id = g.user_id
         session = get_db_session()
 
         # Get the signal history
