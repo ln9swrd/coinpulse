@@ -120,7 +120,7 @@ class SurgeAlertScheduler:
 
     def save_to_database(self, candidate: Dict):
         """
-        Save surge alert to database
+        Save surge alert to database with entry/target/stop-loss prices
 
         Args:
             candidate: Surge candidate data
@@ -134,16 +134,25 @@ class SurgeAlertScheduler:
                 # Extract coin from market (e.g., "KRW-BTC" -> "BTC")
                 coin = candidate['market'].split('-')[1] if '-' in candidate['market'] else candidate['market']
 
+                # Calculate prices
+                current_price = int(candidate.get('current_price', 0))
+                entry_price = current_price  # Entry price = current price at prediction time
+                target_price = int(candidate.get('target_price', current_price * 1.05))  # Default: +5%
+                stop_loss_price = int(current_price * 0.95)  # Default: -5% stop loss
+                expected_return = candidate.get('expected_return', 0.05)
+
                 # Prepare alert data
                 query = text("""
                     INSERT INTO surge_alerts (
                         user_id, market, coin, confidence, signal_type,
-                        current_price, target_price, expected_return, reason,
-                        alert_message, telegram_sent, sent_at, week_number, auto_traded
+                        current_price, entry_price, target_price, stop_loss_price,
+                        expected_return, reason, alert_message, telegram_sent,
+                        sent_at, week_number, auto_traded, status
                     ) VALUES (
                         :user_id, :market, :coin, :confidence, :signal_type,
-                        :current_price, :target_price, :expected_return, :reason,
-                        :alert_message, :telegram_sent, :sent_at, :week_number, :auto_traded
+                        :current_price, :entry_price, :target_price, :stop_loss_price,
+                        :expected_return, :reason, :alert_message, :telegram_sent,
+                        :sent_at, :week_number, :auto_traded, :status
                     )
                 """)
 
@@ -154,21 +163,25 @@ class SurgeAlertScheduler:
                     'coin': coin,
                     'confidence': candidate['score'] / 100.0,  # Convert score to 0-1 range
                     'signal_type': 'surge',
-                    'current_price': int(candidate.get('current_price', 0)),
-                    'target_price': int(candidate.get('target_price', 0)),
-                    'expected_return': candidate.get('expected_return', 0.0),
+                    'current_price': current_price,
+                    'entry_price': entry_price,
+                    'target_price': target_price,
+                    'stop_loss_price': stop_loss_price,
+                    'expected_return': expected_return,
                     'reason': candidate.get('reason', ''),
                     'alert_message': f"급등 예측: {candidate['market']} (신뢰도: {candidate['score']}점)",
                     'telegram_sent': True,
                     'sent_at': now,
                     'week_number': week_number,
-                    'auto_traded': False
+                    'auto_traded': False,
+                    'status': 'pending'  # Initial status
                 }
 
                 session.execute(query, params)
                 session.commit()
 
-                logger.info(f"[SurgeAlertScheduler] Saved to DB: {candidate['market']}")
+                logger.info(f"[SurgeAlertScheduler] Saved to DB: {candidate['market']} "
+                           f"(Entry: {entry_price:,}원, Target: {target_price:,}원, Stop: {stop_loss_price:,}원)")
 
         except Exception as e:
             logger.error(f"[SurgeAlertScheduler] Failed to save to DB: {e}")

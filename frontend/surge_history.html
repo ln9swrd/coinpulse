@@ -422,8 +422,10 @@
                         <label>상태</label>
                         <select id="filter-status">
                             <option value="">전체</option>
-                            <option value="active">Active</option>
-                            <option value="closed">Closed</option>
+                            <option value="pending">Pending (진행중)</option>
+                            <option value="win">Win (수익)</option>
+                            <option value="lose">Lose (손실)</option>
+                            <option value="backtest">Backtest (백테스트)</option>
                         </select>
                     </div>
                     <div class="filter-group">
@@ -631,10 +633,9 @@
                             <th>ID</th>
                             <th>마켓</th>
                             <th>신뢰도</th>
-                            <th>현재가</th>
+                            <th>진입가</th>
                             <th>목표가</th>
-                            <th>기대수익률</th>
-                            <th>자동거래</th>
+                            <th>손절가</th>
                             <th>상태</th>
                             <th>손익</th>
                             <th>발송시간</th>
@@ -645,30 +646,33 @@
 
             data.forEach(alert => {
                 const confidence = (alert.confidence * 100).toFixed(1);
-                const expectedReturn = alert.expected_return ? (alert.expected_return * 100).toFixed(1) : '-';
                 const profitLoss = alert.profit_loss || 0;
-                const profitLossPercent = alert.profit_loss_percent ? alert.profit_loss_percent.toFixed(2) : '-';
+                const profitLossPercent = alert.profit_loss_percent ? alert.profit_loss_percent.toFixed(2) : '0.00';
+
+                // Status badge color
+                let statusBadge = 'badge-secondary';
+                let statusText = alert.status || 'N/A';
+                if (alert.status === 'win') statusBadge = 'badge-success';
+                else if (alert.status === 'lose') statusBadge = 'badge-danger';
+                else if (alert.status === 'pending') statusBadge = 'badge-info';
+                else if (alert.status === 'backtest') statusBadge = 'badge-warning';
 
                 html += `
                     <tr onclick="viewDetail(${alert.id})" style="cursor: pointer;">
                         <td>${alert.id}</td>
                         <td><strong>${alert.market}</strong></td>
                         <td>${confidence}%</td>
-                        <td>${alert.current_price ? alert.current_price.toLocaleString() : '-'}</td>
-                        <td>${alert.target_price ? alert.target_price.toLocaleString() : '-'}</td>
-                        <td>${expectedReturn}%</td>
+                        <td>${alert.entry_price ? alert.entry_price.toLocaleString() + '원' : '-'}</td>
+                        <td style="color: #10b981; font-weight: 600;">${alert.target_price ? alert.target_price.toLocaleString() + '원' : '-'}</td>
+                        <td style="color: #ef4444; font-weight: 600;">${alert.stop_loss_price ? alert.stop_loss_price.toLocaleString() + '원' : '-'}</td>
                         <td>
-                            <span class="badge ${alert.auto_traded ? 'badge-info' : 'badge-warning'}">
-                                ${alert.auto_traded ? '자동' : '수동'}
-                            </span>
-                        </td>
-                        <td>
-                            <span class="badge ${alert.status === 'closed' ? 'badge-success' : 'badge-info'}">
-                                ${alert.status || 'N/A'}
+                            <span class="badge ${statusBadge}">
+                                ${statusText}
                             </span>
                         </td>
                         <td style="color: ${profitLoss >= 0 ? '#10b981' : '#ef4444'}; font-weight: 600;">
-                            ${profitLoss >= 0 ? '+' : ''}${profitLoss.toLocaleString()} (${profitLossPercent}%)
+                            ${profitLoss !== 0 ? (profitLoss >= 0 ? '+' : '') + profitLoss.toLocaleString() + '원' : '-'}
+                            ${profitLoss !== 0 ? ' (' + (profitLoss >= 0 ? '+' : '') + profitLossPercent + '%)' : ''}
                         </td>
                         <td>${new Date(alert.sent_at).toLocaleString('ko-KR')}</td>
                     </tr>
