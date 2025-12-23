@@ -400,11 +400,11 @@ def setup_security_middleware(app):
         if os.getenv('ENV') == 'production':
             response.headers['Content-Security-Policy'] = (
                 "default-src 'self'; "
-                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com https://apis.google.com; "
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com https://apis.google.com https://static.cloudflareinsights.com; "
                 "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://accounts.google.com https://fonts.googleapis.com; "
                 "img-src 'self' data: https:; "
                 "font-src 'self' data: https://fonts.gstatic.com; "
-                "connect-src 'self' https://api.upbit.com wss://api.upbit.com https://accounts.google.com https://oauth2.googleapis.com; "
+                "connect-src 'self' https://api.upbit.com wss://api.upbit.com https://accounts.google.com https://oauth2.googleapis.com https://cloudflareinsights.com; "
                 "frame-src 'self' https://accounts.google.com; "
                 "frame-ancestors 'self';"  # Allow iframe from same origin
             )
