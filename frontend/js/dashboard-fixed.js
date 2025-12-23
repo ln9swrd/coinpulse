@@ -990,10 +990,14 @@
                         <!-- Favorite Coins Tab -->
                         <div class="settings-tab-content" data-tab-content="trading">
                             <div class="settings-section">
-                                <h2>관심 코인 설정</h2>
+                                <h2>투자조언 알림 설정</h2>
                                 <p style="color: var(--text-muted); margin-bottom: 20px;">
-                                    급등 알림을 우선적으로 받을 코인을 선택하세요. 선택한 코인의 급등 신호가 감지되면 텔레그램으로 알림을 받습니다.
+                                    선택한 코인에 대한 AI 투자 조언을 받을 수 있습니다. 매수/매도 타이밍, 목표가, 손절가 등을 분석하여 텔레그램으로 알림을 보내드립니다.
                                 </p>
+                                <div class="info-alert" style="background: #f0f9ff; border-left: 4px solid #3b82f6; padding: 12px 16px; margin-bottom: 20px; border-radius: 6px;">
+                                    <strong style="color: #1e40af;">💡 참고:</strong>
+                                    <span style="color: #1e40af; font-size: 14px;">투자조언 알림은 알림만 제공하며, 자동 매수되지 않습니다. 자동 매수는 "자동매매 설정"에서 별도로 설정하세요.</span>
+                                </div>
 
                                 <!-- Coin Selection Section -->
                                 <div class="coin-selector-section">
