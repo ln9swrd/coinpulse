@@ -899,13 +899,32 @@
                 // Get coin info
                 const coinInfo = getCoinInfo(alert.coin);
 
-                // Status badge color
+                // Status badge color and text
                 let statusBadge = 'badge-secondary';
-                let statusText = alert.status || 'N/A';
-                if (alert.status === 'win') statusBadge = 'badge-success';
-                else if (alert.status === 'lose') statusBadge = 'badge-danger';
-                else if (alert.status === 'pending') statusBadge = 'badge-info';
-                else if (alert.status === 'backtest') statusBadge = 'badge-warning';
+                let statusText = 'N/A';
+                let statusIcon = '';
+
+                if (alert.status === 'win') {
+                    statusBadge = 'badge-success';
+                    statusText = '수익';
+                    statusIcon = '✅';
+                } else if (alert.status === 'lose') {
+                    statusBadge = 'badge-danger';
+                    statusText = '손실';
+                    statusIcon = '❌';
+                } else if (alert.status === 'pending') {
+                    statusBadge = 'badge-info';
+                    statusText = '진행중';
+                    statusIcon = '⏳';
+                } else if (alert.status === 'neutral') {
+                    statusBadge = 'badge-secondary';
+                    statusText = '중립';
+                    statusIcon = '⚪';
+                } else if (alert.status === 'backtest') {
+                    statusBadge = 'badge-warning';
+                    statusText = '백테스트';
+                    statusIcon = '📊';
+                }
 
                 html += `
                     <tr onclick="viewDetail(${alert.id})" style="cursor: pointer;">
@@ -927,7 +946,7 @@
                         <td style="color: #ef4444; font-weight: 600;">${alert.stop_loss_price ? alert.stop_loss_price.toLocaleString() + '원' : '-'}</td>
                         <td>
                             <span class="badge ${statusBadge}">
-                                ${statusText}
+                                ${statusIcon} ${statusText}
                             </span>
                         </td>
                         <td style="color: ${profitLoss >= 0 ? '#10b981' : '#ef4444'}; font-weight: 600;">
