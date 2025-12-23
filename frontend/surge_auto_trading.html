@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>급등 예측 자동 매매 - CoinPulse</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .plan-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 20px;
+            color: #1e293b;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #1e293b;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group small {
+            display: block;
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 52px;
+            height: 28px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: 0.3s;
+            border-radius: 28px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: #667eea;
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .restriction-notice {
+            background: #fef3c7;
+            border: 2px solid #fbbf24;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .restriction-notice h3 {
+            color: #92400e;
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+
+        .restriction-notice p {
+            color: #78350f;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .stat-card {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-card .label {
+            color: #64748b;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .value {
+            color: #1e293b;
+            font-size: 24px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 급등 예측 자동 매매</h1>
+            <p>급등 신호 감지 시 자동으로 매수하는 스마트 트레이딩 시스템</p>
+            <div id="plan-badge" class="plan-badge" style="display: none;"></div>
+        </div>
+
+        <div id="alert-container"></div>
+
+        <!-- Restriction Notice -->
+        <div id="restriction-notice" style="display: none;">
+            <div class="card restriction-notice">
+                <h3>🔒 자동 매매는 유료 플랜 기능입니다</h3>
+                <p id="restriction-message"></p>
+                <button class="btn btn-primary" onclick="window.open('#pricing', '_parent')">
+                    💎 요금제 업그레이드
+                </button>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div id="stats-section" class="card" style="display: none;">
+            <h2>📊 자동 매매 통계</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="label">이번 주 자동 매매</div>
+                    <div class="value" id="stat-week-count">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">전체 거래</div>
+                    <div class="value" id="stat-total-trades">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">성공률</div>
+                    <div class="value" id="stat-success-rate">0%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">누적 손익</div>
+                    <div class="value" id="stat-total-pl">0원</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings -->
+        <div id="settings-section" style="display: none;">
+            <!-- Enable/Disable -->
+            <div class="card">
+                <h2>⚡ 자동 매매 활성화</h2>
+                <div class="toggle-group">
+                    <div>
+                        <label style="margin: 0; font-size: 15px;">자동 매매 실행</label>
+                        <small style="display: block; margin-top: 4px;">급등 신호 감지 시 자동으로 매수합니다</small>
+                    </div>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="enabled">
+                        <span class="toggle-slider"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Budget Settings -->
+            <div class="card">
+                <h2>💰 예산 설정</h2>
+                <div class="form-group">
+                    <label for="total-budget">총 예산 (KRW)</label>
+                    <input type="number" id="total-budget" value="1000000" min="100000" step="100000">
+                    <small>자동 매매에 사용할 총 예산</small>
+                </div>
+                <div class="form-group">
+                    <label for="amount-per-trade">1회 투자 금액 (KRW)</label>
+                    <input type="number" id="amount-per-trade" value="100000" min="10000" step="10000">
+                    <small>급등 신호당 매수할 금액</small>
+                </div>
+            </div>
+
+            <!-- Risk Management -->
+            <div class="card">
+                <h2>🛡️ 리스크 관리</h2>
+                <div class="form-group">
+                    <label for="risk-level">위험 수준</label>
+                    <select id="risk-level">
+                        <option value="conservative">보수적 (낮은 리스크)</option>
+                        <option value="moderate" selected>균형 (중간 리스크)</option>
+                        <option value="aggressive">공격적 (높은 리스크)</option>
+                    </select>
+                </div>
+
+                <div class="toggle-group">
+                    <label>손절매 활성화</label>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="stop-loss-enabled" checked>
+                        <span class="toggle-slider"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="stop-loss-percent">손절 비율 (%)</label>
+                    <input type="number" id="stop-loss-percent" value="-5" max="0" step="0.5">
+                    <small>매수가 대비 손실 시 자동 매도</small>
+                </div>
+
+                <div class="toggle-group">
+                    <label>익절매 활성화</label>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="take-profit-enabled" checked>
+                        <span class="toggle-slider"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="take-profit-percent">익절 비율 (%)</label>
+                    <input type="number" id="take-profit-percent" value="10" min="1" step="0.5">
+                    <small>매수가 대비 수익 시 자동 매도</small>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="card">
+                <h2>🎯 필터링 옵션</h2>
+                <div class="form-group">
+                    <label for="min-confidence">최소 신뢰도 (%)</label>
+                    <input type="number" id="min-confidence" value="80" min="60" max="100" step="1">
+                    <small>이 신뢰도 이상의 신호만 자동 매수</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="max-positions">최대 보유 포지션</label>
+                    <input type="number" id="max-positions" value="5" min="1" max="20" step="1">
+                    <small>동시에 보유할 수 있는 최대 코인 수</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="excluded-coins">제외할 코인 (쉼표로 구분)</label>
+                    <input type="text" id="excluded-coins" placeholder="DOGE, SHIB">
+                    <small>자동 매수에서 제외할 코인 심볼</small>
+                </div>
+            </div>
+
+            <!-- Notifications -->
+            <div class="card">
+                <h2>🔔 알림 설정</h2>
+                <div class="toggle-group">
+                    <div>
+                        <label style="margin: 0; font-size: 15px;">텔레그램 알림</label>
+                        <small style="display: block; margin-top: 4px;">자동 매수 실행 시 텔레그램으로 알림</small>
+                    </div>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="telegram-enabled" checked>
+                        <span class="toggle-slider"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="card">
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="saveSettings()">💾 설정 저장</button>
+                    <button class="btn btn-secondary" onclick="location.reload()">🔄 새로고침</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+
+        function getAuthToken() {
+            return localStorage.getItem('access_token');
+        }
+
+        function showAlert(message, type = 'info') {
+            const container = document.getElementById('alert-container');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            container.appendChild(alert);
+
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        async function loadSettings() {
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/surge/auto-trading/settings`, {
+                    headers: {'Authorization': `Bearer ${token}`}
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to load settings');
+                }
+
+                // Check plan limits
+                const { plan_limits } = data;
+                const planBadge = document.getElementById('plan-badge');
+
+                const planNames = {
+                    'free': '무료 플랜',
+                    'basic': '베이직 플랜',
+                    'pro': '프로 플랜',
+                    'enterprise': '엔터프라이즈 플랜'
+                };
+
+                const planColors = {
+                    'free': '#94a3b8',
+                    'basic': '#3b82f6',
+                    'pro': '#8b5cf6',
+                    'enterprise': '#f59e0b'
+                };
+
+                planBadge.textContent = planNames[plan_limits.plan] || plan_limits.plan;
+                planBadge.style.background = planColors[plan_limits.plan] || '#gray';
+                planBadge.style.color = 'white';
+                planBadge.style.display = 'inline-block';
+
+                // Check if user can use auto-trading
+                if (!plan_limits.can_use) {
+                    document.getElementById('restriction-notice').style.display = 'block';
+                    document.getElementById('restriction-message').textContent =
+                        '무료 플랜에서는 자동 매매 기능을 사용할 수 없습니다. Basic 플랜 이상으로 업그레이드하세요.';
+                    return;
+                }
+
+                // Load settings
+                const settings = data.settings;
+
+                document.getElementById('enabled').checked = settings.enabled;
+                document.getElementById('total-budget').value = settings.total_budget;
+                document.getElementById('amount-per-trade').value = settings.amount_per_trade;
+                document.getElementById('risk-level').value = settings.risk_level || 'moderate';
+                document.getElementById('stop-loss-enabled').checked = settings.stop_loss_enabled;
+                document.getElementById('stop-loss-percent').value = settings.stop_loss_percent;
+                document.getElementById('take-profit-enabled').checked = settings.take_profit_enabled;
+                document.getElementById('take-profit-percent').value = settings.take_profit_percent;
+                document.getElementById('min-confidence').value = settings.min_confidence;
+                document.getElementById('max-positions').value = settings.max_positions;
+                document.getElementById('excluded-coins').value = (settings.excluded_coins || []).join(', ');
+                document.getElementById('telegram-enabled').checked = settings.telegram_enabled;
+
+                // Show stats
+                document.getElementById('stat-total-trades').textContent = settings.total_trades || 0;
+                document.getElementById('stat-success-rate').textContent =
+                    settings.success_rate ? `${settings.success_rate.toFixed(1)}%` : '0%';
+                document.getElementById('stat-total-pl').textContent =
+                    (settings.total_profit_loss || 0).toLocaleString() + '원';
+
+                // Show sections
+                document.getElementById('settings-section').style.display = 'block';
+                document.getElementById('stats-section').style.display = 'block';
+
+            } catch (error) {
+                console.error('Load settings error:', error);
+                showAlert('설정 불러오기 실패: ' + error.message, 'error');
+            }
+        }
+
+        async function saveSettings() {
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            try {
+                const excludedCoins = document.getElementById('excluded-coins').value
+                    .split(',')
+                    .map(c => c.trim().toUpperCase())
+                    .filter(c => c);
+
+                const settings = {
+                    enabled: document.getElementById('enabled').checked,
+                    total_budget: parseInt(document.getElementById('total-budget').value),
+                    amount_per_trade: parseInt(document.getElementById('amount-per-trade').value),
+                    risk_level: document.getElementById('risk-level').value,
+                    stop_loss_enabled: document.getElementById('stop-loss-enabled').checked,
+                    stop_loss_percent: parseFloat(document.getElementById('stop-loss-percent').value),
+                    take_profit_enabled: document.getElementById('take-profit-enabled').checked,
+                    take_profit_percent: parseFloat(document.getElementById('take-profit-percent').value),
+                    min_confidence: parseFloat(document.getElementById('min-confidence').value),
+                    max_positions: parseInt(document.getElementById('max-positions').value),
+                    excluded_coins: excludedCoins,
+                    telegram_enabled: document.getElementById('telegram-enabled').checked
+                };
+
+                const response = await fetch(`${API_BASE}/api/surge/auto-trading/settings`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(settings)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('✅ 설정이 저장되었습니다', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    throw new Error(data.error || 'Failed to save settings');
+                }
+
+            } catch (error) {
+                console.error('Save settings error:', error);
+                showAlert('❌ 설정 저장 실패: ' + error.message, 'error');
+            }
+        }
+
+        // Initialize
+        loadSettings();
+    </script>
+</body>
+</html>

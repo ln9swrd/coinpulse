@@ -691,6 +691,21 @@ def init_background_services():
     except Exception as e:
         logger.error(f"Failed to start backup scheduler: {e}")
 
+    # Initialize surge auto-trading worker (Phase 8 v2.0)
+    try:
+        from backend.services.surge_auto_trading_worker import get_auto_trading_worker
+
+        # 5 minutes interval (300 seconds)
+        auto_trading_worker = get_auto_trading_worker(check_interval=300)
+        auto_trading_worker.start()
+
+        # Store reference for later use
+        app.auto_trading_worker = auto_trading_worker
+
+        logger.info("Surge auto-trading worker started (5-minute check interval)")
+    except Exception as e:
+        logger.error(f"Failed to start auto-trading worker: {e}")
+
     # Initialize Telegram alert bot (Optional - requires TELEGRAM_BOT_TOKEN)
     telegram_bot = None
     try:

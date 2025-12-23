@@ -475,13 +475,13 @@
                 <!-- 자동화 섹션 -->
                 <div class="nav-section-title">자동화</div>
 
-                <!-- 자동 거래 메뉴 임시 숨김 (2025-12-23) -->
-                <!-- <a href="#auto-trading" class="nav-item" data-page="auto-trading">
+                <!-- 자동 거래 (급등 예측 기반) - Phase 8 v2.0 -->
+                <a href="#auto-trading" class="nav-item" data-page="auto-trading">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
                     </svg>
                     <span>자동 거래</span>
-                </a> -->
+                </a>
 
                 <!-- 실시간 모니터링 - 일시적으로 숨김
                 <a href="#realtime" class="nav-item" data-page="realtime">
@@ -1713,10 +1713,10 @@
             'trading': 'trading_chart.html',
             'realtime': 'realtime_dashboard.html',
             'surge': 'surge_monitoring.html',
-            'auto-trading-settings': 'auto_trading_settings.html',
+            'auto-trading': 'surge_auto_trading.html',  // Surge-based auto-trading settings
             'referral': 'referral.html',
             'admin': 'admin.html'
-            // Note: trading chart loaded via PageLoader (full-width layout)
+            // Note: trading chart, surge, and auto-trading pages loaded via iframe
         };
 
         // Get content container
@@ -1737,9 +1737,11 @@
 
             try {
                 // Special handling for pages that need iframe (to prevent CSS conflicts and enable JS execution)
-                if (pageName === 'trading' || pageName === 'surge') {
+                if (pageName === 'trading' || pageName === 'surge' || pageName === 'auto-trading') {
                     const pageUrl = `${window.location.origin}/${filePath}`;
-                    const iframeId = pageName === 'trading' ? 'trading-chart-iframe' : 'surge-monitoring-iframe';
+                    const iframeId = pageName === 'trading' ? 'trading-chart-iframe' :
+                                     pageName === 'surge' ? 'surge-monitoring-iframe' :
+                                     'auto-trading-iframe';
                     console.log(`[Dashboard] Loading ${pageName} page via iframe:`, pageUrl);
 
                     contentContainer.innerHTML = `
