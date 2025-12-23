@@ -449,9 +449,77 @@
                 </div>
             </div>
 
+            <!-- Dynamic Target Price Settings -->
+            <div class="card">
+                <h2>🎯 동적 목표가 설정</h2>
+
+                <div class="toggle-group">
+                    <div>
+                        <label style="margin: 0; font-size: 15px;">동적 목표가 사용</label>
+                        <small style="display: block; margin-top: 4px;">신호 강도에 따라 목표가를 자동으로 조정합니다</small>
+                    </div>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="use-dynamic-target" checked onchange="toggleDynamicTargetOptions()">
+                        <span class="toggle-slider"></span>
+                    </div>
+                </div>
+
+                <div id="dynamic-target-options" style="display: block;">
+                    <div class="form-group">
+                        <label for="target-calculation-mode">목표가 계산 모드</label>
+                        <select id="target-calculation-mode" onchange="updateTargetModeDescription()">
+                            <option value="dynamic">동적 모드 (신호 강도 기반)</option>
+                            <option value="fixed">고정 모드 (고정 비율)</option>
+                            <option value="hybrid">하이브리드 모드 (혼합)</option>
+                        </select>
+                        <small id="mode-description">신호 강도에 따라 5~18% 범위에서 자동 계산됩니다</small>
+                    </div>
+
+                    <div class="form-group" id="min-target-group">
+                        <label for="min-target-percent">최소 목표 수익률 (%)</label>
+                        <input type="number" id="min-target-percent" value="5.0" min="1" max="50" step="0.5">
+                        <small>약한 신호의 최소 목표 수익률</small>
+                    </div>
+
+                    <div class="form-group" id="max-target-group">
+                        <label for="max-target-percent">최대 목표 수익률 (%)</label>
+                        <input type="number" id="max-target-percent" value="18.0" min="5" max="100" step="0.5">
+                        <small>강한 신호의 최대 목표 수익률</small>
+                    </div>
+
+                    <!-- Target Price Preview -->
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-top: 20px;">
+                        <div style="font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 16px;">
+                            📊 목표가 시뮬레이션 (진입가: 100,000원 기준)
+                        </div>
+                        <div style="font-size: 13px; color: #64748b; line-height: 2.0;">
+                            <div id="preview-weak" style="display: flex; justify-content: space-between; padding: 8px; background: white; border-radius: 6px; margin-bottom: 8px;">
+                                <span>약한 신호 (62점)</span>
+                                <span style="color: #f59e0b; font-weight: 600;">목표: 107,390원 (+7.4%)</span>
+                            </div>
+                            <div id="preview-medium" style="display: flex; justify-content: space-between; padding: 8px; background: white; border-radius: 6px; margin-bottom: 8px;">
+                                <span>중간 신호 (75점)</span>
+                                <span style="color: #3b82f6; font-weight: 600;">목표: 111,090원 (+11.1%)</span>
+                            </div>
+                            <div id="preview-strong" style="display: flex; justify-content: space-between; padding: 8px; background: white; border-radius: 6px; margin-bottom: 8px;">
+                                <span>강한 신호 (83점)</span>
+                                <span style="color: #8b5cf6; font-weight: 600;">목표: 114,100원 (+14.1%)</span>
+                            </div>
+                            <div id="preview-very-strong" style="display: flex; justify-content: space-between; padding: 8px; background: white; border-radius: 6px;">
+                                <span>매우 강한 신호 (92점)</span>
+                                <span style="color: #10b981; font-weight: 600;">목표: 116,660원 (+16.7%)</span>
+                            </div>
+                        </div>
+                        <div style="font-size: 12px; color: #94a3b8; margin-top: 12px; line-height: 1.5;">
+                            💡 <strong>알고리즘:</strong> 기본 5% + 신뢰도 보너스(0-3%) + 모멘텀 보너스(0-5%) + 거래량 보너스(0-2%) + 추세 보너스(0-3%)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Filters -->
             <div class="card">
-                <h2>🎯 필터링 옵션</h2>
+                <h2>🔍 필터링 옵션</h2>
                 <div class="form-group">
                     <label for="min-confidence">최소 신뢰도 (%)</label>
                     <input type="number" id="min-confidence" value="80" min="60" max="100" step="1">
@@ -582,6 +650,36 @@
             }
         }
 
+        function toggleDynamicTargetOptions() {
+            const useDynamic = document.getElementById('use-dynamic-target').checked;
+            const dynamicOptions = document.getElementById('dynamic-target-options');
+            dynamicOptions.style.display = useDynamic ? 'block' : 'none';
+        }
+
+        function updateTargetModeDescription() {
+            const mode = document.getElementById('target-calculation-mode').value;
+            const description = document.getElementById('mode-description');
+            const minTargetGroup = document.getElementById('min-target-group');
+            const maxTargetGroup = document.getElementById('max-target-group');
+
+            const descriptions = {
+                'dynamic': '신호 강도에 따라 최소~최대 범위에서 자동 계산됩니다',
+                'fixed': '고정 익절 비율을 사용합니다 (위 익절 비율 설정 참고)',
+                'hybrid': '고정 익절 비율과 동적 목표가의 평균을 사용합니다'
+            };
+
+            description.textContent = descriptions[mode];
+
+            // Show/hide min/max target fields based on mode
+            if (mode === 'fixed') {
+                minTargetGroup.style.display = 'none';
+                maxTargetGroup.style.display = 'none';
+            } else {
+                minTargetGroup.style.display = 'block';
+                maxTargetGroup.style.display = 'block';
+            }
+        }
+
         async function loadSettings() {
             const token = getAuthToken();
 
@@ -685,6 +783,14 @@
                 document.getElementById('max-amount-per-coin').value = settings.max_amount_per_coin || 500000;
                 togglePositionStrategyOptions();
 
+                // Load dynamic target settings
+                document.getElementById('use-dynamic-target').checked = settings.use_dynamic_target !== false;  // Default true
+                document.getElementById('target-calculation-mode').value = settings.target_calculation_mode || 'dynamic';
+                document.getElementById('min-target-percent').value = settings.min_target_percent || 5.0;
+                document.getElementById('max-target-percent').value = settings.max_target_percent || 18.0;
+                toggleDynamicTargetOptions();
+                updateTargetModeDescription();
+
                 // Show stats
                 document.getElementById('stat-total-trades').textContent = settings.total_trades || 0;
                 document.getElementById('stat-success-rate').textContent =
@@ -732,7 +838,11 @@
                     telegram_enabled: document.getElementById('telegram-enabled').checked,
                     position_strategy: document.getElementById('position-strategy').value,
                     allow_duplicate_positions: document.getElementById('allow-duplicate-positions').checked,
-                    max_amount_per_coin: parseInt(document.getElementById('max-amount-per-coin').value)
+                    max_amount_per_coin: parseInt(document.getElementById('max-amount-per-coin').value),
+                    use_dynamic_target: document.getElementById('use-dynamic-target').checked,
+                    target_calculation_mode: document.getElementById('target-calculation-mode').value,
+                    min_target_percent: parseFloat(document.getElementById('min-target-percent').value),
+                    max_target_percent: parseFloat(document.getElementById('max-target-percent').value)
                 };
 
                 const response = await fetch(`${API_BASE}/api/surge/auto-trading/settings`, {
