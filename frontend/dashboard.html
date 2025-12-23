@@ -477,10 +477,15 @@
 
                 <!-- 자동 거래 (급등 예측 기반) - Phase 8 v2.0 -->
                 <a href="#auto-trading" class="nav-item" data-page="auto-trading">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        <circle cx="9" cy="11" r="1"></circle>
+                        <circle cx="15" cy="11" r="1"></circle>
+                        <path d="M9 15h6"></path>
                     </svg>
-                    <span>자동 거래</span>
+                    <span>급등 예측 자동 매매</span>
+                    <span class="badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 8px;">NEW</span>
                 </a>
 
                 <!-- 실시간 모니터링 - 일시적으로 숨김
@@ -1803,7 +1808,7 @@
                 'trading': '거래 차트',
                 'portfolio': '포트폴리오',
                 'history': '거래 내역',
-                'auto-trading': '자동 거래',
+                'auto-trading': '급등 예측 자동 매매',
                 'realtime': '실시간 모니터링',
                 'surge': '급등 예측',
                 'signals': '내 시그널',
