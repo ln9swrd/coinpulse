@@ -348,9 +348,17 @@ WorkingTradingChart.prototype.updateAvailableBalances = async function() {
     try {
         // Get JWT token from localStorage
         const accessToken = localStorage.getItem('access_token');
+        console.log('[ManualOrders] Access token check:', accessToken ? 'EXISTS (length: ' + accessToken.length + ')' : 'NULL - USER NOT LOGGED IN!');
+
         const headers = {};
         if (accessToken) {
             headers['Authorization'] = `Bearer ${accessToken}`;
+            console.log('[ManualOrders] Authorization header added');
+        } else {
+            console.error('[ManualOrders] ❌ NO ACCESS TOKEN! User must log in first.');
+            alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+            window.location.href = '/login.html';
+            return;
         }
 
         // Get KRW balance for buying
