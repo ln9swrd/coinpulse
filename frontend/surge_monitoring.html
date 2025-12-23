@@ -7,32 +7,34 @@
     <link rel="stylesheet" href="css/internal-pages.css">
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f5f7fa;
             min-height: 100vh;
             padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
 
         /* Page-specific styles */
         .header h1 {
-            color: #667eea;
-            font-size: 2.5em;
+            color: #1e293b;
+            font-size: 2em;
         }
 
         .verified-badge {
             display: inline-block;
             background: #10b981;
             color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-weight: bold;
-            font-size: 1.1em;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.95em;
             margin-right: 15px;
         }
 
         .last-update {
             display: inline-block;
-            color: #888;
-            font-size: 0.9em;
+            color: #64748b;
+            font-size: 0.95em;
+            font-weight: 500;
         }
 
         /* Backtest Stats */
@@ -57,26 +59,34 @@
         }
 
         .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: white;
+            border: 2px solid #e2e8f0;
             padding: 20px;
             border-radius: 10px;
             text-align: center;
+            transition: all 0.2s;
+        }
+
+        .stat-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
         }
 
         .stat-card .label {
             font-size: 0.9em;
-            opacity: 0.9;
-            margin-bottom: 5px;
+            color: #64748b;
+            margin-bottom: 8px;
+            font-weight: 600;
         }
 
         .stat-card .value {
             font-size: 2em;
-            font-weight: bold;
+            font-weight: 700;
+            color: #1e293b;
         }
 
-        .stat-card.positive {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        .stat-card.positive .value {
+            color: #10b981;
         }
 
         /* Candidates Grid */
@@ -100,44 +110,45 @@
         }
 
         .candidate-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: white;
             border-radius: 12px;
-            padding: 20px;
-            border-left: 5px solid #667eea;
-            transition: transform 0.2s, box-shadow 0.2s;
+            padding: 24px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.2s;
             cursor: pointer;
         }
 
         .candidate-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
         }
 
         .candidate-card.high-score {
-            border-left-color: #10b981;
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-color: #10b981;
+            background: #f0fdf4;
         }
 
         .candidate-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
 
         .candidate-market {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #333;
+            font-size: 1.75em;
+            font-weight: 700;
+            color: #1e293b;
+            letter-spacing: -0.5px;
         }
 
         .candidate-score {
             background: #667eea;
             color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 1.2em;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 1.1em;
         }
 
         .candidate-card.high-score .candidate-score {
@@ -145,34 +156,37 @@
         }
 
         .candidate-price {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: #667eea;
+            font-size: 2em;
+            font-weight: 700;
+            color: #0f172a;
             margin-bottom: 15px;
         }
 
         .candidate-signals {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 12px;
         }
 
         .signal-item {
-            background: white;
-            padding: 10px;
+            background: #f8fafc;
+            padding: 12px;
             border-radius: 8px;
-            font-size: 0.85em;
+            font-size: 0.9em;
+            border: 1px solid #e2e8f0;
         }
 
         .signal-label {
-            color: #666;
+            color: #64748b;
             font-weight: 600;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
+            font-size: 0.9em;
         }
 
         .signal-value {
-            color: #333;
-            font-weight: bold;
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 1.05em;
         }
 
         .signal-value.positive {
@@ -186,15 +200,15 @@
         .loading {
             text-align: center;
             padding: 50px;
-            font-size: 1.5em;
-            color: #667eea;
+            font-size: 1.3em;
+            color: #64748b;
         }
 
         .no-candidates {
             text-align: center;
             padding: 50px;
-            color: #666;
-            font-size: 1.2em;
+            color: #64748b;
+            font-size: 1.1em;
         }
 
         .error {
