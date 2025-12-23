@@ -1019,11 +1019,19 @@
                 }
             };
 
-            // Wait for DOM to be ready
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', initDashboard);
-            } else {
+            // Wait for sidebar to be loaded
+            function startDashboard() {
+                console.log('[Dashboard] Sidebar ready, initializing dashboard...');
                 initDashboard();
+            }
+
+            // Listen for sidebar loaded event
+            window.addEventListener('sidebarLoaded', startDashboard);
+
+            // Fallback: If sidebar is already loaded (in case event fired before listener attached)
+            if (document.getElementById('sidebar')) {
+                console.log('[Dashboard] Sidebar already loaded');
+                startDashboard();
             }
 
             console.log('[Dashboard] API integration loaded');

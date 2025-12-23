@@ -1,0 +1,154 @@
+        <aside class="sidebar" id="sidebar">
+            <!-- Logo -->
+            <div class="sidebar-header">
+                <h1 class="logo">코인펄스</h1>
+                <button class="sidebar-toggle" id="sidebar-toggle" aria-label="사이드바 토글">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M3 12h18M3 6h18M3 18h18"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- User Info -->
+            <div class="user-info">
+                <div class="user-avatar">
+                    <span id="user-initial">U</span>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="user-name">로딩 중...</div>
+                    <div class="user-email" id="user-email">로딩 중...</div>
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="sidebar-nav">
+                <!-- Dashboard -->
+                <a href="#overview" class="nav-item active" data-page="overview">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    <span>대시보드 홈</span>
+                </a>
+
+                <!-- 거래 섹션 -->
+                <div class="nav-section-title">거래</div>
+
+                <a href="#trading" class="nav-item" data-page="trading">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                    </svg>
+                    <span>거래 차트</span>
+                </a>
+
+                <a href="#portfolio" class="nav-item" data-page="portfolio">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    <span>포트폴리오</span>
+                </a>
+
+                <a href="#history" class="nav-item" data-page="history">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>거래 내역</span>
+                </a>
+
+                <!-- 급등 & 자동매매 -->
+                <div class="nav-section-title">급등 & 자동매매</div>
+
+                <a href="#surge" class="nav-item" data-page="surge">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M18 20V10M12 20V4M6 20v-6"/>
+                    </svg>
+                    <span>급등 예측</span>
+                </a>
+
+                <a href="#auto-trading" class="nav-item" data-page="auto-trading">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        <circle cx="9" cy="11" r="1"></circle>
+                        <circle cx="15" cy="11" r="1"></circle>
+                        <path d="M9 15h6"></path>
+                    </svg>
+                    <span>자동매매 설정</span>
+                    <span class="badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 8px;">NEW</span>
+                </a>
+
+                <!-- 시그널 & 알림 -->
+                <div class="nav-section-title">시그널 & 알림</div>
+
+                <a href="#signals" class="nav-item" data-page="signals">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    </svg>
+                    <span>내 시그널</span>
+                </a>
+
+                <a href="#telegram" class="nav-item" data-page="telegram">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                    </svg>
+                    <span>텔레그램 연동</span>
+                </a>
+
+                <!-- 회원 -->
+                <div class="nav-section-title">회원</div>
+
+                <a href="#pricing" class="nav-item" data-page="pricing">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    <span>요금제</span>
+                </a>
+
+                <a href="#referral" class="nav-item" data-page="referral">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="8.5" cy="7" r="4"></circle>
+                        <polyline points="17 11 19 13 23 9"></polyline>
+                    </svg>
+                    <span>친구 초대</span>
+                </a>
+
+                <!-- 설정 -->
+                <div class="nav-section-title">설정</div>
+
+                <a href="#settings" class="nav-item" data-page="settings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M12 1v6m0 6v6m-9-9h6m6 0h6"></path>
+                    </svg>
+                    <span>설정</span>
+                </a>
+
+                <!-- 관리자 섹션 (Admin only) -->
+                <div class="nav-section-title admin-only" id="admin-section-title" style="display: none;">관리자</div>
+
+                <a href="#admin" class="nav-item admin-only" id="admin-menu-link" style="display: none;" onclick="event.preventDefault(); window.location.hash = 'admin';">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                        <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                    </svg>
+                    <span>관리자</span>
+                </a>
+            </nav>
+
+            <!-- Sidebar Footer -->
+            <div class="sidebar-footer">
+                <button class="nav-item logout-btn" id="logout-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    <span>로그아웃</span>
+                </button>
+            </div>
+        </aside>
