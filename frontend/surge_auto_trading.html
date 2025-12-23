@@ -505,7 +505,8 @@
         async function loadSettings() {
             const token = getAuthToken();
             if (!token) {
-                window.location.href = '/login.html';
+                showAlert('로그인이 필요합니다.', 'error');
+                setTimeout(() => window.location.href = '/login.html', 1500);
                 return;
             }
 
@@ -513,6 +514,14 @@
                 const response = await fetch(`${API_BASE}/api/surge/auto-trading/settings`, {
                     headers: {'Authorization': `Bearer ${token}`}
                 });
+
+                // Handle authentication errors
+                if (response.status === 401) {
+                    localStorage.removeItem('access_token');
+                    showAlert('로그인 세션이 만료되었습니다. 다시 로그인해주세요.', 'error');
+                    setTimeout(() => window.location.href = '/login.html', 2000);
+                    return;
+                }
 
                 const data = await response.json();
 
@@ -593,7 +602,8 @@
         async function saveSettings() {
             const token = getAuthToken();
             if (!token) {
-                window.location.href = '/login.html';
+                showAlert('로그인이 필요합니다.', 'error');
+                setTimeout(() => window.location.href = '/login.html', 1500);
                 return;
             }
 
@@ -629,6 +639,14 @@
                     },
                     body: JSON.stringify(settings)
                 });
+
+                // Handle authentication errors
+                if (response.status === 401) {
+                    localStorage.removeItem('access_token');
+                    showAlert('로그인 세션이 만료되었습니다. 다시 로그인해주세요.', 'error');
+                    setTimeout(() => window.location.href = '/login.html', 2000);
+                    return;
+                }
 
                 const data = await response.json();
 
