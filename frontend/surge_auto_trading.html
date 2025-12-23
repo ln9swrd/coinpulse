@@ -378,6 +378,65 @@
 
         <!-- Settings -->
         <div id="settings-section" style="display: none;">
+            <!-- Risk Warning (CRITICAL) -->
+            <div class="card" style="background: linear-gradient(135deg, #fff3cd 0%, #fff8e1 100%); border: 2px solid #ffc107;">
+                <h2 style="color: #f57c00; display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 24px;">⚠️</span>
+                    투자 위험 고지 (필독)
+                </h2>
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 16px;">
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="margin-bottom: 12px; display: flex; align-items: flex-start; gap: 10px;">
+                            <span style="color: #ef4444; font-size: 18px; flex-shrink: 0;">❌</span>
+                            <div>
+                                <strong style="color: #1e293b;">손실 위험</strong>
+                                <p style="color: #64748b; margin: 4px 0 0 0; font-size: 13px;">
+                                    가상자산 투자는 원금 손실 위험이 있으며, 투자금 전액을 잃을 수 있습니다.
+                                </p>
+                            </div>
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: flex-start; gap: 10px;">
+                            <span style="color: #ef4444; font-size: 18px; flex-shrink: 0;">📊</span>
+                            <div>
+                                <strong style="color: #1e293b;">수익 보장 불가</strong>
+                                <p style="color: #64748b; margin: 4px 0 0 0; font-size: 13px;">
+                                    과거 백테스트 성과는 미래 수익을 보장하지 않습니다. 실제 거래 시 슬리피지, 수수료, 시장 변동성 등으로 결과가 다를 수 있습니다.
+                                </p>
+                            </div>
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: flex-start; gap: 10px;">
+                            <span style="color: #3b82f6; font-size: 18px; flex-shrink: 0;">🔒</span>
+                            <div>
+                                <strong style="color: #1e293b;">가격 조작 불가</strong>
+                                <p style="color: #64748b; margin: 4px 0 0 0; font-size: 13px;">
+                                    당사는 업비트 공개 API만 사용하며, 가상자산 가격이나 거래량에 영향을 줄 수 없습니다. 모든 시세는 업비트에서 실시간으로 조회됩니다.
+                                </p>
+                            </div>
+                        </li>
+                        <li style="margin-bottom: 0; display: flex; align-items: flex-start; gap: 10px;">
+                            <span style="color: #ef4444; font-size: 18px; flex-shrink: 0;">👤</span>
+                            <div>
+                                <strong style="color: #1e293b;">사용자 책임</strong>
+                                <p style="color: #64748b; margin: 4px 0 0 0; font-size: 13px;">
+                                    자동매매는 보조 도구일 뿐이며, 최종 투자 결정 및 그로 인한 모든 결과는 사용자 본인의 책임입니다.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div style="background: #fef3c7; padding: 16px; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                    <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; margin: 0;">
+                        <input type="checkbox" id="risk-acknowledgement"
+                               style="margin-top: 4px; width: 20px; height: 20px; cursor: pointer; flex-shrink: 0;">
+                        <span style="color: #78350f; font-size: 14px; line-height: 1.6;">
+                            <strong>위 내용을 모두 확인했으며</strong>, 가상자산 투자의 위험성을 충분히 이해했습니다.
+                            투자로 인한 손실 책임이 전적으로 본인에게 있음을 동의합니다.
+                        </span>
+                    </label>
+                </div>
+            </div>
+
             <!-- Enable/Disable -->
             <div class="card">
                 <h2>⚡ 자동 매매 활성화</h2>
@@ -817,6 +876,24 @@
             }
 
             try {
+                // Check risk acknowledgement if enabling auto-trading
+                const isEnabling = document.getElementById('enabled').checked;
+                const isAcknowledged = document.getElementById('risk-acknowledgement').checked;
+
+                if (isEnabling && !isAcknowledged) {
+                    showAlert('⚠️ 자동매매를 활성화하려면 투자 위험 고지를 확인하고 동의해주세요.', 'error');
+                    // Scroll to risk warning
+                    document.querySelector('#risk-acknowledgement').closest('.card').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                    // Highlight the checkbox
+                    const checkbox = document.getElementById('risk-acknowledgement');
+                    checkbox.style.outline = '3px solid #ef4444';
+                    setTimeout(() => checkbox.style.outline = '', 2000);
+                    return;
+                }
+
                 const excludedCoins = document.getElementById('excluded-coins').value
                     .split(',')
                     .map(c => c.trim().toUpperCase())
@@ -880,5 +957,48 @@
         // Initialize
         loadSettings();
     </script>
+
+    <!-- Legal Disclaimer Footer -->
+    <footer style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 40px 20px; margin-top: 40px;">
+        <div style="max-width: 900px; margin: 0 auto;">
+            <div style="background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                <h3 style="font-size: 16px; color: #1e293b; margin-bottom: 16px; font-weight: 600;">
+                    ⚖️ 법적 고지사항
+                </h3>
+                <div style="font-size: 13px; color: #64748b; line-height: 1.8;">
+                    <p style="margin-bottom: 12px;">
+                        <strong style="color: #1e293b;">투자 위험 안내:</strong>
+                        가상자산 거래는 원금 손실 위험이 있으며, 당사는 투자 손실에 대해 책임지지 않습니다.
+                        모든 투자 결정은 사용자 본인의 판단과 책임 하에 이루어져야 합니다.
+                    </p>
+                    <p style="margin-bottom: 12px;">
+                        <strong style="color: #1e293b;">수익 보장 불가:</strong>
+                        과거 성과나 백테스트 결과는 미래 수익을 보장하지 않습니다.
+                        실제 거래 시 슬리피지, 수수료, 시장 변동성 등으로 예상과 다른 결과가 발생할 수 있습니다.
+                    </p>
+                    <p style="margin-bottom: 12px;">
+                        <strong style="color: #1e293b;">데이터 출처:</strong>
+                        모든 시세 데이터는 업비트(Upbit) 공식 API를 통해 실시간으로 조회되며,
+                        당사는 가상자산 가격이나 거래량에 영향을 줄 수 없습니다.
+                    </p>
+                    <p style="margin-bottom: 0;">
+                        <strong style="color: #1e293b;">서비스 성격:</strong>
+                        본 서비스는 투자 보조 도구로, 투자자문업이나 투자일임업에 해당하지 않습니다.
+                        제공되는 정보는 참고용이며, 투자 권유나 매매 추천이 아닙니다.
+                    </p>
+                </div>
+                <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #f1f5f9; text-align: center;">
+                    <p style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;">
+                        © 2025 CoinPulse. All rights reserved.
+                    </p>
+                    <p style="font-size: 12px; color: #cbd5e1;">
+                        <a href="/terms_of_service.html" style="color: #3b82f6; text-decoration: none; margin: 0 8px;">이용약관</a> |
+                        <a href="/privacy_policy.html" style="color: #3b82f6; text-decoration: none; margin: 0 8px;">개인정보처리방침</a> |
+                        <a href="/risk_disclosure.html" style="color: #3b82f6; text-decoration: none; margin: 0 8px;">투자위험고지서</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
