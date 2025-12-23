@@ -105,11 +105,11 @@ def get_user_plan():
         db = get_db_session()
 
         try:
-            # Query subscription using actual DB schema (plan_code, status as varchar)
+            # Query subscription using actual DB schema (plan, status as varchar)
             from sqlalchemy import text
 
             query = text("""
-                SELECT plan_code, status, started_at, expires_at, auto_renew
+                SELECT plan, status, started_at, expires_at, auto_renew
                 FROM user_subscriptions
                 WHERE user_id = :user_id AND status = 'active'
                 LIMIT 1
@@ -127,12 +127,14 @@ def get_user_plan():
                 # Map plan_code to display name
                 plan_names = {
                     'free': 'Free Plan',
+                    'basic': 'Basic Plan',
+                    'pro': 'Pro Plan',
                     'premium': 'Premium Plan',
                     'enterprise': 'Enterprise Plan'
                 }
 
                 plan_data = {
-                    'plan_code': plan_code.upper(),
+                    'plan_code': plan_code.lower(),  # Return lowercase for consistency
                     'plan_name': plan_names.get(plan_code.lower(), 'Free Plan'),
                     'is_active': status == 'active',
                     'start_date': started_at.isoformat() if started_at else None,
