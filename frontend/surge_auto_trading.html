@@ -402,6 +402,50 @@
                 </div>
             </div>
 
+            <!-- Position Strategy -->
+            <div class="card">
+                <h2>📈 포지션 전략</h2>
+                <div class="form-group">
+                    <label for="position-strategy">포지션 관리 방식</label>
+                    <select id="position-strategy" onchange="togglePositionStrategyOptions()">
+                        <option value="single">단일 포지션 (종목당 1개만)</option>
+                        <option value="multiple">복수 포지션 (종목당 여러 개)</option>
+                    </select>
+                    <small>동일 종목에 대한 포지션 관리 방식을 선택하세요</small>
+                </div>
+
+                <!-- Single strategy options -->
+                <div id="single-strategy-options" style="display: none;">
+                    <div class="toggle-group">
+                        <div>
+                            <label style="margin: 0; font-size: 15px;">중복 포지션 허용</label>
+                            <small style="display: block; margin-top: 4px;">동일 종목에 이미 포지션이 있어도 신규 진입 허용</small>
+                        </div>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="allow-duplicate-positions">
+                            <span class="toggle-slider"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Multiple strategy options -->
+                <div id="multiple-strategy-options" style="display: none;">
+                    <div class="form-group">
+                        <label for="max-amount-per-coin">종목당 최대 투자금액 (KRW)</label>
+                        <input type="number" id="max-amount-per-coin" value="500000" min="50000" step="50000">
+                        <small>동일 종목에 투자할 수 있는 총 금액 한도</small>
+                    </div>
+                </div>
+
+                <div style="background: #f8fafc; padding: 16px; border-radius: 8px; margin-top: 16px;">
+                    <div style="font-size: 13px; color: #64748b; line-height: 1.6;">
+                        <strong style="color: #1e293b;">전략 설명:</strong><br>
+                        • <strong>단일 포지션:</strong> 종목당 1개의 포지션만 유지 (리스크 분산)<br>
+                        • <strong>복수 포지션:</strong> 종목당 여러 포지션 보유 가능 (최대 금액 제한)
+                    </div>
+                </div>
+            </div>
+
             <!-- Notifications -->
             <div class="card">
                 <h2>🔔 알림 설정</h2>
@@ -442,6 +486,20 @@
             container.appendChild(alert);
 
             setTimeout(() => alert.remove(), 5000);
+        }
+
+        function togglePositionStrategyOptions() {
+            const strategy = document.getElementById('position-strategy').value;
+            const singleOptions = document.getElementById('single-strategy-options');
+            const multipleOptions = document.getElementById('multiple-strategy-options');
+
+            if (strategy === 'single') {
+                singleOptions.style.display = 'block';
+                multipleOptions.style.display = 'none';
+            } else {
+                singleOptions.style.display = 'none';
+                multipleOptions.style.display = 'block';
+            }
         }
 
         async function loadSettings() {
@@ -509,6 +567,12 @@
                 document.getElementById('excluded-coins').value = (settings.excluded_coins || []).join(', ');
                 document.getElementById('telegram-enabled').checked = settings.telegram_enabled;
 
+                // Load position strategy settings
+                document.getElementById('position-strategy').value = settings.position_strategy || 'single';
+                document.getElementById('allow-duplicate-positions').checked = settings.allow_duplicate_positions || false;
+                document.getElementById('max-amount-per-coin').value = settings.max_amount_per_coin || 500000;
+                togglePositionStrategyOptions();
+
                 // Show stats
                 document.getElementById('stat-total-trades').textContent = settings.total_trades || 0;
                 document.getElementById('stat-success-rate').textContent =
@@ -551,7 +615,10 @@
                     min_confidence: parseFloat(document.getElementById('min-confidence').value),
                     max_positions: parseInt(document.getElementById('max-positions').value),
                     excluded_coins: excludedCoins,
-                    telegram_enabled: document.getElementById('telegram-enabled').checked
+                    telegram_enabled: document.getElementById('telegram-enabled').checked,
+                    position_strategy: document.getElementById('position-strategy').value,
+                    allow_duplicate_positions: document.getElementById('allow-duplicate-positions').checked,
+                    max_amount_per_coin: parseInt(document.getElementById('max-amount-per-coin').value)
                 };
 
                 const response = await fetch(`${API_BASE}/api/surge/auto-trading/settings`, {
