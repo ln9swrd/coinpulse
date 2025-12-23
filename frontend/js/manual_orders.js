@@ -622,7 +622,19 @@ WorkingTradingChart.prototype.displayOrdersOnChart = async function() {
     try {
         const market = this.currentMarket || this.selectedMarket || 'KRW-XRP';
         console.log('[ManualOrders] Loading orders for market:', market);
-        const response = await fetch(`${window.location.origin}/api/trading/orders?state=wait&market=${market}`);
+
+        // Get access token
+        const accessToken = localStorage.getItem('access_token');
+        if (!accessToken) {
+            console.warn('[ManualOrders] No access token, skipping order display');
+            return;
+        }
+
+        const response = await fetch(`${window.location.origin}/api/trading/orders?state=wait&market=${market}`, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
         const result = await response.json();
 
         if (!response.ok || !result.success) {
