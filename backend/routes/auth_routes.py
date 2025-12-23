@@ -29,7 +29,7 @@ JWT_ACCESS_TOKEN_EXPIRES = int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 3600))  # 1
 JWT_REFRESH_TOKEN_EXPIRES = int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES', 2592000))  # 30 days
 
 
-def generate_tokens(user_id, username):
+def generate_tokens(user_id, username, email=None):
     """Generate access and refresh tokens"""
     access_payload = {
         'user_id': user_id,
@@ -39,6 +39,10 @@ def generate_tokens(user_id, username):
         'iat': datetime.utcnow()
     }
 
+    # Include email if provided (for admin authentication)
+    if email:
+        access_payload['email'] = email
+
     refresh_payload = {
         'user_id': user_id,
         'username': username,
@@ -46,6 +50,9 @@ def generate_tokens(user_id, username):
         'exp': datetime.utcnow() + timedelta(seconds=JWT_REFRESH_TOKEN_EXPIRES),
         'iat': datetime.utcnow()
     }
+
+    if email:
+        refresh_payload['email'] = email
 
     access_token = jwt.encode(access_payload, JWT_SECRET_KEY, algorithm='HS256')
     refresh_token = jwt.encode(refresh_payload, JWT_SECRET_KEY, algorithm='HS256')
@@ -191,7 +198,7 @@ def register():
             session.flush()  # Get user ID before commit
 
             # Generate tokens
-            access_token, refresh_token = generate_tokens(new_user.id, new_user.username)
+            access_token, refresh_token = generate_tokens(new_user.id, new_user.username, new_user.email)
 
             # Create session record
             user_session = UserSession(
@@ -339,7 +346,7 @@ def login():
             user.last_login_at = datetime.utcnow()
 
             # Generate tokens
-            access_token, refresh_token = generate_tokens(user.id, user.username)
+            access_token, refresh_token = generate_tokens(user.id, user.username, user.email)
 
             # Create session record
             user_session = UserSession(
@@ -655,9 +662,10 @@ def refresh_token():
 
         user_id = payload.get('user_id')
         username = payload.get('username')
+        email = payload.get('email')  # Get email from refresh token
 
         # Generate new access token
-        new_access_token, _ = generate_tokens(user_id, username)
+        new_access_token, _ = generate_tokens(user_id, username, email)
 
         return jsonify({
             'success': True,
@@ -780,7 +788,7 @@ def google_login():
                 print(f"[Auth] New user registered via Google: {user.id} ({email})")
 
             # Generate tokens
-            access_token, refresh_token = generate_tokens(user.id, user.username)
+            access_token, refresh_token = generate_tokens(user.id, user.username, user.email)
 
             # Create session record
             user_session = UserSession(
