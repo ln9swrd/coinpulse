@@ -18,7 +18,7 @@ load_dotenv()
 from backend.common import UpbitAPI, load_api_keys
 from backend.services.surge_predictor import SurgePredictor
 from backend.services.telegram_bot import SurgeTelegramBot, TELEGRAM_AVAILABLE
-from backend.models.database import get_db_session
+from backend.database.connection import get_db_session
 
 # Logging setup
 logging.basicConfig(
