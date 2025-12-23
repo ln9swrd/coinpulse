@@ -63,7 +63,7 @@
             padding: 40px;
         }
 
-        /* Stats Cards - Enhanced Visibility */
+        /* Stats Cards - Clean & Visible */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -72,87 +72,76 @@
         }
 
         .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: white;
+            color: #2d3748;
             padding: 32px 28px;
             border-radius: 20px;
-            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+            border-left: 6px solid #667eea;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
             transition: all 0.3s ease;
             position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
-            opacity: 0;
-            transition: opacity 0.3s;
         }
 
         .stat-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 36px rgba(102, 126, 234, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
         }
 
-        .stat-card:hover::before {
-            opacity: 1;
-        }
-
-        /* Different colors for different stat types */
+        /* Different border colors for different stat types */
         .stat-card:nth-child(1) {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-left-color: #667eea;
         }
 
         .stat-card:nth-child(2) {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-left-color: #f56565;
         }
 
         .stat-card:nth-child(3) {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-left-color: #4299e1;
         }
 
         .stat-card:nth-child(4) {
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            border-left-color: #48bb78;
         }
 
         .stat-card:nth-child(5) {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            border-left-color: #ed8936;
         }
 
         .stat-card:nth-child(6) {
-            background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+            border-left-color: #9f7aea;
         }
 
         .stat-label {
             font-size: 15px;
-            opacity: 0.95;
+            color: #718096;
             margin-bottom: 12px;
-            font-weight: 500;
+            font-weight: 600;
             letter-spacing: 0.5px;
             display: flex;
             align-items: center;
             gap: 8px;
+            text-transform: uppercase;
         }
 
         .stat-icon {
-            font-size: 20px;
+            font-size: 24px;
         }
 
         .stat-value {
-            font-size: 42px;
+            font-size: 48px;
             font-weight: 800;
             line-height: 1.2;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            color: #1a202c;
+        }
+
+        .stat-card:nth-child(4) .stat-value {
+            color: #48bb78;
         }
 
         .stat-unit {
-            font-size: 20px;
-            opacity: 0.9;
+            font-size: 22px;
+            color: #718096;
             margin-left: 6px;
             font-weight: 600;
         }
