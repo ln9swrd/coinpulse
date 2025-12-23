@@ -349,8 +349,12 @@
             refreshBtn.textContent = '로딩 중...';
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/surge-candidates`);
+                const url = `${API_BASE_URL}/api/surge-candidates`;
+                console.log('[Surge] Fetching from:', url);
+                const response = await fetch(url);
+                console.log('[Surge] Response status:', response.status);
                 const data = await response.json();
+                console.log('[Surge] Response data:', data);
 
                 if (data.candidates !== undefined) {
                     // 백테스트 통계 업데이트
