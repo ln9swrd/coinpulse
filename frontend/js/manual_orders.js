@@ -161,7 +161,7 @@ WorkingTradingChart.prototype.submitBuyOrder = async function() {
     const market = this.currentMarket || 'KRW-BTC';
 
     try {
-        const response = await fetch(`${window.location.origin}/api/trading/order`, {
+        const response = await fetch(`${window.location.origin}/api/trading/buy`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -218,7 +218,7 @@ WorkingTradingChart.prototype.submitSellOrder = async function() {
     const market = this.currentMarket || 'KRW-BTC';
 
     try {
-        const response = await fetch(`${window.location.origin}/api/trading/order`, {
+        const response = await fetch(`${window.location.origin}/api/trading/sell`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -322,7 +322,7 @@ WorkingTradingChart.prototype.cancelOrder = async function(uuid) {
             headers['Authorization'] = `Bearer ${accessToken}`;
         }
 
-        const response = await fetch(`${window.location.origin}/api/trading/order/${uuid}`, {
+        const response = await fetch(`${window.location.origin}/api/trading/cancel/${uuid}`, {
             method: 'DELETE',
             headers: headers
         });
