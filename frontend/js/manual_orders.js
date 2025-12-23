@@ -240,7 +240,7 @@ WorkingTradingChart.prototype.submitBuyOrder = async function() {
 
             // Reload pending orders and holdings
             await this.loadPendingOrders();
-            await this.loadHoldings();
+            await this.updateAvailableBalances();
             await this.displayOrdersOnChart();
         } else {
             throw new Error(result.message || 'Order failed');
@@ -308,7 +308,7 @@ WorkingTradingChart.prototype.submitSellOrder = async function() {
 
             // Reload pending orders and holdings
             await this.loadPendingOrders();
-            await this.loadHoldings();
+            await this.updateAvailableBalances();
             await this.displayOrdersOnChart();
         } else {
             throw new Error(result.message || 'Order failed');
