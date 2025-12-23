@@ -5,18 +5,74 @@ User Agreement Routes
 """
 
 from flask import Blueprint, request, jsonify
+from functools import wraps
+from datetime import datetime
+import jwt
+import os
+
 from backend.database.connection import get_db_session
 from backend.models.user_agreement_models import UserAgreement, AGREEMENT_TYPES, CURRENT_VERSIONS
-from backend.utils.auth_utils import token_required
-from datetime import datetime
 
 # Create blueprint
 user_agreement_bp = Blueprint('user_agreement', __name__)
 
+# JWT Configuration
+JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', '7DfH2jzRD4lCfQ_llC4CObochoaGzaBBZLeODoftgWk')
+
+
+def verify_token(token):
+    """Verify JWT token and return payload"""
+    try:
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=['HS256'])
+        return payload, None
+    except jwt.ExpiredSignatureError:
+        return None, 'Token has expired'
+    except jwt.InvalidTokenError:
+        return None, 'Invalid token'
+
+
+def get_current_user(request_obj):
+    """Get current user from Authorization header"""
+    auth_header = request_obj.headers.get('Authorization')
+
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return None, 'Authorization header missing or invalid'
+
+    token = auth_header.split(' ')[1]
+    payload, error = verify_token(token)
+
+    if error:
+        return None, error
+
+    return payload.get('user_id'), None
+
+
+def require_auth(f):
+    """
+    Decorator to require JWT authentication
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        user_id, error = get_current_user(request)
+
+        if error:
+            return jsonify({
+                'success': False,
+                'error': error,
+                'code': 'UNAUTHORIZED'
+            }), 401
+
+        # Add user_id to request context
+        request.user_id = user_id
+
+        return f(*args, **kwargs)
+
+    return decorated_function
+
 
 @user_agreement_bp.route('/api/agreements/record', methods=['POST'])
-@token_required
-def record_agreement(current_user):
+@require_auth
+def record_agreement():
     """
     Record user agreement
     사용자 동의 기록
@@ -70,7 +126,7 @@ def record_agreement(current_user):
         try:
             # Check if agreement already exists
             existing = session.query(UserAgreement).filter_by(
-                user_id=current_user.id,
+                user_id=request.user_id,
                 agreement_type=agreement_type
             ).first()
 
@@ -87,7 +143,7 @@ def record_agreement(current_user):
             else:
                 # Create new agreement
                 agreement = UserAgreement(
-                    user_id=current_user.id,
+                    user_id=request.user_id,
                     agreement_type=agreement_type,
                     version=version,
                     agreed=agreed,
@@ -114,8 +170,8 @@ def record_agreement(current_user):
 
 
 @user_agreement_bp.route('/api/agreements/status', methods=['GET'])
-@token_required
-def get_agreement_status(current_user):
+@require_auth
+def get_agreement_status():
     """
     Get user agreement status
     사용자 동의 상태 조회
@@ -141,7 +197,7 @@ def get_agreement_status(current_user):
 
         session = get_db_session()
         try:
-            query = session.query(UserAgreement).filter_by(user_id=current_user.id)
+            query = session.query(UserAgreement).filter_by(user_id=request.user_id)
 
             if agreement_type:
                 query = query.filter_by(agreement_type=agreement_type)
@@ -164,8 +220,8 @@ def get_agreement_status(current_user):
 
 
 @user_agreement_bp.route('/api/agreements/check', methods=['GET'])
-@token_required
-def check_required_agreements(current_user):
+@require_auth
+def check_required_agreements():
     """
     Check if user has agreed to all required agreements
     필수 동의 확인
@@ -187,7 +243,7 @@ def check_required_agreements(current_user):
         try:
             # Get all user agreements
             user_agreements = session.query(UserAgreement).filter_by(
-                user_id=current_user.id
+                user_id=request.user_id
             ).all()
 
             # Convert to dict for easy lookup
