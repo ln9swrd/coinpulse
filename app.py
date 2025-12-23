@@ -742,7 +742,7 @@ def init_background_services():
                 def run_telegram_bot():
                     """Run Telegram bot in separate thread"""
                     try:
-                        asyncio.run(telegram_bot.start())
+                        asyncio.run(telegram_bot.start_polling())
                     except Exception as e:
                         logger.error(f"Telegram bot error: {e}")
 
@@ -759,7 +759,7 @@ def init_background_services():
                 def run_surge_alerts():
                     """Run surge alert scheduler"""
                     try:
-                        asyncio.run(surge_alert_scheduler.start())
+                        asyncio.run(surge_alert_scheduler.run())
                     except Exception as e:
                         logger.error(f"Surge alert scheduler error: {e}")
 
