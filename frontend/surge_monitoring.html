@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CoinPulse - 급등 예측 모니터링 (검증 완료 81.25% 적중률)</title>
+    <title>CoinPulse - 급등 예측 모니터링</title>
     <link rel="stylesheet" href="css/internal-pages.css">
     <style>
         body {
@@ -282,7 +282,7 @@
         <div class="header" style="padding: 15px 0; margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <span class="verified-badge" style="font-size: 0.9em; padding: 6px 14px;">✓ 적중률 81.25%</span>
+                    <span class="verified-badge" id="verified-badge" style="font-size: 0.9em; padding: 6px 14px;">로딩 중...</span>
                     <span class="last-update" id="last-update" style="margin-left: 12px;">로딩 중...</span>
                 </div>
                 <button class="refresh-button" id="refresh-btn" onclick="loadCandidates()" style="padding: 8px 20px; font-size: 0.9em;">새로고침</button>
@@ -408,6 +408,19 @@
             document.getElementById('avg-win').textContent = '+' + stats.avg_win + '%';
             document.getElementById('avg-loss').textContent = stats.avg_loss + '%';
             document.getElementById('total-trades').textContent = stats.total_trades + '건';
+
+            // Update verified badge with dynamic win rate
+            const badge = document.getElementById('verified-badge');
+            if (stats.total_trades > 0) {
+                badge.textContent = `✓ 적중률 ${stats.win_rate}% (${stats.total_trades}건)`;
+            } else {
+                badge.textContent = '데이터 수집 중...';
+            }
+
+            // Update page title with dynamic win rate
+            if (stats.total_trades > 0) {
+                document.title = `CoinPulse - 급등 예측 모니터링 (검증 완료 ${stats.win_rate}% 적중률)`;
+            }
         }
 
         // 후보 목록 렌더링

@@ -11,6 +11,8 @@ from backend.common import UpbitAPI
 from backend.services.surge_predictor import SurgePredictor
 from backend.services.market_filter_service import MarketFilter
 from backend.services.signal_generation_service import signal_generator
+from backend.database.connection import get_db_session
+from sqlalchemy import text
 import time
 from datetime import datetime, timedelta
 
@@ -39,6 +41,77 @@ def set_surge_cache(data):
     _surge_cache['timestamp'] = datetime.now()
     _surge_cache['is_fetching'] = False
     print(f"[Surge] Cache updated at {_surge_cache['timestamp']}")
+
+def calculate_backtest_stats(period_start='2024-11-13', period_end='2024-12-07'):
+    """
+    Calculate real backtest statistics from database
+
+    Args:
+        period_start: Start date (YYYY-MM-DD)
+        period_end: End date (YYYY-MM-DD)
+
+    Returns:
+        Dictionary with backtest statistics
+    """
+    try:
+        with get_db_session() as session:
+            # Get statistics for the period
+            stats_query = text("""
+                SELECT
+                    COUNT(*) as total_trades,
+                    COUNT(CASE WHEN status = 'win' THEN 1 END) as wins,
+                    COUNT(CASE WHEN status = 'lose' THEN 1 END) as losses,
+                    AVG(CASE WHEN status IN ('win', 'lose', 'neutral') THEN profit_loss_percent END) as avg_return,
+                    AVG(CASE WHEN status = 'win' THEN profit_loss_percent END) as avg_win,
+                    AVG(CASE WHEN status = 'lose' THEN profit_loss_percent END) as avg_loss
+                FROM surge_alerts
+                WHERE DATE(sent_at) >= DATE(:start_date)
+                  AND DATE(sent_at) <= DATE(:end_date)
+                  AND status IN ('win', 'lose', 'neutral')
+            """)
+
+            result = session.execute(stats_query, {
+                'start_date': period_start,
+                'end_date': period_end
+            }).first()
+
+            if result and result.total_trades > 0:
+                win_rate = (result.wins / result.total_trades * 100) if result.total_trades > 0 else 0
+
+                return {
+                    'win_rate': round(win_rate, 2),
+                    'avg_return': round(result.avg_return or 0, 2),
+                    'avg_win': round(result.avg_win or 0, 2),
+                    'avg_loss': round(result.avg_loss or 0, 2),
+                    'total_trades': result.total_trades,
+                    'period': f'{period_start} ~ {period_end}',
+                    'source': 'database'
+                }
+            else:
+                # Return default/fallback stats if no data
+                return {
+                    'win_rate': 0,
+                    'avg_return': 0,
+                    'avg_win': 0,
+                    'avg_loss': 0,
+                    'total_trades': 0,
+                    'period': f'{period_start} ~ {period_end}',
+                    'source': 'no_data',
+                    'note': 'No backtest data available for this period'
+                }
+    except Exception as e:
+        print(f"[Surge] Error calculating backtest stats: {e}")
+        # Return fallback stats on error
+        return {
+            'win_rate': 0,
+            'avg_return': 0,
+            'avg_win': 0,
+            'avg_loss': 0,
+            'total_trades': 0,
+            'period': f'{period_start} ~ {period_end}',
+            'source': 'error',
+            'error': str(e)
+        }
 
 # Initialize with public API (no authentication)
 upbit_api = UpbitAPI(None, None)  # Public API only
@@ -234,18 +307,14 @@ def get_surge_candidates():
             signal_generation_result = signal_generator.batch_generate_from_candidates(high_confidence_candidates)
             print(f"[Surge] Generated {signal_generation_result['generated']} signals, distributed to {signal_generation_result['distributed_total']} users")
 
+        # Calculate backtest statistics dynamically from database
+        backtest_stats = calculate_backtest_stats('2024-11-13', '2024-12-07')
+
         # Prepare response data
         response_data = {
             'success': True,
             'candidates': candidates,
-            'backtest_stats': {
-                'win_rate': 81.25,
-                'avg_return': 19.12,
-                'avg_win': 24.19,
-                'avg_loss': -2.84,
-                'total_trades': 16,
-                'period': '2024-11-13 ~ 2024-12-07'
-            },
+            'backtest_stats': backtest_stats,
             'monitored_markets': len(monitored_markets),
             'timestamp': time.strftime('%Y-%m-%dT%H:%M:%S'),
             'count': len(candidates),
