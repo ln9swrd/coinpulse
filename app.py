@@ -62,6 +62,7 @@ from backend.routes.surge_auto_trading_routes import surge_auto_trading_bp  # Su
 from backend.routes.surge_alert_routes import surge_alert_bp  # Surge alert history (Phase 8 v2.0)
 from backend.routes.surge_history_routes import surge_history_bp  # Surge prediction history (admin only)
 from backend.routes.user_agreement_routes import user_agreement_bp  # User agreement records (legal compliance)
+from backend.routes.feedback_routes import feedback_bp  # User feedback system (bug reports, feature requests)
 
 # Import WebSocket service (Phase 3)
 from backend.services.websocket_service import init_websocket_service, setup_socketio_handlers
@@ -242,7 +243,8 @@ def register_blueprints():
         (surge_auto_trading_bp, None),  # Surge auto-trading settings (Phase 8 v2.0, already has /api/surge/auto-trading prefix)
         (surge_alert_bp, None),  # Surge alert history (Phase 8 v2.0, already has /api/surge/alerts prefix)
         (surge_history_bp, None),  # Surge prediction history admin (already has /api/admin/surge-history prefix)
-        (user_agreement_bp, None)  # User agreement records (legal compliance, already has /api/agreements prefix)
+        (user_agreement_bp, None),  # User agreement records (legal compliance, already has /api/agreements prefix)
+        (feedback_bp, None)  # User feedback system (bug reports, feature requests, already has /api/feedback prefix)
     ]
 
     for blueprint, url_prefix in blueprints:

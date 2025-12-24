@@ -729,6 +729,76 @@ https://t.me/coinpulse_surge_sinsi_bot
         """Run bot (blocking)"""
         asyncio.run(self.start_polling())
 
+    def send_admin_notification(self, message: str):
+        """
+        Send notification to admin users (synchronous wrapper)
+
+        Args:
+            message: Notification message to send
+        """
+        try:
+            # Get admin user IDs from database
+            from backend.database.connection import get_db_session
+            from backend.models.telegram_link_model import TelegramLink
+            from backend.database.models import User
+
+            session = get_db_session()
+            try:
+                # Find all admin users with telegram linked
+                admin_links = session.query(TelegramLink, User)\
+                    .join(User, TelegramLink.user_id == User.id)\
+                    .filter(User.is_admin == True)\
+                    .all()
+
+                if not admin_links:
+                    logger.warning("[TelegramBot] No admin users with Telegram linked")
+                    return
+
+                # Send to all admin users
+                for link, user in admin_links:
+                    asyncio.create_task(self._send_message_async(link.telegram_id, message))
+                    logger.info(f"[TelegramBot] Sent admin notification to {user.username} (TG: {link.telegram_id})")
+
+            finally:
+                session.close()
+
+        except Exception as e:
+            logger.error(f"[TelegramBot] Error sending admin notification: {e}")
+
+    async def _send_message_async(self, telegram_id: int, message: str):
+        """Send message asynchronously"""
+        try:
+            await self.bot.send_message(
+                chat_id=telegram_id,
+                text=message,
+                parse_mode='Markdown'
+            )
+        except Exception as e:
+            logger.error(f"[TelegramBot] Error sending message to {telegram_id}: {e}")
+
+
+# Global bot instance cache
+_bot_instance = None
+
+
+def get_telegram_bot():
+    """Get the global telegram bot instance"""
+    global _bot_instance
+
+    if _bot_instance is None:
+        token = os.getenv('TELEGRAM_BOT_TOKEN')
+        if not token or not TELEGRAM_AVAILABLE:
+            return None
+
+        try:
+            _bot_instance = SurgeTelegramBot(token)
+            logger.info("[TelegramBot] Global bot instance created")
+        except Exception as e:
+            logger.error(f"[TelegramBot] Failed to create bot instance: {e}")
+            return None
+
+    return _bot_instance
+
 
 # Standalone bot runner
 if __name__ == "__main__":
