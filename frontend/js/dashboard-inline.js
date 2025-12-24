@@ -123,19 +123,26 @@
 
                     console.log('[Dashboard] Current plan:', plan);
 
-                    // Get surge signals menu link
+                    // Get paid feature menu links
                     const signalsMenuLink = document.getElementById('signals-menu-link');
+                    const autoTradingMenuLink = document.getElementById('auto-trading-menu-link');
 
-                    // Show surge signals only for paid plans (basic, pro, enterprise)
+                    // Show paid features only for paid plans (basic, pro, enterprise)
                     if (plan === 'free' || !subscription) {
-                        console.log('[Dashboard] Free plan - hiding surge signals menu');
+                        console.log('[Dashboard] Free plan - hiding paid feature menus');
                         if (signalsMenuLink) {
                             signalsMenuLink.style.display = 'none';
                         }
+                        if (autoTradingMenuLink) {
+                            autoTradingMenuLink.style.display = 'none';
+                        }
                     } else {
-                        console.log('[Dashboard] Paid plan - showing surge signals menu');
+                        console.log('[Dashboard] Paid plan - showing paid feature menus');
                         if (signalsMenuLink) {
                             signalsMenuLink.style.display = 'flex';
+                        }
+                        if (autoTradingMenuLink) {
+                            autoTradingMenuLink.style.display = 'flex';
                         }
                     }
 
@@ -143,8 +150,12 @@
                     console.error('[Dashboard] Failed to check paid feature access:', error);
                     // On error, hide paid features by default
                     const signalsMenuLink = document.getElementById('signals-menu-link');
+                    const autoTradingMenuLink = document.getElementById('auto-trading-menu-link');
                     if (signalsMenuLink) {
                         signalsMenuLink.style.display = 'none';
+                    }
+                    if (autoTradingMenuLink) {
+                        autoTradingMenuLink.style.display = 'none';
                     }
                 }
             }
