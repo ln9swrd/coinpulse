@@ -818,7 +818,8 @@
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', init);
         } else {
-            init();
+            // For dynamic page loading, wait for next tick to ensure DOM is fully rendered
+            setTimeout(init, 100);
         }
 
         // Load available markets
@@ -847,6 +848,10 @@
                 console.log('[SurgeHistory] Markets loaded:', data.markets.length, 'markets');
 
                 const marketSelect = document.getElementById('filter-market');
+                if (!marketSelect) {
+                    console.error('[SurgeHistory] filter-market element not found');
+                    return;
+                }
 
                 data.markets.forEach(m => {
                     const option = document.createElement('option');
@@ -914,17 +919,28 @@
 
         // Update stats
         function updateStats(stats) {
-            document.getElementById('stat-total').textContent = stats.total_alerts.toLocaleString();
-            document.getElementById('stat-auto-traded').textContent = stats.auto_traded_count.toLocaleString();
-            document.getElementById('stat-confidence').textContent = (stats.avg_confidence * 100).toFixed(1);
+            const statTotal = document.getElementById('stat-total');
+            const statAutoTraded = document.getElementById('stat-auto-traded');
+            const statConfidence = document.getElementById('stat-confidence');
+            const profitEl = document.getElementById('stat-profit');
+            const statProfitable = document.getElementById('stat-profitable');
+            const statLosing = document.getElementById('stat-losing');
+
+            if (!statTotal || !statAutoTraded || !statConfidence || !profitEl || !statProfitable || !statLosing) {
+                console.error('[SurgeHistory] Stats elements not found');
+                return;
+            }
+
+            statTotal.textContent = stats.total_alerts.toLocaleString();
+            statAutoTraded.textContent = stats.auto_traded_count.toLocaleString();
+            statConfidence.textContent = (stats.avg_confidence * 100).toFixed(1);
 
             const profit = stats.total_profit_loss;
-            const profitEl = document.getElementById('stat-profit');
             profitEl.textContent = Math.abs(profit).toLocaleString();
             profitEl.style.color = profit >= 0 ? '#10b981' : '#ef4444';
 
-            document.getElementById('stat-profitable').textContent = stats.profitable_trades.toLocaleString();
-            document.getElementById('stat-losing').textContent = stats.losing_trades.toLocaleString();
+            statProfitable.textContent = stats.profitable_trades.toLocaleString();
+            statLosing.textContent = stats.losing_trades.toLocaleString();
         }
 
         // Update table
@@ -1056,6 +1072,10 @@
         // Show error
         function showError(message) {
             const tableContent = document.getElementById('table-content');
+            if (!tableContent) {
+                console.error('[SurgeHistory] table-content element not found, cannot show error');
+                return;
+            }
             tableContent.innerHTML = `
                 <div class="error-state">
                     <h3>오류 발생</h3>
