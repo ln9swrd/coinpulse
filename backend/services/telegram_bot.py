@@ -479,11 +479,11 @@ https://t.me/coinpulse_surge_sinsi_bot
                         filtered_count += 1
                         continue
 
-                # Send alert
+                # Send alert (use HTML mode for better special character handling)
                 await self.bot.send_message(
                     chat_id=chat_id,
                     text=alert_message,
-                    parse_mode='Markdown'
+                    parse_mode=None  # Plain text to avoid Markdown parsing errors
                 )
                 sent_count += 1
                 logger.info(f"[TelegramBot] Alert sent to {chat_id} ({plan}): {market} ({score}점)")
