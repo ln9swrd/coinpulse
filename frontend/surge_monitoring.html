@@ -367,7 +367,7 @@
 
         <!-- Backtest Stats -->
         <div class="backtest-stats">
-            <h2>📊 백테스트 검증 결과 (2024.11.13 ~ 2024.12.07)</h2>
+            <h2 id="backtest-title">📊 백테스트 검증 결과</h2>
             <div class="stats-grid">
                 <div class="stat-card positive">
                     <div class="label">적중률</div>
@@ -484,6 +484,12 @@
             document.getElementById('avg-win').textContent = '+' + stats.avg_win + '%';
             document.getElementById('avg-loss').textContent = stats.avg_loss + '%';
             document.getElementById('total-trades').textContent = stats.total_trades + '건';
+
+            // Update backtest title with period (if available)
+            const backtestTitle = document.getElementById('backtest-title');
+            if (stats.period) {
+                backtestTitle.textContent = `📊 백테스트 검증 결과 (${stats.period})`;
+            }
 
             // Update verified badge with dynamic win rate
             const badge = document.getElementById('verified-badge');
