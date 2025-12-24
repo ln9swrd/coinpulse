@@ -55,6 +55,7 @@ from backend.routes.payment_confirmation_admin import payment_confirm_admin_bp  
 from backend.routes.telegram_webhook import telegram_webhook_bp  # Telegram bot webhook for auto payment processing
 from backend.routes.referral_routes import referral_bp  # Referral system (friend invitation)
 from backend.models.referral import ReferralCode, Referral  # Import models to register with SQLAlchemy
+from backend.routes.test_routes import test_bp  # Test endpoints for development and testing
 from backend.routes.advisory_coins_routes import advisory_coins_bp  # Investment advisory coins (Phase 8 v2.0)
 from backend.routes.surge_auto_trading_routes import surge_auto_trading_bp  # Surge auto-trading settings (Phase 8 v2.0)
 from backend.routes.surge_alert_routes import surge_alert_bp  # Surge alert history (Phase 8 v2.0)
@@ -234,6 +235,7 @@ def register_blueprints():
         (payment_confirm_admin_bp, None),  # Admin payment confirmation (already has /api/admin/payment-confirmations prefix)
         (telegram_webhook_bp, None),  # Telegram bot webhook for auto payment processing (already has /api/telegram prefix)
         (referral_bp, None),  # Referral system (already has /api/referral prefix)
+        (test_bp, None),  # Test endpoints for development and testing (already has /api/test prefix)
         (advisory_coins_bp, None),  # Investment advisory coins (Phase 8 v2.0, already has /api/user/advisory-coins prefix)
         (surge_auto_trading_bp, None),  # Surge auto-trading settings (Phase 8 v2.0, already has /api/surge/auto-trading prefix)
         (surge_alert_bp, None),  # Surge alert history (Phase 8 v2.0, already has /api/surge/alerts prefix)
