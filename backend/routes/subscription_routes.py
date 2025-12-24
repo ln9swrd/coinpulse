@@ -322,7 +322,7 @@ def health_check():
 
 @subscription_bp.route('/current', methods=['GET'])
 @require_auth
-def get_current_subscription():
+def get_current_subscription(current_user):
     """
     Get current user's subscription information
 
@@ -357,7 +357,7 @@ def get_current_subscription():
     session = get_db_session()
 
     try:
-        user_id = request.user_id
+        user_id = current_user.id
 
         # Get latest subscription
         subscription = session.query(Subscription).filter(
@@ -395,14 +395,16 @@ def get_current_subscription():
             days_remaining = max(0, delta.days)
 
         # Get plan name from config
+        # Note: subscription.plan is already a string, not an Enum
+        plan_code = subscription.plan if isinstance(subscription.plan, str) else subscription.plan.value
         plan_config = session.query(PlanConfig).filter(
-            PlanConfig.plan_code == subscription.plan.value
+            PlanConfig.plan_code == plan_code
         ).first()
 
-        plan_name_ko = plan_config.plan_name_ko if plan_config else subscription.plan.value
+        plan_name_ko = plan_config.plan_name_ko if plan_config else plan_code
 
         # Get plan features
-        plan_features = get_user_features(subscription.plan.value)
+        plan_features = get_user_features(plan_code)
 
         # TODO: Get actual usage from database (advisory coins, surge alerts)
         # For now, return placeholder
@@ -411,12 +413,15 @@ def get_current_subscription():
             'surge_alerts_used': 0     # Query from surge_alert_history table
         }
 
+        # Handle status (could be string or Enum)
+        status_value = subscription.status if isinstance(subscription.status, str) else subscription.status.value
+
         return jsonify({
             'success': True,
             'subscription': {
-                'plan': subscription.plan.value,
+                'plan': plan_code,
                 'plan_name_ko': plan_name_ko,
-                'status': subscription.status.value,
+                'status': status_value,
                 'amount': subscription.amount,
                 'billing_period': subscription.billing_period,
                 'started_at': subscription.current_period_start.isoformat() if subscription.current_period_start else None,
