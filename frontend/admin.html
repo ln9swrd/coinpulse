@@ -534,6 +534,7 @@
             <button class="tab" onclick="switchTab('beta')">🧪 베타 테스터</button>
             <button class="tab" onclick="switchTab('plans')">💎 플랜</button>
             <button class="tab" onclick="switchTab('feedback')">💬 피드백</button>
+            <button class="tab" onclick="switchTab('enterprise')">⭐ Enterprise 상담</button>
         </div>
 
         <!-- Content -->
@@ -728,6 +729,45 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Enterprise Inquiries Tab -->
+            <div id="enterprise-tab" class="tab-content">
+                <div class="actions-bar">
+                    <div class="search-box">
+                        <input type="text" id="enterpriseSearch" placeholder="🔍 Enterprise 상담 검색..." onkeyup="filterEnterpriseInquiries()">
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <select id="enterpriseStatusFilter" onchange="loadEnterpriseInquiries()" style="padding: 12px 20px; border: 2px solid #e9ecef; border-radius: 12px; font-size: 14px; cursor: pointer;">
+                            <option value="">전체 상태</option>
+                            <option value="pending">⏳ 대기</option>
+                            <option value="contacted">📞 연락완료</option>
+                            <option value="converted">✅ 계약완료</option>
+                            <option value="rejected">❌ 거절</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="loadEnterpriseInquiries()">🔄 새로고침</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>이름</th>
+                                <th>회사</th>
+                                <th>이메일</th>
+                                <th>전화번호</th>
+                                <th>거래량</th>
+                                <th>상태</th>
+                                <th>신청일</th>
+                                <th>작업</th>
+                            </tr>
+                        </thead>
+                        <tbody id="enterpriseTable">
+                            <tr><td colspan="9" class="loading">로딩 중...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -899,6 +939,38 @@
         </div>
     </div>
 
+    <!-- Enterprise Inquiry Detail Modal -->
+    <div id="enterpriseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⭐ Enterprise 상담 상세</h2>
+            </div>
+            <div id="enterpriseDetails" style="padding: 20px; background: #f8f9fa; border-radius: 12px; margin: 20px;">
+                <!-- Enterprise inquiry details will be loaded here -->
+            </div>
+            <form id="enterpriseForm" style="padding: 0 20px 20px;">
+                <input type="hidden" id="enterpriseId">
+                <div class="form-group">
+                    <label>상태 *</label>
+                    <select id="enterpriseStatus" required style="padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 14px;">
+                        <option value="pending">⏳ 대기</option>
+                        <option value="contacted">📞 연락완료</option>
+                        <option value="converted">✅ 계약완료</option>
+                        <option value="rejected">❌ 거절</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>관리자 메모</label>
+                    <textarea id="enterpriseAdminNote" placeholder="고객과의 상담 내용, 견적, 특이사항 등을 기록하세요" rows="6" style="padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 14px; width: 100%; resize: vertical;"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('enterpriseModal')">취소</button>
+                    <button type="submit" class="btn btn-primary">상태 업데이트</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         // Configuration - Use admin-specific API base (avoid global API_BASE conflict)
         // Use window object to avoid duplicate declaration on dynamic page reload
@@ -980,6 +1052,7 @@
                 case 'beta': loadBetaTesters(); break;
                 case 'plans': loadPlans(); break;
                 case 'feedback': loadFeedback(); break;
+                case 'enterprise': loadEnterpriseInquiries(); break;
             }
         }
 
@@ -1849,6 +1922,211 @@
 
         // Auto refresh every 30 seconds
         setInterval(loadDashboard, 30000);
+
+        // ===== Enterprise Inquiries Management =====
+        let allEnterpriseInquiries = [];
+
+        async function loadEnterpriseInquiries() {
+            const tbody = document.getElementById('enterpriseTable');
+            const statusFilter = document.getElementById('enterpriseStatusFilter').value;
+
+            try {
+                let url = '/api/enterprise/inquiries?per_page=100';
+                if (statusFilter) {
+                    url += `&status=${statusFilter}`;
+                }
+
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    allEnterpriseInquiries = data.inquiries;
+                    displayEnterpriseInquiries(allEnterpriseInquiries);
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="9" class="error-state"><div class="error-state-icon">⚠️</div><div class="error-state-text">상담 신청을 불러오는데 실패했습니다</div></td></tr>';
+                }
+            } catch (error) {
+                console.error('Enterprise inquiries 로드 실패:', error);
+                tbody.innerHTML = '<tr><td colspan="9" class="error-state"><div class="error-state-icon">⚠️</div><div class="error-state-text">상담 신청을 불러오는데 실패했습니다</div></td></tr>';
+            }
+        }
+
+        function displayEnterpriseInquiries(inquiries) {
+            const tbody = document.getElementById('enterpriseTable');
+
+            if (inquiries.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="empty-state"><div class="empty-state-icon">⭐</div><div class="empty-state-text">Enterprise 상담 신청이 없습니다</div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = inquiries.map(inquiry => {
+                const statusBadge = getEnterpriseStatusBadge(inquiry.status);
+                const volumeText = getTradingVolumeText(inquiry.trading_volume);
+                const createdDate = new Date(inquiry.created_at).toLocaleDateString('ko-KR', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                return `
+                    <tr>
+                        <td><strong>#${inquiry.id}</strong></td>
+                        <td>${inquiry.name}</td>
+                        <td>${inquiry.company || '-'}</td>
+                        <td><a href="mailto:${inquiry.email}">${inquiry.email}</a></td>
+                        <td><a href="tel:${inquiry.phone}">${inquiry.phone}</a></td>
+                        <td>${volumeText}</td>
+                        <td>${statusBadge}</td>
+                        <td>${createdDate}</td>
+                        <td>
+                            <button class="btn btn-info" onclick="openEnterpriseModal(${inquiry.id})" style="padding: 8px 16px; font-size: 13px;">상세보기</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function getEnterpriseStatusBadge(status) {
+            const badges = {
+                'pending': '<span class="badge" style="background: #ffc107; color: #212529;">⏳ 대기</span>',
+                'contacted': '<span class="badge" style="background: #17a2b8; color: white;">📞 연락완료</span>',
+                'converted': '<span class="badge" style="background: #28a745; color: white;">✅ 계약완료</span>',
+                'rejected': '<span class="badge" style="background: #dc3545; color: white;">❌ 거절</span>'
+            };
+            return badges[status] || status;
+        }
+
+        function getTradingVolumeText(volume) {
+            const texts = {
+                'under_10m': '1,000만원 미만',
+                '10m_50m': '1,000만원~5,000만원',
+                '50m_100m': '5,000만원~1억원',
+                '100m_500m': '1억원~5억원',
+                'over_500m': '5억원 이상'
+            };
+            return texts[volume] || volume;
+        }
+
+        async function openEnterpriseModal(inquiryId) {
+            try {
+                const response = await fetch(`/api/enterprise/inquiry/${inquiryId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const inquiry = data.inquiry;
+
+                    // Display details
+                    const detailsHtml = `
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                            <div>
+                                <strong style="color: #667eea;">신청자 정보</strong>
+                                <div style="margin-top: 8px; line-height: 1.8;">
+                                    <div>👤 <strong>이름:</strong> ${inquiry.name}</div>
+                                    <div>📧 <strong>이메일:</strong> <a href="mailto:${inquiry.email}">${inquiry.email}</a></div>
+                                    <div>📱 <strong>전화:</strong> <a href="tel:${inquiry.phone}">${inquiry.phone}</a></div>
+                                    <div>🏢 <strong>회사:</strong> ${inquiry.company || '-'}</div>
+                                </div>
+                            </div>
+                            <div>
+                                <strong style="color: #667eea;">거래 정보</strong>
+                                <div style="margin-top: 8px; line-height: 1.8;">
+                                    <div>💰 <strong>월 거래량:</strong> ${getTradingVolumeText(inquiry.trading_volume)}</div>
+                                    <div>📅 <strong>신청일:</strong> ${new Date(inquiry.created_at).toLocaleString('ko-KR')}</div>
+                                    <div>🔄 <strong>업데이트:</strong> ${new Date(inquiry.updated_at).toLocaleString('ko-KR')}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 20px;">
+                            <strong style="color: #667eea;">문의 내용</strong>
+                            <div style="margin-top: 8px; padding: 16px; background: white; border-radius: 8px; line-height: 1.6; white-space: pre-wrap;">${inquiry.message}</div>
+                        </div>
+                        ${inquiry.contacted_at ? `<div style="margin-top: 12px;"><strong>연락일:</strong> ${new Date(inquiry.contacted_at).toLocaleString('ko-KR')}</div>` : ''}
+                        ${inquiry.converted_at ? `<div style="margin-top: 12px;"><strong>계약일:</strong> ${new Date(inquiry.converted_at).toLocaleString('ko-KR')}</div>` : ''}
+                    `;
+
+                    document.getElementById('enterpriseDetails').innerHTML = detailsHtml;
+                    document.getElementById('enterpriseId').value = inquiry.id;
+                    document.getElementById('enterpriseStatus').value = inquiry.status;
+                    document.getElementById('enterpriseAdminNote').value = inquiry.admin_note || '';
+
+                    openModal('enterpriseModal');
+                } else {
+                    alert('❌ 상담 신청 정보를 불러오는데 실패했습니다');
+                }
+            } catch (error) {
+                console.error('Enterprise inquiry 로드 실패:', error);
+                alert('❌ 상담 신청 정보를 불러오는데 실패했습니다');
+            }
+        }
+
+        // Update enterprise inquiry status
+        document.getElementById('enterpriseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const inquiryId = document.getElementById('enterpriseId').value;
+            const status = document.getElementById('enterpriseStatus').value;
+            const adminNote = document.getElementById('enterpriseAdminNote').value;
+
+            try {
+                const response = await fetch(`/api/enterprise/inquiry/${inquiryId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        status: status,
+                        admin_note: adminNote
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✓ 상태가 업데이트되었습니다');
+                    closeModal('enterpriseModal');
+                    await loadEnterpriseInquiries();
+                } else {
+                    alert('❌ 상태 업데이트 실패: ' + data.message);
+                }
+            } catch (error) {
+                console.error('상태 업데이트 실패:', error);
+                alert('❌ 상태 업데이트 중 오류가 발생했습니다');
+            }
+        });
+
+        function filterEnterpriseInquiries() {
+            const searchTerm = document.getElementById('enterpriseSearch').value.toLowerCase();
+
+            if (!searchTerm) {
+                displayEnterpriseInquiries(allEnterpriseInquiries);
+                return;
+            }
+
+            const filtered = allEnterpriseInquiries.filter(inquiry => {
+                return inquiry.name.toLowerCase().includes(searchTerm) ||
+                       inquiry.email.toLowerCase().includes(searchTerm) ||
+                       inquiry.phone.includes(searchTerm) ||
+                       (inquiry.company && inquiry.company.toLowerCase().includes(searchTerm)) ||
+                       inquiry.message.toLowerCase().includes(searchTerm);
+            });
+
+            displayEnterpriseInquiries(filtered);
+        }
     </script>
 </body>
 </html>

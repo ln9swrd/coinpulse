@@ -7,6 +7,7 @@ Enterprise 플랜 상담 신청 API
 from flask import Blueprint, request, jsonify
 from backend.models.enterprise_inquiry import EnterpriseInquiry
 from backend.database.connection import get_db_session
+from backend.utils.auth_utils import admin_required
 import re
 import logging
 
@@ -101,7 +102,8 @@ def create_inquiry():
         }), 500
 
 @enterprise_bp.route('/inquiry/<int:inquiry_id>', methods=['GET'])
-def get_inquiry(inquiry_id):
+@admin_required
+def get_inquiry(current_user, inquiry_id):
     """Enterprise 상담 신청 조회 (관리자 전용)"""
     try:
         session = get_db_session()
@@ -130,7 +132,8 @@ def get_inquiry(inquiry_id):
         }), 500
 
 @enterprise_bp.route('/inquiries', methods=['GET'])
-def get_inquiries():
+@admin_required
+def get_inquiries(current_user):
     """Enterprise 상담 신청 목록 (관리자 전용)"""
     try:
         # 쿼리 파라미터
@@ -177,7 +180,8 @@ def get_inquiries():
         }), 500
 
 @enterprise_bp.route('/inquiry/<int:inquiry_id>/status', methods=['PUT'])
-def update_inquiry_status(inquiry_id):
+@admin_required
+def update_inquiry_status(current_user, inquiry_id):
     """Enterprise 상담 신청 상태 업데이트 (관리자 전용)"""
     try:
         session = get_db_session()
