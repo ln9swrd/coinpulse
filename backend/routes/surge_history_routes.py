@@ -13,7 +13,7 @@ surge_history_bp = Blueprint('surge_history', __name__, url_prefix='/api/admin/s
 
 @surge_history_bp.route('', methods=['GET'])
 @admin_required
-def get_surge_history():
+def get_surge_history(current_user):
     """
     급등예측 이력 조회 (관리자 전용)
 
@@ -189,7 +189,7 @@ def get_surge_history():
 
 @surge_history_bp.route('/<int:alert_id>', methods=['GET'])
 @admin_required
-def get_surge_alert_detail(alert_id):
+def get_surge_alert_detail(current_user, alert_id):
     """
     급등예측 단일 항목 상세 조회
 
@@ -237,7 +237,7 @@ def get_surge_alert_detail(alert_id):
 
 @surge_history_bp.route('/markets', methods=['GET'])
 @admin_required
-def get_available_markets():
+def get_available_markets(current_user):
     """
     급등예측에 사용된 마켓 목록 조회
 
@@ -270,7 +270,7 @@ def get_available_markets():
 
 @surge_history_bp.route('/export', methods=['GET'])
 @admin_required
-def export_surge_history():
+def export_surge_history(current_user):
     """
     급등예측 이력 CSV 내보내기
 
