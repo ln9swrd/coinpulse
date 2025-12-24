@@ -528,9 +528,9 @@ def get_order_by_uuid(uuid):
 
 @holdings_bp.route('/api/trading/buy', methods=['POST'])
 @require_auth
-def place_buy_order():
+def place_buy_order(current_user):
     """
-    Place a limit buy order
+    Place a limit buy order (PAID PLANS ONLY: Basic, Pro, Enterprise)
 
     Expected JSON body:
     {
@@ -540,6 +540,20 @@ def place_buy_order():
     }
     """
     try:
+        # Check if user has a paid plan
+        user_plan = getattr(current_user, 'plan', 'free')
+        if user_plan not in ['basic', 'pro', 'enterprise']:
+            logger.warning(f"[Trading] Free plan user attempted to place buy order: user_id={current_user.id}, plan={user_plan}")
+            return jsonify({
+                "success": False,
+                "error": "유료 요금제가 필요합니다",
+                "message": "주문 기능은 Basic 이상의 유료 요금제에서만 사용 가능합니다.",
+                "current_plan": user_plan,
+                "required_plans": ["basic", "pro", "enterprise"],
+                "upgrade_required": True,
+                "upgrade_url": "/pricing.html"
+            }), 403
+
         data = request.get_json()
 
         if not data or 'market' not in data or 'price' not in data or 'volume' not in data:
@@ -594,9 +608,9 @@ def place_buy_order():
 
 @holdings_bp.route('/api/trading/sell', methods=['POST'])
 @require_auth
-def place_sell_order():
+def place_sell_order(current_user):
     """
-    Place a limit sell order
+    Place a limit sell order (PAID PLANS ONLY: Basic, Pro, Enterprise)
 
     Expected JSON body:
     {
@@ -606,6 +620,20 @@ def place_sell_order():
     }
     """
     try:
+        # Check if user has a paid plan
+        user_plan = getattr(current_user, 'plan', 'free')
+        if user_plan not in ['basic', 'pro', 'enterprise']:
+            logger.warning(f"[Trading] Free plan user attempted to place sell order: user_id={current_user.id}, plan={user_plan}")
+            return jsonify({
+                "success": False,
+                "error": "유료 요금제가 필요합니다",
+                "message": "주문 기능은 Basic 이상의 유료 요금제에서만 사용 가능합니다.",
+                "current_plan": user_plan,
+                "required_plans": ["basic", "pro", "enterprise"],
+                "upgrade_required": True,
+                "upgrade_url": "/pricing.html"
+            }), 403
+
         data = request.get_json()
 
         if not data or 'market' not in data or 'price' not in data or 'volume' not in data:
@@ -660,14 +688,28 @@ def place_sell_order():
 
 @holdings_bp.route('/api/trading/cancel/<uuid>', methods=['DELETE'])
 @require_auth
-def cancel_order(uuid):
+def cancel_order(current_user, uuid):
     """
-    Cancel an existing order by UUID
+    Cancel an existing order by UUID (PAID PLANS ONLY: Basic, Pro, Enterprise)
 
     URL parameter:
     - uuid: Order UUID to cancel
     """
     try:
+        # Check if user has a paid plan
+        user_plan = getattr(current_user, 'plan', 'free')
+        if user_plan not in ['basic', 'pro', 'enterprise']:
+            logger.warning(f"[Trading] Free plan user attempted to cancel order: user_id={current_user.id}, plan={user_plan}")
+            return jsonify({
+                "success": False,
+                "error": "유료 요금제가 필요합니다",
+                "message": "주문 기능은 Basic 이상의 유료 요금제에서만 사용 가능합니다.",
+                "current_plan": user_plan,
+                "required_plans": ["basic", "pro", "enterprise"],
+                "upgrade_required": True,
+                "upgrade_url": "/pricing.html"
+            }), 403
+
         if not uuid:
             return jsonify({"success": False, "error": "Order UUID is required"}), 400
 

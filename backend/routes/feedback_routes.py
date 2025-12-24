@@ -138,10 +138,10 @@ def submit_feedback():
 
 @feedback_bp.route('/my', methods=['GET'])
 @require_auth
-def get_my_feedback():
+def get_my_feedback(current_user):
     """내가 제출한 피드백 목록 조회 (사용자)"""
     try:
-        user_id = request.user_id
+        user_id = current_user.id
 
         session = get_db_session()
         try:
