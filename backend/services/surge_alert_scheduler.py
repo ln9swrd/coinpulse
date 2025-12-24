@@ -123,33 +123,41 @@ class SurgeAlertScheduler:
 
         return candidates
 
-    def is_already_saved_today(self, market: str) -> bool:
+    def is_already_alerted_recently(self, market: str, hours: int = 6) -> bool:
         """
-        Check if market was already saved today in database
+        Check if market was already alerted within recent hours in database
+
+        This prevents duplicate alerts for the same coin within a short time period.
+        Default: 6 hours (prevents alerts like 8pm yesterday and 12am today for same coin)
 
         Args:
             market: Market symbol (e.g., 'KRW-BTC')
+            hours: Number of hours to check (default: 6)
 
         Returns:
-            True if already saved today, False otherwise
+            True if already alerted within recent hours, False otherwise
         """
         try:
             with get_db_session() as session:
-                today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+                cutoff_time = datetime.now() - timedelta(hours=hours)
 
                 result = session.execute(
                     text("""
                         SELECT COUNT(*) FROM surge_alerts
                         WHERE market = :market
-                        AND sent_at >= :today_start
+                        AND sent_at >= :cutoff_time
                     """),
-                    {'market': market, 'today_start': today_start}
+                    {'market': market, 'cutoff_time': cutoff_time}
                 )
                 count = result.scalar()
+
+                if count > 0:
+                    logger.debug(f"[SurgeAlertScheduler] {market} already alerted within {hours} hours")
+
                 return count > 0
 
         except Exception as e:
-            logger.error(f"[SurgeAlertScheduler] Error checking if already saved: {e}")
+            logger.error(f"[SurgeAlertScheduler] Error checking recent alerts: {e}")
             return False  # Default to False to allow saving
 
     def save_to_database(self, candidate: Dict):
@@ -309,10 +317,11 @@ class SurgeAlertScheduler:
                 # Check if already sent telegram alert (in-memory check for telegram spam prevention)
                 telegram_already_sent = market in self.alerted_candidates
 
-                # Check if already saved to DB today (database check for history tracking)
-                db_already_saved = self.is_already_saved_today(market)
+                # Check if already alerted within recent hours (6 hours by default)
+                # This prevents duplicate alerts like "8pm yesterday + 12am today" for same coin
+                db_already_alerted = self.is_already_alerted_recently(market, hours=6)
 
-                # Send telegram alert only if not already sent
+                # Send telegram alert only if not already sent (in-memory check)
                 if not telegram_already_sent:
                     await self.telegram_bot.send_surge_alert(candidate)
                     self.alerted_candidates.add(market)
@@ -327,8 +336,8 @@ class SurgeAlertScheduler:
                     except Exception as ws_error:
                         logger.warning(f"[SurgeAlertScheduler] WebSocket not available: {ws_error}")
 
-                # Save to database only if not already saved today
-                if not db_already_saved:
+                # Save to database only if not already alerted within recent 6 hours
+                if not db_already_alerted:
                     self.save_to_database(candidate)
                     new_db_records += 1
                     logger.info(f"[SurgeAlertScheduler] Saved to DB: {market}")
