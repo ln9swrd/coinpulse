@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>플랜 변경 - CoinPulse</title>
+    <script src="js/api_client.js?v=20251224"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Pretendard', -apple-system, sans-serif; background: #0a0a0f; color: #e0e0e0; min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 60px 20px; }
+
+        h1 { color: #fff; font-size: 36px; margin-bottom: 10px; text-align: center; }
+        .subtitle { color: #888; margin-bottom: 40px; text-align: center; font-size: 16px; }
+
+        .back { display: inline-block; margin-bottom: 30px; color: #4facfe; text-decoration: none; font-weight: 600; transition: color 0.3s; }
+        .back:hover { color: #00f2fe; }
+
+        /* Current Plan Info */
+        .current-plan-card {
+            background: #1a1a2e;
+            border-radius: 16px;
+            padding: 24px;
+            border: 2px solid #4facfe;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .current-plan-card h3 {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .current-plan-card .plan-name {
+            color: #4facfe;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        /* Billing Toggle */
+        .billing-toggle { display: flex; justify-content: center; gap: 10px; margin-bottom: 50px; }
+        .billing-btn { padding: 12px 28px; border-radius: 24px; border: 2px solid #333; background: transparent; color: #888; cursor: pointer; transition: all 0.3s; font-size: 15px; font-weight: 600; }
+        .billing-btn.active { background: #4facfe; color: #fff; border-color: #4facfe; }
+        .save-badge { background: #ff6b6b; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 12px; margin-left: 8px; font-weight: 700; }
+
+        /* Plans Grid */
+        #plans-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 40px; }
+
+        .plan-card { background: #1a1a2e; border-radius: 16px; padding: 32px; border: 2px solid #2a2a3e; cursor: pointer; transition: all 0.3s; position: relative; display: flex; flex-direction: column; }
+        .plan-card:hover { border-color: #4facfe; transform: translateY(-4px); box-shadow: 0 8px 24px rgba(79, 172, 254, 0.2); }
+        .plan-card.selected { border-color: #4facfe; background: #1e2a4a; transform: translateY(-4px); }
+        .plan-card.disabled { opacity: 0.5; cursor: not-allowed; }
+        .plan-card.disabled:hover { transform: none; box-shadow: none; }
+
+        .plan-badge { position: absolute; top: -12px; right: 24px; background: linear-gradient(135deg, #ff6b6b, #ff8e53); color: #fff; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+        .plan-badge.gold { background: linear-gradient(135deg, #ffd700, #ffed4e); color: #000; }
+
+        .plan-header { margin-bottom: 20px; }
+        .plan-name { font-size: 24px; color: #fff; margin-bottom: 8px; font-weight: 700; }
+        .plan-price { font-size: 36px; color: #4facfe; font-weight: 800; margin-bottom: 4px; }
+        .plan-price span { font-size: 16px; color: #888; font-weight: 500; }
+        .plan-description { color: #aaa; font-size: 14px; margin-bottom: 20px; min-height: 40px; }
+
+        .price-difference {
+            background: #ff6b6b;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 8px;
+            display: inline-block;
+        }
+
+        .plan-features { flex-grow: 1; }
+        .plan-feature { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; color: #ccc; font-size: 14px; }
+        .plan-feature svg { flex-shrink: 0; width: 18px; height: 18px; }
+
+        .plan-cta { margin-top: 24px; width: 100%; padding: 14px; border-radius: 10px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .plan-cta.primary { background: linear-gradient(135deg, #4facfe, #00f2fe); color: #fff; }
+        .plan-cta.primary:hover { opacity: 0.9; transform: scale(1.02); }
+        .plan-cta:disabled { background: #333; cursor: not-allowed; color: #666; }
+
+        .loading { text-align: center; padding: 40px; color: #888; }
+        .spinner { display: inline-block; width: 40px; height: 40px; border: 4px solid #333; border-top-color: #4facfe; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+
+        .modal-content { background: #1a1a2e; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; border: 2px solid #4facfe; max-height: 80vh; overflow-y: auto; }
+
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .modal-title { font-size: 24px; color: #fff; font-weight: 700; }
+        .modal-close { background: transparent; border: none; color: #888; font-size: 24px; cursor: pointer; transition: color 0.3s; }
+        .modal-close:hover { color: #fff; }
+
+        .modal-body { margin-bottom: 24px; }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; color: #888; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #0a0a0f; color: #fff; font-size: 14px; }
+
+        .info-box { background: #0a0a0f; padding: 16px; border-radius: 8px; margin-bottom: 20px; }
+        .info-label { color: #888; font-size: 12px; margin-bottom: 4px; }
+        .info-value { color: #fff; font-weight: 600; font-size: 18px; }
+
+        .bank-info { background: #1e2a4a; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #4facfe; }
+        .bank-info .label { color: #888; font-size: 13px; }
+        .bank-info .value { color: #fff; font-weight: 600; font-size: 16px; margin-top: 4px; }
+
+        .modal-footer { display: flex; gap: 12px; justify-content: flex-end; }
+        .btn-secondary { background: transparent; border: 2px solid #666; color: #888; padding: 12px 24px; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
+        .btn-secondary:hover { border-color: #888; color: #ccc; }
+        .btn-primary { background: linear-gradient(135deg, #4facfe, #00f2fe); color: #fff; padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.3s; }
+        .btn-primary:hover { opacity: 0.9; transform: scale(1.02); }
+
+        @media (max-width: 768px) {
+            #plans-container { grid-template-columns: 1fr; }
+            h1 { font-size: 28px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/dashboard_overview.html" class="back">← 대시보드로</a>
+        <h1>플랜 변경</h1>
+        <p class="subtitle">더 많은 기능을 사용하려면 플랜을 업그레이드하세요</p>
+
+        <!-- Current Plan -->
+        <div class="current-plan-card" id="current-plan-card">
+            <h3>현재 플랜</h3>
+            <div class="plan-name" id="current-plan-name">로딩 중...</div>
+        </div>
+
+        <!-- Billing Toggle -->
+        <div class="billing-toggle">
+            <button class="billing-btn active" data-billing="monthly">월간 결제</button>
+            <button class="billing-btn" data-billing="yearly">연간 결제 <span class="save-badge">17% 할인</span></button>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 16px;">플랜 정보 로딩 중...</p>
+        </div>
+
+        <!-- Plans Container -->
+        <div id="plans-container" style="display: none;">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">계좌이체 결제</div>
+                <button class="modal-close" onclick="closePaymentModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="info-box">
+                    <div class="info-label">선택한 플랜</div>
+                    <div class="info-value" id="modal-plan-name">-</div>
+                </div>
+                <div class="info-box">
+                    <div class="info-label">결제 금액</div>
+                    <div class="info-value" id="modal-amount">-</div>
+                </div>
+
+                <div class="bank-info">
+                    <div class="label">입금 계좌</div>
+                    <div class="value">신한은행 110-123-456789</div>
+                    <div class="value">예금주: (주)코인펄스</div>
+                </div>
+
+                <div class="form-group">
+                    <label>입금자명 *</label>
+                    <input type="text" id="depositor-name" placeholder="홍길동" required>
+                </div>
+
+                <div class="form-group">
+                    <label>입금 예정일 *</label>
+                    <input type="date" id="payment-date" required>
+                </div>
+
+                <div class="form-group">
+                    <label>연락처 *</label>
+                    <input type="tel" id="contact-phone" placeholder="010-1234-5678" required>
+                </div>
+
+                <div class="form-group">
+                    <label>메모 (선택)</label>
+                    <textarea id="payment-memo" rows="3" placeholder="문의사항이 있으시면 입력해주세요"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closePaymentModal()">취소</button>
+                <button class="btn-primary" onclick="submitPayment()">결제 신청</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const checkIcon = '<svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>';
+
+        let currentPlan = 'free';
+        let upgradeOptions = [];
+        let billingCycle = 'monthly';
+        let selectedPlan = null;
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadUpgradeOptions();
+            setupBillingToggle();
+        });
+
+        async function loadUpgradeOptions() {
+            const loading = document.getElementById('loading');
+            const plansContainer = document.getElementById('plans-container');
+
+            try {
+                const response = await window.api.authenticatedRequest('/api/subscription/upgrade-options');
+
+                if (!response.success) {
+                    throw new Error(response.error || 'Failed to load upgrade options');
+                }
+
+                currentPlan = response.current_plan;
+                upgradeOptions = response.upgrade_options;
+
+                // Update current plan display
+                const planNames = {
+                    'free': '무료',
+                    'basic': '베이직',
+                    'pro': '프로',
+                    'expert': '전문가',
+                    'enterprise': '엔터프라이즈'
+                };
+                document.getElementById('current-plan-name').textContent = planNames[currentPlan] || currentPlan;
+
+                // Render plans
+                renderPlans();
+
+                loading.style.display = 'none';
+                plansContainer.style.display = 'grid';
+
+            } catch (error) {
+                console.error('Failed to load plans:', error);
+                loading.innerHTML = `<p style="color: #ff6b6b;">플랜을 불러오는데 실패했습니다: ${error.message}</p>`;
+            }
+        }
+
+        function renderPlans() {
+            const container = document.getElementById('plans-container');
+
+            container.innerHTML = upgradeOptions.map(plan => {
+                const price = billingCycle === 'monthly' ? plan.monthly_price : plan.annual_price;
+                const period = billingCycle === 'monthly' ? '월' : '년';
+
+                return `
+                    <div class="plan-card" data-plan="${plan.plan_code}" data-price="${price}" onclick="selectPlan(this)">
+                        ${plan.badge_text ? `<div class="plan-badge">${plan.badge_text}</div>` : ''}
+
+                        <div class="plan-header">
+                            <div class="plan-name">${plan.plan_name_ko}</div>
+                            <div class="plan-price">
+                                ₩${price.toLocaleString()}
+                                <span>/${period}</span>
+                            </div>
+                            ${plan.price_difference > 0 ? `<div class="price-difference">현재 대비 +₩${plan.price_difference.toLocaleString()}</div>` : ''}
+                            <div class="plan-description">${plan.description || ''}</div>
+                        </div>
+
+                        <div class="plan-features">
+                            <div class="plan-feature">
+                                ${checkIcon}
+                                <span>투자조언 ${plan.features.max_advisory_coins}개 코인</span>
+                            </div>
+                            <div class="plan-feature">
+                                ${checkIcon}
+                                <span>주간 급등 알림 ${plan.features.max_surge_alerts}회</span>
+                            </div>
+                            <div class="plan-feature">
+                                ${checkIcon}
+                                <span>텔레그램 알림</span>
+                            </div>
+                            <div class="plan-feature">
+                                ${checkIcon}
+                                <span>${plan.features.trade_history_days > 0 ? plan.features.trade_history_days + '일' : '무제한'} 거래 히스토리</span>
+                            </div>
+                        </div>
+
+                        <button class="plan-cta primary">
+                            ${plan.cta_text || '업그레이드'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function setupBillingToggle() {
+            document.querySelectorAll('.billing-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.billing-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    billingCycle = btn.dataset.billing;
+                    renderPlans();
+                });
+            });
+        }
+
+        function selectPlan(card) {
+            // Remove previous selection
+            document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+
+            const planCode = card.dataset.plan;
+            const price = parseInt(card.dataset.price);
+
+            selectedPlan = upgradeOptions.find(p => p.plan_code === planCode);
+
+            if (!selectedPlan) {
+                alert('플랜 정보를 찾을 수 없습니다');
+                return;
+            }
+
+            // Open payment modal
+            openPaymentModal();
+        }
+
+        function openPaymentModal() {
+            if (!selectedPlan) return;
+
+            const modal = document.getElementById('payment-modal');
+            const price = billingCycle === 'monthly' ? selectedPlan.monthly_price : selectedPlan.annual_price;
+            const period = billingCycle === 'monthly' ? '월간' : '연간';
+
+            document.getElementById('modal-plan-name').textContent = `${selectedPlan.plan_name_ko} (${period})`;
+            document.getElementById('modal-amount').textContent = `₩${price.toLocaleString()}`;
+
+            // Set default payment date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('payment-date').value = tomorrow.toISOString().split('T')[0];
+
+            modal.classList.add('active');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.remove('active');
+
+            // Clear form
+            document.getElementById('depositor-name').value = '';
+            document.getElementById('payment-date').value = '';
+            document.getElementById('contact-phone').value = '';
+            document.getElementById('payment-memo').value = '';
+        }
+
+        async function submitPayment() {
+            if (!selectedPlan) return;
+
+            // Validate form
+            const depositorName = document.getElementById('depositor-name').value.trim();
+            const paymentDate = document.getElementById('payment-date').value;
+            const contactPhone = document.getElementById('contact-phone').value.trim();
+            const memo = document.getElementById('payment-memo').value.trim();
+
+            if (!depositorName || !paymentDate || !contactPhone) {
+                alert('필수 항목을 모두 입력해주세요');
+                return;
+            }
+
+            const price = billingCycle === 'monthly' ? selectedPlan.monthly_price : selectedPlan.annual_price;
+
+            try {
+                const response = await window.api.authenticatedRequest('/api/payment-confirm/submit', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        plan: selectedPlan.plan_code,
+                        billing_period: billingCycle,
+                        amount: price,
+                        payment_date: paymentDate,
+                        depositor_name: depositorName,
+                        contact_phone: contactPhone,
+                        payment_method: 'bank_transfer',
+                        memo: memo
+                    })
+                });
+
+                if (response.success) {
+                    alert('결제 신청이 완료되었습니다!\n관리자 승인 후 플랜이 변경됩니다.');
+                    closePaymentModal();
+                    window.location.href = '/dashboard_overview.html';
+                } else {
+                    throw new Error(response.error || '결제 신청 실패');
+                }
+            } catch (error) {
+                console.error('Payment submission failed:', error);
+                alert('결제 신청 중 오류가 발생했습니다: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사용기간 연장 - CoinPulse</title>
+    <script src="js/api_client.js?v=20251224"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Pretendard', -apple-system, sans-serif; background: #0a0a0f; color: #e0e0e0; min-height: 100vh; }
+        .container { max-width: 800px; margin: 0 auto; padding: 60px 20px; }
+
+        h1 { color: #fff; font-size: 36px; margin-bottom: 10px; text-align: center; }
+        .subtitle { color: #888; margin-bottom: 40px; text-align: center; font-size: 16px; }
+
+        .back { display: inline-block; margin-bottom: 30px; color: #4facfe; text-decoration: none; font-weight: 600; transition: color 0.3s; }
+        .back:hover { color: #00f2fe; }
+
+        /* Current Plan Info */
+        .current-plan-section {
+            background: #1a1a2e;
+            border-radius: 16px;
+            padding: 32px;
+            border: 2px solid #4facfe;
+            margin-bottom: 40px;
+        }
+
+        .current-plan-section h2 {
+            color: #fff;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .plan-info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #2a2a3e;
+        }
+
+        .plan-info-row:last-child {
+            border-bottom: none;
+        }
+
+        .plan-info-row .label {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .plan-info-row .value {
+            color: #fff;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .plan-info-row .value.highlight {
+            color: #4facfe;
+            font-size: 20px;
+        }
+
+        /* Extension Options */
+        .extension-options {
+            background: #1a1a2e;
+            border-radius: 16px;
+            padding: 32px;
+            border: 2px solid #2a2a3e;
+            margin-bottom: 40px;
+        }
+
+        .extension-options h2 {
+            color: #fff;
+            font-size: 20px;
+            margin-bottom: 24px;
+        }
+
+        .option-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .option-card {
+            background: #0a0a0f;
+            border-radius: 12px;
+            padding: 24px;
+            border: 2px solid #2a2a3e;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .option-card:hover {
+            border-color: #4facfe;
+            transform: scale(1.02);
+        }
+
+        .option-card.selected {
+            border-color: #4facfe;
+            background: #1e2a4a;
+        }
+
+        .option-badge {
+            position: absolute;
+            top: -10px;
+            right: 16px;
+            background: #ff6b6b;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .option-period {
+            font-size: 24px;
+            color: #fff;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .option-price {
+            font-size: 32px;
+            color: #4facfe;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .option-original-price {
+            font-size: 14px;
+            color: #888;
+            text-decoration: line-through;
+            margin-bottom: 12px;
+        }
+
+        .option-features {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .option-feature {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ccc;
+            font-size: 13px;
+        }
+
+        .option-feature svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        /* Payment Button */
+        .payment-section {
+            text-align: center;
+        }
+
+        .btn-payment {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: #fff;
+            padding: 16px 48px;
+            border-radius: 12px;
+            border: none;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-payment:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+
+        .btn-payment:disabled {
+            background: #333;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading { text-align: center; padding: 40px; color: #888; }
+        .spinner { display: inline-block; width: 40px; height: 40px; border: 4px solid #333; border-top-color: #4facfe; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+
+        .modal-content { background: #1a1a2e; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; border: 2px solid #4facfe; max-height: 80vh; overflow-y: auto; }
+
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .modal-title { font-size: 24px; color: #fff; font-weight: 700; }
+        .modal-close { background: transparent; border: none; color: #888; font-size: 24px; cursor: pointer; transition: color 0.3s; }
+        .modal-close:hover { color: #fff; }
+
+        .modal-body { margin-bottom: 24px; }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; color: #888; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #0a0a0f; color: #fff; font-size: 14px; }
+
+        .info-box { background: #0a0a0f; padding: 16px; border-radius: 8px; margin-bottom: 20px; }
+        .info-label { color: #888; font-size: 12px; margin-bottom: 4px; }
+        .info-value { color: #fff; font-weight: 600; font-size: 18px; }
+
+        .bank-info { background: #1e2a4a; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #4facfe; }
+        .bank-info .label { color: #888; font-size: 13px; }
+        .bank-info .value { color: #fff; font-weight: 600; font-size: 16px; margin-top: 4px; }
+
+        .modal-footer { display: flex; gap: 12px; justify-content: flex-end; }
+        .btn-secondary { background: transparent; border: 2px solid #666; color: #888; padding: 12px 24px; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
+        .btn-secondary:hover { border-color: #888; color: #ccc; }
+        .btn-primary { background: linear-gradient(135deg, #4facfe, #00f2fe); color: #fff; padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.3s; }
+        .btn-primary:hover { opacity: 0.9; transform: scale(1.02); }
+
+        @media (max-width: 768px) {
+            .option-cards { grid-template-columns: 1fr; }
+            h1 { font-size: 28px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/dashboard_overview.html" class="back">← 대시보드로</a>
+        <h1>사용기간 연장</h1>
+        <p class="subtitle">현재 플랜의 사용기간을 연장하세요</p>
+
+        <!-- Loading -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 16px;">정보 로딩 중...</p>
+        </div>
+
+        <div id="main-content" style="display: none;">
+            <!-- Current Plan Info -->
+            <div class="current-plan-section">
+                <h2>현재 플랜 정보</h2>
+                <div class="plan-info-row">
+                    <span class="label">플랜</span>
+                    <span class="value" id="current-plan-name">-</span>
+                </div>
+                <div class="plan-info-row">
+                    <span class="label">결제 금액</span>
+                    <span class="value" id="current-amount">-</span>
+                </div>
+                <div class="plan-info-row">
+                    <span class="label">남은 이용일</span>
+                    <span class="value highlight" id="days-remaining">-</span>
+                </div>
+                <div class="plan-info-row">
+                    <span class="label">만료일</span>
+                    <span class="value" id="expiry-date">-</span>
+                </div>
+            </div>
+
+            <!-- Extension Options -->
+            <div class="extension-options">
+                <h2>연장 기간 선택</h2>
+                <div class="option-cards">
+                    <!-- Monthly Option -->
+                    <div class="option-card" data-period="monthly" onclick="selectOption('monthly')">
+                        <div class="option-period">1개월 연장</div>
+                        <div class="option-price" id="monthly-price">₩39,000</div>
+                        <div class="option-features">
+                            <div class="option-feature">
+                                <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                <span>30일 추가</span>
+                            </div>
+                            <div class="option-feature">
+                                <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                <span>즉시 연장</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Yearly Option -->
+                    <div class="option-card" data-period="yearly" onclick="selectOption('yearly')">
+                        <div class="option-badge">17% 할인</div>
+                        <div class="option-period">1년 연장</div>
+                        <div class="option-price" id="yearly-price">₩390,000</div>
+                        <div class="option-original-price" id="yearly-original">₩468,000</div>
+                        <div class="option-features">
+                            <div class="option-feature">
+                                <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                <span>365일 추가</span>
+                            </div>
+                            <div class="option-feature">
+                                <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                <span>₩78,000 절약</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Button -->
+            <div class="payment-section">
+                <button class="btn-payment" id="payment-btn" onclick="openPaymentModal()" disabled>
+                    연장 기간을 선택해주세요
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">계좌이체 결제</div>
+                <button class="modal-close" onclick="closePaymentModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="info-box">
+                    <div class="info-label">연장 기간</div>
+                    <div class="info-value" id="modal-period">-</div>
+                </div>
+                <div class="info-box">
+                    <div class="info-label">결제 금액</div>
+                    <div class="info-value" id="modal-amount">-</div>
+                </div>
+
+                <div class="bank-info">
+                    <div class="label">입금 계좌</div>
+                    <div class="value">신한은행 110-123-456789</div>
+                    <div class="value">예금주: (주)코인펄스</div>
+                </div>
+
+                <div class="form-group">
+                    <label>입금자명 *</label>
+                    <input type="text" id="depositor-name" placeholder="홍길동" required>
+                </div>
+
+                <div class="form-group">
+                    <label>입금 예정일 *</label>
+                    <input type="date" id="payment-date" required>
+                </div>
+
+                <div class="form-group">
+                    <label>연락처 *</label>
+                    <input type="tel" id="contact-phone" placeholder="010-1234-5678" required>
+                </div>
+
+                <div class="form-group">
+                    <label>메모 (선택)</label>
+                    <textarea id="payment-memo" rows="3" placeholder="문의사항이 있으시면 입력해주세요"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closePaymentModal()">취소</button>
+                <button class="btn-primary" onclick="submitPayment()">결제 신청</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSubscription = null;
+        let selectedPeriod = null;
+        let monthlyPrice = 0;
+        let yearlyPrice = 0;
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadCurrentSubscription();
+        });
+
+        async function loadCurrentSubscription() {
+            const loading = document.getElementById('loading');
+            const mainContent = document.getElementById('main-content');
+
+            try {
+                const response = await window.api.authenticatedRequest('/api/subscription/current');
+
+                if (!response.success) {
+                    throw new Error(response.error || 'Failed to load subscription');
+                }
+
+                currentSubscription = response.subscription;
+
+                if (currentSubscription.plan === 'free') {
+                    alert('무료 플랜은 사용기간 연장이 불가능합니다. 유료 플랜으로 업그레이드해주세요.');
+                    window.location.href = '/subscription_manage.html';
+                    return;
+                }
+
+                // Update current plan display
+                document.getElementById('current-plan-name').textContent = currentSubscription.plan_name_ko;
+                document.getElementById('current-amount').textContent = `₩${currentSubscription.amount.toLocaleString()}/${currentSubscription.billing_period === 'monthly' ? '월' : '년'}`;
+                document.getElementById('days-remaining').textContent = currentSubscription.days_remaining !== null ? `${currentSubscription.days_remaining}일` : '무제한';
+
+                if (currentSubscription.current_period_end) {
+                    const date = new Date(currentSubscription.current_period_end);
+                    document.getElementById('expiry-date').textContent = date.toLocaleDateString('ko-KR');
+                } else {
+                    document.getElementById('expiry-date').textContent = '-';
+                }
+
+                // Calculate prices (use current plan pricing)
+                monthlyPrice = currentSubscription.amount;
+                yearlyPrice = monthlyPrice * 12 * 0.83; // 17% discount
+
+                document.getElementById('monthly-price').textContent = `₩${monthlyPrice.toLocaleString()}`;
+                document.getElementById('yearly-price').textContent = `₩${yearlyPrice.toLocaleString()}`;
+                document.getElementById('yearly-original').textContent = `₩${(monthlyPrice * 12).toLocaleString()}`;
+
+                loading.style.display = 'none';
+                mainContent.style.display = 'block';
+
+            } catch (error) {
+                console.error('Failed to load subscription:', error);
+                loading.innerHTML = `<p style="color: #ff6b6b;">구독 정보를 불러오는데 실패했습니다: ${error.message}</p>`;
+            }
+        }
+
+        function selectOption(period) {
+            // Remove previous selection
+            document.querySelectorAll('.option-card').forEach(card => card.classList.remove('selected'));
+
+            // Select clicked option
+            document.querySelector(`[data-period="${period}"]`).classList.add('selected');
+
+            selectedPeriod = period;
+
+            // Enable payment button
+            const paymentBtn = document.getElementById('payment-btn');
+            paymentBtn.disabled = false;
+            paymentBtn.textContent = period === 'monthly' ? '1개월 연장 결제하기' : '1년 연장 결제하기 (17% 할인)';
+        }
+
+        function openPaymentModal() {
+            if (!selectedPeriod) return;
+
+            const modal = document.getElementById('payment-modal');
+            const price = selectedPeriod === 'monthly' ? monthlyPrice : yearlyPrice;
+            const periodText = selectedPeriod === 'monthly' ? '1개월' : '1년';
+
+            document.getElementById('modal-period').textContent = periodText;
+            document.getElementById('modal-amount').textContent = `₩${price.toLocaleString()}`;
+
+            // Set default payment date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('payment-date').value = tomorrow.toISOString().split('T')[0];
+
+            modal.classList.add('active');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.remove('active');
+
+            // Clear form
+            document.getElementById('depositor-name').value = '';
+            document.getElementById('payment-date').value = '';
+            document.getElementById('contact-phone').value = '';
+            document.getElementById('payment-memo').value = '';
+        }
+
+        async function submitPayment() {
+            if (!selectedPeriod || !currentSubscription) return;
+
+            // Validate form
+            const depositorName = document.getElementById('depositor-name').value.trim();
+            const paymentDate = document.getElementById('payment-date').value;
+            const contactPhone = document.getElementById('contact-phone').value.trim();
+            const memo = document.getElementById('payment-memo').value.trim();
+
+            if (!depositorName || !paymentDate || !contactPhone) {
+                alert('필수 항목을 모두 입력해주세요');
+                return;
+            }
+
+            const price = selectedPeriod === 'monthly' ? monthlyPrice : yearlyPrice;
+
+            try {
+                const response = await window.api.authenticatedRequest('/api/payment-confirm/submit', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        plan: currentSubscription.plan,
+                        billing_period: selectedPeriod,
+                        amount: Math.round(price),
+                        payment_date: paymentDate,
+                        depositor_name: depositorName,
+                        contact_phone: contactPhone,
+                        payment_method: 'bank_transfer',
+                        memo: memo || `사용기간 연장 (${selectedPeriod === 'monthly' ? '1개월' : '1년'})`
+                    })
+                });
+
+                if (response.success) {
+                    alert('결제 신청이 완료되었습니다!\n관리자 승인 후 사용기간이 연장됩니다.');
+                    closePaymentModal();
+                    window.location.href = '/dashboard_overview.html';
+                } else {
+                    throw new Error(response.error || '결제 신청 실패');
+                }
+            } catch (error) {
+                console.error('Payment submission failed:', error);
+                alert('결제 신청 중 오류가 발생했습니다: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
