@@ -92,14 +92,17 @@ PLAN_FEATURES = {
         'surge_monitoring': True,  # 급등 모니터링 (상위 3개만 상세, 나머지 잠금)
         'telegram_alerts': False,
         'max_surge_budget': 0,  # 총 예산 제한: 불가
-        # 기타
-        'advanced_indicators': False,
-        'custom_indicators': False,
+        # 기타 (단순화)
+        'advanced_indicators': False,  # 고급 지표 (Custom 포함)
+        # custom_indicators 제거 (advanced_indicators로 통합)
         'backtesting': False,
         'data_export': False,
         'api_access': False,
         'priority_support': False,
-        'trade_history_days': 14  # 7일 → 14일로 확대
+        'trade_history_days': 14,  # 7일 → 14일로 확대
+        # 알림 단순화
+        'important_notifications': False,  # 중요 알림
+        'general_notifications': False  # 일반 알림
     },
     'basic': {
         'manual_trading': True,
@@ -113,15 +116,18 @@ PLAN_FEATURES = {
         'surge_monitoring': True,  # 전체 상세 정보 접근
         'telegram_alerts': True,
         'max_surge_budget': 5000000,  # 총 예산 제한: 500만원
-        # 기타
-        'advanced_indicators': True,
-        'custom_indicators': False,
+        # 기타 (단순화)
+        'advanced_indicators': True,  # 고급 지표 (Custom 포함)
+        # custom_indicators 제거
         'backtesting': True,  # 최근 3개월
         'backtesting_period_months': 3,
         'data_export': False,
         'api_access': False,
         'priority_support': False,
-        'trade_history_days': 90
+        'trade_history_days': 90,
+        # 알림 단순화
+        'important_notifications': True,  # 중요 알림
+        'general_notifications': True  # 일반 알림
     },
     'pro': {
         'manual_trading': True,
@@ -135,15 +141,18 @@ PLAN_FEATURES = {
         'surge_monitoring': True,
         'telegram_alerts': True,
         'max_surge_budget': 10000000,  # 총 예산 제한: 1천만원
-        # 기타
-        'advanced_indicators': True,
-        'custom_indicators': True,
+        # 기타 (단순화)
+        'advanced_indicators': True,  # 고급 지표 (Custom 포함)
+        # custom_indicators 제거
         'backtesting': True,  # 최근 6개월
         'backtesting_period_months': 6,
         'data_export': True,  # CSV
         'api_access': False,
         'priority_support': False,
-        'trade_history_days': 180
+        'trade_history_days': 180,
+        # 알림 단순화
+        'important_notifications': True,  # 중요 알림
+        'general_notifications': True  # 일반 알림
     },
     'expert': {
         'manual_trading': True,
@@ -157,15 +166,18 @@ PLAN_FEATURES = {
         'surge_monitoring': True,
         'telegram_alerts': True,
         'max_surge_budget': -1,  # 총 예산 제한: 무제한
-        # 기타
-        'advanced_indicators': True,
-        'custom_indicators': True,
+        # 기타 (단순화)
+        'advanced_indicators': True,  # 고급 지표 (Custom 포함)
+        # custom_indicators 제거
         'backtesting': True,  # 전체 기간
         'backtesting_period_months': -1,  # Unlimited
         'data_export': True,  # CSV, JSON
         'api_access': True,  # 제한적
         'priority_support': True,
-        'trade_history_days': -1  # Unlimited
+        'trade_history_days': -1,  # Unlimited
+        # 알림 단순화
+        'important_notifications': True,  # 중요 알림
+        'general_notifications': True  # 일반 알림
     },
     'enterprise': {
         'manual_trading': True,
@@ -179,9 +191,9 @@ PLAN_FEATURES = {
         'surge_monitoring': True,
         'telegram_alerts': True,
         'max_surge_budget': -1,  # 총 예산 제한: 무제한
-        # 기타
-        'advanced_indicators': True,
-        'custom_indicators': True,
+        # 기타 (단순화)
+        'advanced_indicators': True,  # 고급 지표 (Custom 포함)
+        # custom_indicators 제거
         'backtesting': True,  # 전체 기간
         'backtesting_period_months': -1,  # Unlimited
         'data_export': True,  # CSV, JSON, API 연동
@@ -189,7 +201,10 @@ PLAN_FEATURES = {
         'priority_support': True,
         'trade_history_days': -1,  # Unlimited
         'white_labeling': True,  # Enterprise only
-        'dedicated_manager': True  # 전담 매니저
+        'dedicated_manager': True,  # 전담 매니저
+        # 알림 단순화
+        'important_notifications': True,  # 중요 알림
+        'general_notifications': True  # 일반 알림
     }
 }
 

@@ -36,7 +36,7 @@ class PlanConfig(Base):
 
     # 기능 제한 - 모니터링
     max_coins = Column(Integer, default=1, nullable=False)  # 최대 모니터링 코인 수 (0 = 무제한)
-    max_watchlists = Column(Integer, default=1, nullable=False)  # 최대 관심종목 개수
+    # max_watchlists 제거: 모든 플랜 무제한
 
     # 기능 제한 - 자동매매
     auto_trading_enabled = Column(Boolean, default=False, nullable=False)
@@ -44,8 +44,8 @@ class PlanConfig(Base):
     max_concurrent_trades = Column(Integer, default=0, nullable=False)  # 동시 거래 개수
 
     # 기능 제한 - 분석
-    advanced_indicators = Column(Boolean, default=False, nullable=False)  # 고급 지표
-    custom_indicators = Column(Boolean, default=False, nullable=False)   # 커스텀 지표
+    advanced_indicators = Column(Boolean, default=False, nullable=False)  # 고급 지표 (Advanced + Custom 통합)
+    # custom_indicators 제거: advanced_indicators로 통합
     backtesting_enabled = Column(Boolean, default=False, nullable=False) # 백테스팅
 
     # 기능 제한 - 데이터
@@ -53,23 +53,22 @@ class PlanConfig(Base):
     data_export = Column(Boolean, default=False, nullable=False)  # 데이터 내보내기
     api_access = Column(Boolean, default=False, nullable=False)   # API 접근
 
-    # 기능 제한 - 알림 (Email Notifications) ✉️
+    # 기능 제한 - 알림 (단순화: 중요/일반 2가지만) ✉️
     email_notifications_enabled = Column(Boolean, default=False, nullable=False)  # 이메일 알림 활성화
-    daily_email_limit = Column(Integer, default=0, nullable=False)  # 일일 이메일 발송 한도 (0 = 무제한)
-    signal_notifications = Column(Boolean, default=False, nullable=False)  # 시그널 알림
-    portfolio_notifications = Column(Boolean, default=False, nullable=False)  # 포트폴리오 알림
-    trade_notifications = Column(Boolean, default=False, nullable=False)  # 거래 실행 알림
-    system_notifications = Column(Boolean, default=False, nullable=False)  # 시스템 알림
+    # daily_email_limit 제거: 플랜별 중요 알림만 전송
+    important_notifications = Column(Boolean, default=False, nullable=False)  # 중요 알림 (Signal, Trade)
+    general_notifications = Column(Boolean, default=False, nullable=False)  # 일반 알림 (Portfolio, System)
+    # 기존 필드 제거: signal_notifications, portfolio_notifications, trade_notifications, system_notifications
 
-    # 기능 제한 - 지원
+    # 기능 제한 - 지원 (3단계로 축소)
     support_level = Column(String(50), default='community', nullable=False)
-    # 'community', 'email', 'priority', 'dedicated'
+    # 'community', 'email', 'priority' (dedicated 제거)
     response_time_hours = Column(Integer, default=72, nullable=False)  # 응답 시간
 
     # 기능 제한 - 기타
-    white_labeling = Column(Boolean, default=False, nullable=False)  # 화이트라벨링
-    sla_guarantee = Column(Boolean, default=False, nullable=False)   # SLA 보증
-    custom_development = Column(Boolean, default=False, nullable=False)  # 맞춤 개발
+    white_labeling = Column(Boolean, default=False, nullable=False)  # 화이트라벨링 (Enterprise 전용)
+    # sla_guarantee 제거: 대신 "99.9% 가동률 목표" 명시
+    # custom_development 제거: 별도 계약으로 처리
 
     # 표시 설정
     is_active = Column(Boolean, default=True, nullable=False)  # 활성화 여부
@@ -105,29 +104,28 @@ class PlanConfig(Base):
             'trial_days': self.trial_days,
             'limits': {
                 'max_coins': self.max_coins if self.max_coins > 0 else None,
-                'max_watchlists': self.max_watchlists,
+                # max_watchlists 제거 (무제한)
                 'max_auto_strategies': self.max_auto_strategies if self.max_auto_strategies > 0 else None,
                 'max_concurrent_trades': self.max_concurrent_trades if self.max_concurrent_trades > 0 else None,
                 'history_days': self.history_days if self.history_days > 0 else None
             },
             'features': {
                 'auto_trading': self.auto_trading_enabled,
-                'advanced_indicators': self.advanced_indicators,
-                'custom_indicators': self.custom_indicators,
+                'advanced_indicators': self.advanced_indicators,  # Custom indicators 포함
+                # custom_indicators 제거 (advanced_indicators로 통합)
                 'backtesting': self.backtesting_enabled,
                 'data_export': self.data_export,
                 'api_access': self.api_access,
-                'white_labeling': self.white_labeling,
-                'sla_guarantee': self.sla_guarantee,
-                'custom_development': self.custom_development
+                'white_labeling': self.white_labeling  # Enterprise 전용
+                # sla_guarantee 제거
+                # custom_development 제거
             },
             'notifications': {
                 'email_enabled': self.email_notifications_enabled,
-                'daily_email_limit': self.daily_email_limit if self.daily_email_limit > 0 else None,
-                'signal_notifications': self.signal_notifications,
-                'portfolio_notifications': self.portfolio_notifications,
-                'trade_notifications': self.trade_notifications,
-                'system_notifications': self.system_notifications
+                # daily_email_limit 제거
+                'important_notifications': self.important_notifications,  # 중요 알림
+                'general_notifications': self.general_notifications  # 일반 알림
+                # 개별 알림 타입 제거 (signal, portfolio, trade, system)
             },
             'support': {
                 'level': self.support_level,
@@ -195,8 +193,8 @@ class PlanConfig(Base):
         limit_map = {
             'coins': plan.max_coins,
             'strategies': plan.max_auto_strategies,
-            'trades': plan.max_concurrent_trades,
-            'watchlists': plan.max_watchlists
+            'trades': plan.max_concurrent_trades
+            # 'watchlists' 제거: 모든 플랜 무제한
         }
 
         limit = limit_map.get(feature, 0)
