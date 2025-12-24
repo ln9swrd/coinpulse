@@ -5,7 +5,8 @@ Feedback API Routes
 from flask import Blueprint, request, jsonify
 from backend.database.connection import get_db_session
 from backend.models.feedback import Feedback
-from backend.middleware.auth import require_auth, admin_required
+from backend.middleware.auth import admin_required
+from backend.utils.auth_utils import require_auth
 from backend.database.models import User
 import logging
 
