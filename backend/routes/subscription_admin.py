@@ -163,10 +163,10 @@ def extend_subscription(user_id):
 
         session = get_db_session()
 
-        # Get current subscription
+        # Get current subscription (status is stored as string)
         subscription = session.query(Subscription).filter(
             Subscription.user_id == user_id,
-            Subscription.status == SubscriptionStatus.ACTIVE
+            Subscription.status == 'active'  # Compare with string, not Enum
         ).first()
 
         if not subscription:
@@ -261,9 +261,9 @@ def change_user_plan(user_id):
             subscription = Subscription(
                 user_id=user_id,
                 user_email=f'user_{user_id}@coinpulse.com',  # Placeholder
-                plan=new_plan,
-                billing_period=billing_period,
-                status=SubscriptionStatus.ACTIVE,
+                plan=new_plan_str,  # Store as string, not Enum
+                billing_period=billing_period_str,  # Store as string, not Enum
+                status='active',  # Store as string, not Enum
                 amount=PLAN_PRICING.get(new_plan, {}).get(billing_period, 0) or 0,
                 started_at=datetime.utcnow(),
                 current_period_start=datetime.utcnow(),
@@ -272,15 +272,16 @@ def change_user_plan(user_id):
             session.add(subscription)
             old_plan = 'none'
         else:
-            old_plan = subscription.plan.value
-            subscription.plan = new_plan
-            subscription.billing_period = billing_period
+            # subscription.plan is already a string, not an Enum
+            old_plan = subscription.plan if isinstance(subscription.plan, str) else subscription.plan.value
+            subscription.plan = new_plan_str  # Store as string
+            subscription.billing_period = billing_period_str  # Store as string
             subscription.amount = PLAN_PRICING.get(new_plan, {}).get(billing_period, 0) or 0
             subscription.updated_at = datetime.utcnow()
 
             # If upgrading from free, set start dates
             if old_plan == 'free' and new_plan_str != 'free':
-                subscription.status = SubscriptionStatus.ACTIVE
+                subscription.status = 'active'  # Store as string, not Enum
                 subscription.started_at = datetime.utcnow()
                 subscription.current_period_start = datetime.utcnow()
                 subscription.current_period_end = datetime.utcnow() + timedelta(
@@ -378,7 +379,7 @@ def set_custom_period(user_id):
         subscription.current_period_start = start_date
         subscription.current_period_end = end_date
         subscription.started_at = start_date
-        subscription.status = SubscriptionStatus.ACTIVE
+        subscription.status = 'active'  # Store as string, not Enum
         subscription.updated_at = datetime.utcnow()
 
         period_days = (end_date - start_date).days
@@ -431,7 +432,7 @@ def admin_cancel_subscription(user_id):
 
         subscription = session.query(Subscription).filter(
             Subscription.user_id == user_id,
-            Subscription.status == SubscriptionStatus.ACTIVE
+            Subscription.status == 'active'  # Compare with string, not Enum
         ).first()
 
         if not subscription:
@@ -440,7 +441,7 @@ def admin_cancel_subscription(user_id):
                 'error': 'No active subscription found for user'
             }), 404
 
-        subscription.status = SubscriptionStatus.CANCELLED
+        subscription.status = 'cancelled'  # Store as string, not Enum
         subscription.cancelled_at = datetime.utcnow()
 
         if immediate:
