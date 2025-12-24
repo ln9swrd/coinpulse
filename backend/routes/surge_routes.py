@@ -26,6 +26,50 @@ _surge_cache = {
     'is_fetching': False  # Lock to prevent concurrent fetches
 }
 
+def check_enterprise_access():
+    """
+    Check if the current user has Enterprise plan access
+    Returns tuple: (is_enterprise: bool, user_plan: str, error_response: dict)
+    """
+    from flask import request
+    from backend.middleware.auth import verify_token
+    from backend.models.user import User
+
+    user_plan = 'free'  # Default
+
+    # Try to get user from JWT token
+    auth_header = request.headers.get('Authorization')
+    if auth_header and auth_header.startswith('Bearer '):
+        try:
+            token = auth_header.split(' ')[1]
+            payload = verify_token(token)
+            if payload:
+                user_id = payload.get('user_id')
+                session = get_db_session()
+                try:
+                    user = session.query(User).filter_by(id=user_id).first()
+                    if user:
+                        user_plan = user.plan or 'free'
+                finally:
+                    session.close()
+        except:
+            pass
+
+    # Check if Enterprise
+    if user_plan != 'enterprise':
+        error_response = {
+            'success': False,
+            'error': 'Enterprise 플랜이 필요합니다',
+            'message': '급등신호 AI는 Enterprise 플랜 전용 기능입니다.',
+            'current_plan': user_plan,
+            'required_plan': 'enterprise',
+            'upgrade_required': True,
+            'upgrade_url': '/enterprise-inquiry.html'
+        }
+        return False, user_plan, error_response
+
+    return True, user_plan, None
+
 def get_cached_surge_data():
     """Get cached surge data if still valid"""
     if _surge_cache['data'] and _surge_cache['timestamp']:
@@ -217,7 +261,7 @@ def get_volume_surge_candidates(max_count=30):
 @surge_bp.route('/surge-candidates', methods=['GET'])
 def get_surge_candidates():
     """
-    급등 예측 후보 코인 목록 (PUBLIC with optional auth)
+    급등 예측 후보 코인 목록 (ENTERPRISE ONLY)
 
     ⚡ Cache-first architecture:
     - 데이터 소스: surge_candidates_cache DB table
@@ -225,8 +269,8 @@ def get_surge_candidates():
     - API 호출: 0회 (초고속 응답)
 
     🔒 Plan-based access control:
-    - No auth / Free plan: Top 3 full details, rest limited (coin name only)
-    - Basic+ plan: All candidates with full details
+    - Enterprise plan ONLY: Full access to all surge signals
+    - Free/Basic/Pro: Access denied (upgrade required)
 
     Returns:
         {
@@ -251,30 +295,14 @@ def get_surge_candidates():
     """
     try:
         from backend.models.surge_candidates_cache_models import SurgeCandidatesCache
-        from flask import request
+        import logging
+        logger = logging.getLogger(__name__)
 
-        # Check if user is authenticated (optional)
-        user_plan = 'free'  # Default to free
-        current_user = None
-
-        # Try to get user from JWT token (optional auth)
-        auth_header = request.headers.get('Authorization')
-        if auth_header and auth_header.startswith('Bearer '):
-            try:
-                from backend.middleware.auth import verify_token
-                from backend.models.user import User
-
-                token = auth_header.split(' ')[1]
-                payload = verify_token(token)
-                if payload:
-                    user_id = payload.get('user_id')
-                    session_temp = get_db_session()
-                    current_user = session_temp.query(User).filter_by(id=user_id).first()
-                    if current_user:
-                        user_plan = current_user.plan or 'free'
-                    session_temp.close()
-            except:
-                pass  # Continue as free user
+        # ENTERPRISE ONLY: Check access
+        is_enterprise, user_plan, error_response = check_enterprise_access()
+        if not is_enterprise:
+            logger.warning(f"[SurgeCandidates] Non-Enterprise user attempted access: plan={user_plan}")
+            return jsonify(error_response), 403
 
         session = get_db_session()
         try:
@@ -283,42 +311,19 @@ def get_surge_candidates():
                 SurgeCandidatesCache.score.desc()
             ).all()
 
-            # Determine how many full details to show
-            free_limit = 3  # Free plan sees top 3 full details
-            is_free_plan = user_plan == 'free'
-
-            # Convert to dict with plan-based filtering
+            # Enterprise users get full access to all candidates
             candidates = []
-            for idx, cache in enumerate(cached_candidates):
-                # Free plan: only show full details for top N
-                show_full_details = not is_free_plan or idx < free_limit
-
+            for cache in cached_candidates:
                 candidate = {
                     'market': cache.market,
                     'coin': cache.coin,
-                    'locked': not show_full_details
+                    'locked': False,
+                    'score': cache.score,
+                    'current_price': cache.current_price,
+                    'signals': cache.signals or {},
+                    'recommendation': cache.recommendation,
+                    'analyzed_at': cache.analyzed_at.isoformat() if cache.analyzed_at else None
                 }
-
-                if show_full_details:
-                    candidate.update({
-                        'score': cache.score,
-                        'current_price': cache.current_price,
-                        'signals': cache.signals or {},
-                        'recommendation': cache.recommendation,
-                        'analyzed_at': cache.analyzed_at.isoformat() if cache.analyzed_at else None
-                    })
-                else:
-                    # Limited info for free users (beyond top 3)
-                    candidate.update({
-                        'score': None,
-                        'current_price': None,
-                        'signals': None,
-                        'recommendation': None,
-                        'analyzed_at': cache.analyzed_at.isoformat() if cache.analyzed_at else None,
-                        'upgrade_required': True,
-                        'upgrade_message': 'Basic 플랜 구독 시 확인 가능'
-                    })
-
                 candidates.append(candidate)
 
             # Calculate cache age
@@ -334,7 +339,7 @@ def get_surge_candidates():
                 'success': True,
                 'candidates': candidates,
                 'count': len(candidates),
-                'visible_count': free_limit if is_free_plan else len(candidates),
+                'visible_count': len(candidates),  # Enterprise: all visible
                 'monitored_markets': 30,  # Fixed 30 coins monitored by scheduler
                 'backtest_stats': backtest_stats,
                 'timestamp': datetime.now().isoformat(),
@@ -342,8 +347,7 @@ def get_surge_candidates():
                 'cache_age_seconds': cache_age_seconds,
                 'signals_generated': len(candidates),
                 'signals_distributed_to': 0,  # Deprecated field
-                'user_plan': user_plan,
-                'upgrade_message': '상위 3개만 표시됩니다. 전체 보기는 Basic 플랜 구독이 필요합니다.' if is_free_plan else None
+                'user_plan': user_plan  # Should be 'enterprise'
             }
 
             return jsonify(response_data)
@@ -367,7 +371,7 @@ def get_surge_candidates():
 @surge_bp.route('/surge-candidates-legacy', methods=['GET'])
 def get_surge_candidates_legacy():
     """
-    [LEGACY] 급등 예측 후보 코인 목록 - 실시간 분석 버전
+    [LEGACY] 급등 예측 후보 코인 목록 - 실시간 분석 버전 (ENTERPRISE ONLY)
 
     ⚠️ This endpoint is deprecated. Use /surge-candidates instead.
     - High API usage (10+ API calls per request)
@@ -377,6 +381,15 @@ def get_surge_candidates_legacy():
     Use for testing only.
     """
     try:
+        import logging
+        logger = logging.getLogger(__name__)
+
+        # ENTERPRISE ONLY: Check access
+        is_enterprise, user_plan, error_response = check_enterprise_access()
+        if not is_enterprise:
+            logger.warning(f"[SurgeCandidates-Legacy] Non-Enterprise user attempted access: plan={user_plan}")
+            return jsonify(error_response), 403
+
         # Check cache first
         cached_data = get_cached_surge_data()
         if cached_data:
@@ -517,7 +530,7 @@ def get_surge_candidates_legacy():
 @surge_bp.route('/surge-analysis/<market>', methods=['GET'])
 def get_surge_analysis(market):
     """
-    특정 코인의 급등 예측 상세 분석 (PUBLIC - No auth required)
+    특정 코인의 급등 예측 상세 분석 (ENTERPRISE ONLY)
 
     Args:
         market: 코인 마켓 (예: KRW-BTC)
@@ -538,6 +551,15 @@ def get_surge_analysis(market):
         }
     """
     try:
+        import logging
+        logger = logging.getLogger(__name__)
+
+        # ENTERPRISE ONLY: Check access
+        is_enterprise, user_plan, error_response = check_enterprise_access()
+        if not is_enterprise:
+            logger.warning(f"[SurgeAnalysis] Non-Enterprise user attempted access: plan={user_plan}, market={market}")
+            return jsonify(error_response), 403
+
         print(f"[Surge] Analyzing {market}...")
 
         # Get candle data - PUBLIC API
@@ -582,7 +604,7 @@ def get_surge_analysis(market):
 @surge_bp.route('/surge-backtest-results', methods=['GET'])
 def get_backtest_results():
     """
-    백테스트 검증 결과 상세 정보 (PUBLIC - No auth required)
+    백테스트 검증 결과 상세 정보 (ENTERPRISE ONLY)
 
     Returns:
         {
@@ -593,6 +615,15 @@ def get_backtest_results():
         }
     """
     try:
+        import logging
+        logger = logging.getLogger(__name__)
+
+        # ENTERPRISE ONLY: Check access
+        is_enterprise, user_plan, error_response = check_enterprise_access()
+        if not is_enterprise:
+            logger.warning(f"[SurgeBacktest] Non-Enterprise user attempted access: plan={user_plan}")
+            return jsonify(error_response), 403
+
         print("[Surge] Loading backtest results from database...")
 
         from backend.database.connection import get_db_session
