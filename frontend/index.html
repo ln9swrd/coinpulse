@@ -172,6 +172,57 @@
             <div class="pricing-grid" id="pricing-cards-container">
                 <!-- 동적 로딩 -->
             </div>
+
+            <!-- Enterprise Plan (특별 섹션) -->
+            <div style="max-width: 1000px; margin: 60px auto; padding: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; box-shadow: 0 20px 60px rgba(102, 126, 234, 0.4);">
+                <div style="text-align: center; color: white;">
+                    <div style="display: inline-block; background: rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 20px; font-size: 14px; font-weight: 600; margin-bottom: 20px;">
+                        ⭐ ENTERPRISE
+                    </div>
+                    <h3 style="font-size: 32px; margin: 0 0 16px 0; font-weight: 900;">프리미엄 급등신호 AI</h3>
+                    <p style="font-size: 18px; opacity: 0.95; margin: 0 0 30px 0; line-height: 1.7;">
+                        검증된 AI 기반 급등 예측 시그널을 가장 먼저 받아보세요.<br>
+                        개별 텔레그램 채널 운영 + 전담 지원팀 배정
+                    </p>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 40px 0;">
+                        <div style="background: rgba(255,255,255,0.15); padding: 24px; border-radius: 12px; backdrop-filter: blur(10px);">
+                            <div style="font-size: 36px; margin-bottom: 8px;">🚀</div>
+                            <div style="font-weight: 700; font-size: 18px; margin-bottom: 8px;">급등신호 AI</div>
+                            <div style="font-size: 14px; opacity: 0.9;">주 평균 5회 이상<br>실시간 텔레그램 알림</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.15); padding: 24px; border-radius: 12px; backdrop-filter: blur(10px);">
+                            <div style="font-size: 36px; margin-bottom: 8px;">📱</div>
+                            <div style="font-weight: 700; font-size: 18px; margin-bottom: 8px;">개별 텔레그램</div>
+                            <div style="font-size: 14px; opacity: 0.9;">전용 채널 운영<br>1:1 맞춤 알림</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.15); padding: 24px; border-radius: 12px; backdrop-filter: blur(10px);">
+                            <div style="font-size: 36px; margin-bottom: 8px;">👥</div>
+                            <div style="font-weight: 700; font-size: 18px; margin-bottom: 8px;">전담 지원팀</div>
+                            <div style="font-size: 14px; opacity: 0.9;">우선 고객 지원<br>전략 컨설팅</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.15); padding: 24px; border-radius: 12px; backdrop-filter: blur(10px);">
+                            <div style="font-size: 36px; margin-bottom: 8px;">🎯</div>
+                            <div style="font-weight: 700; font-size: 18px; margin-bottom: 8px;">맞춤 전략</div>
+                            <div style="font-size: 14px; opacity: 0.9;">개인화된 자동매매<br>리스크 관리</div>
+                        </div>
+                    </div>
+
+                    <div style="margin: 40px 0 30px 0;">
+                        <div style="font-size: 48px; font-weight: 900; margin-bottom: 8px;">최소 월 500,000원~</div>
+                        <div style="font-size: 16px; opacity: 0.9;">거래 규모에 따라 맞춤 견적 제공</div>
+                    </div>
+
+                    <a href="enterprise-inquiry.html" style="display: inline-block; background: white; color: #667eea; padding: 18px 48px; border-radius: 50px; font-weight: 700; font-size: 18px; text-decoration: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: all 0.3s;">
+                        Enterprise 상담 신청 →
+                    </a>
+
+                    <div style="margin-top: 30px; font-size: 14px; opacity: 0.85;">
+                        💳 계좌이체 결제 | 📧 전담 계정 관리자 배정 | 🔒 개별 NDA 가능
+                    </div>
+                </div>
+            </div>
+
             <div class="pricing-note">
                 <p>💳 모든 주요 결제 수단 지원: 신용카드, 카카오페이, 토스</p>
                 <p>⚠️ 베타 테스트 기간 중 요금제는 정식 출시 후 변경될 수 있습니다</p>
@@ -403,7 +454,7 @@ async function loadPricingPlans() {
             const isFeatured = plan.is_featured || index === 1; // 두 번째 플랜을 featured로
             const monthlyPrice = plan.price?.monthly || 0;
 
-            // 기능 목록 생성
+            // 기능 목록 생성 (급등신호 기능 제거 - Enterprise 전용)
             let features = [];
             if (isFree) {
                 features = [
@@ -416,19 +467,19 @@ async function loadPricingPlans() {
                 features = [
                     '무료 플랜 모든 기능',
                     '수동 매매',
-                    '급등알림 주 최소 3회',
-                    '텔레그램 메시지',
+                    '텔레그램 알림',
                     '고급 기술적 지표',
-                    '90일 거래 히스토리'
+                    '90일 거래 히스토리',
+                    '자동매매 설정'
                 ];
             } else if (plan.plan_code === 'pro_new' || plan.plan_code === 'pro') {
                 features = [
                     '베이직 플랜 모든 기능',
-                    '급등알림 주 평균 5회',
                     '무제한 예산 설정',
                     '무제한 거래 히스토리',
                     '전략 시뮬레이션',
-                    '우선 고객 지원'
+                    '우선 고객 지원',
+                    '고급 자동매매'
                 ];
             }
 
