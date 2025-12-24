@@ -20,6 +20,7 @@ from backend.services.surge_predictor import SurgePredictor
 from backend.services.telegram_bot import SurgeTelegramBot, TELEGRAM_AVAILABLE
 from backend.database.connection import get_db_session
 from backend.models.surge_candidates_cache_models import SurgeCandidatesCache
+from backend.services.websocket_service import get_websocket_service
 
 # Logging setup
 logging.basicConfig(
@@ -317,6 +318,14 @@ class SurgeAlertScheduler:
                     self.alerted_candidates.add(market)
                     new_alerts += 1
                     logger.info(f"[SurgeAlertScheduler] Telegram alert sent: {market} ({candidate['score']}점)")
+
+                    # Also send WebSocket notification (broadcast to all users)
+                    try:
+                        ws_service = get_websocket_service()
+                        ws_service.broadcast_surge_alert(candidate)
+                        logger.info(f"[SurgeAlertScheduler] WebSocket alert broadcast: {market}")
+                    except Exception as ws_error:
+                        logger.warning(f"[SurgeAlertScheduler] WebSocket not available: {ws_error}")
 
                 # Save to database only if not already saved today
                 if not db_already_saved:

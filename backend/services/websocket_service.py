@@ -207,6 +207,40 @@ class WebSocketService:
 
             print(f"[WebSocket] Position update sent to user {user_id}")
 
+    def send_surge_alert(self, user_id: int, surge_data: dict):
+        """Send surge prediction alert to user"""
+        if user_id in self.user_sessions:
+            self.socketio.emit(
+                'surge_alert',
+                {
+                    'type': 'surge',
+                    'coin': surge_data.get('market', '').replace('KRW-', ''),
+                    'market': surge_data.get('market'),
+                    'score': surge_data.get('score'),
+                    'current_price': surge_data.get('current_price'),
+                    'timestamp': datetime.utcnow().isoformat()
+                },
+                room=f"user:{user_id}"
+            )
+
+            print(f"[WebSocket] Surge alert sent to user {user_id}: {surge_data.get('market')}")
+
+    def broadcast_surge_alert(self, surge_data: dict):
+        """Broadcast surge alert to all connected users"""
+        self.socketio.emit(
+            'surge_alert',
+            {
+                'type': 'surge',
+                'coin': surge_data.get('market', '').replace('KRW-', ''),
+                'market': surge_data.get('market'),
+                'score': surge_data.get('score'),
+                'current_price': surge_data.get('current_price'),
+                'timestamp': datetime.utcnow().isoformat()
+            }
+        )
+
+        print(f"[WebSocket] Surge alert broadcast: {surge_data.get('market')} ({surge_data.get('score')} points)")
+
     def broadcast_to_all(self, event: str, data: dict):
         """Broadcast message to all connected clients"""
         self.socketio.emit(event, data)
