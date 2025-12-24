@@ -687,5 +687,21 @@ def cancel_order(uuid):
             return jsonify({"success": False, "error": "Failed to cancel order"}), 500
 
     except Exception as e:
-        logger.error(f"[Trading] Error canceling order {uuid}: {str(e)}")
-        return jsonify({"success": False, "error": str(e)}), 500
+        error_msg = str(e)
+        logger.error(f"[Trading] Error canceling order {uuid}: {error_msg}")
+
+        # Handle specific error types
+        if '429' in error_msg or 'Too Many Requests' in error_msg or 'rate limit' in error_msg.lower():
+            return jsonify({
+                "success": False,
+                "error": "API 요청 한도 초과: 주문 수정은 30초 후에 다시 시도해주세요",
+                "error_code": "RATE_LIMIT_EXCEEDED"
+            }), 429
+        elif '401' in error_msg or 'Unauthorized' in error_msg:
+            return jsonify({
+                "success": False,
+                "error": "인증 실패: API 키를 확인해주세요",
+                "error_code": "UNAUTHORIZED"
+            }), 401
+        else:
+            return jsonify({"success": False, "error": error_msg}), 500
