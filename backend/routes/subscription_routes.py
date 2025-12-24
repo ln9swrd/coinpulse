@@ -221,40 +221,6 @@ def cancel_subscription():
         }), 500
 
 
-@subscription_bp.route('/current', methods=['GET'])
-@require_auth
-def get_current_subscription():
-    """
-    Get user's current subscription
-
-    Response:
-    {
-        "success": true,
-        "subscription": {...}
-    }
-    """
-    try:
-        subscription = subscription_service.get_user_subscription(request.user_id)
-
-        if subscription:
-            return jsonify({
-                'success': True,
-                'subscription': subscription
-            }), 200
-        else:
-            return jsonify({
-                'success': True,
-                'subscription': None,
-                'message': 'No active subscription'
-            }), 200
-
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-
-
 @subscription_bp.route('/transactions', methods=['GET'])
 @require_auth
 def get_transactions():
