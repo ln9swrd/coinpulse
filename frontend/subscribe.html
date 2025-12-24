@@ -3,101 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>구독 결제 - CoinPulse</title>
+    <title>구독 플랜 선택 - CoinPulse</title>
     <script src="https://js.tosspayments.com/v1/payment"></script>
-    <script src="js/api_client.js?v=20251217"></script>
+    <script src="js/api_client.js?v=20251224"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Pretendard', -apple-system, sans-serif; background: #0a0a0f; color: #e0e0e0; min-height: 100vh; }
-        .container { max-width: 600px; margin: 0 auto; padding: 60px 20px; }
-        h1 { color: #fff; font-size: 28px; margin-bottom: 10px; }
-        .subtitle { color: #888; margin-bottom: 40px; }
-        .plan-card { background: #1a1a2e; border-radius: 12px; padding: 30px; margin-bottom: 20px; border: 2px solid transparent; cursor: pointer; transition: all 0.3s; }
-        .plan-card:hover, .plan-card.selected { border-color: #4facfe; }
-        .plan-card.selected { background: #1e2a4a; }
-        .plan-name { font-size: 20px; color: #fff; margin-bottom: 8px; }
-        .plan-price { font-size: 28px; color: #4facfe; font-weight: bold; }
-        .plan-price span { font-size: 14px; color: #888; font-weight: normal; }
-        .plan-features { margin-top: 15px; color: #aaa; font-size: 14px; }
-        .billing-toggle { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; }
-        .billing-btn { padding: 10px 24px; border-radius: 20px; border: 1px solid #333; background: transparent; color: #888; cursor: pointer; transition: all 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 60px 20px; }
+        h1 { color: #fff; font-size: 36px; margin-bottom: 10px; text-align: center; }
+        .subtitle { color: #888; margin-bottom: 40px; text-align: center; font-size: 16px; }
+
+        .billing-toggle { display: flex; justify-content: center; gap: 10px; margin-bottom: 50px; }
+        .billing-btn { padding: 12px 28px; border-radius: 24px; border: 2px solid #333; background: transparent; color: #888; cursor: pointer; transition: all 0.3s; font-size: 15px; font-weight: 600; }
         .billing-btn.active { background: #4facfe; color: #fff; border-color: #4facfe; }
-        .pay-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, #4facfe, #00f2fe); border: none; border-radius: 8px; color: #fff; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 30px; }
-        .pay-btn:hover { opacity: 0.9; }
-        .pay-btn:disabled { background: #333; cursor: not-allowed; }
-        .back { display: inline-block; margin-bottom: 30px; color: #4facfe; text-decoration: none; }
-        .save-badge { background: #ff6b6b; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 12px; margin-left: 10px; }
+        .save-badge { background: #ff6b6b; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 12px; margin-left: 8px; font-weight: 700; }
+
+        #plans-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 40px; }
+
+        .plan-card { background: #1a1a2e; border-radius: 16px; padding: 32px; border: 2px solid #2a2a3e; cursor: pointer; transition: all 0.3s; position: relative; display: flex; flex-direction: column; }
+        .plan-card:hover { border-color: #4facfe; transform: translateY(-4px); box-shadow: 0 8px 24px rgba(79, 172, 254, 0.2); }
+        .plan-card.selected { border-color: #4facfe; background: #1e2a4a; transform: translateY(-4px); }
+        .plan-card.free { cursor: default; opacity: 0.8; }
+        .plan-card.free:hover { transform: none; box-shadow: none; }
+        .plan-card.enterprise { border-color: #ffd700; background: linear-gradient(135deg, #1a1a2e 0%, #2a1a3e 100%); }
+        .plan-card.enterprise:hover { border-color: #ffd700; box-shadow: 0 8px 24px rgba(255, 215, 0, 0.2); }
+
+        .plan-badge { position: absolute; top: -12px; right: 24px; background: linear-gradient(135deg, #ff6b6b, #ff8e53); color: #fff; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+        .plan-badge.gold { background: linear-gradient(135deg, #ffd700, #ffed4e); color: #000; }
+
+        .plan-header { margin-bottom: 20px; }
+        .plan-name { font-size: 24px; color: #fff; margin-bottom: 8px; font-weight: 700; }
+        .plan-price { font-size: 36px; color: #4facfe; font-weight: 800; margin-bottom: 4px; }
+        .plan-price.free { color: #888; }
+        .plan-price.enterprise { color: #ffd700; font-size: 28px; }
+        .plan-price span { font-size: 16px; color: #888; font-weight: 500; }
+        .plan-description { color: #aaa; font-size: 14px; margin-bottom: 20px; min-height: 40px; }
+
+        .plan-features { flex-grow: 1; }
+        .plan-feature { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; color: #ccc; font-size: 14px; }
+        .plan-feature svg { flex-shrink: 0; width: 18px; height: 18px; }
+        .plan-feature.locked { color: #666; }
+        .plan-feature.locked svg { opacity: 0.4; }
+
+        .plan-cta { margin-top: 24px; width: 100%; padding: 14px; border-radius: 10px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .plan-cta.primary { background: linear-gradient(135deg, #4facfe, #00f2fe); color: #fff; }
+        .plan-cta.primary:hover { opacity: 0.9; transform: scale(1.02); }
+        .plan-cta.secondary { background: transparent; border: 2px solid #4facfe; color: #4facfe; }
+        .plan-cta.secondary:hover { background: rgba(79, 172, 254, 0.1); }
+        .plan-cta.enterprise { background: linear-gradient(135deg, #ffd700, #ffed4e); color: #000; font-weight: 700; }
+        .plan-cta.enterprise:hover { opacity: 0.9; transform: scale(1.02); }
+        .plan-cta:disabled { background: #333; cursor: not-allowed; color: #666; }
+
+        .back { display: inline-block; margin-bottom: 30px; color: #4facfe; text-decoration: none; font-weight: 600; transition: color 0.3s; }
+        .back:hover { color: #00f2fe; }
+
+        @media (max-width: 768px) {
+            #plans-container { grid-template-columns: 1fr; }
+            h1 { font-size: 28px; }
+            .plan-price { font-size: 30px; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <a href="/" class="back">← 홈으로</a>
         <h1>구독 플랜 선택</h1>
-        <p class="subtitle">원하는 플랜과 결제 주기를 선택하세요</p>
-        
+        <p class="subtitle">AI 급등 예측과 자동매매로 수익을 극대화하세요</p>
+
         <div class="billing-toggle">
             <button class="billing-btn active" data-billing="monthly">월간 결제</button>
             <button class="billing-btn" data-billing="yearly">연간 결제 <span class="save-badge">17% 할인</span></button>
         </div>
-        
+
         <div id="plans-container">
             <!-- 동적 로딩 -->
         </div>
-        
-        <button class="pay-btn" id="pay-btn" disabled>플랜을 선택하세요</button>
     </div>
 
     <script>
         const clientKey = 'test_ck_jExPeJWYVQ4YJgk6d0yn349R5gvN';
         const tossPayments = TossPayments(clientKey);
-        
+
         let selectedPlan = null;
         let billingCycle = 'monthly';
         let plansData = [];
-        
+
+        const checkIcon = '<svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>';
+        const lockIcon = '<svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path></svg>';
+
         // 플랜 데이터 로드
         async function loadPlans() {
             try {
                 const res = await fetch('/api/admin/plans/public');
                 const data = await res.json();
-                plansData = data.plans.filter(p => p.plan_code !== 'free' && p.plan_code !== 'enterprise');
+                plansData = data.plans.sort((a, b) => a.display_order - b.display_order);
                 renderPlans();
             } catch(e) {
                 console.error('플랜 로드 실패:', e);
             }
         }
-        
+
         function renderPlans() {
             const container = document.getElementById('plans-container');
             container.innerHTML = plansData.map(plan => {
                 const price = billingCycle === 'monthly' ? plan.price.monthly : plan.price.annual;
                 const period = billingCycle === 'monthly' ? '월' : '년';
+                const isFree = plan.plan_code === 'free';
+                const isEnterprise = plan.plan_code === 'enterprise';
+
+                // 기능 목록 생성
+                let features = [];
+                if (isFree) {
+                    features = [
+                        { text: '급등 예측 상위 3개 조회', locked: false },
+                        { text: '14일 거래 히스토리', locked: false },
+                        { text: '브라우저 알림', locked: false },
+                        { text: '자동매매', locked: true },
+                        { text: '텔레그램 알림', locked: true }
+                    ];
+                } else if (plan.plan_code === 'premium' || plan.plan_code === 'basic') {
+                    features = [
+                        { text: `${plan.limits.max_coins}개 코인 모니터링`, locked: false },
+                        { text: `${plan.limits.max_auto_strategies}개 자동매매 전략`, locked: false },
+                        { text: '텔레그램 급등 알림', locked: false },
+                        { text: '90일 거래 히스토리', locked: false },
+                        { text: '고급 기술 지표', locked: false }
+                    ];
+                } else if (plan.plan_code === 'pro_new' || plan.plan_code === 'pro') {
+                    const isPro = plan.plan_code === 'pro_new';
+                    features = [
+                        { text: `${plan.limits.max_coins}개 코인 모니터링`, locked: false },
+                        { text: `${plan.limits.max_auto_strategies}개 자동매매 전략`, locked: false },
+                        { text: isPro ? '180일 거래 히스토리' : '무제한 거래 히스토리', locked: false },
+                        { text: '데이터 내보내기 (CSV)', locked: false },
+                        { text: isPro ? '우선 지원' : '우선 지원 + API 접근', locked: false }
+                    ];
+                } else if (isEnterprise) {
+                    features = [
+                        { text: '무제한 코인 & 전략', locked: false },
+                        { text: 'API 무제한 접근', locked: false },
+                        { text: '전담 매니저', locked: false },
+                        { text: '화이트라벨링', locked: false },
+                        { text: '맞춤형 개발', locked: false }
+                    ];
+                }
+
                 return `
-                    <div class="plan-card" data-plan="${plan.plan_code}" data-price="${price}">
-                        <div class="plan-name">${plan.plan_name_ko}</div>
-                        <div class="plan-price">₩${price.toLocaleString()}<span>/${period}</span></div>
-                        <div class="plan-features">${plan.description}</div>
+                    <div class="plan-card ${isFree ? 'free' : ''} ${isEnterprise ? 'enterprise' : ''}"
+                         data-plan="${plan.plan_code}"
+                         data-price="${price}"
+                         data-free="${isFree}"
+                         data-enterprise="${isEnterprise}">
+                        ${plan.badge_text ? `<div class="plan-badge ${isEnterprise ? 'gold' : ''}">${plan.badge_text}</div>` : ''}
+
+                        <div class="plan-header">
+                            <div class="plan-name">${plan.plan_name_ko}</div>
+                            <div class="plan-price ${isFree ? 'free' : ''} ${isEnterprise ? 'enterprise' : ''}">
+                                ${isFree ? '무료' : isEnterprise ? '맞춤형 가격' : `₩${price.toLocaleString()}`}
+                                ${!isFree && !isEnterprise ? `<span>/${period}</span>` : ''}
+                            </div>
+                            <div class="plan-description">${plan.description || ''}</div>
+                        </div>
+
+                        <div class="plan-features">
+                            ${features.map(f => `
+                                <div class="plan-feature ${f.locked ? 'locked' : ''}">
+                                    ${f.locked ? lockIcon : checkIcon}
+                                    <span>${f.text}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <button class="plan-cta ${isFree ? 'secondary' : isEnterprise ? 'enterprise' : 'primary'}"
+                                onclick="${isFree ? 'window.location.href=\'/signup.html\'' : isEnterprise ? 'contactEnterprise()' : 'selectPlan(this.parentElement)'}">
+                            ${isFree ? '무료로 시작하기' : isEnterprise ? '가격 문의하기' : plan.cta_text || '지금 시작하기'}
+                        </button>
                     </div>
                 `;
             }).join('');
-            
-            // 클릭 이벤트
-            document.querySelectorAll('.plan-card').forEach(card => {
-                card.addEventListener('click', () => selectPlan(card));
-            });
         }
-        
+
         function selectPlan(card) {
+            const isFree = card.dataset.free === 'true';
+            const isEnterprise = card.dataset.enterprise === 'true';
+
+            if (isFree || isEnterprise) return;
+
             document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
             selectedPlan = {
                 code: card.dataset.plan,
                 price: parseInt(card.dataset.price)
             };
-            document.getElementById('pay-btn').disabled = false;
-            document.getElementById('pay-btn').textContent = `₩${selectedPlan.price.toLocaleString()} 결제하기`;
+
+            // 결제 진행
+            proceedToPayment();
         }
-        
+
+        function contactEnterprise() {
+            alert('엔터프라이즈 플랜 문의\n\n이메일: enterprise@coinpulse.com\n전화: 02-1234-5678\n\n담당자가 24시간 이내에 연락드리겠습니다.');
+        }
+
         // 빌링 토글
         document.querySelectorAll('.billing-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -105,14 +211,12 @@
                 btn.classList.add('active');
                 billingCycle = btn.dataset.billing;
                 selectedPlan = null;
-                document.getElementById('pay-btn').disabled = true;
-                document.getElementById('pay-btn').textContent = '플랜을 선택하세요';
                 renderPlans();
             });
         });
-        
+
         // 결제 실행
-        document.getElementById('pay-btn').addEventListener('click', async () => {
+        async function proceedToPayment() {
             if (!selectedPlan) return;
 
             // 로그인 확인
@@ -148,8 +252,8 @@
                 console.error('결제 요청 실패:', error);
                 alert('결제 요청 중 오류가 발생했습니다.');
             }
-        });
-        
+        }
+
         loadPlans();
     </script>
 </body>
