@@ -1,120 +1,154 @@
-1. 대시보드 - 설정
-API키 : 입력이 되면 키 필드에 값을 보여줘
+  실제로는 Free 플랜도 모든 급등 예측을 볼 수 있고, 단지 자동매매 기능을 사용할 수 없는 것입니다. 이 부분은 분석 보고서를 수정해야 할 것 같습니다!
 
-2. 대시보드 - 설정
-관심 코인 : 콤보박스로 사용자가 선택할 수 있게 하고 코인을 검색할 수 있게 해줘
+프리 플랜은 맛보기 플랜이야... 프리 플랜이 모든 급등 예측을 본다는 것도 허용할 수 없어.
+뭔가 대안이 필요해... 프리 플랜이 텔레그램을 이용하면 그 것 만으로도 구멍이 뚤려.
+그렇다고 다른 경로라도 모두 노출되는 것도 안 돼. 노출돼도 일부만 노출되도록 제약이 걸려야 해.
+노출되도 핵심정보는 비공개 한다던가...
 
-3. 대시보드 - 설정
-알림 : 실제 구현 여부 검증
+더 이상 프리미엄 플랜은 없어 어디서 읽어 왔는지 모르겠지만
+베이직 플랜이야.
 
-4. 대시보드 - 요금제
-프리 : 급등 모니터링을 급등 알림으로 바꾸고 지원 안하는 걸로 변경
-베이식 : 자동매매 알림 주 3회를 급등알림 주 최소 3회로 변경
-프로 : 자동매매 알림 주 10회를 급등알림 주 최소 10회로 변경
+프로 요금제를 7,9000으로 조정하자.
+당문간 엔터프라이즈 플랜은 노출 가격 문의로 변경
+각 플랜에 명확한 타겟 고객 및 핵심 가치 정의해봐.
 
-급등알림이 발생하지 않을 경우의 면책조항도 추가해줘.
+  4️⃣ 개선된 플랜 제안 (Option A - 4단계)
 
+  | 플랜       | 가격                               | 타겟 고객        | 핵심 가치                    | 변경점                                 |
+  |------------|------------------------------------|------------------|------------------------------|----------------------------------------|
+  | Free       | 0원                                | 관망형           | "AI 급등 예측 무료 체험"     | 🆕 3개 코인, 14일 히스토리             |
+  | Basic      | 39,000원/월390,000원/년 (17% 할인) | 초보 투자자      | "소액으로 시작하는 자동매매" | 🆕 가격 인하, 3개 코인 → 5개           |
+  | Pro        | 69,000원/월690,000원/년 (17% 할인) | 중급 투자자      | "본격적인 포트폴리오 관리"   | 🆕 신규 플랜, 10개 코인, 5개 전략      |
+  | Expert     | 99,000원/월990,000원/년 (17% 할인) | 전문 투자자      | "무제한 전략, 최고 수익률"   | 🆕 이름 변경 (Pro → Expert), 30개 코인 |
+  | Enterprise | 맞춤형                             | 기관/고액 투자자 | "전담 매니저 + 커스터마이징" | 문의 표시 명확화                       |
 
-5. 대시보드 - 친구 초대하기
-내 추천 코드 : 로딩중 
-최근 초대 내역 : 로딩중
-구현기능 검증해줘
+  세부 기능 비교표
 
-6. 대시보드 - 텔레그램 연동
-연동 상태에
-오류: File not found 나오고 있고 
-api/admin/api/telegram/link/status:1  Failed to load resource: the server responded with a status of 404 (NOT FOUND)
+  | 기능             | Free                   | Basic          | Pro            | Expert            | Enterprise         |
+  |------------------|------------------------|----------------|----------------|-------------------|--------------------|
+  | 급등 예측 조회   | 전체 리스트(상세 제한) | 전체 상세      | 전체 상세      | 전체 상세         | 전체 상세          |
+  | 자동매매         | ❌                     | ✅             | ✅             | ✅                | ✅                 |
+  | 모니터링 코인 수 | 3개(고정)              | 5개            | 10개           | 30개              | 무제한             |
+  | 자동매매 전략 수 | -                      | 3개            | 5개            | 10개              | 무제한             |
+  | 동시 거래 수     | -                      | 3개            | 5개            | 10개              | 무제한             |
+  | 거래 히스토리    | 14일                   | 90일           | 180일          | 무제한            | 무제한             |
+  | 고급 지표        | ❌                     | ✅             | ✅             | ✅                | ✅                 |
+  | 커스텀 지표      | ❌                     | ❌             | ✅             | ✅                | ✅                 |
+  | 백테스팅         | ❌                     | ✅(최근 3개월) | ✅(최근 6개월) | ✅(전체 기간)     | ✅(전체 기간)      |
+  | 데이터 내보내기  | ❌                     | ❌             | ✅(CSV)        | ✅(CSV, JSON)     | ✅(API 연동)       |
+  | API 접근         | ❌                     | ❌             | ❌             | ✅(제한적)        | ✅(무제한)         |
+  | 텔레그램 알림    | ❌                     | ✅             | ✅             | ✅                | ✅                 |
+  | 이메일 알림      | ❌                     | ✅(일 10건)    | ✅(일 50건)    | ✅(무제한)        | ✅(무제한)         |
+  | 브라우저 알림    | ✅                     | ✅             | ✅             | ✅                | ✅                 |
+  | 지원 수준        | 커뮤니티               | 이메일(48시간) | 이메일(24시간) | 우선 지원(12시간) | 전담 매니저(1시간) |
+  | 무료 체험        | -                      | 7일            | 7일            | 7일               | 협의               |
 
-텔레그램 연동 설정이 필요한가?
+  ---
+  5️⃣ 가격 합리성 분석
 
-7. 대시보드 - 내 시그널
-requests.js:1  GET https://coinpulse.sinsi.ai/api/admin/api/user/signals/stats 404 (NOT FOUND)
-(anonymous) @ requests.js:1
-(anonymous) @ traffic.js:1
-fetch @ traffic.js:1
-loadStats @ VM1842:32
-loadData @ VM1842:25
-init @ VM1842:19
-(anonymous) @ VM1842:209
-(anonymous) @ VM1842:210
-executeScripts @ page-loader.js:155
-loadPage @ page-loader.js:79
-loadExternalPage @ dashboard.html:1642
-handleNavigation @ dashboard.html:1726
-requests.js:1  GET https://coinpulse.sinsi.ai/api/admin/api/user/signals?status=all&limit=50 404 (NOT FOUND)
-(anonymous) @ requests.js:1
-(anonymous) @ traffic.js:1
-fetch @ traffic.js:1
-loadSignals @ VM1842:62
-loadData @ VM1842:26
-init @ VM1842:19
-(anonymous) @ VM1842:209
-(anonymous) @ VM1842:210
-executeScripts @ page-loader.js:155
-loadPage @ page-loader.js:79
-loadExternalPage @ dashboard.html:1642
-handleNavigation @ dashboard.html:1726
-VM1842:153 Error loading signals: TypeError: Cannot set properties of null (setting 'innerHTML')
-    at loadSignals (<anonymous>:72:41)
-    at async Promise.all (index 1)
-    at async loadData (<anonymous>:24:13)
-    at async init (<anonymous>:19:13)
-loadSignals @ VM1842:153
-await in loadSignals
-loadData @ VM1842:26
-init @ VM1842:19
-(anonymous) @ VM1842:209
-(anonymous) @ VM1842:210
-executeScripts @ page-loader.js:155
-loadPage @ page-loader.js:79
-loadExternalPage @ dashboard.html:1642
-handleNavigation @ dashboard.html:1726
-VM1842:154 Uncaught (in promise) TypeError: Cannot set properties of null (setting 'innerHTML')
-    at loadSignals (<anonymous>:154:66)
-    at async Promise.all (index 1)
-    at async loadData (<anonymous>:24:13)
-    at async init (<anonymous>:19:13)
-loadSignals @ VM1842:154
-await in loadSignals
-loadData @ VM1842:26
-init @ VM1842:19
-(anonymous) @ VM1842:209
-(anonymous) @ VM1842:210
-executeScripts @ page-loader.js:155
-loadPage @ page-loader.js:79
-loadExternalPage @ dashboard.html:1642
-handleNavigation @ dashboard.html:1726
+  가격 책정 근거
 
-8. 대시보드 - 급등 예측
-급등 예측 모니터링을 하고 있나?
-유효한 정보가 하나도 없어...
-"내 시그널"과는 별개인가?
-"내 시그널"은 뭐지?
+  Basic (39,000원):
+  - 커피 값 (5,000원 × 8일) = 일 1,300원
+  - 점심 값 (10,000원 × 4일) = 일 1,300원
+  - 넷플릭스 프리미엄 (17,000원) 대비 2.3배
+  → "하루 커피 한 잔 값으로 AI 자동매매"
 
-8. 대시보드 - 자동 거래
-ln9swrd@gmail.com 베이식 요금제 인데
-요금제 업그레이드가 보이네...
+  Pro (69,000원):
+  - 헬스장 월회원 (70,000원) 수준
+  - ChatGPT Plus (20달러 = 27,000원) 대비 2.6배
+  → "건강관리만큼 재테크 관리"
+
+  Expert (99,000원):
+  - 주식 HTS 유료 서비스 (50,000~150,000원) 수준
+  - 전문가 컨설팅 1회 (100,000원) 대비 동일
+  → "전문가 수준의 24/7 자동매매"
+
+  경쟁력 분석
+
+  | 항목          | 코인펄스           | 업리치         | 평가 |
+  |---------------|--------------------|----------------|------|
+  | 가격 투명성   | ✅ 웹사이트 공개   | ❌ 문의 필요   | 우위 |
+  | 적중률 증명   | ✅ 81.25% 백테스트 | ? 불명확       | 우위 |
+  | 가격 경쟁력   | 39,000원~          | 추정 50,000원~ | 우위 |
+  | 브랜드 인지도 | ❌ 신생            | ✅ 1위 기업    | 열세 |
+
+여기까지 수용 반영해
 
 
-9. 대시보드 - 거래 내역
-오류 발생....
-dashboard-fixed.js?v=20251221_auto_fixed:690 Error loading order history: TypeError: Cannot read properties of undefined (reading 'getToken')
-    at DashboardManager.loadOrderHistory (dashboard-fixed.js?v=20251221_auto_fixed:599:62)
-    at dashboard-fixed.js?v=20251221_auto_fixed:579:35
-loadOrderHistory @ dashboard-fixed.js?v=20251221_auto_fixed:690
-(anonymous) @ dashboard-fixed.js?v=20251221_auto_fixed:579
-setTimeout
-loadHistoryPage @ dashboard-fixed.js?v=20251221_auto_fixed:579
-loadPage @ dashboard-fixed.js?v=20251221_auto_fixed:204
-(anonymous) @ dashboard-fixed.js?v=20251221_auto_fixed:135
+  6️⃣ 흥행 전략 제안
 
-10. 대시보드 - 포트폴리오
-로딩 속도를 더 빨리해줘
+  🎯 초기 사용자 확보 전략
 
-11. 대시보드 - 거래 차트
-수동 주문 기능이 제대로 구현되었는지 검증해줘
-xrp에 매도 주문이 있는데 그 주문을 차트에서 드래그해서 가격을 변경하는 것과
-주문을 선택해서 취소하는 기능을 구현해줘
+  1. 론칭 프로모션 (첫 3개월)
+  - Early Bird 특가: Basic 29,000원 (25% 할인)
+  - 첫 100명 한정: Pro 49,000원 (29% 할인)
+  - 추천인 코드: 추천인/가입자 모두 첫 달 50% 할인
+
+  2. 무료 → 유료 전환 전략
+  - Free 플랜에서 AI 예측 정확도 체감
+  - "이번 주 수익률 +12.5%" 같은 구체적 성과 표시
+  - "Pro 플랜으로 업그레이드하면 월 예상 수익 +XX만원" 시뮬레이션 제공
+
+  3. 바이럴 마케팅
+  - 텔레그램 커뮤니티: 실시간 급등 예측 공유
+  - 유튜브 실황: "AI가 예측한 코인 3일간 수익률 검증"
+  - 블로그 챌린지: "코인펄스 30일 챌린지" 수익률 인증
+
+  4. 신뢰 구축
+  - ✅ 매일 급등 예측 결과 공개 (적중/실패 투명 공개)
+  - ✅ 실시간 백테스트 업데이트
+  - ✅ 사용자 후기 (수익 인증) 게시판
+
+  🚀 필수 추가 기능 (흥행용)
+
+  | 기능                | 설명                             | 플랜 제한                           | 개발 우선순위 | 흥행 효과        |
+  |---------------------|----------------------------------|-------------------------------------|---------------|------------------|
+  | 수익률 리더보드     | 사용자 수익률 순위 (익명)        | Free: 조회만유료: 참여              | ⭐⭐⭐ 높음   | 🔥🔥🔥 매우 높음 |
+  | AI 예측 점수 히트맵 | 시간대/요일별 예측 정확도        | Free: 최근 7일유료: 전체            | ⭐⭐ 중간     | 🔥🔥 높음        |
+  | 포트폴리오 공유     | 전략 공유 & 복사                 | Free: ❌Basic: 복사만Pro: 공유 가능 | ⭐⭐⭐ 높음   | 🔥🔥🔥 매우 높음 |
+  | 손익 계산기         | 과거 데이터 기반 수익 시뮬레이션 | 모든 플랜                           | ⭐ 낮음       | 🔥🔥 높음        |
+  | 모의 투자           | 가상 계좌로 전략 테스트          | Free: ✅유료: 무제한                | ⭐⭐⭐ 높음   | 🔥🔥🔥 매우 높음 |
+
+여기도 수용
 
 
-12. 대시보드 -  잘 나오던 페이지도 다시 클릭해서 이동하면 Page not found가 보여 자주
+
+  💰 수익 극대화 전략
+
+  1. 연간 구독 유도
+  - 현재: 연간 할인 없음
+  - 제안: 연간 결제 시 2개월 무료 (17% 할인)
+
+수용
+
+  3. 기업 고객 확보
+  - Enterprise 플랜 마케팅 강화
+  - 최소 계약 금액: 연 500만원~
+  - 백오피스 관리 시스템 제공 > 보류
+
+
+  7️⃣ 제거 가능한 기능
+
+  ❌ 굳이 필요 없는 기능
+
+  | 기능              | 이유                                   | 조치                                 |
+  |-------------------|----------------------------------------|--------------------------------------|
+  | 화이트라벨링      | B2C 서비스에 불필요, Enterprise만 제공 | Enterprise 전용으로 제한             |
+  | 커스텀 개발       | 유지보수 부담, 표준화 저해             | 제거 또는 별도 계약                  |
+  | SLA 보증          | 초기 스타트업에 부담, 법적 리스크      | 제거 (대신 "99.9% 가동률 목표" 명시) |
+  | 관심 종목 제한    | 사용자 경험 저해, 차별화 약함          | 모든 플랜 무제한으로 변경            |
+  | daily_email_limit | 복잡도만 증가, 사용자 불만             | 제거 (대신 플랜별 중요 알림만 전송)  |
+
+수용
+
+
+  ⚠️ 단순화 필요한 기능
+
+  | 기능      | 현재                                  | 개선                                     |
+  |-----------|---------------------------------------|------------------------------------------|
+  | 알림 종류 | Signal, Portfolio, Trade, System      | 통합: "중요 알림" / "일반 알림" 2가지만  |
+  | 지표 종류 | Advanced, Custom 구분                 | 통합: "고급 지표" 하나로                 |
+  | 지원 수준 | Community, Email, Priority, Dedicated | 3단계로 축소: Community, Email, Priority |
+
+수용

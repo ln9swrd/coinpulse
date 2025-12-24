@@ -52,6 +52,7 @@ from backend.routes.subscription_admin import subscription_admin_bp  # Admin sub
 from backend.routes.features_admin import features_admin_bp  # Admin feature customization
 from backend.routes.payment_confirmation import payment_confirm_bp  # Payment confirmation (bank transfer)
 from backend.routes.payment_confirmation_admin import payment_confirm_admin_bp  # Admin payment confirmation review
+from backend.routes.payment_recovery import payment_recovery_bp  # Admin payment recovery and mismatch detection
 from backend.routes.telegram_webhook import telegram_webhook_bp  # Telegram bot webhook for auto payment processing
 from backend.routes.referral_routes import referral_bp  # Referral system (friend invitation)
 from backend.models.referral import ReferralCode, Referral  # Import models to register with SQLAlchemy
@@ -233,6 +234,7 @@ def register_blueprints():
         (features_admin_bp, None),  # Admin feature customization (already has /api/admin/features prefix)
         (payment_confirm_bp, None),  # Payment confirmation (already has /api/payment-confirm prefix)
         (payment_confirm_admin_bp, None),  # Admin payment confirmation (already has /api/admin/payment-confirmations prefix)
+        (payment_recovery_bp, None),  # Admin payment recovery and mismatch detection (already has /api/admin/payment-recovery prefix)
         (telegram_webhook_bp, None),  # Telegram bot webhook for auto payment processing (already has /api/telegram prefix)
         (referral_bp, None),  # Referral system (already has /api/referral prefix)
         (test_bp, None),  # Test endpoints for development and testing (already has /api/test prefix)
