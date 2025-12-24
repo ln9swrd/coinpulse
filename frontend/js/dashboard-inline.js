@@ -150,6 +150,78 @@
             }
 
             // ================================================================
+            // Show Upgrade Prompt Modal
+            // ================================================================
+
+            function showUpgradePrompt(featureName = '이 기능', requiredPlans = ['Basic', 'Pro', 'Enterprise']) {
+                const plansText = requiredPlans.join(', ');
+
+                const modalHTML = `
+                    <div class="modal-overlay" onclick="this.remove()">
+                        <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 500px;">
+                            <div class="modal-header">
+                                <h3>🔒 유료 플랜 기능</h3>
+                                <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
+                            </div>
+                            <div class="modal-body" style="text-align: center; padding: 40px 20px;">
+                                <div style="font-size: 64px; margin-bottom: 20px;">💎</div>
+                                <h3 style="margin: 0 0 12px 0; color: #333; font-size: 20px; font-weight: 600;">
+                                    ${featureName}은 유료 플랜 기능입니다
+                                </h3>
+                                <p style="margin: 0 0 24px 0; color: #666; font-size: 14px; line-height: 1.6;">
+                                    ${featureName}을 사용하려면<br>
+                                    ${plansText} 플랜으로 업그레이드하세요.
+                                </p>
+                                <div style="background: linear-gradient(135deg, #f5f7fa 0%, #f0f3f9 100%); border-radius: 12px; padding: 20px; margin: 0 0 24px 0;">
+                                    <div style="font-size: 13px; color: #666; margin-bottom: 12px;">유료 플랜 혜택</div>
+                                    <div style="display: grid; gap: 8px; text-align: left;">
+                                        <div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+                                            <span style="color: #10b981;">✓</span>
+                                            <span>급등 신호 알림</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+                                            <span style="color: #10b981;">✓</span>
+                                            <span>자동 매매 설정</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+                                            <span style="color: #10b981;">✓</span>
+                                            <span>거래 차트 주문 기능</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+                                            <span style="color: #10b981;">✓</span>
+                                            <span>텔레그램 실시간 알림</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer" style="gap: 8px;">
+                                <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">취소</button>
+                                <button class="btn btn-primary" onclick="this.closest('.modal-overlay').remove(); window.location.hash = 'pricing';" style="
+                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                    color: white;
+                                    border: none;
+                                    padding: 12px 32px;
+                                    border-radius: 8px;
+                                    font-size: 15px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    transition: all 0.2s;
+                                    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+                                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(102, 126, 234, 0.5)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)';">
+                                    요금제 업그레이드
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.insertAdjacentHTML('beforeend', modalHTML);
+            }
+
+            // Make showUpgradePrompt globally accessible
+            window.showUpgradePrompt = showUpgradePrompt;
+
+            // ================================================================
             // Load User Profile
             // ================================================================
 

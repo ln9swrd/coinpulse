@@ -131,6 +131,17 @@ class CoinPulseAPI {
 
             // Handle non-2xx responses
             if (!response.ok) {
+                // Handle 403 Forbidden with upgrade_required flag
+                if (response.status === 403 && data.upgrade_required) {
+                    console.log('[API] Upgrade required for:', endpoint);
+                    // Show upgrade prompt modal if available
+                    if (typeof window.showUpgradePrompt === 'function') {
+                        const featureName = data.message || '이 기능';
+                        const requiredPlans = data.required_plans || ['Basic', 'Pro', 'Enterprise'];
+                        window.showUpgradePrompt(featureName, requiredPlans);
+                    }
+                }
+
                 throw new APIError(
                     data.error || 'Request failed',
                     response.status,
