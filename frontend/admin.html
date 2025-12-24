@@ -817,7 +817,8 @@
 
     <script>
         // Configuration - Use admin-specific API base (avoid global API_BASE conflict)
-        const ADMIN_API_BASE = window.location.origin + '/api/admin';
+        // Use window object to avoid duplicate declaration on dynamic page reload
+        window.ADMIN_API_BASE = window.ADMIN_API_BASE || (window.location.origin + '/api/admin');
         let adminToken = localStorage.getItem('access_token') || '';
         let currentPaymentId = null;
 
@@ -902,10 +903,10 @@
             try {
                 // Load all stats in parallel (use status=all for accurate total count)
                 const [users, payments, beta, plans] = await Promise.all([
-                    fetch(`${ADMIN_API_BASE}/users?status=all`, { headers: getHeaders() }).then(r => r.json()),
-                    fetch(`${ADMIN_API_BASE}/payment-requests?status=pending`, { headers: getHeaders() }).then(r => r.json()),
-                    fetch(`${ADMIN_API_BASE}/beta-testers`, { headers: getHeaders() }).then(r => r.json()),
-                    fetch(`${ADMIN_API_BASE}/plans`, { headers: getHeaders() }).then(r => r.json())
+                    fetch(`${window.ADMIN_API_BASE}/users?status=all`, { headers: getHeaders() }).then(r => r.json()),
+                    fetch(`${window.ADMIN_API_BASE}/payment-requests?status=pending`, { headers: getHeaders() }).then(r => r.json()),
+                    fetch(`${window.ADMIN_API_BASE}/beta-testers`, { headers: getHeaders() }).then(r => r.json()),
+                    fetch(`${window.ADMIN_API_BASE}/plans`, { headers: getHeaders() }).then(r => r.json())
                 ]);
 
                 // Update stats (check if elements exist first)
@@ -947,7 +948,7 @@
                 // Get filter value
                 const statusFilter = document.getElementById('userStatusFilter').value;
 
-                const response = await fetch(`${ADMIN_API_BASE}/users?status=${statusFilter}`, {
+                const response = await fetch(`${window.ADMIN_API_BASE}/users?status=${statusFilter}`, {
                     headers: getHeaders()
                 });
                 const data = await response.json();
@@ -1025,7 +1026,7 @@
             try {
                 console.log(`[Admin] Deleting user ${userId} (${email})`);
 
-                const response = await fetch(`${ADMIN_API_BASE}/users/${userId}`, {
+                const response = await fetch(`${window.ADMIN_API_BASE}/users/${userId}`, {
                     method: 'DELETE',
                     headers: getHeaders()
                 });
@@ -1059,7 +1060,7 @@
             try {
                 console.log(`[Admin] Restoring user ${userId} (${email})`);
 
-                const response = await fetch(`${ADMIN_API_BASE}/users/${userId}/restore`, {
+                const response = await fetch(`${window.ADMIN_API_BASE}/users/${userId}/restore`, {
                     method: 'POST',
                     headers: getHeaders()
                 });
@@ -1098,7 +1099,7 @@
             }
 
             try {
-                const response = await fetch(`${ADMIN_API_BASE}/users/${userId}/plan`, {
+                const response = await fetch(`${window.ADMIN_API_BASE}/users/${userId}/plan`, {
                     method: 'POST',
                     headers: getHeaders(),
                     body: JSON.stringify({
@@ -1139,7 +1140,7 @@
             const queryStatus = status === 'all' ? '' : `?status=${status}`;
 
             try {
-                const response = await fetch(`${ADMIN_API_BASE}/payment-requests${queryStatus}`, { headers: getHeaders() });
+                const response = await fetch(`${window.ADMIN_API_BASE}/payment-requests${queryStatus}`, { headers: getHeaders() });
                 const data = await response.json();
 
                 if (data.success) {
@@ -1199,7 +1200,7 @@
             if (!currentPaymentId) return;
 
             try {
-                const response = await fetch(`${ADMIN_API_BASE}/payment-requests/${currentPaymentId}/approve`, {
+                const response = await fetch(`${window.ADMIN_API_BASE}/payment-requests/${currentPaymentId}/approve`, {
                     method: 'POST',
                     headers: getHeaders()
                 });
@@ -1236,7 +1237,7 @@
         // Beta Testers
         async function loadBetaTesters() {
             try {
-                const response = await fetch(`${ADMIN_API_BASE}/beta-testers`, { headers: getHeaders() });
+                const response = await fetch(`${window.ADMIN_API_BASE}/beta-testers`, { headers: getHeaders() });
                 const data = await response.json();
 
                 if (data.success) {
@@ -1283,7 +1284,7 @@
             };
 
             try {
-                const response = await fetch(`${ADMIN_API_BASE}/beta-tester`, {
+                const response = await fetch(`${window.ADMIN_API_BASE}/beta-tester`, {
                     method: 'POST',
                     headers: getHeaders(),
                     body: JSON.stringify(formData)
@@ -1309,7 +1310,7 @@
             if (!confirm('이 베타 테스터를 삭제하시겠습니까?')) return;
 
             try {
-                const response = await fetch(`${ADMIN_API_BASE}/beta-tester/${id}`, {
+                const response = await fetch(`${window.ADMIN_API_BASE}/beta-tester/${id}`, {
                     method: 'DELETE',
                     headers: getHeaders()
                 });
@@ -1341,7 +1342,7 @@
         // Plans
         async function loadPlans() {
             try {
-                const response = await fetch(`${ADMIN_API_BASE}/plans`, { headers: getHeaders() });
+                const response = await fetch(`${window.ADMIN_API_BASE}/plans`, { headers: getHeaders() });
                 const data = await response.json();
 
                 if (data.success) {

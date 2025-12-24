@@ -818,8 +818,29 @@
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', init);
         } else {
-            // For dynamic page loading, wait for next tick to ensure DOM is fully rendered
-            setTimeout(init, 100);
+            // For dynamic page loading, wait for DOM to be fully rendered
+            // Try multiple times with increasing delay
+            let retryCount = 0;
+            const maxRetries = 5;
+
+            function tryInit() {
+                const filterMarket = document.getElementById('filter-market');
+                const tableContent = document.getElementById('table-content');
+
+                if (filterMarket && tableContent) {
+                    // DOM is ready, run init
+                    console.log('[SurgeHistory] DOM ready, initializing...');
+                    init();
+                } else if (retryCount < maxRetries) {
+                    retryCount++;
+                    console.log(`[SurgeHistory] DOM not ready, retrying (${retryCount}/${maxRetries})...`);
+                    setTimeout(tryInit, 100 * retryCount);
+                } else {
+                    console.error('[SurgeHistory] DOM elements not found after retries');
+                }
+            }
+
+            tryInit();
         }
 
         // Load available markets
