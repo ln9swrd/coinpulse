@@ -11,7 +11,7 @@ from sqlalchemy import and_, or_, desc
 
 from backend.database.connection import get_db_session
 from backend.models.subscription_models import (
-    Transaction, Subscription, BillingKey,
+    Transaction, Subscription,
     PaymentStatus, SubscriptionStatus, SubscriptionPlan
 )
 from backend.models.payment_confirmation import PaymentConfirmation, PaymentConfirmStatus
