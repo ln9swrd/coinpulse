@@ -289,7 +289,14 @@
                     <span class="verified-badge" id="verified-badge" style="font-size: 0.9em; padding: 6px 14px;">로딩 중...</span>
                     <span class="last-update" id="last-update" style="margin-left: 12px;">로딩 중...</span>
                 </div>
-                <button class="refresh-button" id="refresh-btn" onclick="loadCandidates()" style="padding: 8px 20px; font-size: 0.9em;">새로고침</button>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <!-- Notification Bell -->
+                    <div class="notification-bell" id="notification-bell" style="position: relative; cursor: pointer; padding: 8px; border-radius: 50%; background: #f3f4f6; transition: all 0.3s ease; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+                        <span class="bell-icon" style="font-size: 20px;">🔔</span>
+                        <span class="notification-badge" id="notification-badge" style="display: none; position: absolute; top: 2px; right: 2px; background: #ef4444; color: white; font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 10px; min-width: 18px; text-align: center;">0</span>
+                    </div>
+                    <button class="refresh-button" id="refresh-btn" onclick="loadCandidates()" style="padding: 8px 20px; font-size: 0.9em;">새로고침</button>
+                </div>
             </div>
         </div>
 

@@ -29,32 +29,39 @@ class NotificationSystem {
     initializeUI() {
         // Check if notification center already exists
         if (document.getElementById('notification-center')) {
+            console.log('[Notification] UI already initialized');
             return;
         }
 
-        // Create notification bell icon in header
-        const header = document.querySelector('.page-header') || document.querySelector('.header');
-        if (!header) {
-            console.warn('[Notification] No header found');
-            return;
-        }
+        // Check if bell icon already exists in HTML
+        const existingBell = document.getElementById('notification-bell');
+        if (!existingBell) {
+            // Create notification bell icon in header
+            const header = document.querySelector('.page-header') || document.querySelector('.header');
+            if (!header) {
+                console.warn('[Notification] No header found');
+                return;
+            }
 
-        // Create notification icon container
-        const notifContainer = document.createElement('div');
-        notifContainer.className = 'notification-icon-container';
-        notifContainer.innerHTML = `
-            <div class="notification-bell" id="notification-bell">
-                <span class="bell-icon">🔔</span>
-                <span class="notification-badge" id="notification-badge" style="display: none;">0</span>
-            </div>
-        `;
+            // Create notification icon container
+            const notifContainer = document.createElement('div');
+            notifContainer.className = 'notification-icon-container';
+            notifContainer.innerHTML = `
+                <div class="notification-bell" id="notification-bell">
+                    <span class="bell-icon">🔔</span>
+                    <span class="notification-badge" id="notification-badge" style="display: none;">0</span>
+                </div>
+            `;
 
-        // Add to header (right side)
-        if (header.querySelector('h1')) {
-            header.style.display = 'flex';
-            header.style.justifyContent = 'space-between';
-            header.style.alignItems = 'center';
-            header.appendChild(notifContainer);
+            // Add to header (right side)
+            if (header.querySelector('h1')) {
+                header.style.display = 'flex';
+                header.style.justifyContent = 'space-between';
+                header.style.alignItems = 'center';
+                header.appendChild(notifContainer);
+            }
+        } else {
+            console.log('[Notification] Bell icon already exists in HTML');
         }
 
         // Create notification center panel
