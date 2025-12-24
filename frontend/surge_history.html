@@ -801,12 +801,33 @@
         function init() {
             console.log('[SurgeHistory] Initializing...');
 
-            // Check admin auth
-            const token = localStorage.getItem('access_token');
+            // Check admin auth - try localStorage first, then parent window (for iframe)
+            let token = localStorage.getItem('access_token');
+
+            // If in iframe and no token found, try parent window's localStorage
+            if (!token && window.parent && window.parent !== window) {
+                try {
+                    console.log('[SurgeHistory] Checking parent window localStorage...');
+                    token = window.parent.localStorage.getItem('access_token');
+                    // Store in current window's localStorage for future use
+                    if (token) {
+                        localStorage.setItem('access_token', token);
+                        console.log('[SurgeHistory] Token copied from parent window');
+                    }
+                } catch (e) {
+                    console.warn('[SurgeHistory] Cannot access parent localStorage:', e.message);
+                }
+            }
+
             if (!token) {
-                console.error('[SurgeHistory] No access token found');
+                console.error('[SurgeHistory] No access token found in localStorage or parent window');
                 alert('로그인이 필요합니다.');
-                window.location.href = '/login.html';
+                // If in iframe, redirect parent window instead of iframe
+                if (window.parent && window.parent !== window) {
+                    window.parent.location.href = '/login.html';
+                } else {
+                    window.location.href = '/login.html';
+                }
                 return;
             }
             console.log('[SurgeHistory] Token found, loading data...');
