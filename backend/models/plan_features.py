@@ -61,7 +61,7 @@ class UserFeatureOverride(Base):
 
 
 # Default feature sets for each plan
-# Updated 2025.12.23 v2.1: 실제 데이터 기반 현실적인 제한
+# Updated 2025.12.24 v3.0: 5단계 플랜 구조 (Free/Basic/Pro/Expert/Enterprise)
 #
 # 두 가지 독립적인 시스템:
 # 1. 투자조언 알림 (Investment Advisory)
@@ -89,30 +89,37 @@ PLAN_FEATURES = {
         'surge_auto_trading': False,  # 급등 자동매매 불가
         'max_surge_alerts': 0,  # 주간 자동매수 횟수: 0회
         'max_alerts_per_week': 0,  # 표시: 0회
-        'surge_monitoring': True,  # 급등 모니터링 (대시보드 확인만)
+        'surge_monitoring': True,  # 급등 모니터링 (상위 3개만 상세, 나머지 잠금)
         'telegram_alerts': False,
         'max_surge_budget': 0,  # 총 예산 제한: 불가
         # 기타
         'advanced_indicators': False,
+        'custom_indicators': False,
         'backtesting': False,
+        'data_export': False,
+        'api_access': False,
         'priority_support': False,
-        'trade_history_days': 7
+        'trade_history_days': 14  # 7일 → 14일로 확대
     },
     'basic': {
         'manual_trading': True,
         # 투자조언 알림
         'advisory_coins': True,  # 투자조언 코인 설정 가능
-        'max_advisory_coins': 3,  # 선택 가능 코인 수: 3개
+        'max_advisory_coins': 5,  # 선택 가능 코인 수: 5개
         # 급등 알림 자동매매
         'surge_auto_trading': True,  # 급등 자동매매 가능
-        'max_surge_alerts': 5,  # 실제: 주 5회 자동매수 (시스템 생성량과 동일)
-        'max_alerts_per_week': 3,  # 표시: 주 3회 (보수적 표시, 실제론 5회 가능)
-        'surge_monitoring': True,
+        'max_surge_alerts': 5,  # 실제: 주 5회 자동매수
+        'max_alerts_per_week': 3,  # 표시: 주 3회
+        'surge_monitoring': True,  # 전체 상세 정보 접근
         'telegram_alerts': True,
         'max_surge_budget': 5000000,  # 총 예산 제한: 500만원
         # 기타
         'advanced_indicators': True,
-        'backtesting': False,
+        'custom_indicators': False,
+        'backtesting': True,  # 최근 3개월
+        'backtesting_period_months': 3,
+        'data_export': False,
+        'api_access': False,
         'priority_support': False,
         'trade_history_days': 90
     },
@@ -120,19 +127,69 @@ PLAN_FEATURES = {
         'manual_trading': True,
         # 투자조언 알림
         'advisory_coins': True,  # 투자조언 코인 설정 가능
-        'max_advisory_coins': 5,  # 선택 가능 코인 수: 5개
+        'max_advisory_coins': 10,  # 선택 가능 코인 수: 10개
         # 급등 알림 자동매매
         'surge_auto_trading': True,  # 급등 자동매매 가능
-        'max_surge_alerts': 10,  # 실제: 주 10회 자동매수 (여유분 포함, 시스템 확장 대비)
-        'max_alerts_per_week': 5,  # 표시: 주 5회 (현실적 표시, 시스템 평균 생성량)
+        'max_surge_alerts': 10,  # 실제: 주 10회 자동매수
+        'max_alerts_per_week': 5,  # 표시: 주 5회
+        'surge_monitoring': True,
+        'telegram_alerts': True,
+        'max_surge_budget': 10000000,  # 총 예산 제한: 1천만원
+        # 기타
+        'advanced_indicators': True,
+        'custom_indicators': True,
+        'backtesting': True,  # 최근 6개월
+        'backtesting_period_months': 6,
+        'data_export': True,  # CSV
+        'api_access': False,
+        'priority_support': False,
+        'trade_history_days': 180
+    },
+    'expert': {
+        'manual_trading': True,
+        # 투자조언 알림
+        'advisory_coins': True,  # 투자조언 코인 설정 가능
+        'max_advisory_coins': 30,  # 선택 가능 코인 수: 30개
+        # 급등 알림 자동매매
+        'surge_auto_trading': True,  # 급등 자동매매 가능
+        'max_surge_alerts': 20,  # 실제: 주 20회 자동매수
+        'max_alerts_per_week': 10,  # 표시: 주 10회
         'surge_monitoring': True,
         'telegram_alerts': True,
         'max_surge_budget': -1,  # 총 예산 제한: 무제한
         # 기타
         'advanced_indicators': True,
-        'backtesting': True,
+        'custom_indicators': True,
+        'backtesting': True,  # 전체 기간
+        'backtesting_period_months': -1,  # Unlimited
+        'data_export': True,  # CSV, JSON
+        'api_access': True,  # 제한적
         'priority_support': True,
         'trade_history_days': -1  # Unlimited
+    },
+    'enterprise': {
+        'manual_trading': True,
+        # 투자조언 알림
+        'advisory_coins': True,  # 투자조언 코인 설정 가능
+        'max_advisory_coins': -1,  # 선택 가능 코인 수: 무제한
+        # 급등 알림 자동매매
+        'surge_auto_trading': True,  # 급등 자동매매 가능
+        'max_surge_alerts': -1,  # 실제: 무제한
+        'max_alerts_per_week': -1,  # 표시: 무제한
+        'surge_monitoring': True,
+        'telegram_alerts': True,
+        'max_surge_budget': -1,  # 총 예산 제한: 무제한
+        # 기타
+        'advanced_indicators': True,
+        'custom_indicators': True,
+        'backtesting': True,  # 전체 기간
+        'backtesting_period_months': -1,  # Unlimited
+        'data_export': True,  # CSV, JSON, API 연동
+        'api_access': True,  # 무제한
+        'priority_support': True,
+        'trade_history_days': -1,  # Unlimited
+        'white_labeling': True,  # Enterprise only
+        'dedicated_manager': True  # 전담 매니저
     }
 }
 
@@ -142,7 +199,7 @@ def get_user_features(plan: str, overrides: dict = None) -> dict:
     Get effective features for a user based on plan and overrides
 
     Args:
-        plan: User's subscription plan ('free', 'basic', 'pro', 'enterprise')
+        plan: User's subscription plan ('free', 'basic', 'pro', 'expert', 'enterprise')
         overrides: Optional feature overrides from UserFeatureOverride
 
     Returns:

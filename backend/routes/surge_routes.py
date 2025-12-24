@@ -217,12 +217,16 @@ def get_volume_surge_candidates(max_count=30):
 @surge_bp.route('/surge-candidates', methods=['GET'])
 def get_surge_candidates():
     """
-    급등 예측 후보 코인 목록 (PUBLIC - No auth required)
+    급등 예측 후보 코인 목록 (PUBLIC with optional auth)
 
     ⚡ Cache-first architecture:
     - 데이터 소스: surge_candidates_cache DB table
     - 업데이트: surge_alert_scheduler (5분마다)
     - API 호출: 0회 (초고속 응답)
+
+    🔒 Plan-based access control:
+    - No auth / Free plan: Top 3 full details, rest limited (coin name only)
+    - Basic+ plan: All candidates with full details
 
     Returns:
         {
@@ -230,26 +234,47 @@ def get_surge_candidates():
                 {
                     "market": "KRW-XLM",
                     "coin": "XLM",
-                    "score": 80,
-                    "current_price": 176.5,
-                    "signals": {...},
-                    "recommendation": "strong_buy",
-                    "analyzed_at": "2025-12-23T20:45:00"
+                    "score": 80 | null,  # null for Free plan (beyond top 3)
+                    "current_price": 176.5 | null,
+                    "signals": {...} | null,
+                    "recommendation": "strong_buy" | null,
+                    "analyzed_at": "2025-12-23T20:45:00",
+                    "locked": false | true  # true if upgrade required
                 }
             ],
-            "backtest_stats": {
-                "win_rate": 81.25,
-                "avg_return": 19.12,
-                "total_trades": 16
-            },
+            "backtest_stats": {...},
             "monitored_markets": 30,
             "timestamp": "2025-12-23T20:45:10",
-            "data_source": "cache",
-            "cache_age_seconds": 10
+            "user_plan": "free" | "basic" | "pro",
+            "upgrade_message": "상위 3개만 표시됩니다. 전체 보기는 Basic 플랜 구독이 필요합니다."
         }
     """
     try:
         from backend.models.surge_candidates_cache_models import SurgeCandidatesCache
+        from flask import request
+
+        # Check if user is authenticated (optional)
+        user_plan = 'free'  # Default to free
+        current_user = None
+
+        # Try to get user from JWT token (optional auth)
+        auth_header = request.headers.get('Authorization')
+        if auth_header and auth_header.startswith('Bearer '):
+            try:
+                from backend.middleware.auth import verify_token
+                from backend.models.user import User
+
+                token = auth_header.split(' ')[1]
+                payload = verify_token(token)
+                if payload:
+                    user_id = payload.get('user_id')
+                    session_temp = get_db_session()
+                    current_user = session_temp.query(User).filter_by(id=user_id).first()
+                    if current_user:
+                        user_plan = current_user.plan or 'free'
+                    session_temp.close()
+            except:
+                pass  # Continue as free user
 
         session = get_db_session()
         try:
@@ -258,18 +283,43 @@ def get_surge_candidates():
                 SurgeCandidatesCache.score.desc()
             ).all()
 
-            # Convert to dict
+            # Determine how many full details to show
+            free_limit = 3  # Free plan sees top 3 full details
+            is_free_plan = user_plan == 'free'
+
+            # Convert to dict with plan-based filtering
             candidates = []
-            for cache in cached_candidates:
-                candidates.append({
+            for idx, cache in enumerate(cached_candidates):
+                # Free plan: only show full details for top N
+                show_full_details = not is_free_plan or idx < free_limit
+
+                candidate = {
                     'market': cache.market,
                     'coin': cache.coin,
-                    'score': cache.score,
-                    'current_price': cache.current_price,
-                    'signals': cache.signals or {},
-                    'recommendation': cache.recommendation,
-                    'analyzed_at': cache.analyzed_at.isoformat() if cache.analyzed_at else None
-                })
+                    'locked': not show_full_details
+                }
+
+                if show_full_details:
+                    candidate.update({
+                        'score': cache.score,
+                        'current_price': cache.current_price,
+                        'signals': cache.signals or {},
+                        'recommendation': cache.recommendation,
+                        'analyzed_at': cache.analyzed_at.isoformat() if cache.analyzed_at else None
+                    })
+                else:
+                    # Limited info for free users (beyond top 3)
+                    candidate.update({
+                        'score': None,
+                        'current_price': None,
+                        'signals': None,
+                        'recommendation': None,
+                        'analyzed_at': cache.analyzed_at.isoformat() if cache.analyzed_at else None,
+                        'upgrade_required': True,
+                        'upgrade_message': 'Basic 플랜 구독 시 확인 가능'
+                    })
+
+                candidates.append(candidate)
 
             # Calculate cache age
             cache_age_seconds = 0
@@ -284,13 +334,16 @@ def get_surge_candidates():
                 'success': True,
                 'candidates': candidates,
                 'count': len(candidates),
+                'visible_count': free_limit if is_free_plan else len(candidates),
                 'monitored_markets': 30,  # Fixed 30 coins monitored by scheduler
                 'backtest_stats': backtest_stats,
                 'timestamp': datetime.now().isoformat(),
                 'data_source': 'cache',  # Data from cache, not live API
                 'cache_age_seconds': cache_age_seconds,
                 'signals_generated': len(candidates),
-                'signals_distributed_to': 0  # Deprecated field
+                'signals_distributed_to': 0,  # Deprecated field
+                'user_plan': user_plan,
+                'upgrade_message': '상위 3개만 표시됩니다. 전체 보기는 Basic 플랜 구독이 필요합니다.' if is_free_plan else None
             }
 
             return jsonify(response_data)
