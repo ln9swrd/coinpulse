@@ -9,6 +9,7 @@
             'surge': 'surge_monitoring.html',
             'auto-trading': 'surge_auto_trading.html',  // Surge-based auto-trading settings
             'referral': 'referral.html',
+            'my-feedback': 'my_feedback.html',  // User feedback history
             'admin': 'admin.html',
             'surge-history': 'surge_history.html'  // Surge prediction history (admin only)
             // Note: trading chart, surge, and auto-trading pages loaded via iframe
@@ -105,6 +106,7 @@
                 'signals': '급등신호',
                 'telegram': '텔레그램 연동',
                 'referral': '친구 초대하기',
+                'my-feedback': '내 피드백',
                 'pricing': '요금제',
                 'settings': '설정',
                 'admin': '관리자',
