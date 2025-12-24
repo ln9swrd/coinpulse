@@ -33,12 +33,13 @@
 
             try {
                 // Special handling for pages that need iframe (to prevent CSS conflicts and enable JS execution)
-                if (pageName === 'trading' || pageName === 'surge' || pageName === 'auto-trading' || pageName === 'signals') {
+                if (pageName === 'trading' || pageName === 'surge' || pageName === 'auto-trading' || pageName === 'signals' || pageName === 'surge-history') {
                     const pageUrl = `${window.location.origin}/${filePath}`;
                     const iframeId = pageName === 'trading' ? 'trading-chart-iframe' :
                                      pageName === 'surge' ? 'surge-monitoring-iframe' :
                                      pageName === 'auto-trading' ? 'auto-trading-iframe' :
-                                     'signals-iframe';
+                                     pageName === 'signals' ? 'signals-iframe' :
+                                     'surge-history-iframe';
                     console.log(`[Dashboard] Loading ${pageName} page via iframe:`, pageUrl);
 
                     contentContainer.innerHTML = `
