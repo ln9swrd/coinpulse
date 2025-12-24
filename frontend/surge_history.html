@@ -854,6 +854,15 @@
                 const statTotal = document.getElementById('stat-total');
                 const statAutoTraded = document.getElementById('stat-auto-traded');
 
+                console.log('[SurgeHistory] tryInit check:', {
+                    filterMarket: !!filterMarket,
+                    tableContent: !!tableContent,
+                    statTotal: !!statTotal,
+                    statAutoTraded: !!statAutoTraded,
+                    retry: retryCount,
+                    readyState: document.readyState
+                });
+
                 if (filterMarket && tableContent && statTotal && statAutoTraded) {
                     // DOM is ready, run init
                     console.log('[SurgeHistory] DOM ready, initializing...');
@@ -861,8 +870,8 @@
                 } else {
                     if (retryCount < maxRetries) {
                         retryCount++;
-                        console.log(`[SurgeHistory] DOM not ready (filterMarket: ${!!filterMarket}, tableContent: ${!!tableContent}, statTotal: ${!!statTotal}, statAutoTraded: ${!!statAutoTraded}), retrying (${retryCount}/${maxRetries})...`);
-                        setTimeout(tryInit, 200 * retryCount); // Increase delay: 200ms, 400ms, 600ms, 800ms, 1000ms
+                        console.log(`[SurgeHistory] DOM not ready, retrying (${retryCount}/${maxRetries})...`);
+                        setTimeout(tryInit, 500 * retryCount); // Increase delay: 500ms, 1000ms, 1500ms, 2000ms, 2500ms
                     } else {
                         console.error('[SurgeHistory] DOM elements not found after retries');
                         console.error(`  - filterMarket: ${!!filterMarket}`);
@@ -1001,6 +1010,11 @@
         function updateTable(data) {
             const tableContent = document.getElementById('table-content');
 
+            if (!tableContent) {
+                console.error('[SurgeHistory] table-content element not found');
+                return;
+            }
+
             if (data.length === 0) {
                 tableContent.innerHTML = `
                     <div class="error-state">
@@ -1104,6 +1118,11 @@
         function updatePagination(pagination) {
             const paginationEl = document.getElementById('pagination');
 
+            if (!paginationEl) {
+                console.error('[SurgeHistory] pagination element not found');
+                return;
+            }
+
             let html = '';
 
             // Previous button
@@ -1143,12 +1162,24 @@
         function applyFilters() {
             filters = {};
 
-            const market = document.getElementById('filter-market').value;
-            const signalType = document.getElementById('filter-signal-type').value;
-            const autoTraded = document.getElementById('filter-auto-traded').value;
-            const status = document.getElementById('filter-status').value;
-            const startDate = document.getElementById('filter-start-date').value;
-            const endDate = document.getElementById('filter-end-date').value;
+            const marketEl = document.getElementById('filter-market');
+            const signalTypeEl = document.getElementById('filter-signal-type');
+            const autoTradedEl = document.getElementById('filter-auto-traded');
+            const statusEl = document.getElementById('filter-status');
+            const startDateEl = document.getElementById('filter-start-date');
+            const endDateEl = document.getElementById('filter-end-date');
+
+            if (!marketEl || !signalTypeEl || !autoTradedEl || !statusEl || !startDateEl || !endDateEl) {
+                console.error('[SurgeHistory] Filter elements not found');
+                return;
+            }
+
+            const market = marketEl.value;
+            const signalType = signalTypeEl.value;
+            const autoTraded = autoTradedEl.value;
+            const status = statusEl.value;
+            const startDate = startDateEl.value;
+            const endDate = endDateEl.value;
 
             if (market) filters.market = market;
             if (signalType) filters.signal_type = signalType;
@@ -1163,12 +1194,24 @@
 
         // Reset filters
         function resetFilters() {
-            document.getElementById('filter-market').value = '';
-            document.getElementById('filter-signal-type').value = '';
-            document.getElementById('filter-auto-traded').value = '';
-            document.getElementById('filter-status').value = '';
-            document.getElementById('filter-start-date').value = '';
-            document.getElementById('filter-end-date').value = '';
+            const marketEl = document.getElementById('filter-market');
+            const signalTypeEl = document.getElementById('filter-signal-type');
+            const autoTradedEl = document.getElementById('filter-auto-traded');
+            const statusEl = document.getElementById('filter-status');
+            const startDateEl = document.getElementById('filter-start-date');
+            const endDateEl = document.getElementById('filter-end-date');
+
+            if (!marketEl || !signalTypeEl || !autoTradedEl || !statusEl || !startDateEl || !endDateEl) {
+                console.error('[SurgeHistory] Filter elements not found');
+                return;
+            }
+
+            marketEl.value = '';
+            signalTypeEl.value = '';
+            autoTradedEl.value = '';
+            statusEl.value = '';
+            startDateEl.value = '';
+            endDateEl.value = '';
 
             filters = {};
             currentPage = 1;
@@ -1177,7 +1220,12 @@
 
         // Change per page
         function changePerPage() {
-            perPage = parseInt(document.getElementById('per-page').value);
+            const perPageEl = document.getElementById('per-page');
+            if (!perPageEl) {
+                console.error('[SurgeHistory] per-page element not found');
+                return;
+            }
+            perPage = parseInt(perPageEl.value);
             currentPage = 1;
             loadData();
         }
@@ -1186,22 +1234,6 @@
         function goToPage(page) {
             currentPage = page;
             loadData();
-        }
-
-        function changePerPage() {
-            perPage = parseInt(document.getElementById('per-page').value);
-            currentPage = 1;
-            loadData();
-        }
-
-        function resetFilters() {
-            document.getElementById('filter-market').value = '';
-            document.getElementById('filter-signal-type').value = '';
-            document.getElementById('filter-auto-traded').value = '';
-            document.getElementById('filter-status').value = '';
-            document.getElementById('filter-start-date').value = '';
-            document.getElementById('filter-end-date').value = '';
-            applyFilters();
         }
 
         // View detail
