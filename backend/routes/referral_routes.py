@@ -56,11 +56,22 @@ def get_referral_code():
             session.close()
 
     except Exception as e:
-        print(f"[Referral] Error getting code: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+        error_msg = str(e)
+        print(f"[Referral] Error getting code: {error_msg}")
+
+        # Handle specific error types
+        if '429' in error_msg or 'Too Many Requests' in error_msg or 'rate limit' in error_msg.lower():
+            return jsonify({
+                'success': False,
+                'error': 'API 요청 한도 초과: 잠시 후 다시 시도해주세요',
+                'error_code': 'RATE_LIMIT_EXCEEDED'
+            }), 429
+        else:
+            return jsonify({
+                'success': False,
+                'error': '추천 코드를 불러올 수 없습니다',
+                'detail': error_msg
+            }), 500
 
 
 @referral_bp.route('/stats', methods=['GET'])
@@ -109,11 +120,22 @@ def get_referral_stats():
             session.close()
 
     except Exception as e:
-        print(f"[Referral] Error getting stats: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+        error_msg = str(e)
+        print(f"[Referral] Error getting stats: {error_msg}")
+
+        # Handle specific error types
+        if '429' in error_msg or 'Too Many Requests' in error_msg or 'rate limit' in error_msg.lower():
+            return jsonify({
+                'success': False,
+                'error': 'API 요청 한도 초과: 잠시 후 다시 시도해주세요',
+                'error_code': 'RATE_LIMIT_EXCEEDED'
+            }), 429
+        else:
+            return jsonify({
+                'success': False,
+                'error': '통계를 불러올 수 없습니다',
+                'detail': error_msg
+            }), 500
 
 
 @referral_bp.route('/apply', methods=['POST'])
