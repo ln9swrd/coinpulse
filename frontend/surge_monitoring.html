@@ -255,6 +255,71 @@
 
         .candidate-card {
             animation: fadeIn 0.5s ease-out;
+            position: relative;
+        }
+
+        /* Free 플랜 잠금 오버레이 */
+        .candidate-card.locked {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .locked-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(4px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            z-index: 10;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .locked-overlay:hover {
+            background: rgba(255, 255, 255, 0.98);
+        }
+
+        .lock-icon {
+            font-size: 3em;
+            margin-bottom: 16px;
+            opacity: 0.6;
+        }
+
+        .lock-message {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .lock-description {
+            font-size: 0.9em;
+            color: #64748b;
+            margin-bottom: 16px;
+        }
+
+        .unlock-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 32px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95em;
+        }
+
+        .unlock-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
 
         .refresh-button {
@@ -457,72 +522,112 @@
             const card = document.createElement('div');
             card.className = 'candidate-card';
 
-            // 고득점 카드 강조
-            if (candidate.score >= 70) {
-                card.className += ' high-score';
+            // 잠금 상태 확인 (Free 플랜)
+            const isLocked = candidate.locked === true;
+            if (isLocked) {
+                card.className += ' locked';
             }
 
-            const signals = candidate.signals;
-            const price = formatPrice(candidate.current_price);
-
-            // 추천 등급 결정
-            const recommendation = getRecommendation(candidate.score);
+            // 고득점 카드 강조
+            if (candidate.score >= 70 && !isLocked) {
+                card.className += ' high-score';
+            }
 
             // 코인 정보 가져오기
             const coinSymbol = extractCoinSymbol(candidate.market);
             const coinInfo = getCoinInfo(coinSymbol);
 
-            card.innerHTML = `
-                <div class="candidate-header">
-                    <div class="candidate-market" style="display: flex; align-items: center; gap: 8px;">
-                        <img src="${coinInfo.logo}" alt="${coinSymbol}"
-                             style="width: 32px; height: 32px; border-radius: 50%;"
-                             onerror="this.style.display='none'">
-                        <div>
-                            <div style="font-size: 1.75em; font-weight: 700;">${coinInfo.name}</div>
-                            <div style="font-size: 0.75em; color: #64748b; margin-top: -4px;">${candidate.market}</div>
+            if (isLocked) {
+                // Free 플랜 잠금 UI - 간단한 정보만 표시
+                card.innerHTML = `
+                    <div class="candidate-header">
+                        <div class="candidate-market" style="display: flex; align-items: center; gap: 8px;">
+                            <img src="${coinInfo.logo}" alt="${coinSymbol}"
+                                 style="width: 32px; height: 32px; border-radius: 50%;"
+                                 onerror="this.style.display='none'">
+                            <div>
+                                <div style="font-size: 1.75em; font-weight: 700;">${coinInfo.name}</div>
+                                <div style="font-size: 0.75em; color: #64748b; margin-top: -4px;">${candidate.market}</div>
+                            </div>
+                        </div>
+                        <div class="candidate-score" style="background: #94a3b8;">?</div>
+                    </div>
+                    <div style="height: 200px; filter: blur(8px); opacity: 0.3;">
+                        <div style="font-size: 1.1em; color: #64748b; font-weight: 600; margin-bottom: 8px;">
+                            ● 상세 정보
+                        </div>
+                        <div class="candidate-price">??? KRW</div>
+                        <div style="background: #f8fafc; border-radius: 8px; padding: 12px; margin: 12px 0;">
+                            <div>상세 분석 데이터</div>
+                            <div>급등 예측 점수</div>
+                            <div>매수/매도 시그널</div>
                         </div>
                     </div>
-                    <div class="candidate-score">${candidate.score}점</div>
-                </div>
-                <div style="font-size: 1.1em; color: ${recommendation.color}; font-weight: 600; margin-bottom: 8px;">
-                    ${recommendation.icon} ${recommendation.text}
-                </div>
-                <div class="candidate-price">${price} KRW</div>
-                <div style="background: #f8fafc; border-radius: 8px; padding: 12px; margin: 12px 0; border-left: 3px solid #3b82f6;">
-                    <div style="font-size: 0.85em; color: #64748b; margin-bottom: 8px; font-weight: 600;">📊 가격 정보</div>
-                    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.9em;">
-                        <div style="display: flex; justify-content: space-between;">
-                            <span style="color: #64748b;">💰 현재가</span>
-                            <span style="font-weight: 600; color: #1e293b;">${formatPrice(candidate.current_price)} KRW</span>
-                        </div>
-                        ${candidate.entry_price ? `
-                        <div style="display: flex; justify-content: space-between;">
-                            <span style="color: #64748b;">🎯 목표가</span>
-                            <span style="font-weight: 600; color: #10b981;">${formatPrice(candidate.target_price)} KRW (+${candidate.expected_return || 10}%)</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span style="color: #64748b;">🛡️ 손절가</span>
-                            <span style="font-weight: 600; color: #dc2626;">${formatPrice(candidate.stop_loss_price)} KRW (-5%)</span>
-                        </div>
-                        ` : `
-                        <div style="color: #64748b; font-size: 0.85em; margin-top: 4px;">
-                            💡 자동매매 활성화 시 맞춤형 목표가/손절가가 설정됩니다
-                        </div>
-                        `}
+                    <div class="locked-overlay" onclick="window.location.href='/subscribe.html'">
+                        <div class="lock-icon">🔒</div>
+                        <div class="lock-message">Basic 플랜 이상 구독 필요</div>
+                        <div class="lock-description">${candidate.upgrade_message || 'Basic 플랜 구독 시 모든 급등 예측 상세 정보를 확인할 수 있습니다'}</div>
+                        <button class="unlock-button">플랜 업그레이드 →</button>
                     </div>
-                </div>
-                <div style="font-size: 0.9em; color: #64748b; margin-bottom: 16px;">
-                    💡 ${recommendation.tip}
-                </div>
-                <div class="candidate-signals">
-                    ${createSignalItem('거래량', signals.volume, '매수세')}
-                    ${createSignalItem('추세', signals.trend, '방향성')}
-                    ${createSignalItem('모멘텀', signals.momentum, '상승력')}
-                    ${createSignalItem('RSI', signals.rsi, '과열도')}
-                    ${createSignalItem('지지선', signals.support, '조정위험')}
-                </div>
-            `;
+                `;
+            } else {
+                // 정상 표시 - 상세 정보
+                const signals = candidate.signals || {};
+                const price = formatPrice(candidate.current_price);
+                const recommendation = getRecommendation(candidate.score);
+
+                card.innerHTML = `
+                    <div class="candidate-header">
+                        <div class="candidate-market" style="display: flex; align-items: center; gap: 8px;">
+                            <img src="${coinInfo.logo}" alt="${coinSymbol}"
+                                 style="width: 32px; height: 32px; border-radius: 50%;"
+                                 onerror="this.style.display='none'">
+                            <div>
+                                <div style="font-size: 1.75em; font-weight: 700;">${coinInfo.name}</div>
+                                <div style="font-size: 0.75em; color: #64748b; margin-top: -4px;">${candidate.market}</div>
+                            </div>
+                        </div>
+                        <div class="candidate-score">${candidate.score}점</div>
+                    </div>
+                    <div style="font-size: 1.1em; color: ${recommendation.color}; font-weight: 600; margin-bottom: 8px;">
+                        ${recommendation.icon} ${recommendation.text}
+                    </div>
+                    <div class="candidate-price">${price} KRW</div>
+                    <div style="background: #f8fafc; border-radius: 8px; padding: 12px; margin: 12px 0; border-left: 3px solid #3b82f6;">
+                        <div style="font-size: 0.85em; color: #64748b; margin-bottom: 8px; font-weight: 600;">📊 가격 정보</div>
+                        <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.9em;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #64748b;">💰 현재가</span>
+                                <span style="font-weight: 600; color: #1e293b;">${formatPrice(candidate.current_price)} KRW</span>
+                            </div>
+                            ${candidate.entry_price ? `
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #64748b;">🎯 목표가</span>
+                                <span style="font-weight: 600; color: #10b981;">${formatPrice(candidate.target_price)} KRW (+${candidate.expected_return || 10}%)</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #64748b;">🛡️ 손절가</span>
+                                <span style="font-weight: 600; color: #dc2626;">${formatPrice(candidate.stop_loss_price)} KRW (-5%)</span>
+                            </div>
+                            ` : `
+                            <div style="color: #64748b; font-size: 0.85em; margin-top: 4px;">
+                                💡 자동매매 활성화 시 맞춤형 목표가/손절가가 설정됩니다
+                            </div>
+                            `}
+                        </div>
+                    </div>
+                    <div style="font-size: 0.9em; color: #64748b; margin-bottom: 16px;">
+                        💡 ${recommendation.tip}
+                    </div>
+                    <div class="candidate-signals">
+                        ${createSignalItem('거래량', signals.volume, '매수세')}
+                        ${createSignalItem('추세', signals.trend, '방향성')}
+                        ${createSignalItem('모멘텀', signals.momentum, '상승력')}
+                        ${createSignalItem('RSI', signals.rsi, '과열도')}
+                        ${createSignalItem('지지선', signals.support, '조정위험')}
+                    </div>
+                `;
+            }
 
             return card;
         }
