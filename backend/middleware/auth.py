@@ -43,7 +43,8 @@ def admin_required(f):
                     'code': 'FORBIDDEN'
                 }), 403
 
-            return f(*args, **kwargs)
+            # Pass user object as first argument to the decorated function
+            return f(user, *args, **kwargs)
 
         finally:
             session.close()
