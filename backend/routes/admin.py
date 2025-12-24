@@ -13,7 +13,7 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
 
 @admin_bp.route('/beta-testers', methods=['GET'])
 @admin_required
-def get_beta_testers():
+def get_beta_testers(current_user):
     """베타 테스터 목록 조회"""
     try:
         status = request.args.get('status')
@@ -53,7 +53,7 @@ def get_beta_testers():
 
 @admin_bp.route('/beta-testers', methods=['POST'])
 @admin_required
-def add_beta_tester():
+def add_beta_tester(current_user):
     """베타 테스터 추가"""
     try:
         data = request.get_json()
@@ -105,7 +105,7 @@ def add_beta_tester():
 
 @admin_bp.route('/beta-testers/<int:tester_id>', methods=['DELETE'])
 @admin_required
-def delete_beta_tester(tester_id):
+def delete_beta_tester(current_user, tester_id):
     """베타 테스터 삭제"""
     try:
         with get_db_session() as session:
@@ -133,7 +133,7 @@ def delete_beta_tester(tester_id):
 
 @admin_bp.route('/beta-testers/<int:tester_id>/status', methods=['PUT'])
 @admin_required
-def update_beta_tester_status(tester_id):
+def update_beta_tester_status(current_user, tester_id):
     """베타 테스터 상태 변경"""
     try:
         data = request.get_json()
@@ -182,7 +182,7 @@ def update_beta_tester_status(tester_id):
 
 @admin_bp.route('/users/<user_id>/plan', methods=['GET'])
 @admin_required
-def get_user_plan(user_id):
+def get_user_plan(current_user, user_id):
     """사용자 플랜 조회"""
     try:
         from backend.middleware.subscription_check import get_user_plan as get_plan
@@ -204,7 +204,7 @@ def get_user_plan(user_id):
 
 @admin_bp.route('/users/<user_id>/plan', methods=['POST'])
 @admin_required
-def update_user_plan(user_id):
+def update_user_plan(current_user, user_id):
     """
     사용자 플랜 변경 (수동 결제 후 관리자가 직접 변경)
 

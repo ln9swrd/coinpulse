@@ -23,7 +23,7 @@ def generate_payment_code():
 
 @users_admin_bp.route('/users', methods=['GET'])
 @admin_required
-def get_users():
+def get_users(current_user):
     """전체 사용자 목록 조회"""
     try:
         # Get filter parameter (default: active users only)
@@ -81,7 +81,7 @@ def get_users():
 
 @users_admin_bp.route('/users/<int:user_id>/subscription', methods=['PUT'])
 @admin_required
-def update_user_subscription():
+def update_user_subscription(current_user):
     """사용자 구독 수동 수정"""
     try:
         data = request.get_json()
@@ -139,7 +139,7 @@ def update_user_subscription():
 
 @users_admin_bp.route('/users/<int:user_id>', methods=['DELETE'])
 @admin_required
-def delete_user(user_id):
+def delete_user(current_user, user_id):
     """사용자 계정 삭제 (소프트 삭제)"""
     try:
         with get_db_session() as session:
@@ -199,7 +199,7 @@ def delete_user(user_id):
 
 @users_admin_bp.route('/users/<int:user_id>/restore', methods=['POST'])
 @admin_required
-def restore_user(user_id):
+def restore_user(current_user, user_id):
     """사용자 계정 복원 (비활성 → 활성)"""
     try:
         with get_db_session() as session:
@@ -252,7 +252,7 @@ def restore_user(user_id):
 
 @users_admin_bp.route('/payment-requests', methods=['GET'])
 @admin_required
-def get_payment_requests():
+def get_payment_requests(current_user):
     """결제 요청 목록 조회"""
     try:
         status = request.args.get('status', 'pending')
@@ -299,7 +299,7 @@ def get_payment_requests():
 
 @users_admin_bp.route('/payment-requests', methods=['POST'])
 @admin_required
-def create_payment_request():
+def create_payment_request(current_user):
     """결제 요청 생성 (관리자용)"""
     try:
         data = request.get_json()
@@ -362,7 +362,7 @@ def create_payment_request():
 
 @users_admin_bp.route('/payment-requests/<int:request_id>/approve', methods=['POST'])
 @admin_required
-def approve_payment_request(request_id):
+def approve_payment_request(current_user, request_id):
     """결제 요청 승인"""
     try:
         with get_db_session() as session:
