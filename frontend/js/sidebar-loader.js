@@ -17,7 +17,7 @@
         console.log('[Sidebar] Loading sidebar component...');
 
         // Fetch sidebar HTML (cache-busting parameter to force reload)
-        const response = await fetch('components/sidebar.html?v=20251224_surge_newtab');
+        const response = await fetch('components/sidebar.html?v=20251224_surge_inline');
 
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
