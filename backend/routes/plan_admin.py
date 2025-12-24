@@ -11,7 +11,7 @@ plan_admin_bp = Blueprint('plan_admin', __name__, url_prefix='/api/admin/plans')
 
 @plan_admin_bp.route('', methods=['GET'])
 @admin_required
-def get_plans():
+def get_plans(current_user):
     """모든 플랜 조회 (관리자)"""
     session = get_db_session()
     try:
@@ -56,7 +56,7 @@ def get_plan(plan_code):
 
 @plan_admin_bp.route('', methods=['POST'])
 @admin_required
-def create_plan():
+def create_plan(current_user):
     """새 플랜 생성"""
     session = get_db_session()
     try:
@@ -122,7 +122,7 @@ def create_plan():
 
 @plan_admin_bp.route('/<int:plan_id>', methods=['PUT'])
 @admin_required
-def update_plan(plan_id):
+def update_plan(current_user, plan_id):
     """플랜 수정"""
     session = get_db_session()
     try:
@@ -164,7 +164,7 @@ def update_plan(plan_id):
 
 @plan_admin_bp.route('/<int:plan_id>', methods=['DELETE'])
 @admin_required
-def delete_plan(plan_id):
+def delete_plan(current_user, plan_id):
     """플랜 삭제 (실제로는 비활성화)"""
     session = get_db_session()
     try:
