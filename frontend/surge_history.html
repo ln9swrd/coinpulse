@@ -802,11 +802,14 @@
             console.log('[SurgeHistory] Initializing...');
 
             // Check admin auth
-            if (!window.api.isAuthenticated()) {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                console.error('[SurgeHistory] No access token found');
                 alert('로그인이 필요합니다.');
                 window.location.href = '/login.html';
                 return;
             }
+            console.log('[SurgeHistory] Token found, loading data...');
 
             // Load initial data
             loadMarkets();
