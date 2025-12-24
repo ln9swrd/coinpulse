@@ -4,12 +4,15 @@ Initialize Enterprise Inquiries Table
 Enterprise 상담 신청 테이블 초기화
 """
 
-from backend.database.connection import engine, Base
+from backend.database.connection import engine, Base, init_db
 from backend.models.enterprise_inquiry import EnterpriseInquiry
 
 def init_enterprise_inquiries_table():
     """Enterprise Inquiries 테이블 생성"""
     try:
+        # Initialize database connection first
+        init_db()
+
         # Create table
         Base.metadata.create_all(engine, tables=[EnterpriseInquiry.__table__])
         print("[OK] Enterprise inquiries table created successfully")
