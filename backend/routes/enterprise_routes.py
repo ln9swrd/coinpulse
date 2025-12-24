@@ -82,8 +82,40 @@ def create_inquiry():
 
             logger.info(f"[Enterprise Inquiry] New inquiry created: {inquiry.id} from {inquiry.email}")
 
-            # TODO: 관리자에게 이메일/텔레그램 알림 전송
-            # send_admin_notification(inquiry)
+            # 텔레그램 알림 전송 (비동기)
+            try:
+                from backend.services.telegram_bot import get_telegram_bot
+                bot = get_telegram_bot()
+                if bot:
+                    # 거래량 텍스트 변환
+                    volume_texts = {
+                        'under_10m': '1,000만원 미만',
+                        '10m_50m': '1,000만원~5,000만원',
+                        '50m_100m': '5,000만원~1억원',
+                        '100m_500m': '1억원~5억원',
+                        'over_500m': '5억원 이상'
+                    }
+                    volume_text = volume_texts.get(inquiry.trading_volume, inquiry.trading_volume)
+
+                    message = f"""
+⭐ **새로운 Enterprise 상담 신청**
+
+**신청자**: {inquiry.name}
+**회사**: {inquiry.company or '-'}
+**이메일**: {inquiry.email}
+**전화번호**: {inquiry.phone}
+**월 거래량**: {volume_text}
+
+**문의 내용**:
+{inquiry.message[:300]}{'...' if len(inquiry.message) > 300 else ''}
+
+**관리 페이지**: https://coinpulse.sinsi.ai/admin.html#enterprise
+**신청 ID**: #{inquiry.id}
+                    """
+                    bot.send_admin_notification(message.strip())
+                    logger.info(f"[Enterprise Inquiry] Telegram notification sent for inquiry {inquiry.id}")
+            except Exception as e:
+                logger.warning(f"[Enterprise Inquiry] Failed to send Telegram notification: {e}")
 
             return jsonify({
                 'success': True,
