@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CoinPulse - 급등 예측 모니터링</title>
     <link rel="stylesheet" href="css/internal-pages.css">
+    <script src="js/coin_info.js?v=20251224"></script>
     <style>
         body {
             background: #f5f7fa;
@@ -457,9 +458,21 @@
             // 추천 등급 결정
             const recommendation = getRecommendation(candidate.score);
 
+            // 코인 정보 가져오기
+            const coinSymbol = extractCoinSymbol(candidate.market);
+            const coinInfo = getCoinInfo(coinSymbol);
+
             card.innerHTML = `
                 <div class="candidate-header">
-                    <div class="candidate-market">${candidate.market}</div>
+                    <div class="candidate-market" style="display: flex; align-items: center; gap: 8px;">
+                        <img src="${coinInfo.logo}" alt="${coinSymbol}"
+                             style="width: 32px; height: 32px; border-radius: 50%;"
+                             onerror="this.style.display='none'">
+                        <div>
+                            <div style="font-size: 1.75em; font-weight: 700;">${coinInfo.name}</div>
+                            <div style="font-size: 0.75em; color: #64748b; margin-top: -4px;">${candidate.market}</div>
+                        </div>
+                    </div>
                     <div class="candidate-score">${candidate.score}점</div>
                 </div>
                 <div style="font-size: 1.1em; color: ${recommendation.color}; font-weight: 600; margin-bottom: 8px;">

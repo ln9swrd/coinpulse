@@ -7,6 +7,7 @@
 
     <!-- Socket.IO Client -->
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js?v=20251218"></script>
+    <script src="js/coin_info.js?v=20251224"></script>
 
     <link rel="stylesheet" href="css/internal-pages.css">
     <style>
@@ -446,10 +447,18 @@
 
             priceContainer.innerHTML = markets.map(market => {
                 const data = state.prices[market];
+                const coinSymbol = extractCoinSymbol(market);
+                const coinInfo = getCoinInfo(coinSymbol);
+
                 if (!data) {
                     return `
                         <div class="price-card">
-                            <div class="price-symbol">${market.replace('KRW-', '')}</div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <img src="${coinInfo.logo}" alt="${coinSymbol}"
+                                     style="width: 28px; height: 28px; border-radius: 50%;"
+                                     onerror="this.style.display='none'">
+                                <div class="price-symbol">${coinInfo.name}</div>
+                            </div>
                             <div style="color: #9ca3af;">로딩 중...</div>
                         </div>
                     `;
@@ -460,7 +469,15 @@
 
                 return `
                     <div class="price-card">
-                        <div class="price-symbol">${market.replace('KRW-', '')}</div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <img src="${coinInfo.logo}" alt="${coinSymbol}"
+                                 style="width: 28px; height: 28px; border-radius: 50%;"
+                                 onerror="this.style.display='none'">
+                            <div>
+                                <div class="price-symbol">${coinInfo.name}</div>
+                                <div style="font-size: 0.75em; color: #9ca3af;">${market}</div>
+                            </div>
+                        </div>
                         <div style="text-align: right;">
                             <div class="price-value">${Number(data.price).toLocaleString()} KRW</div>
                             <div class="price-change ${changeClass}">
