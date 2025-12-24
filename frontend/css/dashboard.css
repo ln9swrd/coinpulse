@@ -126,12 +126,14 @@ body {
 
 .sidebar-header .logo-img {
     height: 32px;
-    width: 90px;
+    width: auto;
+    max-width: 90px;
 }
 
 .sidebar.collapsed .logo-img {
     height: 24px;
-    width: 68px;
+    width: auto;
+    max-width: 68px;
 }
 
 .sidebar-toggle {
