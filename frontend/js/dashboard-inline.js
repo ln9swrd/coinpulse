@@ -108,6 +108,48 @@
             }
 
             // ================================================================
+            // Check Paid Feature Access
+            // ================================================================
+
+            async function checkPaidFeatureAccess() {
+                try {
+                    console.log('[Dashboard] Checking paid feature access...');
+
+                    const subscriptionResponse = await window.api.getCurrentSubscription();
+                    console.log('[Dashboard] Subscription response:', subscriptionResponse);
+
+                    const subscription = subscriptionResponse?.subscription;
+                    const plan = subscription?.plan || 'free';
+
+                    console.log('[Dashboard] Current plan:', plan);
+
+                    // Get surge signals menu link
+                    const signalsMenuLink = document.getElementById('signals-menu-link');
+
+                    // Show surge signals only for paid plans (basic, pro, enterprise)
+                    if (plan === 'free' || !subscription) {
+                        console.log('[Dashboard] Free plan - hiding surge signals menu');
+                        if (signalsMenuLink) {
+                            signalsMenuLink.style.display = 'none';
+                        }
+                    } else {
+                        console.log('[Dashboard] Paid plan - showing surge signals menu');
+                        if (signalsMenuLink) {
+                            signalsMenuLink.style.display = 'flex';
+                        }
+                    }
+
+                } catch (error) {
+                    console.error('[Dashboard] Failed to check paid feature access:', error);
+                    // On error, hide paid features by default
+                    const signalsMenuLink = document.getElementById('signals-menu-link');
+                    if (signalsMenuLink) {
+                        signalsMenuLink.style.display = 'none';
+                    }
+                }
+            }
+
+            // ================================================================
             // Load User Profile
             // ================================================================
 
@@ -179,6 +221,9 @@
                             console.log('[Dashboard] User is NOT admin - hiding admin menu');
                             console.log('[Dashboard] Email:', user.email);
                         }
+
+                        // Check subscription plan and show/hide paid features
+                        await checkPaidFeatureAccess();
 
                         // Check if user has Upbit API keys
                         checkApiKeyStatus(user);
