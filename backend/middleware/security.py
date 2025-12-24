@@ -174,6 +174,10 @@ class RateLimiter:
         if path_without_query.startswith('/api/stats/'):
             return True, 0
 
+        # Exclude Test endpoints (development and testing only)
+        if path_without_query.startswith('/api/test/'):
+            return True, 0
+
         # Check if IP is blocked
         if identifier in self.blocked_ips:
             block_until = self.blocked_ips[identifier]
