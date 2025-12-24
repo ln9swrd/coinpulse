@@ -533,6 +533,7 @@
             <button class="tab" onclick="switchTab('payments')">💳 결제</button>
             <button class="tab" onclick="switchTab('beta')">🧪 베타 테스터</button>
             <button class="tab" onclick="switchTab('plans')">💎 플랜</button>
+            <button class="tab" onclick="switchTab('feedback')">💬 피드백</button>
         </div>
 
         <!-- Content -->
@@ -677,6 +678,56 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Feedback Tab -->
+            <div id="feedback-tab" class="tab-content">
+                <div class="actions-bar">
+                    <div class="search-box">
+                        <input type="text" id="feedbackSearch" placeholder="🔍 피드백 검색..." onkeyup="filterFeedback()">
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <select id="feedbackTypeFilter" onchange="loadFeedback()" style="padding: 12px 20px; border: 2px solid #e9ecef; border-radius: 12px; font-size: 14px; cursor: pointer;">
+                            <option value="">전체 유형</option>
+                            <option value="bug">🐛 버그</option>
+                            <option value="feature">💡 기능 제안</option>
+                            <option value="general">💭 일반</option>
+                        </select>
+                        <select id="feedbackStatusFilter" onchange="loadFeedback()" style="padding: 12px 20px; border: 2px solid #e9ecef; border-radius: 12px; font-size: 14px; cursor: pointer;">
+                            <option value="">전체 상태</option>
+                            <option value="new">🆕 새로운</option>
+                            <option value="in_progress">⏳ 진행 중</option>
+                            <option value="resolved">✅ 해결됨</option>
+                            <option value="closed">🔒 종료됨</option>
+                        </select>
+                        <select id="feedbackPriorityFilter" onchange="loadFeedback()" style="padding: 12px 20px; border: 2px solid #e9ecef; border-radius: 12px; font-size: 14px; cursor: pointer;">
+                            <option value="">전체 우선순위</option>
+                            <option value="urgent">🚨 긴급</option>
+                            <option value="high">⚠️ 높음</option>
+                            <option value="normal">ℹ️ 보통</option>
+                            <option value="low">💬 낮음</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>유형</th>
+                                <th>우선순위</th>
+                                <th>제목</th>
+                                <th>사용자</th>
+                                <th>상태</th>
+                                <th>생성일</th>
+                                <th>작업</th>
+                            </tr>
+                        </thead>
+                        <tbody id="feedbackTable">
+                            <tr><td colspan="8" class="loading">로딩 중...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -815,6 +866,39 @@
         </div>
     </div>
 
+    <!-- Feedback Detail Modal -->
+    <div id="feedbackModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>피드백 상세</h2>
+            </div>
+            <div id="feedbackDetails" style="padding: 20px;">
+                <!-- Feedback details will be loaded here -->
+            </div>
+            <form id="feedbackForm" style="padding: 0 20px 20px;">
+                <input type="hidden" id="feedbackId">
+                <div class="form-group">
+                    <label>상태 *</label>
+                    <select id="feedbackStatus" required>
+                        <option value="new">🆕 새로운</option>
+                        <option value="in_progress">⏳ 진행 중</option>
+                        <option value="resolved">✅ 해결됨</option>
+                        <option value="closed">🔒 종료됨</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>관리자 메모</label>
+                    <textarea id="feedbackAdminNotes" placeholder="관리자 메모를 입력하세요" rows="4"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('feedbackModal')">취소</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteFeedback()" style="margin-right: auto;">삭제</button>
+                    <button type="submit" class="btn btn-primary">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         // Configuration - Use admin-specific API base (avoid global API_BASE conflict)
         // Use window object to avoid duplicate declaration on dynamic page reload
@@ -895,6 +979,7 @@
                 case 'payments': loadPayments(); break;
                 case 'beta': loadBetaTesters(); break;
                 case 'plans': loadPlans(); break;
+                case 'feedback': loadFeedback(); break;
             }
         }
 
@@ -1589,6 +1674,178 @@
                 alert(`❌ 구독 정보 저장 중 오류가 발생했습니다.\n\n${error.message}`);
             }
         });
+
+        // Feedback Management
+        async function loadFeedback() {
+            try {
+                const typeFilter = document.getElementById('feedbackTypeFilter').value;
+                const statusFilter = document.getElementById('feedbackStatusFilter').value;
+                const priorityFilter = document.getElementById('feedbackPriorityFilter').value;
+
+                let url = `${window.location.origin}/api/feedback/admin?`;
+                if (typeFilter) url += `type=${typeFilter}&`;
+                if (statusFilter) url += `status=${statusFilter}&`;
+                if (priorityFilter) url += `priority=${priorityFilter}&`;
+
+                const response = await fetch(url, { headers: getHeaders() });
+                const data = await response.json();
+
+                if (data.success) {
+                    renderFeedback(data.feedback);
+                } else {
+                    alert('피드백 로드 실패: ' + data.error);
+                }
+            } catch (error) {
+                console.error('피드백 로드 실패:', error);
+                document.getElementById('feedbackTable').innerHTML = '<tr><td colspan="8" class="error-state"><div class="error-state-icon">⚠️</div><div class="error-state-text">피드백을 불러오는데 실패했습니다</div></td></tr>';
+            }
+        }
+
+        function renderFeedback(feedbackList) {
+            const tbody = document.getElementById('feedbackTable');
+
+            if (!feedbackList || feedbackList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><div class="empty-state-icon">💬</div><div class="empty-state-text">피드백이 없습니다</div></td></tr>';
+                return;
+            }
+
+            const typeEmoji = { 'bug': '🐛', 'feature': '💡', 'general': '💭' };
+            const priorityEmoji = { 'urgent': '🚨', 'high': '⚠️', 'normal': 'ℹ️', 'low': '💬' };
+            const statusEmoji = { 'new': '🆕', 'in_progress': '⏳', 'resolved': '✅', 'closed': '🔒' };
+            const statusClass = { 'new': 'primary', 'in_progress': 'warning', 'resolved': 'success', 'closed': 'secondary' };
+
+            tbody.innerHTML = feedbackList.map(feedback => `
+                <tr>
+                    <td>#${feedback.id}</td>
+                    <td>${typeEmoji[feedback.type] || ''} ${feedback.type}</td>
+                    <td>${priorityEmoji[feedback.priority] || ''} ${feedback.priority}</td>
+                    <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${feedback.subject}</td>
+                    <td>${feedback.user ? feedback.user.username : 'Unknown'}</td>
+                    <td><span class="badge badge-${statusClass[feedback.status]}">${statusEmoji[feedback.status] || ''} ${feedback.status}</span></td>
+                    <td>${new Date(feedback.created_at).toLocaleString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="viewFeedback(${feedback.id})">상세</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterFeedback() {
+            const search = document.getElementById('feedbackSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#feedbackTable tr:not(.loading):not(.empty-state):not(.error-state)');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(search) ? '' : 'none';
+            });
+        }
+
+        async function viewFeedback(feedbackId) {
+            try {
+                const response = await fetch(`${window.location.origin}/api/feedback/admin`, { headers: getHeaders() });
+                const data = await response.json();
+
+                if (data.success) {
+                    const feedback = data.feedback.find(f => f.id === feedbackId);
+                    if (!feedback) {
+                        alert('피드백을 찾을 수 없습니다');
+                        return;
+                    }
+
+                    const typeEmoji = { 'bug': '🐛', 'feature': '💡', 'general': '💭' };
+                    const priorityEmoji = { 'urgent': '🚨', 'high': '⚠️', 'normal': 'ℹ️', 'low': '💬' };
+
+                    // Populate details
+                    document.getElementById('feedbackDetails').innerHTML = `
+                        <div style="margin-bottom: 20px;">
+                            <p style="margin-bottom: 12px;"><strong>ID:</strong> #${feedback.id}</p>
+                            <p style="margin-bottom: 12px;"><strong>유형:</strong> ${typeEmoji[feedback.type] || ''} ${feedback.type}</p>
+                            <p style="margin-bottom: 12px;"><strong>우선순위:</strong> ${priorityEmoji[feedback.priority] || ''} ${feedback.priority}</p>
+                            <p style="margin-bottom: 12px;"><strong>제목:</strong> ${feedback.subject}</p>
+                            <p style="margin-bottom: 12px;"><strong>사용자:</strong> ${feedback.user ? `${feedback.user.username} (${feedback.user.email})` : 'Unknown'}</p>
+                            <p style="margin-bottom: 12px;"><strong>생성일:</strong> ${new Date(feedback.created_at).toLocaleString('ko-KR')}</p>
+                            <p style="margin-bottom: 12px;"><strong>내용:</strong></p>
+                            <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; white-space: pre-wrap; margin-bottom: 16px;">${feedback.content}</div>
+                            ${feedback.screenshot_url ? `<p style="margin-bottom: 12px;"><strong>스크린샷:</strong> <a href="${feedback.screenshot_url}" target="_blank">${feedback.screenshot_url}</a></p>` : ''}
+                        </div>
+                    `;
+
+                    // Populate form
+                    document.getElementById('feedbackId').value = feedback.id;
+                    document.getElementById('feedbackStatus').value = feedback.status;
+                    document.getElementById('feedbackAdminNotes').value = feedback.admin_notes || '';
+
+                    openModal('feedbackModal');
+                } else {
+                    alert('피드백 로드 실패: ' + data.error);
+                }
+            } catch (error) {
+                console.error('피드백 상세 로드 실패:', error);
+                alert('피드백 상세를 불러오는데 실패했습니다');
+            }
+        }
+
+        // Update feedback
+        document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const feedbackId = document.getElementById('feedbackId').value;
+            const status = document.getElementById('feedbackStatus').value;
+            const adminNotes = document.getElementById('feedbackAdminNotes').value;
+
+            if (!confirm('피드백을 업데이트하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${window.location.origin}/api/feedback/admin/${feedbackId}`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ status, admin_notes: adminNotes })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✓ 피드백이 업데이트되었습니다');
+                    closeModal('feedbackModal');
+                    await loadFeedback();
+                } else {
+                    alert('❌ 피드백 업데이트 실패: ' + data.error);
+                }
+            } catch (error) {
+                console.error('피드백 업데이트 실패:', error);
+                alert('❌ 피드백 업데이트 중 오류가 발생했습니다');
+            }
+        });
+
+        async function deleteFeedback() {
+            const feedbackId = document.getElementById('feedbackId').value;
+
+            if (!confirm('⚠️ 이 피드백을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${window.location.origin}/api/feedback/admin/${feedbackId}`, {
+                    method: 'DELETE',
+                    headers: getHeaders()
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✓ 피드백이 삭제되었습니다');
+                    closeModal('feedbackModal');
+                    await loadFeedback();
+                } else {
+                    alert('❌ 피드백 삭제 실패: ' + data.error);
+                }
+            } catch (error) {
+                console.error('피드백 삭제 실패:', error);
+                alert('❌ 피드백 삭제 중 오류가 발생했습니다');
+            }
+        }
 
         // Auto refresh every 30 seconds
         setInterval(loadDashboard, 30000);
