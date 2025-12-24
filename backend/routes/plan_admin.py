@@ -6,6 +6,9 @@ from flask import Blueprint, request, jsonify
 from backend.database.connection import get_db_session
 from backend.models.plan_config import PlanConfig
 from backend.middleware.auth import admin_required
+import logging
+
+logger = logging.getLogger(__name__)
 
 plan_admin_bp = Blueprint('plan_admin', __name__, url_prefix='/api/admin/plans')
 
@@ -22,12 +25,15 @@ def get_plans(current_user):
         else:
             plans = PlanConfig.get_active_plans(session)
 
+        logger.info(f"[PlanAdmin] Retrieved {len(plans)} plans")
+
         return jsonify({
             'success': True,
             'plans': [p.to_dict() for p in plans],
             'count': len(plans)
         })
     except Exception as e:
+        logger.error(f"[PlanAdmin] Error in get_plans: {type(e).__name__}: {e}", exc_info=True)
         return jsonify({'success': False, 'error': str(e)}), 500
     finally:
         session.close()
