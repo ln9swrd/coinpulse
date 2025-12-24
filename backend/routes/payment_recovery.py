@@ -15,13 +15,13 @@ from backend.models.subscription_models import (
     PaymentStatus, SubscriptionStatus, SubscriptionPlan
 )
 from backend.routes.payment_confirmation import PaymentConfirmation, PaymentConfirmStatus
-from backend.utils.auth_utils import require_admin
+from backend.utils.auth_utils import admin_required
 
 payment_recovery_bp = Blueprint('payment_recovery', __name__, url_prefix='/api/admin/payment-recovery')
 
 
 @payment_recovery_bp.route('/mismatches', methods=['GET'])
-@require_admin
+@admin_required
 def get_payment_mismatches():
     """
     Detect payment-plan mismatches
@@ -163,7 +163,7 @@ def get_payment_mismatches():
 
 
 @payment_recovery_bp.route('/<transaction_id>/apply', methods=['POST'])
-@require_admin
+@admin_required
 def apply_payment_manually(transaction_id):
     """
     Manually apply a successful payment to user's subscription
@@ -308,7 +308,7 @@ def apply_payment_manually(transaction_id):
 
 
 @payment_recovery_bp.route('/transactions', methods=['GET'])
-@require_admin
+@admin_required
 def get_all_transactions():
     """
     Get all transactions with filters
