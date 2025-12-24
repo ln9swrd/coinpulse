@@ -824,19 +824,28 @@
             const maxRetries = 5;
 
             function tryInit() {
+                // Check for all critical DOM elements
                 const filterMarket = document.getElementById('filter-market');
                 const tableContent = document.getElementById('table-content');
+                const statTotal = document.getElementById('stat-total');
+                const statAutoTraded = document.getElementById('stat-auto-traded');
 
-                if (filterMarket && tableContent) {
+                if (filterMarket && tableContent && statTotal && statAutoTraded) {
                     // DOM is ready, run init
                     console.log('[SurgeHistory] DOM ready, initializing...');
                     init();
-                } else if (retryCount < maxRetries) {
-                    retryCount++;
-                    console.log(`[SurgeHistory] DOM not ready, retrying (${retryCount}/${maxRetries})...`);
-                    setTimeout(tryInit, 100 * retryCount);
                 } else {
-                    console.error('[SurgeHistory] DOM elements not found after retries');
+                    if (retryCount < maxRetries) {
+                        retryCount++;
+                        console.log(`[SurgeHistory] DOM not ready (filterMarket: ${!!filterMarket}, tableContent: ${!!tableContent}, statTotal: ${!!statTotal}, statAutoTraded: ${!!statAutoTraded}), retrying (${retryCount}/${maxRetries})...`);
+                        setTimeout(tryInit, 200 * retryCount); // Increase delay: 200ms, 400ms, 600ms, 800ms, 1000ms
+                    } else {
+                        console.error('[SurgeHistory] DOM elements not found after retries');
+                        console.error(`  - filterMarket: ${!!filterMarket}`);
+                        console.error(`  - tableContent: ${!!tableContent}`);
+                        console.error(`  - statTotal: ${!!statTotal}`);
+                        console.error(`  - statAutoTraded: ${!!statAutoTraded}`);
+                    }
                 }
             }
 
