@@ -164,68 +164,8 @@
                 <h2>요금제</h2>
                 <p>투명하고 합리적인 가격으로 성장하세요</p>
             </div>
-            <div class="pricing-grid">
-                <!-- Free Plan -->
-                <div class="pricing-card">
-                    <div class="plan-header">
-                        <h3>무료</h3>
-                        <div class="plan-price">
-                            <span class="price">₩0</span>
-                            <span class="period">/ 월</span>
-                        </div>
-                    </div>
-                    <ul class="plan-features">
-                        <li>✓ 포트폴리오 추적</li>
-                        <li>✓ 실시간 가격 조회</li>
-                        <li>✗ 급등 알림 (지원하지 않음)</li>
-                        <li>✓ 기본 차트 및 지표</li>
-                        <li>✓ 7일 거래 히스토리</li>
-                        <li>✗ 수동 매매</li>
-                    </ul>
-                    <a href="signup.html" class="btn-plan">시작하기</a>
-                    <p class="plan-note">코인 투자 입문자를 위한 기본 기능</p>
-                </div>
-                <!-- Basic Plan -->
-                <div class="pricing-card featured">
-                    <div class="plan-badge">인기</div>
-                    <div class="plan-header">
-                        <h3>베이직</h3>
-                        <div class="plan-price">
-                            <span class="price">₩49,000</span>
-                            <span class="period">/ 월</span>
-                        </div>
-                    </div>
-                    <ul class="plan-features">
-                        <li>✓ 무료 플랜 모든 기능</li>
-                        <li>✓ 수동 매매</li>
-                        <li>✓ 급등알림 주 최소 3회</li>
-                        <li>✓ 텔레그램 메시지</li>
-                        <li>✓ 고급 기술적 지표</li>
-                        <li>✓ 90일 거래 히스토리</li>
-                    </ul>
-                    <a href="signup.html" class="btn-plan btn-plan-featured">베이직 시작</a>
-                    <p class="plan-note">본격적인 투자 분석과 자동매매 시작</p>
-                </div>
-                <!-- Pro Plan -->
-                <div class="pricing-card">
-                    <div class="plan-header">
-                        <h3>프로</h3>
-                        <div class="plan-price">
-                            <span class="price">₩99,000</span>
-                            <span class="period">/ 월</span>
-                        </div>
-                    </div>
-                    <ul class="plan-features">
-                        <li>✓ 베이직 플랜 모든 기능</li>
-                        <li>✓ 급등알림 주 평균 5회</li>
-                        <li>✓ 무제한 예산 설정</li>
-                        <li>✓ 무제한 거래 히스토리</li>
-                        <li>✓ 전략 시뮬레이션</li>
-                        <li>✓ 우선 고객 지원</li>
-                    </ul>
-                    <a href="signup.html" class="btn-plan">시작하기</a>
-                    <p class="plan-note">전문 트레이더를 위한 완전한 기능</p>
-                </div>
+            <div class="pricing-grid" id="pricing-cards-container">
+                <!-- 동적 로딩 -->
             </div>
             <div class="pricing-note">
                 <p>💳 모든 주요 결제 수단 지원: 신용카드, 카카오페이, 토스</p>
@@ -432,5 +372,94 @@
         </p>
     </div>
 </footer>
+
+<script>
+// 요금제 데이터 동적 로드
+async function loadPricingPlans() {
+    try {
+        const res = await fetch('/api/admin/plans/public');
+        const data = await res.json();
+
+        if (!data.success || !data.plans) {
+            console.error('플랜 로드 실패:', data);
+            return;
+        }
+
+        const plans = data.plans
+            .filter(p => p.is_visible && p.plan_code !== 'enterprise') // 엔터프라이즈 제외
+            .sort((a, b) => a.display_order - b.display_order)
+            .slice(0, 3); // 최대 3개만 표시
+
+        const container = document.getElementById('pricing-cards-container');
+        if (!container) return;
+
+        container.innerHTML = plans.map((plan, index) => {
+            const isFree = plan.plan_code === 'free';
+            const isFeatured = plan.is_featured || index === 1; // 두 번째 플랜을 featured로
+            const monthlyPrice = plan.price?.monthly || 0;
+
+            // 기능 목록 생성
+            let features = [];
+            if (isFree) {
+                features = [
+                    '포트폴리오 추적',
+                    '실시간 가격 조회',
+                    '기본 차트 및 지표',
+                    '7일 거래 히스토리'
+                ];
+            } else if (plan.plan_code === 'premium' || plan.plan_code === 'basic') {
+                features = [
+                    '무료 플랜 모든 기능',
+                    '수동 매매',
+                    '급등알림 주 최소 3회',
+                    '텔레그램 메시지',
+                    '고급 기술적 지표',
+                    '90일 거래 히스토리'
+                ];
+            } else if (plan.plan_code === 'pro_new' || plan.plan_code === 'pro') {
+                features = [
+                    '베이직 플랜 모든 기능',
+                    '급등알림 주 평균 5회',
+                    '무제한 예산 설정',
+                    '무제한 거래 히스토리',
+                    '전략 시뮬레이션',
+                    '우선 고객 지원'
+                ];
+            }
+
+            return `
+                <div class="pricing-card ${isFeatured ? 'featured' : ''}">
+                    ${isFeatured && plan.badge_text ? `<div class="plan-badge">${plan.badge_text}</div>` : ''}
+                    <div class="plan-header">
+                        <h3>${plan.plan_name_ko}</h3>
+                        <div class="plan-price">
+                            <span class="price">${isFree ? '₩0' : `₩${monthlyPrice.toLocaleString()}`}</span>
+                            <span class="period">/ 월</span>
+                        </div>
+                    </div>
+                    <ul class="plan-features">
+                        ${features.map(f => `<li>✓ ${f}</li>`).join('')}
+                    </ul>
+                    <a href="signup.html" class="btn-plan ${isFeatured ? 'btn-plan-featured' : ''}">${isFree ? '시작하기' : plan.cta_text || '시작하기'}</a>
+                    <p class="plan-note">${plan.description || ''}</p>
+                </div>
+            `;
+        }).join('');
+
+    } catch (error) {
+        console.error('요금제 로드 오류:', error);
+        // 폴백: 기본 메시지 표시
+        document.getElementById('pricing-cards-container').innerHTML = `
+            <div style="text-align: center; padding: 40px; grid-column: 1/-1;">
+                <p style="color: #888;">요금제 정보를 불러오는 중입니다...</p>
+            </div>
+        `;
+    }
+}
+
+// 페이지 로드 시 실행
+document.addEventListener('DOMContentLoaded', loadPricingPlans);
+</script>
+
 </body>
 </html>
