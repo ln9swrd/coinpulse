@@ -14,7 +14,7 @@ from backend.models.subscription_models import (
     Transaction, Subscription,
     PaymentStatus, SubscriptionStatus, SubscriptionPlan
 )
-from backend.models.payment_confirmation import PaymentConfirmation, PaymentConfirmStatus
+from backend.routes.payment_confirmation import PaymentConfirmation, PaymentConfirmStatus
 from backend.utils.auth_utils import require_admin
 
 payment_recovery_bp = Blueprint('payment_recovery', __name__, url_prefix='/api/admin/payment-recovery')
