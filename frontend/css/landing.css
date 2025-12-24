@@ -56,10 +56,22 @@ body {
     align-items: center;
 }
 
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-img {
+    height: 40px;
+    width: auto;
+}
+
 .logo {
     font-size: 24px;
     font-weight: 700;
     color: var(--primary-color);
+    margin: 0;
 }
 
 .nav-menu {
