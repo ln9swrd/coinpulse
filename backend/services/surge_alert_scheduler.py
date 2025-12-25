@@ -228,26 +228,43 @@ class SurgeAlertScheduler:
         """
         Update surge candidates cache table
 
-        모든 분석 결과를 캐시 테이블에 저장
-        /api/surge-candidates가 이 테이블을 조회 (API 호출 0회)
+        NEW LOGIC (2025-12-26):
+        - Keep ALL candidates with active surge_alerts (even if score < 60)
+        - Only delete candidates that are closed/expired in surge_alerts
+        - This ensures "단타 감지" and "단타신호 이력" show same active signals
 
         Args:
-            candidates: List of analyzed candidates
+            candidates: List of analyzed candidates (score >= 60)
         """
         try:
             with get_db_session() as session:
-                # Get current markets in candidates
+                # Get active markets from surge_alerts (status = pending or active)
+                active_alerts_query = text("""
+                    SELECT DISTINCT market
+                    FROM surge_alerts
+                    WHERE status IN ('pending', 'active')
+                      AND market IS NOT NULL
+                """)
+                result = session.execute(active_alerts_query)
+                active_markets = {row[0] for row in result.fetchall()}
+
+                logger.info(f"[SurgeAlertScheduler] Found {len(active_markets)} active signals in DB")
+
+                # Get current high-score markets (>= 60)
                 current_markets = {c['market'] for c in candidates}
 
-                # Delete old candidates not in current analysis
+                # Combined: keep active alerts + new high-score candidates
+                keep_markets = active_markets | current_markets
+
+                # Delete ONLY candidates that are NOT in keep_markets
                 deleted = session.query(SurgeCandidatesCache).filter(
-                    ~SurgeCandidatesCache.market.in_(current_markets)
+                    ~SurgeCandidatesCache.market.in_(keep_markets)
                 ).delete(synchronize_session=False)
 
                 if deleted > 0:
-                    logger.info(f"[SurgeAlertScheduler] Removed {deleted} stale candidates from cache")
+                    logger.info(f"[SurgeAlertScheduler] Removed {deleted} closed/expired candidates from cache")
 
-                # Upsert candidates (insert or update)
+                # Upsert new high-score candidates (>= 60)
                 for candidate in candidates:
                     market = candidate['market']
                     coin = candidate.get('coin', market.replace('KRW-', ''))
@@ -262,7 +279,7 @@ class SurgeAlertScheduler:
                         existing.current_price = candidate['current_price']
                         existing.recommendation = candidate['recommendation']
                         existing.signals = candidate.get('signals', {})
-                        existing.analysis_result = candidate.get('analysis', {})  # Full analysis for target calculation
+                        existing.analysis_result = candidate.get('analysis', {})
                         existing.analyzed_at = datetime.now()
                         existing.updated_at = datetime.now()
                     else:
@@ -279,8 +296,16 @@ class SurgeAlertScheduler:
                         )
                         session.add(cache_record)
 
+                # Keep existing cache for active alerts (even if score < 60 now)
+                # Just update their analyzed_at to show they were checked
+                for market in active_markets - current_markets:
+                    existing = session.query(SurgeCandidatesCache).filter_by(market=market).first()
+                    if existing:
+                        existing.updated_at = datetime.now()
+                        logger.debug(f"[SurgeAlertScheduler] Kept {market} in cache (active alert, score < 60)")
+
                 session.commit()
-                logger.info(f"[SurgeAlertScheduler] Updated cache: {len(candidates)} candidates")
+                logger.info(f"[SurgeAlertScheduler] Cache updated: {len(candidates)} high-score + {len(active_markets - current_markets)} active (low-score)")
 
         except Exception as e:
             logger.error(f"[SurgeAlertScheduler] Failed to update cache: {e}")

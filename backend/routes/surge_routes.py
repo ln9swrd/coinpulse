@@ -32,7 +32,7 @@ def check_enterprise_access():
     Returns tuple: (is_enterprise: bool, user_plan: str, error_response: dict)
     """
     from flask import request
-    from backend.middleware.auth import verify_token
+    from backend.utils.auth_utils import decode_token
     from backend.models.user import User
 
     user_plan = 'free'  # Default
@@ -42,7 +42,7 @@ def check_enterprise_access():
     if auth_header and auth_header.startswith('Bearer '):
         try:
             token = auth_header.split(' ')[1]
-            payload = verify_token(token)
+            payload = decode_token(token)
             if payload:
                 user_id = payload.get('user_id')
                 session = get_db_session()
