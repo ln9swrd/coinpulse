@@ -114,7 +114,25 @@ class DataLoader {
                 await this.chart.updateAvgPriceAndPendingOrders().catch(err => {
                     console.error('[Working] Failed to draw avg price and pending orders:', err);
                 });
-    
+
+                // Restore Ichimoku state from localStorage
+                const ichimokuActive = localStorage.getItem('ichimokuActive');
+                if (ichimokuActive === 'true') {
+                    console.log('[Working] Restoring Ichimoku Cloud from localStorage');
+                    const ichimokuBtn = document.getElementById('ichimoku-toggle');
+                    if (ichimokuBtn && this.chart.chartData && this.chart.chartData.length > 0 && window.chartUtils) {
+                        ichimokuBtn.classList.add('active');
+                        const params = this.chart.ichimokuSettings || {};
+                        const result = window.chartUtils.addIchimoku(this.chart.chartData, params);
+                        if (result) {
+                            console.log('[Working] Ichimoku Cloud restored successfully');
+                        } else {
+                            console.error('[Working] Failed to restore Ichimoku Cloud');
+                            ichimokuBtn.classList.remove('active');
+                        }
+                    }
+                }
+
             } catch (error) {
                 console.error('[Working] Failed to load initial candles:', error);
             }

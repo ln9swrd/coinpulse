@@ -1377,6 +1377,9 @@ class WorkingTradingChart {
             if (window.chartUtils) {
                 window.chartUtils.removeIchimoku();
             }
+
+            // Save state to localStorage
+            localStorage.setItem('ichimokuActive', 'false');
         } else {
             // Show Ichimoku
             btn.classList.add('active');
@@ -1389,6 +1392,8 @@ class WorkingTradingChart {
                     const result = window.chartUtils.addIchimoku(this.chartData, params);
                     if (result) {
                         console.log('[Working] Ichimoku Cloud added successfully with params:', params);
+                        // Save state to localStorage
+                        localStorage.setItem('ichimokuActive', 'true');
                     } else {
                         console.error('[Working] Failed to add Ichimoku Cloud');
                         btn.classList.remove('active');
