@@ -144,34 +144,56 @@
 
                     console.log('[Dashboard] Current plan:', plan);
 
-                    // Get paid feature menu links
+                    // Get Enterprise feature menu links
+                    const enterpriseSectionTitle = document.getElementById('enterprise-section-title');
+                    const surgeMenuLink = document.getElementById('surge-menu-link');
                     const signalsMenuLink = document.getElementById('signals-menu-link');
                     const autoTradingMenuLink = document.getElementById('auto-trading-menu-link');
 
-                    // Show paid features only for paid plans (basic, pro, enterprise)
-                    if (plan === 'free' || !subscription) {
-                        console.log('[Dashboard] Free plan - hiding paid feature menus');
-                        if (signalsMenuLink) {
-                            signalsMenuLink.style.display = 'none';
+                    // Show Enterprise features only for Enterprise plan
+                    if (plan === 'enterprise') {
+                        console.log('[Dashboard] Enterprise plan - showing Enterprise features');
+                        if (enterpriseSectionTitle) {
+                            enterpriseSectionTitle.style.display = 'block';
                         }
-                        if (autoTradingMenuLink) {
-                            autoTradingMenuLink.style.display = 'none';
+                        if (surgeMenuLink) {
+                            surgeMenuLink.style.display = 'flex';
                         }
-                    } else {
-                        console.log('[Dashboard] Paid plan - showing paid feature menus');
                         if (signalsMenuLink) {
                             signalsMenuLink.style.display = 'flex';
                         }
                         if (autoTradingMenuLink) {
                             autoTradingMenuLink.style.display = 'flex';
                         }
+                    } else {
+                        console.log('[Dashboard] Non-Enterprise plan - hiding Enterprise features');
+                        if (enterpriseSectionTitle) {
+                            enterpriseSectionTitle.style.display = 'none';
+                        }
+                        if (surgeMenuLink) {
+                            surgeMenuLink.style.display = 'none';
+                        }
+                        if (signalsMenuLink) {
+                            signalsMenuLink.style.display = 'none';
+                        }
+                        if (autoTradingMenuLink) {
+                            autoTradingMenuLink.style.display = 'none';
+                        }
                     }
 
                 } catch (error) {
-                    console.error('[Dashboard] Failed to check paid feature access:', error);
-                    // On error, hide paid features by default
+                    console.error('[Dashboard] Failed to check Enterprise feature access:', error);
+                    // On error, hide Enterprise features by default
+                    const enterpriseSectionTitle = document.getElementById('enterprise-section-title');
+                    const surgeMenuLink = document.getElementById('surge-menu-link');
                     const signalsMenuLink = document.getElementById('signals-menu-link');
                     const autoTradingMenuLink = document.getElementById('auto-trading-menu-link');
+                    if (enterpriseSectionTitle) {
+                        enterpriseSectionTitle.style.display = 'none';
+                    }
+                    if (surgeMenuLink) {
+                        surgeMenuLink.style.display = 'none';
+                    }
                     if (signalsMenuLink) {
                         signalsMenuLink.style.display = 'none';
                     }
