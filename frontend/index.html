@@ -433,7 +433,7 @@
 // 요금제 데이터 동적 로드
 async function loadPricingPlans() {
     try {
-        const res = await fetch('/api/admin/plans/public');
+        const res = await fetch('/api/admin/plans/public?v=20251225');
         const data = await res.json();
 
         if (!data.success || !data.plans || data.plans.length === 0) {
