@@ -104,6 +104,9 @@ class MovingAverages {
                 console.log('[MovingAverages] Hiding all MAs');
 
                 this.clearMAs();
+
+                // Save state to localStorage
+                localStorage.setItem('maActive', 'false');
             } else {
                 // Show all MAs based on settings
                 btn.classList.add('active');
@@ -111,6 +114,9 @@ class MovingAverages {
                 console.log('[MovingAverages] Showing MAs based on settings');
 
                 this.updateMAs();
+
+                // Save state to localStorage
+                localStorage.setItem('maActive', 'true');
             }
 
             console.log('[MovingAverages] Toggle completed. Visible:', this.movingAveragesVisible);

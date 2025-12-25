@@ -975,6 +975,9 @@ class WorkingTradingChart {
                 rsiInfo.textContent = '-';
                 rsiValue.textContent = '-';
             }
+
+            // Save state to localStorage
+            localStorage.setItem('rsiActive', 'false');
         } else {
             // Show RSI
             btn.classList.add('active');
@@ -1017,6 +1020,9 @@ class WorkingTradingChart {
 
                     // Update RSI info display
                     this.updateRSIInfo(rsiData);
+
+                    // Save state to localStorage
+                    localStorage.setItem('rsiActive', 'true');
                 }
             }
         }
@@ -1201,6 +1207,9 @@ class WorkingTradingChart {
                 window.chartUtils.chart.removeSeries(this.macdSeries.histogram);
                 this.macdSeries.histogram = null;
             }
+
+            // Save state to localStorage
+            localStorage.setItem('macdActive', 'false');
         } else {
             // Show MACD
             btn.classList.add('active');
@@ -1278,6 +1287,9 @@ class WorkingTradingChart {
                 this.macdSeries.histogram.setData(scaledHistogramData);
 
                 console.log('[Working] MACD series added to chart');
+
+                // Save state to localStorage
+                localStorage.setItem('macdActive', 'true');
             }
         }
     }
@@ -1291,6 +1303,9 @@ class WorkingTradingChart {
             btn.classList.remove('active');
             console.log('[Working] Bollinger Bands hidden');
             // TODO: Remove Bollinger Bands series from chart
+
+            // Save state to localStorage
+            localStorage.setItem('bbActive', 'false');
         } else {
             // Show Bollinger Bands
             btn.classList.add('active');
@@ -1300,6 +1315,9 @@ class WorkingTradingChart {
                 const bbData = window.chartUtils.calculateBollingerBands(this.chartData, 20, 2);
                 console.log('[Working] Bollinger Bands calculated:', bbData.upper.length, 'values');
                 // TODO: Add Bollinger Bands series to chart
+
+                // Save state to localStorage
+                localStorage.setItem('bbActive', 'true');
             }
         }
     }
@@ -1313,10 +1331,13 @@ class WorkingTradingChart {
             // Hide SuperTrend
             btn.classList.remove('active');
             console.log('[Working] SuperTrend hidden');
-            
+
             if (window.chartUtils) {
                 window.chartUtils.removeSuperTrend();
             }
+
+            // Save state to localStorage
+            localStorage.setItem('superTrendActive', 'false');
         } else {
             // Show SuperTrend
             btn.classList.add('active');
@@ -1325,10 +1346,10 @@ class WorkingTradingChart {
             if (this.chartData && this.chartData.length > 0 && window.chartUtils) {
                 // TradingView 기본 설정: period=10, multiplier=3.0
                 const result = window.chartUtils.addSuperTrend(this.chartData, 10, 3.0);
-                
+
                 if (result) {
                     console.log('[Working] SuperTrend added successfully');
-                    
+
                     // 현재 신호 가져오기
                     const signal = window.chartUtils.getCurrentSuperTrendSignal();
                     if (signal) {
@@ -1336,6 +1357,9 @@ class WorkingTradingChart {
                         // 알림 표시 (선택사항)
                         this.showNotification(`SuperTrend: ${signal.signal}`, signal.color);
                     }
+
+                    // Save state to localStorage
+                    localStorage.setItem('superTrendActive', 'true');
                 } else {
                     console.error('[Working] Failed to add SuperTrend');
                     btn.classList.remove('active');
@@ -2379,8 +2403,12 @@ WorkingTradingChart.prototype.toggleSupportResistance = function() {
 
     if (this.supportResistanceEnabled) {
         this.drawSupportResistance();
+        // Save state to localStorage
+        localStorage.setItem('supportResistanceActive', 'true');
     } else {
         this.removeSupportResistance();
+        // Save state to localStorage
+        localStorage.setItem('supportResistanceActive', 'false');
     }
 };
 

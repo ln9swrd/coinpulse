@@ -115,10 +115,58 @@ class DataLoader {
                     console.error('[Working] Failed to draw avg price and pending orders:', err);
                 });
 
-                // Restore Ichimoku state from localStorage
+                // Restore indicators state from localStorage
+                console.log('[Working] Restoring indicator states from localStorage...');
+
+                // Restore MA
+                const maActive = localStorage.getItem('maActive');
+                if (maActive === 'true') {
+                    console.log('[Working] Restoring Moving Averages');
+                    const maBtn = document.getElementById('ma-toggle');
+                    if (maBtn && this.chart.movingAverages) {
+                        maBtn.classList.add('active');
+                        this.chart.movingAverages.movingAveragesVisible = true;
+                        this.chart.movingAverages.updateMAs();
+                    }
+                }
+
+                // Restore BB
+                const bbActive = localStorage.getItem('bbActive');
+                if (bbActive === 'true' && this.chart.chartData && this.chart.chartData.length > 0 && window.chartUtils) {
+                    console.log('[Working] Restoring Bollinger Bands');
+                    const bbBtn = document.getElementById('bollinger-toggle');
+                    if (bbBtn) {
+                        bbBtn.classList.add('active');
+                        window.chartUtils.addBollingerBands(this.chart.chartData, 20, 2);
+                    }
+                }
+
+                // Restore RSI
+                const rsiActive = localStorage.getItem('rsiActive');
+                if (rsiActive === 'true' && this.chart.chartData && this.chart.chartData.length > 0 && window.chartUtils) {
+                    console.log('[Working] Restoring RSI');
+                    const rsiBtn = document.getElementById('rsi-toggle');
+                    if (rsiBtn) {
+                        rsiBtn.classList.add('active');
+                        window.chartUtils.addRSI(this.chart.chartData, 14, '#ffa726');
+                    }
+                }
+
+                // Restore MACD
+                const macdActive = localStorage.getItem('macdActive');
+                if (macdActive === 'true' && this.chart.chartData && this.chart.chartData.length > 0 && window.chartUtils) {
+                    console.log('[Working] Restoring MACD');
+                    const macdBtn = document.getElementById('macd-toggle');
+                    if (macdBtn) {
+                        macdBtn.classList.add('active');
+                        window.chartUtils.addMACD(this.chart.chartData, 12, 26, 9);
+                    }
+                }
+
+                // Restore Ichimoku
                 const ichimokuActive = localStorage.getItem('ichimokuActive');
                 if (ichimokuActive === 'true') {
-                    console.log('[Working] Restoring Ichimoku Cloud from localStorage');
+                    console.log('[Working] Restoring Ichimoku Cloud');
                     const ichimokuBtn = document.getElementById('ichimoku-toggle');
                     if (ichimokuBtn && this.chart.chartData && this.chart.chartData.length > 0 && window.chartUtils) {
                         ichimokuBtn.classList.add('active');
@@ -130,6 +178,29 @@ class DataLoader {
                             console.error('[Working] Failed to restore Ichimoku Cloud');
                             ichimokuBtn.classList.remove('active');
                         }
+                    }
+                }
+
+                // Restore SuperTrend
+                const superTrendActive = localStorage.getItem('superTrendActive');
+                if (superTrendActive === 'true' && this.chart.chartData && this.chart.chartData.length > 0 && window.chartUtils) {
+                    console.log('[Working] Restoring SuperTrend');
+                    const superTrendBtn = document.getElementById('supertrend-toggle');
+                    if (superTrendBtn) {
+                        superTrendBtn.classList.add('active');
+                        window.chartUtils.addSuperTrend(this.chart.chartData, 10, 3.0);
+                    }
+                }
+
+                // Restore Support/Resistance
+                const supportResistanceActive = localStorage.getItem('supportResistanceActive');
+                if (supportResistanceActive === 'true') {
+                    console.log('[Working] Restoring Support/Resistance');
+                    const srBtn = document.getElementById('support-resistance-toggle');
+                    if (srBtn) {
+                        this.chart.supportResistanceEnabled = true;
+                        this.chart.updateSupportResistanceToggleButton();
+                        this.chart.drawSupportResistance();
                     }
                 }
 
