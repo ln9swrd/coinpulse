@@ -2388,25 +2388,19 @@
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>급등 신호 알림 (일 10회)</span>
+                                    <span>텔레그램 거래 체결 알림</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>텔레그램 실시간 알림</span>
+                                    <span>고급 기술적 지표 사용</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>자동 매매 설정 (1개 전략)</span>
-                                </li>
-                                <li class="feature-included">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                    <span>급등 예측 정확도: 기본</span>
+                                    <span>거래 내역 90일 보관</span>
                                 </li>
                             </ul>
                             <button class="plan-cta plan-cta-secondary" data-plan="basic">
@@ -2437,37 +2431,25 @@
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>급등 신호 알림 무제한</span>
+                                    <span>고급 차트 분석 도구</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>자동 매매 설정 (5개 전략)</span>
+                                    <span>거래 내역 180일 보관</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>급등 예측 정확도: 고급</span>
-                                </li>
-                                <li class="feature-included">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                    <span>백테스트 결과 조회</span>
+                                    <span>데이터 내보내기 (CSV)</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
                                     <span>우선 고객 지원 (24시간 내)</span>
-                                </li>
-                                <li class="feature-included">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                    <span>거래 성과 리포트 (월 1회)</span>
                                 </li>
                             </ul>
                             <button class="plan-cta plan-cta-primary" data-plan="pro">
@@ -2483,9 +2465,7 @@
                                 <p class="plan-description">기관 투자자 및 전문가를 위한 맞춤형 솔루션</p>
                             </div>
                             <div class="plan-price">
-                                <span class="price-currency">₩</span>
-                                <span class="price-amount" data-monthly="149000" data-annual="119200">149,000</span>
-                                <span class="price-period">/월</span>
+                                <span class="price-amount" style="font-size: 1.5rem;">영업문의</span>
                             </div>
                             <ul class="plan-features">
                                 <li class="feature-included">
@@ -2534,13 +2514,7 @@
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>맞춤형 투자 전략 컨설팅 (월 1회)</span>
-                                </li>
-                                <li class="feature-included">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                    <span>API 액세스 (고급 기능)</span>
+                                    <span>API 연동 (프로그래밍 자동화)</span>
                                 </li>
                             </ul>
                             <button class="plan-cta plan-cta-primary" data-plan="enterprise">

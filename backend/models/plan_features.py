@@ -109,18 +109,18 @@ PLAN_FEATURES = {
         # 투자조언 알림
         'advisory_coins': True,  # 투자조언 코인 설정 가능
         'max_advisory_coins': 5,  # 선택 가능 코인 수: 5개
-        # 급등 알림 자동매매
-        'surge_auto_trading': True,  # 급등 자동매매 가능
-        'max_surge_alerts': 5,  # 실제: 주 5회 자동매수
-        'max_alerts_per_week': 3,  # 표시: 주 3회
-        'surge_monitoring': True,  # 전체 상세 정보 접근
-        'telegram_alerts': True,
-        'max_surge_budget': 5000000,  # 총 예산 제한: 500만원
+        # 급등 알림 자동매매 (베이직 플랜은 급등 기능 제공 안함)
+        'surge_auto_trading': False,  # 급등 자동매매 불가
+        'max_surge_alerts': 0,  # 급등 알림 없음
+        'max_alerts_per_week': 0,
+        'surge_monitoring': False,  # 급등 모니터링 불가
+        'telegram_alerts': True,  # 거래 체결 알림만
+        'max_surge_budget': 0,
         # 기타 (단순화)
         'advanced_indicators': True,  # 고급 지표 (Custom 포함)
         # custom_indicators 제거
-        'backtesting': True,  # 최근 3개월
-        'backtesting_period_months': 3,
+        'backtesting': False,  # 백테스트 불가
+        'backtesting_period_months': 0,
         'data_export': False,
         'api_access': False,
         'priority_support': False,
@@ -134,21 +134,21 @@ PLAN_FEATURES = {
         # 투자조언 알림
         'advisory_coins': True,  # 투자조언 코인 설정 가능
         'max_advisory_coins': 10,  # 선택 가능 코인 수: 10개
-        # 급등 알림 자동매매
-        'surge_auto_trading': True,  # 급등 자동매매 가능
-        'max_surge_alerts': 10,  # 실제: 주 10회 자동매수
-        'max_alerts_per_week': 5,  # 표시: 주 5회
-        'surge_monitoring': True,
-        'telegram_alerts': True,
-        'max_surge_budget': 10000000,  # 총 예산 제한: 1천만원
+        # 급등 알림 자동매매 (프로 플랜도 급등 기능 제공 안함)
+        'surge_auto_trading': False,  # 급등 자동매매 불가
+        'max_surge_alerts': 0,  # 급등 알림 없음
+        'max_alerts_per_week': 0,
+        'surge_monitoring': False,  # 급등 모니터링 불가
+        'telegram_alerts': True,  # 거래 체결 알림만
+        'max_surge_budget': 0,
         # 기타 (단순화)
         'advanced_indicators': True,  # 고급 지표 (Custom 포함)
         # custom_indicators 제거
-        'backtesting': True,  # 최근 6개월
-        'backtesting_period_months': 6,
+        'backtesting': False,  # 백테스트 불가
+        'backtesting_period_months': 0,
         'data_export': True,  # CSV
         'api_access': False,
-        'priority_support': False,
+        'priority_support': True,  # 24시간 내 우선 지원
         'trade_history_days': 180,
         # 알림 단순화
         'important_notifications': True,  # 중요 알림

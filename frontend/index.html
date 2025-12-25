@@ -473,20 +473,17 @@ async function loadPricingPlans() {
                 features = [
                     'Free 플랜 모든 기능',
                     '거래 차트 주문 (매수/매도/취소)',
-                    '급등 신호 알림 (일 10회)',
-                    '텔레그램 실시간 알림',
-                    '자동 매매 설정 (1개 전략)',
-                    '급등 예측 정확도: 기본'
+                    '텔레그램 거래 체결 알림',
+                    '고급 기술적 지표 사용',
+                    '거래 내역 90일 보관'
                 ];
             } else if (plan.plan_code === 'pro_new' || plan.plan_code === 'pro') {
                 features = [
                     'Basic 플랜 모든 기능',
-                    '급등 신호 알림 무제한',
-                    '자동 매매 설정 (5개 전략)',
-                    '급등 예측 정확도: 고급',
-                    '백테스트 결과 조회',
-                    '우선 고객 지원 (24시간 내)',
-                    '거래 성과 리포트 (월 1회)'
+                    '고급 차트 분석 도구',
+                    '거래 내역 180일 보관',
+                    '데이터 내보내기 (CSV)',
+                    '우선 고객 지원 (24시간 내)'
                 ];
             } else if (isEnterprise) {
                 features = [
@@ -495,7 +492,7 @@ async function loadPricingPlans() {
                     '자동매매 무제한 전략',
                     '텔레그램 실시간 알림 (모든 신호)',
                     '우선 고객 지원 (1시간 내)',
-                    'API 액세스'
+                    'API 연동 (프로그래밍 자동화)'
                 ];
             }
 
@@ -505,8 +502,8 @@ async function loadPricingPlans() {
                     <div class="plan-header">
                         <h3>${plan.plan_name_ko}</h3>
                         <div class="plan-price">
-                            <span class="price">${isFree ? '₩0' : `₩${monthlyPrice.toLocaleString()}`}</span>
-                            <span class="period">/ 월</span>
+                            <span class="price">${isFree ? '₩0' : (isEnterprise ? '영업문의' : `₩${monthlyPrice.toLocaleString()}`)}</span>
+                            <span class="period">${isEnterprise ? '' : '/ 월'}</span>
                         </div>
                     </div>
                     <ul class="plan-features">
