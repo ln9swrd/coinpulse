@@ -2319,7 +2319,7 @@
                             <div class="plan-price">
                                 <span class="price-currency">₩</span>
                                 <span class="price-amount">0</span>
-                                <span class="price-period">/월</span>
+                                <span class="price-period" data-fixed="true">/월</span>
                             </div>
                             <ul class="plan-features">
                                 <li class="feature-included">
@@ -2381,7 +2381,7 @@
                             </div>
                             <div class="plan-price">
                                 <span class="price-currency">₩</span>
-                                <span class="price-amount" data-monthly="29000" data-annual="23200">29,000</span>
+                                <span class="price-amount" data-monthly="29000" data-annual="278400">29,000</span>
                                 <span class="price-period">/월</span>
                             </div>
                             <ul class="plan-features">
@@ -2424,7 +2424,7 @@
                             </div>
                             <div class="plan-price">
                                 <span class="price-currency">₩</span>
-                                <span class="price-amount" data-monthly="59000" data-annual="47200">59,000</span>
+                                <span class="price-amount" data-monthly="59000" data-annual="566400">59,000</span>
                                 <span class="price-period">/월</span>
                             </div>
                             <ul class="plan-features">
@@ -2703,7 +2703,7 @@
                     }
                 });
 
-                // Update prices
+                // Update prices and periods
                 priceAmounts.forEach(amount => {
                     const monthlyPrice = amount.getAttribute('data-monthly');
                     const annualPrice = amount.getAttribute('data-annual');
@@ -2712,6 +2712,14 @@
                         amount.textContent = isAnnual ?
                             parseInt(annualPrice).toLocaleString() :
                             parseInt(monthlyPrice).toLocaleString();
+                    }
+                });
+
+                // Update price periods (/월 or /년) - skip fixed periods
+                const pricePeriods = document.querySelectorAll('.price-period');
+                pricePeriods.forEach(period => {
+                    if (!period.getAttribute('data-fixed')) {
+                        period.textContent = isAnnual ? '/년' : '/월';
                     }
                 });
             });
