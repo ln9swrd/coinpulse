@@ -224,6 +224,119 @@ class SurgeAlertScheduler:
         except Exception as e:
             logger.error(f"[SurgeAlertScheduler] Failed to save to DB: {e}")
 
+    async def close_pending_signals(self):
+        """
+        Check pending signals and close them if conditions are met:
+        - 48 hours elapsed
+        - Dropped >3% from peak
+        - Below entry price by >2%
+        """
+        try:
+            with get_db_session() as session:
+                # Get all pending signals
+                query = text("""
+                    SELECT id, market, coin, entry_price, peak_price, sent_at
+                    FROM surge_alerts
+                    WHERE status = 'pending'
+                """)
+                result = session.execute(query)
+                pending_signals = [dict(row._mapping) for row in result]
+
+                if not pending_signals:
+                    return
+
+                logger.info(f"[SurgeAlertScheduler] Checking {len(pending_signals)} pending signals for closure")
+
+                closed_count = 0
+                for signal in pending_signals:
+                    signal_id = signal['id']
+                    market = signal['market']
+                    entry_price = signal['entry_price']
+                    peak_price = signal.get('peak_price') or entry_price
+                    entry_time = signal['sent_at']
+
+                    # Calculate elapsed time
+                    hours_elapsed = (datetime.now() - entry_time).total_seconds() / 3600
+
+                    # Get current price
+                    try:
+                        ticker_data = self.upbit_api.get_ticker([market])
+                        if not ticker_data:
+                            continue
+                        current_price = int(ticker_data[0].get('trade_price', 0))
+                        if current_price == 0:
+                            continue
+                    except Exception as e:
+                        logger.warning(f"[SurgeAlertScheduler] Failed to get price for {market}: {e}")
+                        continue
+
+                    # Update peak price if current is higher
+                    if current_price > peak_price:
+                        peak_price = current_price
+
+                    # Determine if should close
+                    should_close = False
+                    close_reason = None
+
+                    if hours_elapsed >= 48:
+                        should_close = True
+                        close_reason = 'Expired (48h)'
+                    elif peak_price > entry_price and current_price < peak_price * 0.97:
+                        should_close = True
+                        close_reason = 'Drop from peak (>3%)'
+                    elif current_price < entry_price * 0.98:
+                        should_close = True
+                        close_reason = 'Below entry price (>2%)'
+
+                    if should_close:
+                        # Calculate profit
+                        profit_pct = ((current_price - entry_price) / entry_price) * 100
+                        status = 'win' if profit_pct > 0 else 'lose'
+
+                        # Update signal
+                        update_query = text("""
+                            UPDATE surge_alerts
+                            SET peak_price = :peak_price,
+                                exit_price = :exit_price,
+                                close_reason = :close_reason,
+                                status = :status,
+                                closed_at = NOW()
+                            WHERE id = :signal_id
+                        """)
+
+                        session.execute(update_query, {
+                            'signal_id': signal_id,
+                            'peak_price': peak_price,
+                            'exit_price': current_price,
+                            'close_reason': close_reason,
+                            'status': status
+                        })
+                        session.commit()
+
+                        closed_count += 1
+                        logger.info(f"[SurgeAlertScheduler] Closed {market}: {status} "
+                                   f"(Entry: {entry_price:,}, Exit: {current_price:,}, {profit_pct:+.1f}%, "
+                                   f"Reason: {close_reason})")
+                    else:
+                        # Just update peak price if higher
+                        if current_price > peak_price:
+                            update_query = text("""
+                                UPDATE surge_alerts
+                                SET peak_price = :peak_price
+                                WHERE id = :signal_id
+                            """)
+                            session.execute(update_query, {
+                                'signal_id': signal_id,
+                                'peak_price': peak_price
+                            })
+                            session.commit()
+
+                if closed_count > 0:
+                    logger.info(f"[SurgeAlertScheduler] Auto-closed {closed_count} signals")
+
+        except Exception as e:
+            logger.error(f"[SurgeAlertScheduler] Error in close_pending_signals: {e}")
+
     def update_candidates_cache(self, candidates: List[Dict]):
         """
         Update surge candidates cache table
@@ -317,6 +430,9 @@ class SurgeAlertScheduler:
         logger.info("[SurgeAlertScheduler] Checking for surge candidates...")
 
         try:
+            # Check and close pending signals (auto-close system)
+            await self.close_pending_signals()
+
             # Update market list if needed (every 24 hours)
             updated_markets = self.market_selector.get_markets(force_update=False, update_interval_hours=24)
             if updated_markets != self.monitor_coins:
