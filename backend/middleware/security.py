@@ -134,7 +134,8 @@ class RateLimiter:
             '/api/subscription/transactions',  # User transaction history
             '/api/user/signals/stats',  # User signal statistics
             '/api/telegram/link/status',  # Telegram link status
-            '/api/trading/policies'  # Trading policy configuration
+            '/api/trading/policies',  # Trading policy configuration
+            '/api/feedback/my'  # User's own feedback (JWT secured)
         ]
         if path_without_query in auth_get_endpoints:
             return True, 0
