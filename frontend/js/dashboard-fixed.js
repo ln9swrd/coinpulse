@@ -2449,7 +2449,7 @@
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>우선 고객 지원 (24시간 내)</span>
+                                    <span>우선 고객 지원</span>
                                 </li>
                             </ul>
                             <button class="plan-cta plan-cta-primary" data-plan="pro">
@@ -2508,13 +2508,7 @@
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>우선 고객 지원 (1시간 이내 응답)</span>
-                                </li>
-                                <li class="feature-included">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                    <span>API 연동 (프로그래밍 자동화)</span>
+                                    <span>우선 고객 지원</span>
                                 </li>
                             </ul>
                             <button class="plan-cta plan-cta-primary" data-plan="enterprise">
