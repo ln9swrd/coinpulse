@@ -18,6 +18,7 @@ import time
 
 from backend.middleware.user_api_keys import get_user_upbit_api, get_user_from_token
 from backend.middleware.auth_middleware import require_auth
+from backend.middleware.subscription_check import check_feature_access, get_user_plan
 
 # Create Blueprint
 holdings_bp = Blueprint('holdings', __name__)
@@ -540,15 +541,16 @@ def place_buy_order(current_user):
     }
     """
     try:
-        # Check if user has a paid plan
-        user_plan = getattr(current_user, 'plan', 'free')
-        if user_plan not in ['basic', 'pro', 'enterprise']:
-            logger.warning(f"[Trading] Free plan user attempted to place buy order: user_id={current_user.id}, plan={user_plan}")
+        # Check if user has manual trading feature
+        has_access = check_feature_access(current_user.id, 'manual_trading')
+        if not has_access:
+            plan = get_user_plan(user_id=current_user.id)
+            logger.warning(f"[Trading] User without manual_trading feature attempted to place buy order: user_id={current_user.id}, plan={plan['plan_code']}")
             return jsonify({
                 "success": False,
                 "error": "유료 요금제가 필요합니다",
                 "message": "주문 기능은 Basic 이상의 유료 요금제에서만 사용 가능합니다.",
-                "current_plan": user_plan,
+                "current_plan": plan['plan_code'],
                 "required_plans": ["basic", "pro", "enterprise"],
                 "upgrade_required": True,
                 "upgrade_url": "/pricing.html"
@@ -620,15 +622,16 @@ def place_sell_order(current_user):
     }
     """
     try:
-        # Check if user has a paid plan
-        user_plan = getattr(current_user, 'plan', 'free')
-        if user_plan not in ['basic', 'pro', 'enterprise']:
-            logger.warning(f"[Trading] Free plan user attempted to place sell order: user_id={current_user.id}, plan={user_plan}")
+        # Check if user has manual trading feature
+        has_access = check_feature_access(current_user.id, 'manual_trading')
+        if not has_access:
+            plan = get_user_plan(user_id=current_user.id)
+            logger.warning(f"[Trading] User without manual_trading feature attempted to place sell order: user_id={current_user.id}, plan={plan['plan_code']}")
             return jsonify({
                 "success": False,
                 "error": "유료 요금제가 필요합니다",
                 "message": "주문 기능은 Basic 이상의 유료 요금제에서만 사용 가능합니다.",
-                "current_plan": user_plan,
+                "current_plan": plan['plan_code'],
                 "required_plans": ["basic", "pro", "enterprise"],
                 "upgrade_required": True,
                 "upgrade_url": "/pricing.html"

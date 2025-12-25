@@ -460,24 +460,11 @@ https://t.me/coinpulse_surge_sinsi_bot
                 # Get user's plan
                 plan = self.get_user_plan_by_chat_id(chat_id)
 
-                # Plan-based filtering
-                if plan == 'free':
-                    # Free users don't receive alerts
-                    logger.debug(f"[TelegramBot] Skipping {chat_id}: Free plan")
+                # Plan-based filtering: ONLY Enterprise receives surge alerts
+                if plan != 'enterprise':
+                    logger.debug(f"[TelegramBot] Skipping {chat_id}: Only Enterprise receives surge alerts (current plan: {plan})")
                     filtered_count += 1
                     continue
-                elif plan == 'basic':
-                    # Basic users only receive high-score alerts (70+)
-                    if score < 70:
-                        logger.debug(f"[TelegramBot] Skipping {chat_id}: Basic plan, score {score} < 70")
-                        filtered_count += 1
-                        continue
-                elif plan == 'pro':
-                    # Pro users receive all alerts (60+)
-                    if score < 60:
-                        logger.debug(f"[TelegramBot] Skipping {chat_id}: Pro plan, score {score} < 60")
-                        filtered_count += 1
-                        continue
 
                 # Send alert (use HTML mode for better special character handling)
                 await self.bot.send_message(

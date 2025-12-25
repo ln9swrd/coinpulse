@@ -10,39 +10,89 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# 플랜별 제한 설정
+# 플랜별 제한 설정 (2025.12.25 업데이트: 4개 플랜)
 PLAN_LIMITS = {
-    'FREE': {
+    'free': {
+        'manual_trading': False,  # 수동 거래 불가 (조회만)
         'auto_trading_strategies': 0,  # 자동매매 불가
-        'chart_history_days': 7,  # 차트 데이터 7일
+        'surge_monitoring': False,  # 급등 모니터링 불가
         'monitoring_coins': 1,  # 모니터링 코인 1개
-        'trading_policies': 1,  # 거래 정책 1개
+        'chart_history_days': 7,  # 차트 데이터 7일
         'backtest_runs_per_day': 0,  # 백테스트 불가
         'api_requests_per_hour': 100,  # API 호출 제한
-        'watchlist_count': 1,  # 관심 목록 1개
         'features': {
+            'manual_trading': False,  # 조회만
             'auto_trading': False,
-            'advanced_indicators': False,
-            'telegram_alerts': True,  # 급등 알림은 무료도 가능
-            'priority_support': False,
-            'api_access': False
+            'surge_alerts': False,
+            'telegram_alerts': False,  # 텔레그램 없음
+            'advanced_indicators': False,  # 기본 지표만
+            'data_export': False,
+            'priority_support': False
         }
     },
-    'PREMIUM': {
-        'auto_trading_strategies': 3,  # 자동매매 3개 전략
-        'chart_history_days': -1,  # 무제한 (-1)
-        'monitoring_coins': 10,  # 모니터링 코인 10개
-        'trading_policies': -1,  # 정책 무제한
-        'backtest_runs_per_day': -1,  # 백테스트 무제한
-        'api_requests_per_hour': 1000,  # API 호출 많음
-        'watchlist_count': -1,  # 관심 목록 무제한
+    'basic': {
+        'manual_trading': True,  # 수동 거래 가능
+        'auto_trading_strategies': 0,  # 자동매매 불가
+        'surge_monitoring': False,  # 급등 모니터링 불가
+        'monitoring_coins': 5,  # 모니터링 코인 5개
+        'chart_history_days': 90,  # 90일
+        'backtest_runs_per_day': 0,  # 백테스트 불가
+        'api_requests_per_hour': 500,
         'features': {
-            'auto_trading': True,
-            'advanced_indicators': True,
-            'telegram_alerts': True,
-            'priority_support': True,
+            'manual_trading': True,  # 수동 거래만
+            'auto_trading': False,
+            'surge_alerts': False,  # 급등 신호 없음
+            'telegram_alerts': False,  # 텔레그램 없음
+            'advanced_indicators': False,  # 기본 지표만 (MA, RSI, MACD)
+            'data_export': False,
+            'priority_support': False
+        }
+    },
+    'pro': {
+        'manual_trading': True,  # 수동 거래 가능
+        'auto_trading_strategies': 0,  # 자동매매 불가
+        'surge_monitoring': False,  # 급등 모니터링 불가
+        'monitoring_coins': 10,  # 모니터링 코인 10개
+        'chart_history_days': 180,  # 180일
+        'backtest_runs_per_day': 0,  # 백테스트 불가
+        'api_requests_per_hour': 1000,
+        'features': {
+            'manual_trading': True,  # 수동 거래
+            'auto_trading': False,
+            'surge_alerts': False,  # 급등 신호 없음
+            'telegram_alerts': False,  # 텔레그램 없음
+            'advanced_indicators': True,  # 고급 지표 (Ichimoku, SuperTrend)
+            'data_export': True,  # CSV 내보내기
+            'priority_support': True  # 우선 지원
+        }
+    },
+    'enterprise': {
+        'manual_trading': True,  # 수동 거래 가능
+        'auto_trading_strategies': -1,  # 자동매매 무제한
+        'surge_monitoring': True,  # 급등 모니터링 가능
+        'monitoring_coins': -1,  # 모니터링 무제한
+        'chart_history_days': -1,  # 무제한
+        'backtest_runs_per_day': -1,  # 백테스트 무제한
+        'api_requests_per_hour': -1,  # 무제한
+        'features': {
+            'manual_trading': True,  # 수동 거래
+            'auto_trading': True,  # 자동매매
+            'surge_alerts': True,  # 급등 신호
+            'telegram_alerts': True,  # 텔레그램 급등 알림
+            'advanced_indicators': True,  # 고급 지표
+            'data_export': True,  # CSV 내보내기
+            'priority_support': True,  # 최우선 지원
             'api_access': True
         }
+    },
+    # 하위 호환성 (기존 코드)
+    'FREE': {
+        'manual_trading': False,
+        'features': {'manual_trading': False, 'telegram_alerts': False}
+    },
+    'PREMIUM': {
+        'manual_trading': True,
+        'features': {'manual_trading': True, 'telegram_alerts': False}
     }
 }
 
@@ -107,22 +157,35 @@ def get_plan_info(plan_code: str) -> Dict[str, Any]:
     플랜 정보 조회
 
     Args:
-        plan_code: 'FREE' | 'PREMIUM'
+        plan_code: 'free' | 'basic' | 'pro' | 'enterprise' (lowercase)
 
     Returns:
         플랜 정보 딕셔너리
     """
+    # Normalize to lowercase
+    plan_code = plan_code.lower() if plan_code else 'free'
+
     if plan_code not in PLAN_LIMITS:
-        logger.warning(f"[SubscriptionCheck] Unknown plan code: {plan_code}, using FREE")
-        plan_code = 'FREE'
+        logger.warning(f"[SubscriptionCheck] Unknown plan code: {plan_code}, using free")
+        plan_code = 'free'
 
     limits = PLAN_LIMITS[plan_code]
 
+    # Plan name mapping
+    plan_names = {
+        'free': '무료',
+        'basic': '베이직',
+        'pro': '프로',
+        'enterprise': '엔터프라이즈',
+        'FREE': '무료',  # 하위 호환성
+        'PREMIUM': '프리미엄'  # 하위 호환성
+    }
+
     return {
         'plan_code': plan_code,
-        'plan_name': '무료' if plan_code == 'FREE' else '프리미엄',
+        'plan_name': plan_names.get(plan_code, '무료'),
         'limits': {k: v for k, v in limits.items() if k != 'features'},
-        'features': limits['features']
+        'features': limits.get('features', {})
     }
 
 
