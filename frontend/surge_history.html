@@ -837,63 +837,15 @@
             loadData();
         }
 
-        // Execute immediately if DOM is already loaded (for dynamic page loading),
-        // or wait for DOMContentLoaded (for direct page access)
+        // Initialize when DOM is ready
+        // When loaded in iframe, document.readyState starts as 'loading'
+        // When loaded directly, it may already be 'interactive' or 'complete'
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', init);
         } else {
-            // For dynamic page loading, wait for DOM to be fully rendered
-            // Try multiple times with increasing delay
-            let retryCount = 0;
-            const maxRetries = 10;
-
-            function tryInit() {
-                // Check for all critical DOM elements in the content-container
-                const contentContainer = document.getElementById('content-container');
-                const filterMarket = document.getElementById('filter-market');
-                const tableContent = document.getElementById('table-content');
-                const statTotal = document.getElementById('stat-total');
-                const statAutoTraded = document.getElementById('stat-auto-traded');
-                const pagination = document.getElementById('pagination');
-                const statsGrid = document.getElementById('stats-grid');
-
-                console.log('[SurgeHistory] tryInit check:', {
-                    contentContainer: !!contentContainer,
-                    filterMarket: !!filterMarket,
-                    tableContent: !!tableContent,
-                    statTotal: !!statTotal,
-                    statAutoTraded: !!statAutoTraded,
-                    pagination: !!pagination,
-                    statsGrid: !!statsGrid,
-                    retry: retryCount,
-                    readyState: document.readyState
-                });
-
-                if (filterMarket && tableContent && statTotal && statAutoTraded && pagination && statsGrid) {
-                    // DOM is ready, run init
-                    console.log('[SurgeHistory] DOM ready, initializing...');
-                    init();
-                } else {
-                    if (retryCount < maxRetries) {
-                        retryCount++;
-                        console.log(`[SurgeHistory] DOM not ready, retrying (${retryCount}/${maxRetries})...`);
-                        // Exponential backoff: 100ms, 200ms, 400ms, 800ms, 1600ms, etc.
-                        setTimeout(tryInit, Math.min(100 * Math.pow(2, retryCount - 1), 3000));
-                    } else {
-                        console.error('[SurgeHistory] DOM elements not found after retries');
-                        console.error(`  - contentContainer: ${!!contentContainer}`);
-                        console.error(`  - filterMarket: ${!!filterMarket}`);
-                        console.error(`  - tableContent: ${!!tableContent}`);
-                        console.error(`  - statTotal: ${!!statTotal}`);
-                        console.error(`  - statAutoTraded: ${!!statAutoTraded}`);
-                        console.error(`  - pagination: ${!!pagination}`);
-                        console.error(`  - statsGrid: ${!!statsGrid}`);
-                    }
-                }
-            }
-
-            // Add initial delay to let DOM settle
-            setTimeout(tryInit, 100);
+            // DOM already loaded, initialize immediately
+            // Small delay to ensure all elements are rendered
+            setTimeout(init, 50);
         }
 
         // Load available markets
