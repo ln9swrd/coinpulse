@@ -139,7 +139,41 @@
         </div>
     </div>
 
+    <!-- Telegram Onboarding Modal (included inline for simplicity) -->
+    <div class="telegram-onboarding-overlay" id="telegramOnboardingModal" style="display: none;">
+        <!-- Modal content will be loaded from component -->
+    </div>
+
     <!-- JavaScript -->
     <script src="js/payment-result.js?v=20251217"></script>
+    <script>
+        // Check if should show telegram onboarding
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const plan = urlParams.get('plan');
+
+            // Show telegram onboarding for enterprise upgrades
+            if (plan && plan.toLowerCase() === 'enterprise') {
+                // Set flag for telegram onboarding modal
+                sessionStorage.setItem('show_telegram_onboarding', 'true');
+
+                // Redirect to a page that includes the modal after 3 seconds
+                setTimeout(() => {
+                    window.location.href = '/telegram_settings.html?onboarding=true';
+                }, 3000);
+
+                // Or show inline message
+                const successMessage = document.querySelector('.result-message p');
+                if (successMessage) {
+                    successMessage.innerHTML = `
+                        CoinPulse 구독이 완료되었습니다. 계정이 업그레이드되었습니다.<br>
+                        <strong style="color: #667eea; margin-top: 12px; display: inline-block;">
+                            🎁 3초 후 텔레그램 연동 가이드로 이동합니다...
+                        </strong>
+                    `;
+                }
+            }
+        });
+    </script>
 </body>
 </html>

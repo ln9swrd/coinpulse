@@ -153,11 +153,15 @@ def upgrade_subscription():
             )
 
             if payment_result['success']:
+                # Check if upgraded to enterprise (show telegram onboarding)
+                show_telegram_guide = data['plan'].lower() == 'enterprise'
+
                 return jsonify({
                     'success': True,
                     'subscription': payment_result.get('subscription'),
                     'transaction': payment_result.get('transaction'),
-                    'redirect_url': f'/payment-success.html?plan={data["plan"]}&billing={data["billing"]}&txn={transaction_id}'
+                    'redirect_url': f'/payment-success.html?plan={data["plan"]}&billing={data["billing"]}&txn={transaction_id}',
+                    'show_telegram_onboarding': show_telegram_guide
                 }), 200
             else:
                 return jsonify({
