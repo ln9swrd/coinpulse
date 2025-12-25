@@ -162,8 +162,7 @@ class PendingSignalCloser:
                     exit_price = :exit_price,
                     close_reason = :close_reason,
                     status = :status,
-                    closed_at = NOW(),
-                    updated_at = NOW()
+                    closed_at = NOW()
                 WHERE id = :signal_id
             """)
 
