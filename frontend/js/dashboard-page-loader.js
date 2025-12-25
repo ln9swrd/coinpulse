@@ -33,8 +33,8 @@
 
             try {
                 // Special handling for pages that need iframe (to prevent CSS conflicts and enable JS execution)
-                // Note: surge-history removed from iframe list to load as regular page content
-                if (pageName === 'trading' || pageName === 'surge' || pageName === 'auto-trading' || pageName === 'signals') {
+                // surge-history added back to iframe list for better DOM isolation
+                if (pageName === 'trading' || pageName === 'surge' || pageName === 'auto-trading' || pageName === 'signals' || pageName === 'surge-history') {
                     const pageUrl = `${window.location.origin}/${filePath}`;
                     const iframeId = pageName === 'trading' ? 'trading-chart-iframe' :
                                      pageName === 'surge' ? 'surge-monitoring-iframe' :
