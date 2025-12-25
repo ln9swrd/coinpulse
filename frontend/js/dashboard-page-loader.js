@@ -35,7 +35,9 @@
                 // Special handling for pages that need iframe (to prevent CSS conflicts and enable JS execution)
                 // surge-history added back to iframe list for better DOM isolation
                 if (pageName === 'trading' || pageName === 'surge' || pageName === 'auto-trading' || pageName === 'signals' || pageName === 'surge-history') {
-                    const pageUrl = `${window.location.origin}/${filePath}`;
+                    // Add cache busting to prevent 404 caching
+                    const cacheBuster = `v=${Date.now()}`;
+                    const pageUrl = `${window.location.origin}/${filePath}?${cacheBuster}`;
                     const iframeId = pageName === 'trading' ? 'trading-chart-iframe' :
                                      pageName === 'surge' ? 'surge-monitoring-iframe' :
                                      pageName === 'auto-trading' ? 'auto-trading-iframe' :
