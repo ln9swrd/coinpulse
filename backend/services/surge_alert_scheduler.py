@@ -21,6 +21,7 @@ from backend.services.telegram_bot import SurgeTelegramBot, TELEGRAM_AVAILABLE
 from backend.database.connection import get_db_session
 from backend.models.surge_candidates_cache_models import SurgeCandidatesCache
 from backend.services.websocket_service import get_websocket_service
+from backend.services.dynamic_market_selector import get_market_selector
 
 # Logging setup
 logging.basicConfig(
@@ -61,21 +62,16 @@ class SurgeAlertScheduler:
         }
         self.predictor = SurgePredictor(self.config)
 
-        # Popular coins to monitor
-        self.monitor_coins = [
-            'KRW-XRP', 'KRW-ADA', 'KRW-DOGE', 'KRW-AVAX', 'KRW-SHIB',
-            'KRW-DOT', 'KRW-MATIC', 'KRW-SOL', 'KRW-LINK', 'KRW-BCH',
-            'KRW-NEAR', 'KRW-XLM', 'KRW-ALGO', 'KRW-ATOM', 'KRW-ETC',
-            'KRW-VET', 'KRW-ICP', 'KRW-FIL', 'KRW-HBAR', 'KRW-APT',
-            'KRW-SAND', 'KRW-MANA', 'KRW-AXS', 'KRW-AAVE', 'KRW-EOS',
-            'KRW-THETA', 'KRW-XTZ', 'KRW-EGLD', 'KRW-BSV', 'KRW-ZIL'
-        ]
+        # Initialize Dynamic Market Selector (50 coins, updated daily)
+        self.market_selector = get_market_selector(target_count=50)
+        self.monitor_coins = self.market_selector.get_markets(force_update=True, update_interval_hours=24)
 
         # Track alerted candidates (to avoid duplicate alerts)
         self.alerted_candidates: Set[str] = set()  # Set of market names
         self.min_score = 60
 
         logger.info(f"[SurgeAlertScheduler] Initialized (interval: {check_interval}s, coins: {len(self.monitor_coins)})")
+        logger.info(f"[SurgeAlertScheduler] Dynamic market selection enabled (auto-update every 24h)")
 
     def get_surge_candidates(self) -> List[Dict]:
         """
@@ -296,6 +292,12 @@ class SurgeAlertScheduler:
         logger.info("[SurgeAlertScheduler] Checking for surge candidates...")
 
         try:
+            # Update market list if needed (every 24 hours)
+            updated_markets = self.market_selector.get_markets(force_update=False, update_interval_hours=24)
+            if updated_markets != self.monitor_coins:
+                logger.info(f"[SurgeAlertScheduler] Market list updated: {len(updated_markets)} coins")
+                self.monitor_coins = updated_markets
+
             # Get current candidates
             candidates = self.get_surge_candidates()
 
