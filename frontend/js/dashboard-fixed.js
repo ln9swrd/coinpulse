@@ -2301,7 +2301,7 @@
                         <div class="pricing-card">
                             <div class="plan-header">
                                 <h3 class="plan-name">Free</h3>
-                                <p class="plan-description">시작하기에 완벽</p>
+                                <p class="plan-description">무료로 시작하기</p>
                             </div>
                             <div class="plan-price">
                                 <span class="price-currency">₩</span>
@@ -2313,32 +2313,46 @@
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>포트폴리오 추적</span>
+                                    <span>대시보드 조회</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>실시간 가격 조회</span>
+                                    <span>포트폴리오 조회</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>급등 모니터링</span>
+                                    <span>거래 내역 조회</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>기본 차트 및 지표</span>
+                                    <span>거래 차트 조회만</span>
                                 </li>
                                 <li class="feature-excluded">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <line x1="18" y1="6" x2="6" y2="18"></line>
                                         <line x1="6" y1="6" x2="18" y2="18"></line>
                                     </svg>
-                                    <span>수동 매매</span>
+                                    <span>거래 주문 불가</span>
+                                </li>
+                                <li class="feature-excluded">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                    <span>급등 신호 알림 불가</span>
+                                </li>
+                                <li class="feature-excluded">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                    <span>자동 매매 불가</span>
                                 </li>
                             </ul>
                             <button class="plan-cta plan-cta-secondary" data-plan="free">
@@ -2354,7 +2368,7 @@
                             </div>
                             <div class="plan-price">
                                 <span class="price-currency">₩</span>
-                                <span class="price-amount" data-monthly="49000" data-annual="39200">49,000</span>
+                                <span class="price-amount" data-monthly="29000" data-annual="23200">29,000</span>
                                 <span class="price-period">/월</span>
                             </div>
                             <ul class="plan-features">
@@ -2362,31 +2376,37 @@
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>무료 플랜 모든 기능</span>
+                                    <span>Free 플랜 모든 기능</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>수동 매매</span>
+                                    <span>거래 차트 주문 (매수/매도/취소)</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>자동매매 알림 주 3회</span>
+                                    <span>급등 신호 알림 (일 10회)</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>텔레그램 메시지</span>
+                                    <span>텔레그램 실시간 알림</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>고급 기술적 지표</span>
+                                    <span>자동 매매 설정 (1개 전략)</span>
+                                </li>
+                                <li class="feature-included">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span>급등 예측 정확도: 기본</span>
                                 </li>
                             </ul>
                             <button class="plan-cta plan-cta-secondary" data-plan="basic">
@@ -2403,7 +2423,7 @@
                             </div>
                             <div class="plan-price">
                                 <span class="price-currency">₩</span>
-                                <span class="price-amount" data-monthly="99000" data-annual="79200">99,000</span>
+                                <span class="price-amount" data-monthly="59000" data-annual="47200">59,000</span>
                                 <span class="price-period">/월</span>
                             </div>
                             <ul class="plan-features">
@@ -2411,31 +2431,43 @@
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>베이직 플랜 모든 기능</span>
+                                    <span>Basic 플랜 모든 기능</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>자동매매 알림 주 10회</span>
+                                    <span>급등 신호 알림 무제한</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>무제한 거래 히스토리</span>
+                                    <span>자동 매매 설정 (5개 전략)</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>전략 시뮬레이션</span>
+                                    <span>급등 예측 정확도: 고급</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>우선 고객 지원</span>
+                                    <span>백테스트 결과 조회</span>
+                                </li>
+                                <li class="feature-included">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span>우선 고객 지원 (24시간 내)</span>
+                                </li>
+                                <li class="feature-included">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span>거래 성과 리포트 (월 1회)</span>
                                 </li>
                             </ul>
                             <button class="plan-cta plan-cta-primary" data-plan="pro">
@@ -2468,7 +2500,7 @@
                                     </svg>
                                 </h3>
                                 <div class="faq-answer">
-                                    <p>신용카드, 카카오페이, 토스를 지원합니다. Pro 요금제는 계좌이체도 가능합니다.</p>
+                                    <p>현재 계좌 이체만 지원합니다. 입금 확인 후 관리자가 수동으로 플랜을 활성화합니다. 신용카드 결제는 추후 도입 예정입니다.</p>
                                 </div>
                             </div>
 
@@ -2480,7 +2512,7 @@
                                     </svg>
                                 </h3>
                                 <div class="faq-answer">
-                                    <p>Premium 요금제는 14일 무료 체험을 제공합니다. 신용카드 등록 없이 시작할 수 있습니다.</p>
+                                    <p>Free 플랜은 영구 무료로 사용 가능합니다. 유료 플랜은 계좌 이체 결제 후 즉시 활성화되며, 별도의 무료 체험 기간은 없습니다.</p>
                                 </div>
                             </div>
 

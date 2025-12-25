@@ -49,12 +49,12 @@ class RateLimiter:
             }
         else:
             self.limits = {
-                # Production: Very relaxed limits (optimized for real-time dashboard & auto-trading)
-                'default': {'requests': 600, 'window': 60},  # 600 requests/min (10 req/s)
-                'auth': {'requests': 20, 'window': 60},  # 20 login attempts per minute
-                'api': {'requests': 600, 'window': 60},  # 600 API calls/min (10 req/s)
-                'trading': {'requests': 300, 'window': 60},  # 300 trading calls/min (5 req/s)
-                'admin': {'requests': 5000, 'window': 60}  # 5000 admin calls per minute (effectively unlimited)
+                # Production: Extremely relaxed limits (optimized for real-time dashboard & auto-trading)
+                'default': {'requests': 2000, 'window': 60},  # 2000 requests/min (33 req/s)
+                'auth': {'requests': 50, 'window': 60},  # 50 login attempts per minute
+                'api': {'requests': 2000, 'window': 60},  # 2000 API calls/min (33 req/s)
+                'trading': {'requests': 1000, 'window': 60},  # 1000 trading calls/min (16 req/s)
+                'admin': {'requests': 10000, 'window': 60}  # 10000 admin calls per minute (effectively unlimited)
             }
 
     def _get_limit_for_path(self, path):
@@ -109,6 +109,11 @@ class RateLimiter:
         static_extensions = ('.html', '.css', '.js', '.json', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.eot')
         # Remove query parameters for checking
         path_without_query = path.split('?')[0]
+
+        # Exclude root URL and main pages
+        if path_without_query == '/' or path_without_query == '':
+            return True, 0
+
         if path_without_query.endswith(static_extensions) or path_without_query.startswith('/static/') or path_without_query.startswith('/frontend/'):
             return True, 0
 

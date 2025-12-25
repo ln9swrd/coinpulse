@@ -788,8 +788,9 @@
                     <label>플랜 선택 *</label>
                     <select id="editUserPlan" required>
                         <option value="free">무료 (FREE) - ₩0</option>
-                        <option value="basic">베이직 (BASIC) - ₩49,000/월</option>
-                        <option value="pro">프로 (PRO) - ₩99,000/월</option>
+                        <option value="basic">베이직 (BASIC) - ₩29,000/월</option>
+                        <option value="pro">프로 (PRO) - ₩59,000/월</option>
+                        <option value="enterprise">엔터프라이즈 (ENTERPRISE) - ₩149,000/월~</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -975,8 +976,8 @@
         // Configuration - Use admin-specific API base (avoid global API_BASE conflict)
         // Use window object to avoid duplicate declaration on dynamic page reload
         window.ADMIN_API_BASE = window.ADMIN_API_BASE || (window.location.origin + '/api/admin');
-        let adminToken = localStorage.getItem('access_token') || '';
-        let currentPaymentId = null;
+        window.adminToken = window.adminToken || localStorage.getItem('access_token') || '';
+        window.currentPaymentId = window.currentPaymentId || null;
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
@@ -986,14 +987,14 @@
 
         // Auth
         function checkAuth() {
-            if (!adminToken) {
+            if (!window.adminToken) {
                 alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
                 window.location.href = '/login.html';
                 return;
             }
 
             // Display token info
-            document.getElementById('tokenDisplay').textContent = `토큰: ${adminToken.substring(0, 20)}...`;
+            document.getElementById('tokenDisplay').textContent = `토큰: ${window.adminToken.substring(0, 20)}...`;
 
             // Verify admin access
             verifyAdminAccess();
@@ -1003,7 +1004,7 @@
             try {
                 const response = await fetch(`${window.location.origin}/api/auth/me`, {
                     headers: {
-                        'Authorization': `Bearer ${adminToken}`
+                        'Authorization': `Bearer ${window.adminToken}`
                     }
                 });
                 const data = await response.json();
@@ -1030,7 +1031,7 @@
         function getHeaders() {
             return {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${adminToken}`
+                'Authorization': `Bearer ${window.adminToken}`
             };
         }
 
@@ -1342,7 +1343,7 @@
         }
 
         function showPaymentDetails(paymentId) {
-            currentPaymentId = paymentId;
+            window.currentPaymentId = paymentId;
             // In a real app, fetch payment details
             document.getElementById('paymentDetails').innerHTML = `
                 <div class="form-group">
@@ -1355,10 +1356,10 @@
         }
 
         async function approvePayment() {
-            if (!currentPaymentId) return;
+            if (!window.currentPaymentId) return;
 
             try {
-                const response = await fetch(`${window.ADMIN_API_BASE}/payment-requests/${currentPaymentId}/approve`, {
+                const response = await fetch(`${window.ADMIN_API_BASE}/payment-requests/${window.currentPaymentId}/approve`, {
                     method: 'POST',
                     headers: getHeaders()
                 });
@@ -1938,7 +1939,7 @@
 
                 const response = await fetch(url, {
                     headers: {
-                        'Authorization': `Bearer ${adminToken}`,
+                        'Authorization': `Bearer ${window.adminToken}`,
                         'Content-Type': 'application/json'
                     }
                 });
@@ -2019,7 +2020,7 @@
             try {
                 const response = await fetch(`/api/enterprise/inquiry/${inquiryId}`, {
                     headers: {
-                        'Authorization': `Bearer ${adminToken}`,
+                        'Authorization': `Bearer ${window.adminToken}`,
                         'Content-Type': 'application/json'
                     }
                 });
@@ -2085,7 +2086,7 @@
                 const response = await fetch(`/api/enterprise/inquiry/${inquiryId}/status`, {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `Bearer ${adminToken}`,
+                        'Authorization': `Bearer ${window.adminToken}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
