@@ -525,6 +525,20 @@ class SurgeAlertService:
             SurgeAlert object or None if failed
         """
         try:
+            # Check for duplicate alert (same user, market within last 1 hour)
+            from datetime import timedelta
+            one_hour_ago = datetime.utcnow() - timedelta(hours=1)
+
+            existing_alert = self.session.query(SurgeAlert).filter(
+                SurgeAlert.user_id == user_id,
+                SurgeAlert.market == market,
+                SurgeAlert.sent_at >= one_hour_ago
+            ).first()
+
+            if existing_alert:
+                logger.info(f"[SurgeAlert] Duplicate alert detected for user {user_id}: {market} (skipping)")
+                return existing_alert
+
             alert = SurgeAlert(
                 user_id=user_id,
                 market=market,

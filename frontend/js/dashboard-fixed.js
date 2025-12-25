@@ -2474,6 +2474,79 @@
                                 프로로 업그레이드
                             </button>
                         </div>
+
+                        <!-- Enterprise Plan -->
+                        <div class="pricing-card featured">
+                            <div class="plan-badge">프리미엄</div>
+                            <div class="plan-header">
+                                <h3 class="plan-name">Enterprise</h3>
+                                <p class="plan-description">기관 투자자 및 전문가를 위한 맞춤형 솔루션</p>
+                            </div>
+                            <div class="plan-price">
+                                <span class="price-currency">₩</span>
+                                <span class="price-amount" data-monthly="149000" data-annual="119200">149,000</span>
+                                <span class="price-period">/월</span>
+                            </div>
+                            <ul class="plan-features">
+                                <li class="feature-included">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span>Pro 플랜 모든 기능</span>
+                                </li>
+                                <li class="feature-included">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span>급등 예측 무제한 조회</span>
+                                </li>
+                                <li class="feature-included">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span>자동매매 무제한 전략 (AI 최적화)</span>
+                                </li>
+                                <li class="feature-included">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span>텔레그램 실시간 알림 (모든 신호)</span>
+                                </li>
+                                <li class="feature-included">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span>포트폴리오 추적 (무제한 코인)</span>
+                                </li>
+                                <li class="feature-included">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span>백테스트 및 성과 분석</span>
+                                </li>
+                                <li class="feature-included">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span>우선 고객 지원 (1시간 이내 응답)</span>
+                                </li>
+                                <li class="feature-included">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span>맞춤형 투자 전략 컨설팅 (월 1회)</span>
+                                </li>
+                                <li class="feature-included">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span>API 액세스 (고급 기능)</span>
+                                </li>
+                            </ul>
+                            <button class="plan-cta plan-cta-primary" data-plan="enterprise">
+                                엔터프라이즈로 업그레이드
+                            </button>
+                        </div>
                     </div>
 
                     <!-- FAQ Section -->

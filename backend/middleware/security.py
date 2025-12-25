@@ -143,6 +143,10 @@ class RateLimiter:
         if path_without_query == '/api/user/signals':
             return True, 0
 
+        # Exclude referral endpoints (JWT secured, high frequency)
+        if path_without_query.startswith('/api/referral/'):
+            return True, 0
+
         # Exclude login endpoints (Google OAuth and regular login)
         login_endpoints = [
             '/api/auth/login',

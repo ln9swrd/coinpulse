@@ -3785,3 +3785,318 @@ Run time of job "Signal Expiry Cleanup (trigger: interval[0:30:00], next run at:
 [Scheduler] Analysis complete - 2025-12-25 00:58:28
 ================================================================================
 
+
+[Scheduler] Cleaning up expired signals - 2025-12-25 00:58:28
+[Scheduler] No expired signals found
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 05:13:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 05:13:28
+================================================================================
+
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 05:28:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 05:28:28
+================================================================================
+
+
+[Scheduler] Cleaning up expired signals - 2025-12-25 05:28:28
+[Scheduler] No expired signals found
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 05:43:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 05:43:28
+================================================================================
+
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 05:58:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 05:58:28
+================================================================================
+
+
+[Scheduler] Cleaning up expired signals - 2025-12-25 05:58:28
+[Scheduler] No expired signals found
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 06:13:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 06:13:28
+================================================================================
+
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 06:28:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 06:28:28
+================================================================================
+
+
+[Scheduler] Cleaning up expired signals - 2025-12-25 06:28:28
+[Scheduler] No expired signals found
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 06:43:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 06:43:28
+================================================================================
+
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 06:58:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 06:58:28
+================================================================================
+
+
+[Scheduler] Cleaning up expired signals - 2025-12-25 06:58:28
+[Scheduler] No expired signals found
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 07:13:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 07:13:28
+================================================================================
+
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 07:28:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 07:28:28
+================================================================================
+
+
+[Scheduler] Cleaning up expired signals - 2025-12-25 07:28:28
+[Scheduler] No expired signals found
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 07:43:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 07:43:28
+================================================================================
+
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 07:58:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 07:58:28
+================================================================================
+
+[Scheduler] No expired signals found
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 08:13:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 08:13:28
+================================================================================
+
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 08:28:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 08:28:28
+================================================================================
+
+
+[Scheduler] Cleaning up expired signals - 2025-12-25 08:28:28
+[Scheduler] No expired signals found
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 08:43:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 08:43:28
+================================================================================
+
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 08:58:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 08:58:28
+================================================================================
+
+
+[Scheduler] Cleaning up expired signals - 2025-12-25 08:58:28
+[Scheduler] No expired signals found
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 09:13:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 09:13:28
+================================================================================
+
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 09:28:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 09:28:28
+================================================================================
+
+
+[Scheduler] Cleaning up expired signals - 2025-12-25 09:28:28
+[Scheduler] No expired signals found
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 09:43:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 09:43:28
+================================================================================
+
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 09:58:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 09:58:28
+================================================================================
+
+
+[Scheduler] Cleaning up expired signals - 2025-12-25 09:58:28
+[Scheduler] No expired signals found
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 10:13:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 10:13:28
+================================================================================
+
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 10:28:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 10:28:28
+================================================================================
+
+
+[Scheduler] Cleaning up expired signals - 2025-12-25 10:28:28
+[Scheduler] No expired signals found
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 10:43:28
+================================================================================
+[MarketFilter] Error: 'UpbitAPI' object has no attribute 'get_market_all'
+[Scheduler] Monitoring 0 markets
+[Scheduler] Found 0 high-confidence candidates
+[Scheduler] No high-confidence candidates found
+================================================================================
+[Scheduler] Analysis complete - 2025-12-25 10:43:28
+================================================================================
+
+
+================================================================================
+[Scheduler] Starting surge analysis - 2025-12-25 10:58:28
+Found 0 high-confidence candidates
+ = ŠY pPÀà§   eWß§  8
