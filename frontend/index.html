@@ -442,16 +442,21 @@ async function loadPricingPlans() {
         }
 
         const plans = data.plans
-            .filter(p => p.is_visible && p.plan_code !== 'enterprise') // 엔터프라이즈 제외
-            .sort((a, b) => a.display_order - b.display_order)
-            .slice(0, 3); // 최대 3개만 표시
+            .filter(p => p.is_visible) // 모든 visible 플랜 표시
+            .sort((a, b) => a.display_order - b.display_order);
 
         const container = document.getElementById('pricing-cards-container');
-        if (!container) return;
+        if (!container) {
+            console.error('[Pricing] Container not found');
+            return;
+        }
+
+        console.log('[Pricing] Loading plans:', plans.length, plans.map(p => p.plan_code));
 
         container.innerHTML = plans.map((plan, index) => {
             const isFree = plan.plan_code === 'free';
-            const isFeatured = plan.is_featured || index === 1; // 두 번째 플랜을 featured로
+            const isEnterprise = plan.plan_code === 'enterprise';
+            const isFeatured = plan.is_featured || isEnterprise; // Enterprise도 featured로
             const monthlyPrice = plan.price?.monthly || plan.monthly_price || 0;
 
             // 기능 목록 생성 (오늘 구현된 제한사항 반영)
@@ -482,6 +487,15 @@ async function loadPricingPlans() {
                     '백테스트 결과 조회',
                     '우선 고객 지원 (24시간 내)',
                     '거래 성과 리포트 (월 1회)'
+                ];
+            } else if (isEnterprise) {
+                features = [
+                    'Pro 플랜 모든 기능',
+                    '급등 예측 무제한 조회',
+                    '자동매매 무제한 전략',
+                    '텔레그램 실시간 알림 (모든 신호)',
+                    '우선 고객 지원 (1시간 내)',
+                    'API 액세스'
                 ];
             }
 
