@@ -280,24 +280,71 @@
                     </div>
                     <div class="modal-body">
                         <div class="ichimoku-settings-form">
-                            <div class="setting-item">
-                                <label for="ichimoku-tenkan">전환선 (Tenkan-sen) 기간:</label>
-                                <input type="number" id="ichimoku-tenkan" value="9" min="1" max="100">
+                            <!-- 프리셋 버튼 -->
+                            <div class="setting-section">
+                                <h4 style="margin-bottom: 10px; color: #64748b; font-size: 14px;">⚡ 빠른 설정</h4>
+                                <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+                                    <button class="btn btn-sm" id="ichimoku-preset-cloud" style="flex: 1; font-size: 12px;">
+                                        ☁️ 구름만
+                                    </button>
+                                    <button class="btn btn-sm" id="ichimoku-preset-lines" style="flex: 1; font-size: 12px;">
+                                        📊 라인만
+                                    </button>
+                                    <button class="btn btn-sm" id="ichimoku-preset-all" style="flex: 1; font-size: 12px;">
+                                        🔍 전체
+                                    </button>
+                                </div>
                             </div>
-                            <div class="setting-item">
-                                <label for="ichimoku-kijun">기준선 (Kijun-sen) 기간:</label>
-                                <input type="number" id="ichimoku-kijun" value="26" min="1" max="100">
+
+                            <!-- 표시 요소 -->
+                            <div class="setting-section">
+                                <h4 style="margin-bottom: 10px; color: #64748b; font-size: 14px;">👁️ 표시 요소</h4>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px;">
+                                    <label style="display: flex; align-items: center; cursor: pointer;">
+                                        <input type="checkbox" id="ichimoku-show-tenkan" checked style="margin-right: 8px;">
+                                        <span style="font-size: 13px;">전환선 (빨강)</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center; cursor: pointer;">
+                                        <input type="checkbox" id="ichimoku-show-kijun" checked style="margin-right: 8px;">
+                                        <span style="font-size: 13px;">기준선 (파랑)</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center; cursor: pointer;">
+                                        <input type="checkbox" id="ichimoku-show-senkou-a" checked style="margin-right: 8px;">
+                                        <span style="font-size: 13px;">선행스팬 A (초록)</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center; cursor: pointer;">
+                                        <input type="checkbox" id="ichimoku-show-senkou-b" checked style="margin-right: 8px;">
+                                        <span style="font-size: 13px;">선행스팬 B (주황)</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center; cursor: pointer;">
+                                        <input type="checkbox" id="ichimoku-show-chikou" checked style="margin-right: 8px;">
+                                        <span style="font-size: 13px;">후행스팬 (보라)</span>
+                                    </label>
+                                </div>
                             </div>
-                            <div class="setting-item">
-                                <label for="ichimoku-senkou">선행스팬 B (Senkou Span B) 기간:</label>
-                                <input type="number" id="ichimoku-senkou" value="52" min="1" max="200">
-                            </div>
-                            <div class="setting-item">
-                                <label for="ichimoku-displacement">변위 (Displacement):</label>
-                                <input type="number" id="ichimoku-displacement" value="26" min="1" max="100">
-                            </div>
-                            <div class="setting-note">
-                                <p>※ 기본값: 전환선(9), 기준선(26), 선행스팬B(52), 변위(26)</p>
+
+                            <!-- 기간 설정 -->
+                            <div class="setting-section">
+                                <h4 style="margin-bottom: 10px; color: #64748b; font-size: 14px;">⚙️ 기간 설정</h4>
+                                <div class="setting-item">
+                                    <label for="ichimoku-tenkan">전환선 (Tenkan-sen) 기간:</label>
+                                    <input type="number" id="ichimoku-tenkan" value="9" min="1" max="100">
+                                </div>
+                                <div class="setting-item">
+                                    <label for="ichimoku-kijun">기준선 (Kijun-sen) 기간:</label>
+                                    <input type="number" id="ichimoku-kijun" value="26" min="1" max="100">
+                                </div>
+                                <div class="setting-item">
+                                    <label for="ichimoku-senkou">선행스팬 B (Senkou Span B) 기간:</label>
+                                    <input type="number" id="ichimoku-senkou" value="52" min="1" max="200">
+                                </div>
+                                <div class="setting-item">
+                                    <label for="ichimoku-displacement">변위 (Displacement):</label>
+                                    <input type="number" id="ichimoku-displacement" value="26" min="1" max="100">
+                                </div>
+                                <div class="setting-note">
+                                    <p>※ 기본값: 전환선(9), 기준선(26), 선행스팬B(52), 변위(26)</p>
+                                </div>
                             </div>
                         </div>
                     </div>

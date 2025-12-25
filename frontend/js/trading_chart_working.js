@@ -817,6 +817,32 @@ class WorkingTradingChart {
             });
         }
 
+        // Ichimoku preset buttons
+        const ichimokuPresetCloud = document.getElementById('ichimoku-preset-cloud');
+        const ichimokuPresetLines = document.getElementById('ichimoku-preset-lines');
+        const ichimokuPresetAll = document.getElementById('ichimoku-preset-all');
+
+        if (ichimokuPresetCloud) {
+            ichimokuPresetCloud.addEventListener('click', () => {
+                console.log('[Working] Ichimoku preset: Cloud only');
+                this.setIchimokuPreset('cloud');
+            });
+        }
+
+        if (ichimokuPresetLines) {
+            ichimokuPresetLines.addEventListener('click', () => {
+                console.log('[Working] Ichimoku preset: Lines only');
+                this.setIchimokuPreset('lines');
+            });
+        }
+
+        if (ichimokuPresetAll) {
+            ichimokuPresetAll.addEventListener('click', () => {
+                console.log('[Working] Ichimoku preset: All components');
+                this.setIchimokuPreset('all');
+            });
+        }
+
         // Close ichimoku modal when clicking outside
         if (ichimokuSettingsModal) {
             ichimokuSettingsModal.addEventListener('click', (e) => {
@@ -1522,11 +1548,41 @@ class WorkingTradingChart {
         const senkouInput = document.getElementById('ichimoku-senkou');
         const displacementInput = document.getElementById('ichimoku-displacement');
 
+        // Load checkboxes
+        const showTenkan = document.getElementById('ichimoku-show-tenkan');
+        const showKijun = document.getElementById('ichimoku-show-kijun');
+        const showSenkouA = document.getElementById('ichimoku-show-senkou-a');
+        const showSenkouB = document.getElementById('ichimoku-show-senkou-b');
+        const showChikou = document.getElementById('ichimoku-show-chikou');
+
         if (this.ichimokuSettings) {
+            // Load period settings
             if (tenkanInput) tenkanInput.value = this.ichimokuSettings.tenkanPeriod || 9;
             if (kijunInput) kijunInput.value = this.ichimokuSettings.kijunPeriod || 26;
             if (senkouInput) senkouInput.value = this.ichimokuSettings.senkouBPeriod || 52;
             if (displacementInput) displacementInput.value = this.ichimokuSettings.displacement || 26;
+
+            // Load visibility settings
+            const visibility = this.ichimokuSettings.visibility || {
+                tenkan: true,
+                kijun: true,
+                senkouA: true,
+                senkouB: true,
+                chikou: true
+            };
+
+            if (showTenkan) showTenkan.checked = visibility.tenkan;
+            if (showKijun) showKijun.checked = visibility.kijun;
+            if (showSenkouA) showSenkouA.checked = visibility.senkouA;
+            if (showSenkouB) showSenkouB.checked = visibility.senkouB;
+            if (showChikou) showChikou.checked = visibility.chikou;
+        } else {
+            // Default: all visible
+            if (showTenkan) showTenkan.checked = true;
+            if (showKijun) showKijun.checked = true;
+            if (showSenkouA) showSenkouA.checked = true;
+            if (showSenkouB) showSenkouB.checked = true;
+            if (showChikou) showChikou.checked = true;
         }
 
         modal.style.display = 'flex';
@@ -1547,6 +1603,13 @@ class WorkingTradingChart {
         const senkouInput = document.getElementById('ichimoku-senkou');
         const displacementInput = document.getElementById('ichimoku-displacement');
 
+        // Get checkboxes
+        const showTenkan = document.getElementById('ichimoku-show-tenkan');
+        const showKijun = document.getElementById('ichimoku-show-kijun');
+        const showSenkouA = document.getElementById('ichimoku-show-senkou-a');
+        const showSenkouB = document.getElementById('ichimoku-show-senkou-b');
+        const showChikou = document.getElementById('ichimoku-show-chikou');
+
         if (!tenkanInput || !kijunInput || !senkouInput || !displacementInput) {
             console.error('[Working] Ichimoku settings inputs not found');
             return;
@@ -1557,7 +1620,14 @@ class WorkingTradingChart {
             tenkanPeriod: parseInt(tenkanInput.value) || 9,
             kijunPeriod: parseInt(kijunInput.value) || 26,
             senkouBPeriod: parseInt(senkouInput.value) || 52,
-            displacement: parseInt(displacementInput.value) || 26
+            displacement: parseInt(displacementInput.value) || 26,
+            visibility: {
+                tenkan: showTenkan ? showTenkan.checked : true,
+                kijun: showKijun ? showKijun.checked : true,
+                senkouA: showSenkouA ? showSenkouA.checked : true,
+                senkouB: showSenkouB ? showSenkouB.checked : true,
+                chikou: showChikou ? showChikou.checked : true
+            }
         };
 
         console.log('[Working] Ichimoku settings saved:', this.ichimokuSettings);
@@ -1582,12 +1652,60 @@ class WorkingTradingChart {
         const senkouInput = document.getElementById('ichimoku-senkou');
         const displacementInput = document.getElementById('ichimoku-displacement');
 
+        // Reset checkboxes
+        const showTenkan = document.getElementById('ichimoku-show-tenkan');
+        const showKijun = document.getElementById('ichimoku-show-kijun');
+        const showSenkouA = document.getElementById('ichimoku-show-senkou-a');
+        const showSenkouB = document.getElementById('ichimoku-show-senkou-b');
+        const showChikou = document.getElementById('ichimoku-show-chikou');
+
         if (tenkanInput) tenkanInput.value = 9;
         if (kijunInput) kijunInput.value = 26;
         if (senkouInput) senkouInput.value = 52;
         if (displacementInput) displacementInput.value = 26;
 
+        // Reset checkboxes to all visible
+        if (showTenkan) showTenkan.checked = true;
+        if (showKijun) showKijun.checked = true;
+        if (showSenkouA) showSenkouA.checked = true;
+        if (showSenkouB) showSenkouB.checked = true;
+        if (showChikou) showChikou.checked = true;
+
         console.log('[Working] Ichimoku settings reset to defaults');
+    }
+
+    setIchimokuPreset(preset) {
+        const showTenkan = document.getElementById('ichimoku-show-tenkan');
+        const showKijun = document.getElementById('ichimoku-show-kijun');
+        const showSenkouA = document.getElementById('ichimoku-show-senkou-a');
+        const showSenkouB = document.getElementById('ichimoku-show-senkou-b');
+        const showChikou = document.getElementById('ichimoku-show-chikou');
+
+        if (preset === 'cloud') {
+            // 구름만: 선행스팬 A와 B만 표시
+            if (showTenkan) showTenkan.checked = false;
+            if (showKijun) showKijun.checked = false;
+            if (showSenkouA) showSenkouA.checked = true;
+            if (showSenkouB) showSenkouB.checked = true;
+            if (showChikou) showChikou.checked = false;
+            console.log('[Working] Ichimoku preset set to: Cloud only');
+        } else if (preset === 'lines') {
+            // 라인만: 전환선, 기준선, 후행스팬만 표시
+            if (showTenkan) showTenkan.checked = true;
+            if (showKijun) showKijun.checked = true;
+            if (showSenkouA) showSenkouA.checked = false;
+            if (showSenkouB) showSenkouB.checked = false;
+            if (showChikou) showChikou.checked = true;
+            console.log('[Working] Ichimoku preset set to: Lines only');
+        } else if (preset === 'all') {
+            // 전체: 모든 요소 표시
+            if (showTenkan) showTenkan.checked = true;
+            if (showKijun) showKijun.checked = true;
+            if (showSenkouA) showSenkouA.checked = true;
+            if (showSenkouB) showSenkouB.checked = true;
+            if (showChikou) showChikou.checked = true;
+            console.log('[Working] Ichimoku preset set to: All components');
+        }
     }
 
     updateDrawingsList() {

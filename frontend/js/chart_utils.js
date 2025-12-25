@@ -329,44 +329,66 @@ class ChartUtils {
         // Remove existing Ichimoku if any
         this.removeIchimoku();
 
-        // Create line series for each component
-        this.ichimokuSeries = {
-            tenkan: chart.addLineSeries({
+        // Get visibility settings from params (default: all visible)
+        const visibility = params.visibility || {
+            tenkan: true,
+            kijun: true,
+            senkouA: true,
+            senkouB: true,
+            chikou: true
+        };
+
+        // Create line series for each component (conditionally)
+        this.ichimokuSeries = {};
+
+        if (visibility.tenkan) {
+            this.ichimokuSeries.tenkan = chart.addLineSeries({
                 color: '#ff3366',
                 lineWidth: 1,
                 title: 'Tenkan-sen'
-            }),
-            kijun: chart.addLineSeries({
+            });
+            this.ichimokuSeries.tenkan.setData(ichimokuData.tenkan);
+        }
+
+        if (visibility.kijun) {
+            this.ichimokuSeries.kijun = chart.addLineSeries({
                 color: '#3366ff',
                 lineWidth: 1,
                 title: 'Kijun-sen'
-            }),
-            senkouA: chart.addLineSeries({
+            });
+            this.ichimokuSeries.kijun.setData(ichimokuData.kijun);
+        }
+
+        if (visibility.senkouA) {
+            this.ichimokuSeries.senkouA = chart.addLineSeries({
                 color: 'rgba(50, 205, 50, 0.5)',
                 lineWidth: 1,
                 title: 'Senkou Span A'
-            }),
-            senkouB: chart.addLineSeries({
+            });
+            this.ichimokuSeries.senkouA.setData(ichimokuData.senkouA);
+        }
+
+        if (visibility.senkouB) {
+            this.ichimokuSeries.senkouB = chart.addLineSeries({
                 color: 'rgba(255, 69, 0, 0.5)',
                 lineWidth: 1,
                 title: 'Senkou Span B'
-            }),
-            chikou: chart.addLineSeries({
-                color: '#ffaa00',
+            });
+            this.ichimokuSeries.senkouB.setData(ichimokuData.senkouB);
+        }
+
+        if (visibility.chikou) {
+            this.ichimokuSeries.chikou = chart.addLineSeries({
+                color: '#9370db',
                 lineWidth: 1,
                 lineStyle: 2, // Dashed
                 title: 'Chikou Span'
-            })
-        };
+            });
+            this.ichimokuSeries.chikou.setData(ichimokuData.chikou);
+        }
 
-        // Set data for each series
-        this.ichimokuSeries.tenkan.setData(ichimokuData.tenkan);
-        this.ichimokuSeries.kijun.setData(ichimokuData.kijun);
-        this.ichimokuSeries.senkouA.setData(ichimokuData.senkouA);
-        this.ichimokuSeries.senkouB.setData(ichimokuData.senkouB);
-        this.ichimokuSeries.chikou.setData(ichimokuData.chikou);
-
-        console.log('[ChartUtils] Ichimoku Cloud added successfully');
+        const visibleCount = Object.keys(this.ichimokuSeries).length;
+        console.log(`[ChartUtils] Ichimoku Cloud added successfully (${visibleCount}/5 components visible)`);
         return this.ichimokuSeries;
     }
 
