@@ -4,6 +4,27 @@
             console.log('[Dashboard] Dashboard loaded');
 
             // ================================================================
+            // Auto-refresh interval management
+            // ================================================================
+            let autoRefreshInterval = null;
+
+            // Clear interval on page unload or visibility change
+            window.addEventListener('beforeunload', () => {
+                if (autoRefreshInterval) {
+                    clearInterval(autoRefreshInterval);
+                    console.log('[Dashboard] Auto-refresh interval cleared on unload');
+                }
+            });
+
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden && autoRefreshInterval) {
+                    clearInterval(autoRefreshInterval);
+                    autoRefreshInterval = null;
+                    console.log('[Dashboard] Auto-refresh interval cleared (page hidden)');
+                }
+            });
+
+            // ================================================================
             // Authentication Check
             // ================================================================
 
@@ -390,8 +411,14 @@
                         loadAutoTradingStatus()
                     ]);
 
+                    // Clear any existing interval before creating a new one
+                    if (autoRefreshInterval) {
+                        clearInterval(autoRefreshInterval);
+                        console.log('[Dashboard] Cleared existing auto-refresh interval');
+                    }
+
                     // Set up auto-refresh (every 30 seconds)
-                    setInterval(async () => {
+                    autoRefreshInterval = setInterval(async () => {
                         console.log('[Dashboard] Auto-refreshing data...');
                         await Promise.all([
                             loadPortfolio(),
@@ -399,6 +426,8 @@
                             loadAutoTradingStatus()
                         ]);
                     }, 30000); // 30 seconds
+
+                    console.log('[Dashboard] Auto-refresh interval started (30s)');
 
                     console.log('[Dashboard] Initialization complete');
                 } catch (error) {
