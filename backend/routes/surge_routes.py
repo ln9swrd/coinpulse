@@ -301,6 +301,7 @@ def get_surge_candidates():
         # PUBLIC API: No auth required (as stated in file header)
         # Enterprise check removed 2025-12-26 to fix User model import issue
         # and follow public API design stated in file header
+        user_plan = 'public'  # Default for public API
 
         session = get_db_session()
         try:
