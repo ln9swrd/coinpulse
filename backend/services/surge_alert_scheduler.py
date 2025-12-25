@@ -123,16 +123,16 @@ class SurgeAlertScheduler:
 
         return candidates
 
-    def is_already_alerted_recently(self, market: str, hours: int = 6) -> bool:
+    def is_already_alerted_recently(self, market: str, hours: int = 24) -> bool:
         """
         Check if market was already alerted within recent hours in database
 
         This prevents duplicate alerts for the same coin within a short time period.
-        Default: 6 hours (prevents alerts like 8pm yesterday and 12am today for same coin)
+        Default: 24 hours (prevents multiple alerts per day for same coin)
 
         Args:
             market: Market symbol (e.g., 'KRW-BTC')
-            hours: Number of hours to check (default: 6)
+            hours: Number of hours to check (default: 24)
 
         Returns:
             True if already alerted within recent hours, False otherwise
@@ -317,9 +317,9 @@ class SurgeAlertScheduler:
                 # Check if already sent telegram alert (in-memory check for telegram spam prevention)
                 telegram_already_sent = market in self.alerted_candidates
 
-                # Check if already alerted within recent hours (6 hours by default)
-                # This prevents duplicate alerts like "8pm yesterday + 12am today" for same coin
-                db_already_alerted = self.is_already_alerted_recently(market, hours=6)
+                # Check if already alerted within recent hours (24 hours by default)
+                # This prevents duplicate alerts for the same coin within a day
+                db_already_alerted = self.is_already_alerted_recently(market, hours=24)
 
                 # Send telegram alert only if not already sent (in-memory check)
                 if not telegram_already_sent:
@@ -336,13 +336,13 @@ class SurgeAlertScheduler:
                     except Exception as ws_error:
                         logger.warning(f"[SurgeAlertScheduler] WebSocket not available: {ws_error}")
 
-                # Save to database only if not already alerted within recent 6 hours
+                # Save to database only if not already alerted within recent 24 hours
                 if not db_already_alerted:
                     self.save_to_database(candidate)
                     new_db_records += 1
                     logger.info(f"[SurgeAlertScheduler] Saved to DB: {market}")
                 else:
-                    logger.debug(f"[SurgeAlertScheduler] {market} already in DB today, skipping save")
+                    logger.debug(f"[SurgeAlertScheduler] {market} already alerted within 24h, skipping save")
 
             if new_alerts > 0:
                 logger.info(f"[SurgeAlertScheduler] Sent {new_alerts} new telegram alerts")
