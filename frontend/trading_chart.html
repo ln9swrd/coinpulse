@@ -195,6 +195,7 @@
                 <button class="btn btn-action" id="theme-toggle">🌙 테마</button>
                 <button class="btn btn-action" id="support-resistance-toggle">지지저항선</button>
                 <button class="btn btn-action" id="ma-toggle">이평선</button>
+                <button class="btn btn-action" id="ichimoku-settings-btn">⚙️ 일목구름설정</button>
                 <button class="btn btn-action active" id="trade-markers-toggle">📍 매매마커</button>
                 <button class="btn btn-action" id="show-history">📋 매매이력</button>
                 <!-- 미체결 주문은 항상 표시되므로 버튼 제거 -->
@@ -269,7 +270,45 @@
                     </div>
                 </div>
             </div>
-            
+
+            <!-- 일목구름 설정 모달 -->
+            <div id="ichimoku-settings-modal" class="modal">
+                <div class="modal-content ma-modal-content">
+                    <div class="modal-header">
+                        <h3>일목구름 설정</h3>
+                        <button class="modal-close" id="close-ichimoku-settings">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="ichimoku-settings-form">
+                            <div class="setting-item">
+                                <label for="ichimoku-tenkan">전환선 (Tenkan-sen) 기간:</label>
+                                <input type="number" id="ichimoku-tenkan" value="9" min="1" max="100">
+                            </div>
+                            <div class="setting-item">
+                                <label for="ichimoku-kijun">기준선 (Kijun-sen) 기간:</label>
+                                <input type="number" id="ichimoku-kijun" value="26" min="1" max="100">
+                            </div>
+                            <div class="setting-item">
+                                <label for="ichimoku-senkou">선행스팬 B (Senkou Span B) 기간:</label>
+                                <input type="number" id="ichimoku-senkou" value="52" min="1" max="200">
+                            </div>
+                            <div class="setting-item">
+                                <label for="ichimoku-displacement">변위 (Displacement):</label>
+                                <input type="number" id="ichimoku-displacement" value="26" min="1" max="100">
+                            </div>
+                            <div class="setting-note">
+                                <p>※ 기본값: 전환선(9), 기준선(26), 선행스팬B(52), 변위(26)</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" id="apply-ichimoku-settings">적용</button>
+                        <button class="btn btn-secondary" id="reset-ichimoku-settings">기본값</button>
+                        <button class="btn btn-secondary" id="cancel-ichimoku-settings">취소</button>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <!-- 네 번째 줄: 메인 차트와 보유 코인 + 분석 패널 -->

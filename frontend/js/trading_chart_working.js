@@ -774,6 +774,58 @@ class WorkingTradingChart {
             });
         }
 
+        // Ichimoku Settings Modal
+        const ichimokuSettingsBtn = document.getElementById('ichimoku-settings-btn');
+        const ichimokuSettingsModal = document.getElementById('ichimoku-settings-modal');
+        const closeIchimokuSettings = document.getElementById('close-ichimoku-settings');
+        const applyIchimokuSettings = document.getElementById('apply-ichimoku-settings');
+        const resetIchimokuSettings = document.getElementById('reset-ichimoku-settings');
+        const cancelIchimokuSettings = document.getElementById('cancel-ichimoku-settings');
+
+        if (ichimokuSettingsBtn) {
+            ichimokuSettingsBtn.addEventListener('click', () => {
+                console.log('[Working] Ichimoku settings button clicked');
+                this.openIchimokuSettingsModal();
+            });
+        }
+
+        if (closeIchimokuSettings) {
+            closeIchimokuSettings.addEventListener('click', () => {
+                console.log('[Working] Close Ichimoku settings clicked');
+                this.closeIchimokuSettingsModal();
+            });
+        }
+
+        if (applyIchimokuSettings) {
+            applyIchimokuSettings.addEventListener('click', () => {
+                console.log('[Working] Apply Ichimoku settings clicked');
+                this.applyIchimokuSettings();
+            });
+        }
+
+        if (resetIchimokuSettings) {
+            resetIchimokuSettings.addEventListener('click', () => {
+                console.log('[Working] Reset Ichimoku settings clicked');
+                this.resetIchimokuSettings();
+            });
+        }
+
+        if (cancelIchimokuSettings) {
+            cancelIchimokuSettings.addEventListener('click', () => {
+                console.log('[Working] Cancel Ichimoku settings clicked');
+                this.closeIchimokuSettingsModal();
+            });
+        }
+
+        // Close ichimoku modal when clicking outside
+        if (ichimokuSettingsModal) {
+            ichimokuSettingsModal.addEventListener('click', (e) => {
+                if (e.target === ichimokuSettingsModal) {
+                    this.closeIchimokuSettingsModal();
+                }
+            });
+        }
+
         console.log('[Working] Event handlers set up successfully');
     }
 
@@ -1210,9 +1262,11 @@ class WorkingTradingChart {
 
             if (this.chartData && this.chartData.length > 0) {
                 if (window.chartUtils) {
-                    const result = window.chartUtils.addIchimoku(this.chartData);
+                    // Use custom settings if available, otherwise use defaults
+                    const params = this.ichimokuSettings || {};
+                    const result = window.chartUtils.addIchimoku(this.chartData, params);
                     if (result) {
-                        console.log('[Working] Ichimoku Cloud added successfully');
+                        console.log('[Working] Ichimoku Cloud added successfully with params:', params);
                     } else {
                         console.error('[Working] Failed to add Ichimoku Cloud');
                         btn.classList.remove('active');
@@ -1236,9 +1290,10 @@ class WorkingTradingChart {
         if (isIchimokuActive && this.chartData && this.chartData.length > 0 && window.chartUtils) {
             console.log('[Working] Updating Ichimoku Cloud with new data');
             window.chartUtils.removeIchimoku();
-            const result = window.chartUtils.addIchimoku(this.chartData);
+            const params = this.ichimokuSettings || {};
+            const result = window.chartUtils.addIchimoku(this.chartData, params);
             if (result) {
-                console.log('[Working] Ichimoku Cloud updated successfully');
+                console.log('[Working] Ichimoku Cloud updated successfully with params:', params);
             } else {
                 console.error('[Working] Failed to update Ichimoku Cloud');
             }
@@ -1451,6 +1506,88 @@ class WorkingTradingChart {
             modal.style.display = 'none';
             console.log('[Working] MA settings modal closed');
         }
+    }
+
+    // Ichimoku Settings Modal Functions
+    openIchimokuSettingsModal() {
+        const modal = document.getElementById('ichimoku-settings-modal');
+        if (!modal) {
+            console.error('[Working] Ichimoku settings modal not found');
+            return;
+        }
+
+        // Load current settings or default values
+        const tenkanInput = document.getElementById('ichimoku-tenkan');
+        const kijunInput = document.getElementById('ichimoku-kijun');
+        const senkouInput = document.getElementById('ichimoku-senkou');
+        const displacementInput = document.getElementById('ichimoku-displacement');
+
+        if (this.ichimokuSettings) {
+            if (tenkanInput) tenkanInput.value = this.ichimokuSettings.tenkanPeriod || 9;
+            if (kijunInput) kijunInput.value = this.ichimokuSettings.kijunPeriod || 26;
+            if (senkouInput) senkouInput.value = this.ichimokuSettings.senkouBPeriod || 52;
+            if (displacementInput) displacementInput.value = this.ichimokuSettings.displacement || 26;
+        }
+
+        modal.style.display = 'flex';
+        console.log('[Working] Ichimoku settings modal opened');
+    }
+
+    closeIchimokuSettingsModal() {
+        const modal = document.getElementById('ichimoku-settings-modal');
+        if (modal) {
+            modal.style.display = 'none';
+            console.log('[Working] Ichimoku settings modal closed');
+        }
+    }
+
+    applyIchimokuSettings() {
+        const tenkanInput = document.getElementById('ichimoku-tenkan');
+        const kijunInput = document.getElementById('ichimoku-kijun');
+        const senkouInput = document.getElementById('ichimoku-senkou');
+        const displacementInput = document.getElementById('ichimoku-displacement');
+
+        if (!tenkanInput || !kijunInput || !senkouInput || !displacementInput) {
+            console.error('[Working] Ichimoku settings inputs not found');
+            return;
+        }
+
+        // Save settings
+        this.ichimokuSettings = {
+            tenkanPeriod: parseInt(tenkanInput.value) || 9,
+            kijunPeriod: parseInt(kijunInput.value) || 26,
+            senkouBPeriod: parseInt(senkouInput.value) || 52,
+            displacement: parseInt(displacementInput.value) || 26
+        };
+
+        console.log('[Working] Ichimoku settings saved:', this.ichimokuSettings);
+
+        // Re-apply Ichimoku if active
+        const ichimokuBtn = document.getElementById('ichimoku-toggle');
+        if (ichimokuBtn && ichimokuBtn.classList.contains('active')) {
+            console.log('[Working] Reapplying Ichimoku with new settings');
+            if (this.chartData && this.chartData.length > 0 && window.chartUtils) {
+                window.chartUtils.removeIchimoku();
+                window.chartUtils.addIchimoku(this.chartData, this.ichimokuSettings);
+            }
+        }
+
+        this.closeIchimokuSettingsModal();
+    }
+
+    resetIchimokuSettings() {
+        // Reset to default values
+        const tenkanInput = document.getElementById('ichimoku-tenkan');
+        const kijunInput = document.getElementById('ichimoku-kijun');
+        const senkouInput = document.getElementById('ichimoku-senkou');
+        const displacementInput = document.getElementById('ichimoku-displacement');
+
+        if (tenkanInput) tenkanInput.value = 9;
+        if (kijunInput) kijunInput.value = 26;
+        if (senkouInput) senkouInput.value = 52;
+        if (displacementInput) displacementInput.value = 26;
+
+        console.log('[Working] Ichimoku settings reset to defaults');
     }
 
     updateDrawingsList() {

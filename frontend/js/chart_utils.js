@@ -237,16 +237,18 @@ class ChartUtils {
     // Ichimoku Cloud Methods
     // ========================================
 
-    calculateIchimoku(data) {
-        if (!data || data.length < 52) {
-            console.warn('[ChartUtils] Insufficient data for Ichimoku calculation');
+    calculateIchimoku(data, params = {}) {
+        // 기본값 설정
+        const tenkanPeriod = params.tenkanPeriod || 9;
+        const kijunPeriod = params.kijunPeriod || 26;
+        const senkouBPeriod = params.senkouBPeriod || 52;
+        const displacement = params.displacement || 26;
+
+        const maxPeriod = Math.max(tenkanPeriod, kijunPeriod, senkouBPeriod);
+        if (!data || data.length < maxPeriod) {
+            console.warn(`[ChartUtils] Insufficient data for Ichimoku calculation (need ${maxPeriod}, got ${data?.length})`);
             return null;
         }
-
-        const tenkanPeriod = 9;
-        const kijunPeriod = 26;
-        const senkouBPeriod = 52;
-        const displacement = 26;
 
         const result = {
             tenkan: [],
@@ -311,13 +313,13 @@ class ChartUtils {
         return result;
     }
 
-    addIchimoku(data) {
+    addIchimoku(data, params = {}) {
         if (!this.chartManager || !this.chartManager.chart) {
             console.error('[ChartUtils] Chart not initialized');
             return null;
         }
 
-        const ichimokuData = this.calculateIchimoku(data);
+        const ichimokuData = this.calculateIchimoku(data, params);
         if (!ichimokuData) {
             return null;
         }
