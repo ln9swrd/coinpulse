@@ -183,8 +183,8 @@
 
             try {
                 // Check if this is an external page (handled by page-loader in dashboard.html)
-                // External pages: trading, signals, telegram, realtime, surge, auto-trading, referral, admin
-                const externalPages = ['trading', 'signals', 'telegram', 'realtime', 'surge', 'auto-trading', 'referral', 'admin'];
+                // External pages: trading, signals, telegram, realtime, surge, auto-trading, referral, admin, surge-history, my-feedback
+                const externalPages = ['trading', 'signals', 'telegram', 'realtime', 'surge', 'auto-trading', 'referral', 'admin', 'surge-history', 'my-feedback'];
                 if (externalPages.includes(pageName)) {
                     console.log('[Dashboard] External page detected, skipping dashboard-fixed.js loader:', pageName);
                     return; // Let dashboard.html handle it
