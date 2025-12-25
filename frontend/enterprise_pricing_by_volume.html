@@ -463,8 +463,55 @@
         <div class="calculator">
             <h3>내 거래 금액으로 계산하기</h3>
             <div class="input-group">
-                <label>월 평균 거래 금액 (원)</label>
-                <input type="number" id="tradingAmount" placeholder="예: 50000000" value="50000000">
+                <label>월 평균 거래 금액</label>
+                <select id="tradingAmount">
+                    <option value="">선택하세요</option>
+                    <optgroup label="💎 Enterprise Starter (99,000원/월)">
+                        <option value="5000000">500만원</option>
+                        <option value="7500000">750만원</option>
+                        <option value="10000000">1,000만원</option>
+                        <option value="15000000">1,500만원</option>
+                        <option value="20000000">2,000만원</option>
+                    </optgroup>
+                    <optgroup label="💼 Enterprise Basic (179,000원/월)">
+                        <option value="25000000">2,500만원</option>
+                        <option value="30000000">3,000만원</option>
+                        <option value="40000000">4,000만원</option>
+                        <option value="50000000" selected>5,000만원 (일반적)</option>
+                    </optgroup>
+                    <optgroup label="⭐ Enterprise Pro (299,000원/월) - 추천">
+                        <option value="60000000">6,000만원</option>
+                        <option value="70000000">7,000만원</option>
+                        <option value="80000000">8,000만원</option>
+                        <option value="100000000">1억원</option>
+                    </optgroup>
+                    <optgroup label="👑 Enterprise Premium (499,000원/월)">
+                        <option value="150000000">1.5억원</option>
+                        <option value="200000000">2억원</option>
+                        <option value="250000000">2.5억원</option>
+                        <option value="300000000">3억원</option>
+                    </optgroup>
+                    <optgroup label="💫 Enterprise Elite (799,000원/월)">
+                        <option value="400000000">4억원</option>
+                        <option value="500000000">5억원</option>
+                        <option value="700000000">7억원</option>
+                        <option value="1000000000">10억원</option>
+                    </optgroup>
+                    <optgroup label="🏆 Enterprise VIP (별도 협의)">
+                        <option value="1500000000">15억원</option>
+                        <option value="2000000000">20억원</option>
+                        <option value="3000000000">30억원</option>
+                        <option value="5000000000">50억원</option>
+                        <option value="10000000000">100억원 이상</option>
+                    </optgroup>
+                    <optgroup label="📝 직접 입력">
+                        <option value="custom">기타 금액 (직접 입력)</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div class="input-group" id="customAmountGroup" style="display: none;">
+                <label>거래 금액 직접 입력 (원)</label>
+                <input type="number" id="customAmount" placeholder="예: 50000000" min="5000000">
             </div>
             <div class="input-group">
                 <label>예상 월 수익률 (%)</label>
@@ -530,8 +577,34 @@
     </div>
 
     <script>
+        // Show/hide custom amount input
+        document.getElementById('tradingAmount').addEventListener('change', function() {
+            const customGroup = document.getElementById('customAmountGroup');
+            if (this.value === 'custom') {
+                customGroup.style.display = 'block';
+            } else {
+                customGroup.style.display = 'none';
+            }
+        });
+
         function calculate() {
-            const amount = parseInt(document.getElementById('tradingAmount').value);
+            const selectedValue = document.getElementById('tradingAmount').value;
+            let amount;
+
+            // Check if custom amount is selected
+            if (selectedValue === 'custom') {
+                amount = parseInt(document.getElementById('customAmount').value);
+                if (!amount || isNaN(amount)) {
+                    alert('직접 입력 금액을 입력해주세요.');
+                    return;
+                }
+            } else if (selectedValue === '') {
+                alert('월 거래 금액을 선택해주세요.');
+                return;
+            } else {
+                amount = parseInt(selectedValue);
+            }
+
             const returnRate = parseInt(document.getElementById('returnRate').value);
 
             if (!amount || amount < 5000000) {
