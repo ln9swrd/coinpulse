@@ -639,6 +639,7 @@ class WorkingTradingChart {
         const macdToggle = document.getElementById('macd-toggle');
         const bollingerToggle = document.getElementById('bollinger-toggle');
         const superTrendToggle = document.getElementById('supertrend-toggle');
+        const ichimokuToggle = document.getElementById('ichimoku-toggle');
 
         if (rsiToggle) {
             rsiToggle.addEventListener('click', () => {
@@ -681,6 +682,13 @@ class WorkingTradingChart {
                 } else {
                     this.toggleSuperTrend(); // Fallback
                 }
+            });
+        }
+
+        if (ichimokuToggle) {
+            ichimokuToggle.addEventListener('click', () => {
+                console.log('[Working] Ichimoku toggle clicked');
+                this.toggleIchimoku();
             });
         }
 
@@ -1169,7 +1177,7 @@ class WorkingTradingChart {
     updateSuperTrend() {
         const superTrendBtn = document.getElementById('supertrend-toggle');
         const isSuperTrendActive = superTrendBtn && superTrendBtn.classList.contains('active');
-        
+
         if (isSuperTrendActive && this.chartData && this.chartData.length > 0 && window.chartUtils) {
             console.log('[Working] Updating SuperTrend with new data');
             window.chartUtils.removeSuperTrend();
@@ -1178,6 +1186,61 @@ class WorkingTradingChart {
                 console.log('[Working] SuperTrend updated successfully');
             } else {
                 console.error('[Working] Failed to update SuperTrend');
+            }
+        }
+    }
+
+    // Toggle Ichimoku Cloud
+    toggleIchimoku() {
+        const btn = document.getElementById('ichimoku-toggle');
+        const isActive = btn.classList.contains('active');
+
+        if (isActive) {
+            // Hide Ichimoku
+            btn.classList.remove('active');
+            console.log('[Working] Ichimoku Cloud hidden');
+
+            if (window.chartUtils) {
+                window.chartUtils.removeIchimoku();
+            }
+        } else {
+            // Show Ichimoku
+            btn.classList.add('active');
+            console.log('[Working] Ichimoku Cloud shown');
+
+            if (this.chartData && this.chartData.length > 0) {
+                if (window.chartUtils) {
+                    const result = window.chartUtils.addIchimoku(this.chartData);
+                    if (result) {
+                        console.log('[Working] Ichimoku Cloud added successfully');
+                    } else {
+                        console.error('[Working] Failed to add Ichimoku Cloud');
+                        btn.classList.remove('active');
+                    }
+                } else {
+                    console.error('[Working] chartUtils not available');
+                    btn.classList.remove('active');
+                }
+            } else {
+                console.error('[Working] No chart data available for Ichimoku');
+                btn.classList.remove('active');
+            }
+        }
+    }
+
+    // Update Ichimoku (자동 업데이트 시 호출)
+    updateIchimoku() {
+        const ichimokuBtn = document.getElementById('ichimoku-toggle');
+        const isIchimokuActive = ichimokuBtn && ichimokuBtn.classList.contains('active');
+
+        if (isIchimokuActive && this.chartData && this.chartData.length > 0 && window.chartUtils) {
+            console.log('[Working] Updating Ichimoku Cloud with new data');
+            window.chartUtils.removeIchimoku();
+            const result = window.chartUtils.addIchimoku(this.chartData);
+            if (result) {
+                console.log('[Working] Ichimoku Cloud updated successfully');
+            } else {
+                console.error('[Working] Failed to update Ichimoku Cloud');
             }
         }
     }

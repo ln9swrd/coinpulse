@@ -234,6 +234,166 @@ class ChartUtils {
     }
 
     // ========================================
+    // Ichimoku Cloud Methods
+    // ========================================
+
+    calculateIchimoku(data) {
+        if (!data || data.length < 52) {
+            console.warn('[ChartUtils] Insufficient data for Ichimoku calculation');
+            return null;
+        }
+
+        const tenkanPeriod = 9;
+        const kijunPeriod = 26;
+        const senkouBPeriod = 52;
+        const displacement = 26;
+
+        const result = {
+            tenkan: [],
+            kijun: [],
+            senkouA: [],
+            senkouB: [],
+            chikou: []
+        };
+
+        // Helper function to calculate high/low average
+        const calcHL = (data, start, period) => {
+            let high = -Infinity;
+            let low = Infinity;
+            for (let i = start; i < start + period && i < data.length; i++) {
+                high = Math.max(high, data[i].high);
+                low = Math.min(low, data[i].low);
+            }
+            return (high + low) / 2;
+        };
+
+        for (let i = 0; i < data.length; i++) {
+            const time = data[i].time;
+
+            // Tenkan-sen (전환선): (9-period high + 9-period low) / 2
+            if (i >= tenkanPeriod - 1) {
+                const tenkan = calcHL(data, i - tenkanPeriod + 1, tenkanPeriod);
+                result.tenkan.push({ time, value: tenkan });
+            }
+
+            // Kijun-sen (기준선): (26-period high + 26-period low) / 2
+            if (i >= kijunPeriod - 1) {
+                const kijun = calcHL(data, i - kijunPeriod + 1, kijunPeriod);
+                result.kijun.push({ time, value: kijun });
+            }
+
+            // Senkou Span B (선행스팬 B): (52-period high + 52-period low) / 2, displaced forward 26 periods
+            if (i >= senkouBPeriod - 1) {
+                const senkouB = calcHL(data, i - senkouBPeriod + 1, senkouBPeriod);
+                const futureIndex = i + displacement;
+                if (futureIndex < data.length) {
+                    result.senkouB.push({ time: data[futureIndex].time, value: senkouB });
+                }
+            }
+
+            // Senkou Span A (선행스팬 A): (Tenkan + Kijun) / 2, displaced forward 26 periods
+            if (i >= kijunPeriod - 1) {
+                const tenkan = calcHL(data, i - tenkanPeriod + 1, tenkanPeriod);
+                const kijun = calcHL(data, i - kijunPeriod + 1, kijunPeriod);
+                const senkouA = (tenkan + kijun) / 2;
+                const futureIndex = i + displacement;
+                if (futureIndex < data.length) {
+                    result.senkouA.push({ time: data[futureIndex].time, value: senkouA });
+                }
+            }
+
+            // Chikou Span (후행스팬): Close price, displaced backward 26 periods
+            if (i >= displacement) {
+                result.chikou.push({ time: data[i - displacement].time, value: data[i].close });
+            }
+        }
+
+        return result;
+    }
+
+    addIchimoku(data) {
+        if (!this.chartManager || !this.chartManager.chart) {
+            console.error('[ChartUtils] Chart not initialized');
+            return null;
+        }
+
+        const ichimokuData = this.calculateIchimoku(data);
+        if (!ichimokuData) {
+            return null;
+        }
+
+        const chart = this.chartManager.chart;
+
+        // Remove existing Ichimoku if any
+        this.removeIchimoku();
+
+        // Create line series for each component
+        this.ichimokuSeries = {
+            tenkan: chart.addLineSeries({
+                color: '#ff3366',
+                lineWidth: 1,
+                title: 'Tenkan-sen'
+            }),
+            kijun: chart.addLineSeries({
+                color: '#3366ff',
+                lineWidth: 1,
+                title: 'Kijun-sen'
+            }),
+            senkouA: chart.addLineSeries({
+                color: 'rgba(50, 205, 50, 0.5)',
+                lineWidth: 1,
+                title: 'Senkou Span A'
+            }),
+            senkouB: chart.addLineSeries({
+                color: 'rgba(255, 69, 0, 0.5)',
+                lineWidth: 1,
+                title: 'Senkou Span B'
+            }),
+            chikou: chart.addLineSeries({
+                color: '#ffaa00',
+                lineWidth: 1,
+                lineStyle: 2, // Dashed
+                title: 'Chikou Span'
+            })
+        };
+
+        // Set data for each series
+        this.ichimokuSeries.tenkan.setData(ichimokuData.tenkan);
+        this.ichimokuSeries.kijun.setData(ichimokuData.kijun);
+        this.ichimokuSeries.senkouA.setData(ichimokuData.senkouA);
+        this.ichimokuSeries.senkouB.setData(ichimokuData.senkouB);
+        this.ichimokuSeries.chikou.setData(ichimokuData.chikou);
+
+        console.log('[ChartUtils] Ichimoku Cloud added successfully');
+        return this.ichimokuSeries;
+    }
+
+    removeIchimoku() {
+        if (!this.ichimokuSeries) {
+            return;
+        }
+
+        const chart = this.chartManager?.chart;
+        if (!chart) {
+            return;
+        }
+
+        // Remove all Ichimoku series
+        try {
+            if (this.ichimokuSeries.tenkan) chart.removeSeries(this.ichimokuSeries.tenkan);
+            if (this.ichimokuSeries.kijun) chart.removeSeries(this.ichimokuSeries.kijun);
+            if (this.ichimokuSeries.senkouA) chart.removeSeries(this.ichimokuSeries.senkouA);
+            if (this.ichimokuSeries.senkouB) chart.removeSeries(this.ichimokuSeries.senkouB);
+            if (this.ichimokuSeries.chikou) chart.removeSeries(this.ichimokuSeries.chikou);
+        } catch (error) {
+            console.error('[ChartUtils] Error removing Ichimoku series:', error);
+        }
+
+        this.ichimokuSeries = null;
+        console.log('[ChartUtils] Ichimoku Cloud removed');
+    }
+
+    // ========================================
     // ChartUtilities Methods (Delegation)
     // ========================================
 
