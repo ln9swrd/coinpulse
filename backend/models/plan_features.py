@@ -114,10 +114,10 @@ PLAN_FEATURES = {
         'max_surge_alerts': 0,  # 급등 알림 없음
         'max_alerts_per_week': 0,
         'surge_monitoring': False,  # 급등 모니터링 불가
-        'telegram_alerts': True,  # 거래 체결 알림만
+        'telegram_alerts': False,  # 텔레그램 알림 없음 (Enterprise만 제공)
         'max_surge_budget': 0,
         # 기타 (단순화)
-        'advanced_indicators': True,  # 고급 지표 (Custom 포함)
+        'advanced_indicators': False,  # 기본 지표만 (MA, RSI, MACD)
         # custom_indicators 제거
         'backtesting': False,  # 백테스트 불가
         'backtesting_period_months': 0,
@@ -139,16 +139,16 @@ PLAN_FEATURES = {
         'max_surge_alerts': 0,  # 급등 알림 없음
         'max_alerts_per_week': 0,
         'surge_monitoring': False,  # 급등 모니터링 불가
-        'telegram_alerts': True,  # 거래 체결 알림만
+        'telegram_alerts': False,  # 텔레그램 알림 없음 (Enterprise만 제공)
         'max_surge_budget': 0,
         # 기타 (단순화)
-        'advanced_indicators': True,  # 고급 지표 (Custom 포함)
+        'advanced_indicators': True,  # 고급 지표 (Ichimoku, SuperTrend 등)
         # custom_indicators 제거
         'backtesting': False,  # 백테스트 불가
         'backtesting_period_months': 0,
         'data_export': True,  # CSV
         'api_access': False,
-        'priority_support': True,  # 24시간 내 우선 지원
+        'priority_support': True,  # 우선 지원
         'trade_history_days': 180,
         # 알림 단순화
         'important_notifications': True,  # 중요 알림

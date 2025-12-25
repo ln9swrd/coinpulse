@@ -2382,25 +2382,19 @@
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>거래 차트 주문 (매수/매도/취소)</span>
+                                    <span>수동 거래 주문 (매수/매도/취소)</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>텔레그램 거래 체결 알림</span>
+                                    <span>기본 기술적 지표 (MA, RSI, MACD)</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>고급 기술적 지표 사용</span>
-                                </li>
-                                <li class="feature-included">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                    <span>거래 내역 90일 보관</span>
+                                    <span>포트폴리오 추적 (5개 코인)</span>
                                 </li>
                             </ul>
                             <button class="plan-cta plan-cta-secondary" data-plan="basic">
@@ -2431,13 +2425,19 @@
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>고급 차트 분석 도구</span>
+                                    <span>고급 기술적 지표 (Ichimoku, SuperTrend)</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span>거래 내역 180일 보관</span>
+                                    <span>고급 차트 분석 도구 (그리기, 패턴)</span>
+                                </li>
+                                <li class="feature-included">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span>포트폴리오 추적 (10개 코인)</span>
                                 </li>
                                 <li class="feature-included">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">

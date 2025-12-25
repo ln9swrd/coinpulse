@@ -422,16 +422,16 @@ async function loadPricingPlans() {
             } else if (plan.plan_code === 'premium' || plan.plan_code === 'basic') {
                 features = [
                     'Free 플랜 모든 기능',
-                    '거래 차트 주문 (매수/매도/취소)',
-                    '텔레그램 거래 체결 알림',
-                    '고급 기술적 지표 사용',
-                    '거래 내역 90일 보관'
+                    '수동 거래 주문 (매수/매도/취소)',
+                    '기본 기술적 지표 (MA, RSI, MACD)',
+                    '포트폴리오 추적 (5개 코인)'
                 ];
             } else if (plan.plan_code === 'pro_new' || plan.plan_code === 'pro') {
                 features = [
                     'Basic 플랜 모든 기능',
-                    '고급 차트 분석 도구',
-                    '거래 내역 180일 보관',
+                    '고급 기술적 지표 (Ichimoku, SuperTrend)',
+                    '고급 차트 분석 도구 (그리기, 패턴)',
+                    '포트폴리오 추적 (10개 코인)',
                     '데이터 내보내기 (CSV)',
                     '우선 고객 지원'
                 ];
