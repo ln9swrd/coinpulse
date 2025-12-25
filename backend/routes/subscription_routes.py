@@ -322,7 +322,7 @@ def health_check():
 
 @subscription_bp.route('/current', methods=['GET'])
 @require_auth
-def get_current_subscription(current_user):
+def get_current_subscription():
     """
     Get current user's subscription information
 
@@ -357,7 +357,8 @@ def get_current_subscription(current_user):
     session = get_db_session()
 
     try:
-        user_id = current_user.id
+        # Get user_id from request context (set by @require_auth decorator)
+        user_id = request.user_id
 
         # Get latest subscription
         subscription = session.query(Subscription).filter(
