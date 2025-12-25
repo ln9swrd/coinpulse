@@ -458,7 +458,7 @@ async function loadPricingPlans() {
                     <ul class="plan-features">
                         ${features.map(f => `<li>✓ ${f}</li>`).join('')}
                     </ul>
-                    <a href="signup.html" class="btn-plan ${isFeatured ? 'btn-plan-featured' : ''}">${isFree ? '시작하기' : plan.cta_text || '시작하기'}</a>
+                    <a href="${isEnterprise ? 'enterprise-inquiry.html' : 'signup.html'}" class="btn-plan ${isFeatured ? 'btn-plan-featured' : ''}">${isEnterprise ? 'Enterprise 상담 신청' : (isFree ? '시작하기' : plan.cta_text || '시작하기')}</a>
                     <p class="plan-note">${plan.description || ''}</p>
                 </div>
             `;
