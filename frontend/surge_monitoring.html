@@ -368,26 +368,29 @@
         <!-- Backtest Stats -->
         <div class="backtest-stats">
             <h2 id="backtest-title">📊 백테스트 검증 결과</h2>
+            <p style="color: #64748b; font-size: 14px; margin-top: -10px; margin-bottom: 20px;">
+                ℹ️ 과거 예측 성과 통계 (현재 후보 유무와 무관하게 표시됩니다)
+            </p>
             <div class="stats-grid">
                 <div class="stat-card positive">
                     <div class="label">적중률</div>
-                    <div class="value" id="win-rate">-</div>
+                    <div class="value" id="win-rate">로딩 중...</div>
                 </div>
                 <div class="stat-card positive">
                     <div class="label">평균 수익률</div>
-                    <div class="value" id="avg-return">-</div>
+                    <div class="value" id="avg-return">로딩 중...</div>
                 </div>
                 <div class="stat-card">
                     <div class="label">평균 수익 (승리시)</div>
-                    <div class="value" id="avg-win">-</div>
+                    <div class="value" id="avg-win">로딩 중...</div>
                 </div>
                 <div class="stat-card">
                     <div class="label">평균 손실 (실패시)</div>
-                    <div class="value" id="avg-loss">-</div>
+                    <div class="value" id="avg-loss">로딩 중...</div>
                 </div>
                 <div class="stat-card">
                     <div class="label">총 거래 수</div>
-                    <div class="value" id="total-trades">-</div>
+                    <div class="value" id="total-trades">로딩 중...</div>
                 </div>
                 <div class="stat-card">
                     <div class="label">보유 기간</div>
@@ -449,9 +452,18 @@
                 console.log('[Surge] Response data:', data);
 
                 if (data.candidates !== undefined) {
-                    // 백테스트 통계 업데이트
+                    // 백테스트 통계 업데이트 (항상 우선 업데이트)
                     if (data.backtest_stats) {
                         updateBacktestStats(data.backtest_stats);
+                    } else {
+                        // backtest_stats가 없는 경우 기본값 표시
+                        updateBacktestStats({
+                            win_rate: 0,
+                            avg_return: 0,
+                            avg_win: 0,
+                            avg_loss: 0,
+                            total_trades: 0
+                        });
                     }
 
                     // 후보 목록 업데이트
@@ -479,11 +491,24 @@
 
         // 백테스트 통계 업데이트
         function updateBacktestStats(stats) {
-            document.getElementById('win-rate').textContent = stats.win_rate + '%';
-            document.getElementById('avg-return').textContent = '+' + stats.avg_return + '%';
-            document.getElementById('avg-win').textContent = '+' + stats.avg_win + '%';
-            document.getElementById('avg-loss').textContent = stats.avg_loss + '%';
-            document.getElementById('total-trades').textContent = stats.total_trades + '건';
+            // 데이터가 있는지 확인
+            const hasData = stats.total_trades > 0;
+
+            if (hasData) {
+                // 실제 데이터가 있는 경우
+                document.getElementById('win-rate').textContent = stats.win_rate + '%';
+                document.getElementById('avg-return').textContent = (stats.avg_return >= 0 ? '+' : '') + stats.avg_return + '%';
+                document.getElementById('avg-win').textContent = '+' + stats.avg_win + '%';
+                document.getElementById('avg-loss').textContent = stats.avg_loss + '%';
+                document.getElementById('total-trades').textContent = stats.total_trades + '건';
+            } else {
+                // 데이터가 없는 경우
+                document.getElementById('win-rate').textContent = '데이터 없음';
+                document.getElementById('avg-return').textContent = '데이터 없음';
+                document.getElementById('avg-win').textContent = '데이터 없음';
+                document.getElementById('avg-loss').textContent = '데이터 없음';
+                document.getElementById('total-trades').textContent = '0건';
+            }
 
             // Update backtest title with period (if available)
             const backtestTitle = document.getElementById('backtest-title');
@@ -493,14 +518,14 @@
 
             // Update verified badge with dynamic win rate
             const badge = document.getElementById('verified-badge');
-            if (stats.total_trades > 0) {
+            if (hasData) {
                 badge.textContent = `✓ 적중률 ${stats.win_rate}% (${stats.total_trades}건)`;
             } else {
                 badge.textContent = '데이터 수집 중...';
             }
 
             // Update page title with dynamic win rate
-            if (stats.total_trades > 0) {
+            if (hasData) {
                 document.title = `CoinPulse - 급등 예측 모니터링 (검증 완료 ${stats.win_rate}% 적중률)`;
             }
         }
