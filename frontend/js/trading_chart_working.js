@@ -40,6 +40,9 @@ class WorkingTradingChart {
         this.maSettings = this.loadMASettings();
         // 초기 로드시 이평선은 표시하지 않음 (사용자 요청 시에만 표시)
         this.movingAveragesVisible = false;
+
+        // Ichimoku 설정 상태 (localStorage에서 로드 또는 기본값)
+        this.ichimokuSettings = this.loadIchimokuSettings();
         
         // 매매 이력 마커 표시 여부
         this.showTradeMarkers = true;
@@ -112,6 +115,43 @@ class WorkingTradingChart {
             console.log('[Working] MA settings saved:', this.maSettings);
         } catch (error) {
             console.error('[Working] Failed to save MA settings:', error);
+        }
+    }
+
+    // Ichimoku 설정 로드 (localStorage)
+    loadIchimokuSettings() {
+        try {
+            const saved = localStorage.getItem('ichimokuSettings');
+            if (saved) {
+                return JSON.parse(saved);
+            }
+        } catch (error) {
+            console.warn('[Working] Failed to load Ichimoku settings:', error);
+        }
+
+        // 기본값
+        return {
+            tenkanPeriod: 9,
+            kijunPeriod: 26,
+            senkouBPeriod: 52,
+            displacement: 26,
+            visibility: {
+                tenkan: true,
+                kijun: true,
+                senkouA: true,
+                senkouB: true,
+                chikou: true
+            }
+        };
+    }
+
+    // Ichimoku 설정 저장 (localStorage)
+    saveIchimokuSettings() {
+        try {
+            localStorage.setItem('ichimokuSettings', JSON.stringify(this.ichimokuSettings));
+            console.log('[Working] Ichimoku settings saved:', this.ichimokuSettings);
+        } catch (error) {
+            console.error('[Working] Failed to save Ichimoku settings:', error);
         }
     }
 
@@ -271,11 +311,26 @@ class WorkingTradingChart {
         
         // 자동 업데이트 중지
         this.realtimeUpdates.stopAutoUpdate();
-        
-        // SuperTrend 활성화 상태 저장
+
+        // 현재 활성화된 지표 상태 저장
+        const maBtn = document.getElementById('ma-toggle');
+        const isMAActive = maBtn && maBtn.classList.contains('active');
+
+        const bbBtn = document.getElementById('bb-toggle');
+        const isBBActive = bbBtn && bbBtn.classList.contains('active');
+
+        const rsiBtn = document.getElementById('rsi-toggle');
+        const isRSIActive = rsiBtn && rsiBtn.classList.contains('active');
+
+        const macdBtn = document.getElementById('macd-toggle');
+        const isMACDActive = macdBtn && macdBtn.classList.contains('active');
+
+        const ichimokuBtn = document.getElementById('ichimoku-toggle');
+        const isIchimokuActive = ichimokuBtn && ichimokuBtn.classList.contains('active');
+
         const superTrendBtn = document.getElementById('supertrend-toggle');
         const isSuperTrendActive = superTrendBtn && superTrendBtn.classList.contains('active');
-        
+
         // 상태 초기화
         this.currentMarket = market;
         this.isLoading = false;
@@ -290,13 +345,54 @@ class WorkingTradingChart {
         this.dataLoader.setupTradingViewStyleLoading();
         this.realtimeUpdates.startAutoUpdate();
         
-        // SuperTrend가 활성화되어 있었다면 새 데이터로 다시 그리기
-        if (isSuperTrendActive && this.chartData && this.chartData.length > 0 && window.chartUtils) {
-            console.log('[Working] Re-applying SuperTrend for new coin');
-            window.chartUtils.removeSuperTrend();
-            const result = window.chartUtils.addSuperTrend(this.chartData, 10, 3.0);
-            if (result) {
-                console.log('[Working] SuperTrend re-applied successfully');
+        // 활성화된 지표들을 새 코인 데이터로 재적용
+        if (this.chartData && this.chartData.length > 0) {
+            // MA 재적용
+            if (isMAActive) {
+                console.log('[Working] Re-applying Moving Averages for new coin');
+                if (this.movingAverages) {
+                    this.movingAverages.updateMAs();
+                } else if (this.realtimeUpdates) {
+                    this.realtimeUpdates.updateMAs();
+                }
+            }
+
+            // BB 재적용
+            if (isBBActive && window.chartUtils) {
+                console.log('[Working] Re-applying Bollinger Bands for new coin');
+                window.chartUtils.removeBollingerBands();
+                window.chartUtils.addBollingerBands(this.chartData, 20, 2);
+            }
+
+            // RSI 재적용
+            if (isRSIActive && window.chartUtils) {
+                console.log('[Working] Re-applying RSI for new coin');
+                window.chartUtils.removeRSI();
+                window.chartUtils.addRSI(this.chartData, 14, '#ffa726');
+            }
+
+            // MACD 재적용
+            if (isMACDActive && window.chartUtils) {
+                console.log('[Working] Re-applying MACD for new coin');
+                window.chartUtils.removeMACD();
+                window.chartUtils.addMACD(this.chartData, 12, 26, 9);
+            }
+
+            // Ichimoku 재적용
+            if (isIchimokuActive && window.chartUtils) {
+                console.log('[Working] Re-applying Ichimoku Cloud for new coin');
+                window.chartUtils.removeIchimoku();
+                window.chartUtils.addIchimoku(this.chartData, this.ichimokuSettings);
+            }
+
+            // SuperTrend 재적용
+            if (isSuperTrendActive && window.chartUtils) {
+                console.log('[Working] Re-applying SuperTrend for new coin');
+                window.chartUtils.removeSuperTrend();
+                const result = window.chartUtils.addSuperTrend(this.chartData, 10, 3.0);
+                if (result) {
+                    console.log('[Working] SuperTrend re-applied successfully');
+                }
             }
         }
 
@@ -1631,6 +1727,9 @@ class WorkingTradingChart {
         };
 
         console.log('[Working] Ichimoku settings saved:', this.ichimokuSettings);
+
+        // Save to localStorage
+        this.saveIchimokuSettings();
 
         // Re-apply Ichimoku if active
         const ichimokuBtn = document.getElementById('ichimoku-toggle');
