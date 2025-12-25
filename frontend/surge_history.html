@@ -161,14 +161,17 @@
         }
 
         .filter-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: nowrap;
+            overflow-x: auto;
         }
 
         .filter-group {
             display: flex;
             flex-direction: column;
+            min-width: 150px;
+            flex-shrink: 0;
         }
 
         .filter-group label {
@@ -393,7 +396,12 @@
             }
 
             .filter-grid {
-                grid-template-columns: 1fr;
+                /* Keep single row with horizontal scroll on mobile */
+                gap: 8px;
+            }
+
+            .filter-group {
+                min-width: 120px;
             }
 
             table {
