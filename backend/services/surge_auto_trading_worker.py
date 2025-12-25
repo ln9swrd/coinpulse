@@ -19,6 +19,7 @@ from backend.models.surge_alert_models import SurgeAutoTradingSettings, SurgeAle
 from backend.services.surge_alert_service import get_surge_alert_service
 from backend.common import UpbitAPI, load_api_keys
 from backend.services.surge_predictor import SurgePredictor
+from backend.services.dynamic_market_selector import get_market_selector
 
 logger = logging.getLogger(__name__)
 
@@ -61,12 +62,10 @@ class SurgeAutoTradingWorker:
         }
         self.predictor = SurgePredictor(self.config)
 
-        # Popular coins to monitor (reduced to top performers)
-        self.monitor_coins = [
-            'KRW-XRP', 'KRW-ADA', 'KRW-DOGE', 'KRW-SOL', 'KRW-MATIC',
-            'KRW-DOT', 'KRW-LINK', 'KRW-AVAX', 'KRW-NEAR', 'KRW-ATOM',
-            'KRW-ALGO', 'KRW-XLM', 'KRW-FIL', 'KRW-APT', 'KRW-SAND'
-        ]
+        # Initialize Dynamic Market Selector (50 coins, updated daily)
+        # Same as surge_alert_scheduler to ensure consistency
+        self.market_selector = get_market_selector(target_count=50)
+        self.monitor_coins = self.market_selector.get_markets(force_update=True, update_interval_hours=24)
 
         # Track alerted markets to avoid duplicate alerts within same cycle
         self.alerted_in_cycle: Set[str] = set()
@@ -75,6 +74,7 @@ class SurgeAutoTradingWorker:
         self.base_min_score = 60  # Base threshold to reduce API calls
 
         logger.info(f"[AutoTradingWorker] Initialized (interval: {check_interval}s, coins: {len(self.monitor_coins)})")
+        logger.info(f"[AutoTradingWorker] Dynamic market selection enabled (auto-update every 24h)")
 
     def get_surge_candidates(self) -> List[Dict]:
         """
