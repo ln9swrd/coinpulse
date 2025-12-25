@@ -1615,7 +1615,7 @@ class WorkingTradingChart {
             return;
         }
 
-        const periods = [20, 50, 100, 200, 300, 500, 1000];
+        const periods = [20, 50, 100, 200, 300];
         periods.forEach(period => {
             const checkbox = document.getElementById(`ma${period}-toggle`);
             if (checkbox) {
@@ -1865,7 +1865,7 @@ class WorkingTradingChart {
 
         // Fallback
         console.log('[Working] Applying MA settings...');
-        const periods = [20, 50, 100, 200, 300, 500, 1000];
+        const periods = [20, 50, 100, 200, 300];
         periods.forEach(period => {
             const checkbox = document.getElementById(`ma${period}-toggle`);
             if (checkbox) {
