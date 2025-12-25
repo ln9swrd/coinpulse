@@ -845,25 +845,31 @@
             // For dynamic page loading, wait for DOM to be fully rendered
             // Try multiple times with increasing delay
             let retryCount = 0;
-            const maxRetries = 5;
+            const maxRetries = 10;
 
             function tryInit() {
-                // Check for all critical DOM elements
+                // Check for all critical DOM elements in the content-container
+                const contentContainer = document.getElementById('content-container');
                 const filterMarket = document.getElementById('filter-market');
                 const tableContent = document.getElementById('table-content');
                 const statTotal = document.getElementById('stat-total');
                 const statAutoTraded = document.getElementById('stat-auto-traded');
+                const pagination = document.getElementById('pagination');
+                const statsGrid = document.getElementById('stats-grid');
 
                 console.log('[SurgeHistory] tryInit check:', {
+                    contentContainer: !!contentContainer,
                     filterMarket: !!filterMarket,
                     tableContent: !!tableContent,
                     statTotal: !!statTotal,
                     statAutoTraded: !!statAutoTraded,
+                    pagination: !!pagination,
+                    statsGrid: !!statsGrid,
                     retry: retryCount,
                     readyState: document.readyState
                 });
 
-                if (filterMarket && tableContent && statTotal && statAutoTraded) {
+                if (filterMarket && tableContent && statTotal && statAutoTraded && pagination && statsGrid) {
                     // DOM is ready, run init
                     console.log('[SurgeHistory] DOM ready, initializing...');
                     init();
@@ -871,18 +877,23 @@
                     if (retryCount < maxRetries) {
                         retryCount++;
                         console.log(`[SurgeHistory] DOM not ready, retrying (${retryCount}/${maxRetries})...`);
-                        setTimeout(tryInit, 500 * retryCount); // Increase delay: 500ms, 1000ms, 1500ms, 2000ms, 2500ms
+                        // Exponential backoff: 100ms, 200ms, 400ms, 800ms, 1600ms, etc.
+                        setTimeout(tryInit, Math.min(100 * Math.pow(2, retryCount - 1), 3000));
                     } else {
                         console.error('[SurgeHistory] DOM elements not found after retries');
+                        console.error(`  - contentContainer: ${!!contentContainer}`);
                         console.error(`  - filterMarket: ${!!filterMarket}`);
                         console.error(`  - tableContent: ${!!tableContent}`);
                         console.error(`  - statTotal: ${!!statTotal}`);
                         console.error(`  - statAutoTraded: ${!!statAutoTraded}`);
+                        console.error(`  - pagination: ${!!pagination}`);
+                        console.error(`  - statsGrid: ${!!statsGrid}`);
                     }
                 }
             }
 
-            tryInit();
+            // Add initial delay to let DOM settle
+            setTimeout(tryInit, 100);
         }
 
         // Load available markets
@@ -1034,6 +1045,7 @@
                             <th>신뢰도</th>
                             <th>진입가</th>
                             <th>목표가</th>
+                            <th>종료가</th>
                             <th>손절가</th>
                             <th>상태</th>
                             <th>손익</th>
@@ -1095,6 +1107,7 @@
                         <td>${confidence}%</td>
                         <td>${alert.entry_price ? alert.entry_price.toLocaleString() + '원' : '-'}</td>
                         <td style="color: #10b981; font-weight: 600;">${alert.target_price ? alert.target_price.toLocaleString() + '원' : '-'}</td>
+                        <td style="color: #3b82f6; font-weight: 600;">${alert.exit_price ? alert.exit_price.toLocaleString() + '원' : '-'}</td>
                         <td style="color: #ef4444; font-weight: 600;">${alert.stop_loss_price ? alert.stop_loss_price.toLocaleString() + '원' : '-'}</td>
                         <td>
                             <span class="badge ${statusBadge}">
