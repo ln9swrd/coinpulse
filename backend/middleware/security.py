@@ -373,8 +373,19 @@ def setup_security_middleware(app):
 
         # 2. Input validation (for POST/PUT requests)
         # Skip validation for OAuth endpoints (they contain JWT tokens which look suspicious)
-        oauth_paths = ['/api/auth/google-login', '/api/auth/kakao-login']
-        if request.method in ['POST', 'PUT', 'PATCH'] and request.path not in oauth_paths:
+        # Skip validation for admin endpoints (already protected by @require_admin decorator)
+        skip_validation_paths = [
+            '/api/auth/google-login',
+            '/api/auth/kakao-login'
+        ]
+        skip_validation_prefixes = [
+            '/api/admin/'  # Admin endpoints are already protected by @require_admin
+        ]
+
+        should_skip = (request.path in skip_validation_paths or
+                      any(request.path.startswith(prefix) for prefix in skip_validation_prefixes))
+
+        if request.method in ['POST', 'PUT', 'PATCH'] and not should_skip:
             if request.is_json:
                 try:
                     data = request.get_json()
