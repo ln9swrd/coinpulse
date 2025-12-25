@@ -386,13 +386,13 @@ async function loadPricingPlans() {
         const res = await fetch('/api/admin/plans/public?v=20251225');
         const data = await res.json();
 
-        if (!data.success || !data.plans || data.plans.length === 0) {
+        if (!data.plans || data.plans.length === 0) {
             console.error('플랜 데이터 로드 실패:', data);
             return;
         }
 
         const plans = data.plans
-            .filter(p => p.is_visible) // 모든 visible 플랜 표시
+            .filter(p => p.display?.is_visible) // 모든 visible 플랜 표시
             .sort((a, b) => a.display_order - b.display_order);
 
         const container = document.getElementById('pricing-cards-container');
@@ -406,7 +406,7 @@ async function loadPricingPlans() {
         container.innerHTML = plans.map((plan, index) => {
             const isFree = plan.plan_code === 'free';
             const isEnterprise = plan.plan_code === 'enterprise';
-            const isFeatured = plan.is_featured || isEnterprise; // Enterprise도 featured로
+            const isFeatured = plan.display?.is_featured || isEnterprise; // Enterprise도 featured로
             const monthlyPrice = plan.price?.monthly || plan.monthly_price || 0;
 
             // 기능 목록 생성 (오늘 구현된 제한사항 반영)
@@ -447,7 +447,7 @@ async function loadPricingPlans() {
 
             return `
                 <div class="pricing-card ${isFeatured ? 'featured' : ''}">
-                    ${isFeatured && plan.badge_text ? `<div class="plan-badge">${plan.badge_text}</div>` : ''}
+                    ${isFeatured && plan.display?.badge_text ? `<div class="plan-badge">${plan.display.badge_text}</div>` : ''}
                     <div class="plan-header">
                         <h3>${plan.plan_name_ko}</h3>
                         <div class="plan-price">
@@ -458,7 +458,7 @@ async function loadPricingPlans() {
                     <ul class="plan-features">
                         ${features.map(f => `<li>✓ ${f}</li>`).join('')}
                     </ul>
-                    <a href="${isEnterprise ? 'enterprise-inquiry.html' : 'signup.html'}" class="btn-plan ${isFeatured ? 'btn-plan-featured' : ''}">${isEnterprise ? 'Enterprise 상담 신청' : (isFree ? '시작하기' : plan.cta_text || '시작하기')}</a>
+                    <a href="${isEnterprise ? 'enterprise-inquiry.html' : 'signup.html'}" class="btn-plan ${isFeatured ? 'btn-plan-featured' : ''}">${isEnterprise ? 'Enterprise 상담 신청' : (isFree ? '시작하기' : plan.display?.cta_text || '시작하기')}</a>
                     <p class="plan-note">${plan.description || ''}</p>
                 </div>
             `;
