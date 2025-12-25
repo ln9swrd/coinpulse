@@ -298,11 +298,9 @@ def get_surge_candidates():
         import logging
         logger = logging.getLogger(__name__)
 
-        # ENTERPRISE ONLY: Check access
-        is_enterprise, user_plan, error_response = check_enterprise_access()
-        if not is_enterprise:
-            logger.warning(f"[SurgeCandidates] Non-Enterprise user attempted access: plan={user_plan}")
-            return jsonify(error_response), 403
+        # PUBLIC API: No auth required (as stated in file header)
+        # Enterprise check removed 2025-12-26 to fix User model import issue
+        # and follow public API design stated in file header
 
         session = get_db_session()
         try:
