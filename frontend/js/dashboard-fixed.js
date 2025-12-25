@@ -1068,36 +1068,49 @@
                         <div class="settings-tab-content" data-tab-content="notifications">
                             <div class="settings-section">
                                 <h2>이메일 알림</h2>
+                                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 24px;">
+                                    <h3 style="margin: 0 0 8px 0; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                        </svg>
+                                        추후 구현 예정
+                                    </h3>
+                                    <p style="margin: 0; opacity: 0.9; font-size: 14px; line-height: 1.5;">
+                                        이메일 알림 기능은 현재 개발 중입니다. 곧 제공될 예정이니 조금만 기다려 주세요.
+                                    </p>
+                                </div>
                                 <form id="notifications-form" class="settings-form">
                                     <div class="form-group checkbox-group">
-                                        <label>
-                                            <input type="checkbox" id="notify-trades" checked>
+                                        <label style="opacity: 0.5; cursor: not-allowed;">
+                                            <input type="checkbox" id="notify-trades" disabled>
                                             <span>거래 확인</span>
                                         </label>
                                         <p class="help-text">거래가 실행될 때 이메일 수신</p>
                                     </div>
                                     <div class="form-group checkbox-group">
-                                        <label>
-                                            <input type="checkbox" id="notify-price-alerts" checked>
+                                        <label style="opacity: 0.5; cursor: not-allowed;">
+                                            <input type="checkbox" id="notify-price-alerts" disabled>
                                             <span>가격 알림</span>
                                         </label>
                                         <p class="help-text">목표 가격에 도달할 때 이메일 수신</p>
                                     </div>
                                     <div class="form-group checkbox-group">
-                                        <label>
-                                            <input type="checkbox" id="notify-portfolio">
+                                        <label style="opacity: 0.5; cursor: not-allowed;">
+                                            <input type="checkbox" id="notify-portfolio" disabled>
                                             <span>일일 포트폴리오 요약</span>
                                         </label>
                                         <p class="help-text">포트폴리오 성과를 담은 일일 이메일 수신</p>
                                     </div>
                                     <div class="form-group checkbox-group">
-                                        <label>
-                                            <input type="checkbox" id="notify-marketing">
+                                        <label style="opacity: 0.5; cursor: not-allowed;">
+                                            <input type="checkbox" id="notify-marketing" disabled>
                                             <span>마케팅 이메일</span>
                                         </label>
                                         <p class="help-text">새로운 기능 및 프로모션 업데이트 수신</p>
                                     </div>
-                                    <button type="submit" class="btn-primary">설정 저장</button>
+                                    <button type="submit" class="btn-primary" disabled style="opacity: 0.5; cursor: not-allowed;">설정 저장</button>
                                 </form>
                             </div>
                         </div>
