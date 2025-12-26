@@ -104,7 +104,7 @@ def calculate_backtest_stats(period_start=None, period_end=None, use_dynamic_per
     """
     try:
         with get_db_session() as session:
-            # Dynamic period: calculate from all surge_alerts with confidence >= 60%
+            # Dynamic period: calculate from all surge_alerts with confidence >= 60
             if use_dynamic_period:
                 stats_query = text("""
                     SELECT
@@ -118,7 +118,7 @@ def calculate_backtest_stats(period_start=None, period_end=None, use_dynamic_per
                         MAX(DATE(sent_at)) as last_date
                     FROM surge_alerts
                     WHERE status IN ('win', 'lose', 'neutral')
-                      AND confidence >= 0.6
+                      AND confidence >= 60
                 """)
                 result = session.execute(stats_query).first()
                 period_str = f"{result.first_date} ~ {result.last_date}" if result.first_date else "No data"
@@ -136,7 +136,7 @@ def calculate_backtest_stats(period_start=None, period_end=None, use_dynamic_per
                     WHERE DATE(sent_at) >= DATE(:start_date)
                       AND DATE(sent_at) <= DATE(:end_date)
                       AND status IN ('win', 'lose', 'neutral')
-                      AND confidence >= 0.6
+                      AND confidence >= 60
                 """)
                 result = session.execute(stats_query, {
                     'start_date': period_start or '2024-11-13',
