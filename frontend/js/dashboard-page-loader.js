@@ -3,12 +3,15 @@
         // Page mapping: route -> file path
         const PAGE_ROUTES = {
             'overview': 'overview.html',  // Dashboard home
+            'portfolio': 'portfolio.html',  // Portfolio holdings
+            'history': 'history.html',  // Trading history
             'signals': 'my_signals.html',
             'telegram': 'telegram_settings.html',
             'trading': 'trading_chart.html',
             'realtime': 'realtime_dashboard.html',
             'surge': 'surge_monitoring.html',
             'auto-trading': 'surge_auto_trading.html',  // Surge-based auto-trading settings
+            'pricing': 'pricing.html',  // Pricing plans
             'referral': 'referral.html',
             'my-feedback': 'my_feedback.html',  // User feedback history
             'settings': 'settings.html',  // User settings (API keys, profile)
@@ -103,17 +106,17 @@
 
             const titles = {
                 'overview': '대시보드 홈',
-                'trading': '거래 차트',
                 'portfolio': '포트폴리오',
                 'history': '거래 내역',
+                'trading': '거래 차트',
                 'auto-trading': '자동매매 설정',
                 'realtime': '실시간 모니터링',
                 'surge': '급등 예측',
                 'signals': '급등신호',
                 'telegram': '텔레그램 연동',
+                'pricing': '요금제',
                 'referral': '친구 초대하기',
                 'my-feedback': '내 피드백',
-                'pricing': '요금제',
                 'settings': '설정',
                 'admin': '관리자',
                 'surge-history': '급등예측 이력'
