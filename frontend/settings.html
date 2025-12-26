@@ -271,7 +271,10 @@
 
         <!-- Tabs -->
         <div class="settings-tabs">
-            <button class="tab-button active" data-tab="api-keys">
+            <button class="tab-button active" data-tab="account">
+                🔐 계정 관리
+            </button>
+            <button class="tab-button" data-tab="api-keys">
                 🔑 API 키
             </button>
             <button class="tab-button" data-tab="profile">
@@ -280,13 +283,44 @@
             <button class="tab-button" data-tab="notifications">
                 🔔 알림 설정
             </button>
-            <button class="tab-button" data-tab="account">
-                🔐 계정 관리
-            </button>
+        </div>
+
+        <!-- Tab: Account Management -->
+        <div class="tab-content active" id="tab-account">
+            <div class="settings-section">
+                <h2>🔐 비밀번호 변경</h2>
+                <form id="password-form">
+                    <div class="form-group">
+                        <label for="current-password">현재 비밀번호</label>
+                        <input type="password" id="current-password" placeholder="현재 비밀번호를 입력하세요" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-password">새 비밀번호</label>
+                        <input type="password" id="new-password" placeholder="새 비밀번호를 입력하세요 (최소 8자)" required minlength="8">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-password">새 비밀번호 확인</label>
+                        <input type="password" id="confirm-password" placeholder="새 비밀번호를 다시 입력하세요" required minlength="8">
+                    </div>
+                    <button type="submit" class="btn-save">
+                        비밀번호 변경
+                    </button>
+                </form>
+            </div>
+
+            <div class="settings-section" style="margin-top: 24px;">
+                <h2 style="color: #dc2626;">⚠️ 위험 구역</h2>
+                <p style="color: #666; margin-bottom: 16px;">
+                    계정을 삭제하면 모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다.
+                </p>
+                <button class="btn-save" id="delete-account-btn" style="background: #dc2626;" onclick="deleteAccount()">
+                    계정 삭제
+                </button>
+            </div>
         </div>
 
         <!-- Tab: API Keys -->
-        <div class="tab-content active" id="tab-api-keys">
+        <div class="tab-content" id="tab-api-keys">
             <div class="settings-section">
                 <h2>🔑 업비트 API 키</h2>
 
@@ -416,40 +450,6 @@
 
                 <button class="btn-save" onclick="saveNotificationSettings()">
                     알림 설정 저장
-                </button>
-            </div>
-        </div>
-
-        <!-- Tab: Account Management -->
-        <div class="tab-content" id="tab-account">
-            <div class="settings-section">
-                <h2>🔐 비밀번호 변경</h2>
-                <form id="password-form">
-                    <div class="form-group">
-                        <label for="current-password">현재 비밀번호</label>
-                        <input type="password" id="current-password" placeholder="현재 비밀번호를 입력하세요" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="new-password">새 비밀번호</label>
-                        <input type="password" id="new-password" placeholder="새 비밀번호를 입력하세요 (최소 8자)" required minlength="8">
-                    </div>
-                    <div class="form-group">
-                        <label for="confirm-password">새 비밀번호 확인</label>
-                        <input type="password" id="confirm-password" placeholder="새 비밀번호를 다시 입력하세요" required minlength="8">
-                    </div>
-                    <button type="submit" class="btn-save">
-                        비밀번호 변경
-                    </button>
-                </form>
-            </div>
-
-            <div class="settings-section" style="margin-top: 24px;">
-                <h2 style="color: #dc2626;">⚠️ 위험 구역</h2>
-                <p style="color: #666; margin-bottom: 16px;">
-                    계정을 삭제하면 모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다.
-                </p>
-                <button class="btn-save" id="delete-account-btn" style="background: #dc2626;" onclick="deleteAccount()">
-                    계정 삭제
                 </button>
             </div>
         </div>
@@ -593,11 +593,17 @@
                 const data = await response.json();
                 const alertEl = document.getElementById('api-status-alert');
                 const messageEl = document.getElementById('api-status-message');
+                const guideEl = document.getElementById('api-key-guide');
 
                 if (data.has_keys) {
                     alertEl.className = 'alert alert-success';
                     messageEl.innerHTML = '<strong>✅ API 키가 등록되어 있습니다.</strong> 모든 기능을 사용할 수 있습니다.';
                     alertEl.style.display = 'flex';
+
+                    // Hide API key guide when keys are registered
+                    if (guideEl) {
+                        guideEl.style.display = 'none';
+                    }
 
                     // Load and display existing keys
                     await loadApiKeys();
@@ -605,6 +611,11 @@
                     alertEl.className = 'alert alert-warning';
                     messageEl.innerHTML = '<strong>⚠️ API 키가 등록되지 않았습니다.</strong> 아래 가이드를 참고하여 업비트 API 키를 발급받으세요.';
                     alertEl.style.display = 'flex';
+
+                    // Show API key guide when no keys
+                    if (guideEl) {
+                        guideEl.style.display = 'block';
+                    }
                 }
             } catch (error) {
                 console.error('[Settings] Error checking API key status:', error);
