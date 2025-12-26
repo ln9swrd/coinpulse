@@ -125,7 +125,7 @@ def import_backtest_data(min_score=60):
                 # Insert surge alert
                 insert_query = text("""
                     INSERT INTO surge_alerts (
-                        user_id, market, coin, confidence,
+                        user_id, market, coin, confidence, signal_type,
                         entry_price, target_price, stop_loss_price, expected_return,
                         current_price, peak_price, exit_price,
                         reason, alert_message,
@@ -134,7 +134,7 @@ def import_backtest_data(min_score=60):
                         close_reason, closed_at,
                         auto_traded, trade_amount, order_id
                     ) VALUES (
-                        :user_id, :market, :coin, :confidence,
+                        :user_id, :market, :coin, :confidence, :signal_type,
                         :entry_price, :target_price, :stop_loss_price, :expected_return,
                         :current_price, :peak_price, :exit_price,
                         :reason, :alert_message,
@@ -152,6 +152,7 @@ def import_backtest_data(min_score=60):
                     'market': market,
                     'coin': coin,
                     'confidence': score,
+                    'signal_type': 'surge',  # This is a surge signal
                     'entry_price': entry_price,
                     'target_price': target_price,
                     'stop_loss_price': stop_loss_price,
@@ -208,13 +209,18 @@ def import_backtest_data(min_score=60):
 
         print("\nDatabase Statistics:")
         print("-" * 100)
-        print(f"Total signals: {stats[0]}")
-        print(f"Wins: {stats[1]}")
-        print(f"Losses: {stats[2]}")
-        print(f"Closed: {stats[3]}")
-        print(f"Win rate: {(stats[1] / (stats[1] + stats[2]) * 100) if (stats[1] + stats[2]) > 0 else 0:.1f}%")
-        print(f"Average score: {stats[4]:.1f}")
-        print(f"Average gain: {stats[5]:.1f}%")
+        print(f"Total signals: {stats[0] or 0}")
+        print(f"Wins: {stats[1] or 0}")
+        print(f"Losses: {stats[2] or 0}")
+        print(f"Closed: {stats[3] or 0}")
+
+        wins = stats[1] or 0
+        losses = stats[2] or 0
+        total_closed = wins + losses
+
+        print(f"Win rate: {(wins / total_closed * 100) if total_closed > 0 else 0:.1f}%")
+        print(f"Average score: {stats[4]:.1f}" if stats[4] else "N/A")
+        print(f"Average gain: {stats[5]:.1f}%" if stats[5] else "N/A")
         print("-" * 100)
 
 
