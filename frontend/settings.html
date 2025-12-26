@@ -493,7 +493,12 @@
         async function loadApiKeys() {
             try {
                 const token = getAuthToken();
-                if (!token) return;
+                if (!token) {
+                    console.warn('[Settings] No token, cannot load API keys');
+                    return;
+                }
+
+                console.log('[Settings] Loading API keys...');
 
                 const response = await fetch(`${window.API_BASE}/api/user/api-keys`, {
                     method: 'GET',
@@ -502,20 +507,34 @@
                     }
                 });
 
-                const data = await response.json();
+                console.log('[Settings] API keys response status:', response.status);
 
-                if (data.success && data.access_key) {
-                    // Display access key
-                    document.getElementById('access_key').value = data.access_key;
+                const data = await response.json();
+                console.log('[Settings] API keys response data:', data);
+
+                if (data.success) {
+                    // Display access key (even if null, for debugging)
+                    const accessKeyInput = document.getElementById('access_key');
+                    if (data.access_key) {
+                        accessKeyInput.value = data.access_key;
+                        console.log('[Settings] Access key loaded:', data.access_key.substring(0, 8) + '...');
+                    } else {
+                        console.warn('[Settings] No access_key in response');
+                    }
 
                     // Display masked secret key as placeholder
                     const secretKeyInput = document.getElementById('secret_key');
                     if (data.secret_key_masked) {
                         secretKeyInput.placeholder = data.secret_key_masked + ' (등록됨)';
                         secretKeyInput.value = ''; // Keep empty, will only update if user enters new one
+                        console.log('[Settings] Secret key masked:', data.secret_key_masked);
+                    } else {
+                        console.warn('[Settings] No secret_key_masked in response');
                     }
 
                     console.log('[Settings] API keys loaded successfully');
+                } else {
+                    console.error('[Settings] API response not successful:', data);
                 }
             } catch (error) {
                 console.error('[Settings] Error loading API keys:', error);
