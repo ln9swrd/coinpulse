@@ -344,7 +344,7 @@
                 </button>
 
                 <!-- Permissions Notice -->
-                <div class="permissions-note">
+                <div class="permissions-note" id="permissions-notice">
                     <strong>⚠️ 필수 권한 설정</strong>
                     <p>업비트에서 API 키를 발급할 때 다음 권한을 반드시 활성화해주세요:</p>
                     <ul class="permissions-list">
@@ -594,15 +594,19 @@
                 const alertEl = document.getElementById('api-status-alert');
                 const messageEl = document.getElementById('api-status-message');
                 const guideEl = document.getElementById('api-key-guide');
+                const permissionsEl = document.getElementById('permissions-notice');
 
                 if (data.has_keys) {
                     alertEl.className = 'alert alert-success';
                     messageEl.innerHTML = '<strong>✅ API 키가 등록되어 있습니다.</strong> 모든 기능을 사용할 수 있습니다.';
                     alertEl.style.display = 'flex';
 
-                    // Hide API key guide when keys are registered
+                    // Hide all guides when keys are registered
                     if (guideEl) {
                         guideEl.style.display = 'none';
+                    }
+                    if (permissionsEl) {
+                        permissionsEl.style.display = 'none';
                     }
 
                     // Load and display existing keys
@@ -612,9 +616,12 @@
                     messageEl.innerHTML = '<strong>⚠️ API 키가 등록되지 않았습니다.</strong> 아래 가이드를 참고하여 업비트 API 키를 발급받으세요.';
                     alertEl.style.display = 'flex';
 
-                    // Show API key guide when no keys
+                    // Show all guides when no keys
                     if (guideEl) {
                         guideEl.style.display = 'block';
+                    }
+                    if (permissionsEl) {
+                        permissionsEl.style.display = 'block';
                     }
                 }
             } catch (error) {
