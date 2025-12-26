@@ -135,18 +135,21 @@ class SurgeAutoTradingWorker:
         session = get_db_session()
 
         try:
-            # Query users with auto-trading enabled and valid plan
+            # Query users with auto-trading enabled
+            # Note: Plan validation happens later when executing trades
             results = session.query(User, SurgeAutoTradingSettings)\
                 .join(SurgeAutoTradingSettings, User.id == SurgeAutoTradingSettings.user_id)\
                 .filter(
                     and_(
                         SurgeAutoTradingSettings.enabled == True,
-                        User.plan.in_(['basic', 'pro', 'enterprise'])  # Exclude free plan
+                        User.is_active == True,
+                        User.upbit_access_key.isnot(None),  # Must have Upbit API keys
+                        User.upbit_secret_key.isnot(None)
                     )
                 )\
                 .all()
 
-            logger.info(f"[AutoTradingWorker] Found {len(results)} active users")
+            logger.info(f"[AutoTradingWorker] Found {len(results)} active users with auto-trading enabled")
             return results
 
         except Exception as e:
