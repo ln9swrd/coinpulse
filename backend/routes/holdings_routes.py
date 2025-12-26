@@ -132,50 +132,66 @@ def get_holdings():
         # Batch fetch all prices at once (prevents rate limiting)
         price_map = {}
         if markets:
-            price_start = time.time()
-            try:
-                # Upbit allows fetching multiple tickers at once
-                markets_param = ','.join(markets)
-                logger.info(f"[Holdings] User {user_id}: Fetching prices for {len(markets)} markets")
-                response = requests.get(
-                    f'https://api.upbit.com/v1/ticker',
-                    params={'markets': markets_param},
-                    timeout=5
-                )
-                price_time = time.time() - price_start
-                logger.info(f"[Holdings] User {user_id}: Price fetch took {price_time:.3f}s (status: {response.status_code})")
-                if response.status_code == 200:
-                    ticker_data = response.json()
-                    logger.info(f"[Holdings] Received {len(ticker_data)} tickers")
-                    for ticker in ticker_data:
-                        price_map[ticker['market']] = ticker['trade_price']
-                elif response.status_code == 404:
-                    # Batch request failed (likely due to delisted coins), try individual requests
-                    logger.warning(f"[Holdings] Batch fetch failed (404), trying individual requests")
-                    for market in markets:
-                        try:
-                            resp = requests.get(
-                                f'https://api.upbit.com/v1/ticker',
-                                params={'markets': market},
-                                timeout=3
-                            )
-                            if resp.status_code == 200:
-                                data = resp.json()
-                                if data and len(data) > 0:
-                                    price_map[market] = data[0]['trade_price']
-                                    logger.debug(f"[Holdings] {market}: ₩{data[0]['trade_price']:,.0f}")
-                            else:
-                                logger.warning(f"[Holdings] Market {market} returned {resp.status_code} (likely delisted)")
-                            # Small delay to avoid rate limiting (Upbit allows 10 req/sec)
-                            time.sleep(0.12)
-                        except Exception as inner_e:
-                            logger.warning(f"[Holdings] Failed to fetch {market}: {inner_e}")
-                else:
-                    logger.error(f"[Holdings] Failed to fetch prices: {response.text}")
-            except Exception as e:
-                logger.error(f"[Holdings] Error fetching batch prices: {e}")
-                import traceback
-                traceback.print_exc()
+            # Filter out known delisted coins to avoid 404 errors
+            DELISTED_COINS = {'KRW-ETHW', 'KRW-ETHF', 'KRW-LUNA', 'KRW-LUNC'}
+            markets = [m for m in markets if m not in DELISTED_COINS]
+
+            if not markets:
+                logger.info(f"[Holdings] User {user_id}: All markets are delisted, skipping price fetch")
+            else:
+                price_start = time.time()
+                try:
+                    # Upbit allows fetching multiple tickers at once
+                    markets_param = ','.join(markets)
+                    logger.info(f"[Holdings] User {user_id}: Fetching prices for {len(markets)} markets")
+                    response = requests.get(
+                        f'https://api.upbit.com/v1/ticker',
+                        params={'markets': markets_param},
+                        timeout=5
+                    )
+                    price_time = time.time() - price_start
+                    logger.info(f"[Holdings] User {user_id}: Price fetch took {price_time:.3f}s (status: {response.status_code})")
+                    if response.status_code == 200:
+                        ticker_data = response.json()
+                        logger.info(f"[Holdings] Received {len(ticker_data)} tickers")
+                        for ticker in ticker_data:
+                            price_map[ticker['market']] = ticker['trade_price']
+                    elif response.status_code == 404:
+                        # Batch request failed, use parallel requests
+                        logger.warning(f"[Holdings] Batch fetch failed (404), trying parallel requests")
+                        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+                        def fetch_single_price(market):
+                            try:
+                                resp = requests.get(
+                                    f'https://api.upbit.com/v1/ticker',
+                                    params={'markets': market},
+                                    timeout=3
+                                )
+                                if resp.status_code == 200:
+                                    data = resp.json()
+                                    if data and len(data) > 0:
+                                        return market, data[0]['trade_price']
+                                else:
+                                    logger.warning(f"[Holdings] Market {market} returned {resp.status_code} (likely delisted)")
+                                    return market, None
+                            except Exception as e:
+                                logger.warning(f"[Holdings] Failed to fetch {market}: {e}")
+                                return market, None
+
+                        # Parallel fetch with max 10 workers (Upbit rate limit)
+                        with ThreadPoolExecutor(max_workers=10) as executor:
+                            futures = {executor.submit(fetch_single_price, market): market for market in markets}
+                            for future in as_completed(futures):
+                                market, price = future.result()
+                                if price is not None:
+                                    price_map[market] = price
+                    else:
+                        logger.error(f"[Holdings] Failed to fetch prices: {response.text}")
+                except Exception as e:
+                    logger.error(f"[Holdings] Error fetching batch prices: {e}")
+                    import traceback
+                    traceback.print_exc()
 
         # Second pass: calculate values using batch prices
         for coin_info in coin_data:
