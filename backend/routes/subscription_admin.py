@@ -100,33 +100,30 @@ def get_user_subscription(user_id):
     }
     """
     try:
-        session = get_db_session()
+        with get_db_session() as session:
+            subscription = session.query(Subscription).filter(
+                Subscription.user_id == user_id
+            ).order_by(Subscription.created_at.desc()).first()
 
-        subscription = session.query(Subscription).filter(
-            Subscription.user_id == user_id
-        ).order_by(Subscription.created_at.desc()).first()
+            if not subscription:
+                return jsonify({
+                    'success': True,
+                    'subscription': None,
+                    'user_id': user_id,
+                    'message': 'No subscription found'
+                }), 200
 
-        if not subscription:
             return jsonify({
                 'success': True,
-                'subscription': None,
-                'user_id': user_id,
-                'message': 'No subscription found'
+                'subscription': subscription.to_dict(),
+                'user_id': user_id
             }), 200
-
-        return jsonify({
-            'success': True,
-            'subscription': subscription.to_dict(),
-            'user_id': user_id
-        }), 200
 
     except Exception as e:
         return jsonify({
             'success': False,
             'error': str(e)
         }), 500
-    finally:
-        session.close()
 
 
 @subscription_admin_bp.route('/users/<int:user_id>/extend', methods=['POST'])
@@ -161,48 +158,44 @@ def extend_subscription(user_id):
         days = data['days']
         reason = data.get('reason', 'Admin extension')
 
-        session = get_db_session()
+        with get_db_session() as session:
+            # Get current subscription (status is stored as string)
+            subscription = session.query(Subscription).filter(
+                Subscription.user_id == user_id,
+                Subscription.status == 'active'  # Compare with string, not Enum
+            ).first()
 
-        # Get current subscription (status is stored as string)
-        subscription = session.query(Subscription).filter(
-            Subscription.user_id == user_id,
-            Subscription.status == 'active'  # Compare with string, not Enum
-        ).first()
+            if not subscription:
+                return jsonify({
+                    'success': False,
+                    'error': 'No active subscription found for user'
+                }), 404
 
-        if not subscription:
+            # Extend the subscription
+            if subscription.current_period_end:
+                new_end_date = subscription.current_period_end + timedelta(days=days)
+            else:
+                new_end_date = datetime.utcnow() + timedelta(days=days)
+
+            subscription.current_period_end = new_end_date
+            subscription.updated_at = datetime.utcnow()
+
+            session.commit()
+
             return jsonify({
-                'success': False,
-                'error': 'No active subscription found for user'
-            }), 404
-
-        # Extend the subscription
-        if subscription.current_period_end:
-            new_end_date = subscription.current_period_end + timedelta(days=days)
-        else:
-            new_end_date = datetime.utcnow() + timedelta(days=days)
-
-        subscription.current_period_end = new_end_date
-        subscription.updated_at = datetime.utcnow()
-
-        session.commit()
-
-        return jsonify({
-            'success': True,
-            'subscription': subscription.to_dict(),
-            'extended_days': days,
-            'new_end_date': new_end_date.isoformat(),
-            'reason': reason,
-            'extended_by_admin_id': request.admin_id
-        }), 200
+                'success': True,
+                'subscription': subscription.to_dict(),
+                'extended_days': days,
+                'new_end_date': new_end_date.isoformat(),
+                'reason': reason,
+                'extended_by_admin_id': request.admin_id
+            }), 200
 
     except Exception as e:
-        session.rollback()
         return jsonify({
             'success': False,
             'error': str(e)
         }), 500
-    finally:
-        session.close()
 
 
 @subscription_admin_bp.route('/users/<int:user_id>/plan', methods=['PUT'])
@@ -249,64 +242,60 @@ def change_user_plan(user_id):
                 'error': f'Invalid plan or billing period: {new_plan_str}, {billing_period_str}'
             }), 400
 
-        session = get_db_session()
+        with get_db_session() as session:
+            # Get current subscription
+            subscription = session.query(Subscription).filter(
+                Subscription.user_id == user_id
+            ).order_by(Subscription.created_at.desc()).first()
 
-        # Get current subscription
-        subscription = session.query(Subscription).filter(
-            Subscription.user_id == user_id
-        ).order_by(Subscription.created_at.desc()).first()
-
-        if not subscription:
-            # Create new subscription if none exists
-            subscription = Subscription(
-                user_id=user_id,
-                user_email=f'user_{user_id}@coinpulse.com',  # Placeholder
-                plan=new_plan_str,  # Store as string, not Enum
-                billing_period=billing_period_str,  # Store as string, not Enum
-                status='active',  # Store as string, not Enum
-                amount=PLAN_PRICING.get(new_plan, {}).get(billing_period, 0) or 0,
-                started_at=datetime.utcnow(),
-                current_period_start=datetime.utcnow(),
-                current_period_end=datetime.utcnow() + timedelta(days=30 if billing_period == BillingPeriod.MONTHLY else 365)
-            )
-            session.add(subscription)
-            old_plan = 'none'
-        else:
-            # subscription.plan is already a string, not an Enum
-            old_plan = subscription.plan if isinstance(subscription.plan, str) else subscription.plan.value
-            subscription.plan = new_plan_str  # Store as string
-            subscription.billing_period = billing_period_str  # Store as string
-            subscription.amount = PLAN_PRICING.get(new_plan, {}).get(billing_period, 0) or 0
-            subscription.updated_at = datetime.utcnow()
-
-            # If upgrading from free, set start dates
-            if old_plan == 'free' and new_plan_str != 'free':
-                subscription.status = 'active'  # Store as string, not Enum
-                subscription.started_at = datetime.utcnow()
-                subscription.current_period_start = datetime.utcnow()
-                subscription.current_period_end = datetime.utcnow() + timedelta(
-                    days=30 if billing_period == BillingPeriod.MONTHLY else 365
+            if not subscription:
+                # Create new subscription if none exists
+                subscription = Subscription(
+                    user_id=user_id,
+                    user_email=f'user_{user_id}@coinpulse.com',  # Placeholder
+                    plan=new_plan_str,  # Store as string, not Enum
+                    billing_period=billing_period_str,  # Store as string, not Enum
+                    status='active',  # Store as string, not Enum
+                    amount=PLAN_PRICING.get(new_plan, {}).get(billing_period, 0) or 0,
+                    started_at=datetime.utcnow(),
+                    current_period_start=datetime.utcnow(),
+                    current_period_end=datetime.utcnow() + timedelta(days=30 if billing_period == BillingPeriod.MONTHLY else 365)
                 )
+                session.add(subscription)
+                old_plan = 'none'
+            else:
+                # subscription.plan is already a string, not an Enum
+                old_plan = subscription.plan if isinstance(subscription.plan, str) else subscription.plan.value
+                subscription.plan = new_plan_str  # Store as string
+                subscription.billing_period = billing_period_str  # Store as string
+                subscription.amount = PLAN_PRICING.get(new_plan, {}).get(billing_period, 0) or 0
+                subscription.updated_at = datetime.utcnow()
 
-        session.commit()
+                # If upgrading from free, set start dates
+                if old_plan == 'free' and new_plan_str != 'free':
+                    subscription.status = 'active'  # Store as string, not Enum
+                    subscription.started_at = datetime.utcnow()
+                    subscription.current_period_start = datetime.utcnow()
+                    subscription.current_period_end = datetime.utcnow() + timedelta(
+                        days=30 if billing_period == BillingPeriod.MONTHLY else 365
+                    )
 
-        return jsonify({
-            'success': True,
-            'subscription': subscription.to_dict(),
-            'old_plan': old_plan,
-            'new_plan': new_plan_str,
-            'reason': reason,
-            'changed_by_admin_id': request.admin_id
-        }), 200
+            session.commit()
+
+            return jsonify({
+                'success': True,
+                'subscription': subscription.to_dict(),
+                'old_plan': old_plan,
+                'new_plan': new_plan_str,
+                'reason': reason,
+                'changed_by_admin_id': request.admin_id
+            }), 200
 
     except Exception as e:
-        session.rollback()
         return jsonify({
             'success': False,
             'error': str(e)
         }), 500
-    finally:
-        session.close()
 
 
 @subscription_admin_bp.route('/users/<int:user_id>/custom-period', methods=['POST'])
@@ -362,46 +351,42 @@ def set_custom_period(user_id):
                 'error': 'End date must be after start date'
             }), 400
 
-        session = get_db_session()
+        with get_db_session() as session:
+            # Get current subscription
+            subscription = session.query(Subscription).filter(
+                Subscription.user_id == user_id
+            ).order_by(Subscription.created_at.desc()).first()
 
-        # Get current subscription
-        subscription = session.query(Subscription).filter(
-            Subscription.user_id == user_id
-        ).order_by(Subscription.created_at.desc()).first()
+            if not subscription:
+                return jsonify({
+                    'success': False,
+                    'error': 'No subscription found for user. Create subscription first.'
+                }), 404
 
-        if not subscription:
+            # Set custom period
+            subscription.current_period_start = start_date
+            subscription.current_period_end = end_date
+            subscription.started_at = start_date
+            subscription.status = 'active'  # Store as string, not Enum
+            subscription.updated_at = datetime.utcnow()
+
+            period_days = (end_date - start_date).days
+
+            session.commit()
+
             return jsonify({
-                'success': False,
-                'error': 'No subscription found for user. Create subscription first.'
-            }), 404
-
-        # Set custom period
-        subscription.current_period_start = start_date
-        subscription.current_period_end = end_date
-        subscription.started_at = start_date
-        subscription.status = 'active'  # Store as string, not Enum
-        subscription.updated_at = datetime.utcnow()
-
-        period_days = (end_date - start_date).days
-
-        session.commit()
-
-        return jsonify({
-            'success': True,
-            'subscription': subscription.to_dict(),
-            'period_days': period_days,
-            'reason': reason,
-            'set_by_admin_id': request.admin_id
-        }), 200
+                'success': True,
+                'subscription': subscription.to_dict(),
+                'period_days': period_days,
+                'reason': reason,
+                'set_by_admin_id': request.admin_id
+            }), 200
 
     except Exception as e:
-        session.rollback()
         return jsonify({
             'success': False,
             'error': str(e)
         }), 500
-    finally:
-        session.close()
 
 
 @subscription_admin_bp.route('/users/<int:user_id>/cancel', methods=['POST'])
@@ -428,47 +413,43 @@ def admin_cancel_subscription(user_id):
         reason = data.get('reason', 'Admin cancellation')
         immediate = data.get('immediate', False)
 
-        session = get_db_session()
+        with get_db_session() as session:
+            subscription = session.query(Subscription).filter(
+                Subscription.user_id == user_id,
+                Subscription.status == 'active'  # Compare with string, not Enum
+            ).first()
 
-        subscription = session.query(Subscription).filter(
-            Subscription.user_id == user_id,
-            Subscription.status == 'active'  # Compare with string, not Enum
-        ).first()
+            if not subscription:
+                return jsonify({
+                    'success': False,
+                    'error': 'No active subscription found for user'
+                }), 404
 
-        if not subscription:
+            subscription.status = 'cancelled'  # Store as string, not Enum
+            subscription.cancelled_at = datetime.utcnow()
+
+            if immediate:
+                subscription.ended_at = datetime.utcnow()
+                subscription.current_period_end = datetime.utcnow()
+
+            subscription.updated_at = datetime.utcnow()
+
+            session.commit()
+
             return jsonify({
-                'success': False,
-                'error': 'No active subscription found for user'
-            }), 404
-
-        subscription.status = 'cancelled'  # Store as string, not Enum
-        subscription.cancelled_at = datetime.utcnow()
-
-        if immediate:
-            subscription.ended_at = datetime.utcnow()
-            subscription.current_period_end = datetime.utcnow()
-
-        subscription.updated_at = datetime.utcnow()
-
-        session.commit()
-
-        return jsonify({
-            'success': True,
-            'subscription': subscription.to_dict(),
-            'cancelled_at': subscription.cancelled_at.isoformat(),
-            'immediate': immediate,
-            'reason': reason,
-            'cancelled_by_admin_id': request.admin_id
-        }), 200
+                'success': True,
+                'subscription': subscription.to_dict(),
+                'cancelled_at': subscription.cancelled_at.isoformat(),
+                'immediate': immediate,
+                'reason': reason,
+                'cancelled_by_admin_id': request.admin_id
+            }), 200
 
     except Exception as e:
-        session.rollback()
         return jsonify({
             'success': False,
             'error': str(e)
         }), 500
-    finally:
-        session.close()
 
 
 @subscription_admin_bp.route('/stats', methods=['GET'])
@@ -498,57 +479,54 @@ def get_subscription_stats():
     }
     """
     try:
-        session = get_db_session()
+        with get_db_session() as session:
+            # Total subscriptions
+            total_subs = session.query(Subscription).count()
 
-        # Total subscriptions
-        total_subs = session.query(Subscription).count()
+            # By plan
+            by_plan = {}
+            for plan in SubscriptionPlan:
+                count = session.query(Subscription).filter(
+                    Subscription.plan == plan
+                ).count()
+                by_plan[plan.value] = count
 
-        # By plan
-        by_plan = {}
-        for plan in SubscriptionPlan:
-            count = session.query(Subscription).filter(
-                Subscription.plan == plan
-            ).count()
-            by_plan[plan.value] = count
+            # By status
+            by_status = {}
+            for status in SubscriptionStatus:
+                count = session.query(Subscription).filter(
+                    Subscription.status == status
+                ).count()
+                by_status[status.value] = count
 
-        # By status
-        by_status = {}
-        for status in SubscriptionStatus:
-            count = session.query(Subscription).filter(
-                Subscription.status == status
-            ).count()
-            by_status[status.value] = count
+            # Calculate MRR (Monthly Recurring Revenue)
+            active_subs = session.query(Subscription).filter(
+                Subscription.status == SubscriptionStatus.ACTIVE
+            ).all()
 
-        # Calculate MRR (Monthly Recurring Revenue)
-        active_subs = session.query(Subscription).filter(
-            Subscription.status == SubscriptionStatus.ACTIVE
-        ).all()
+            total_mrr = 0
+            for sub in active_subs:
+                if sub.billing_period == BillingPeriod.MONTHLY:
+                    total_mrr += sub.amount
+                elif sub.billing_period == BillingPeriod.ANNUAL:
+                    total_mrr += sub.amount / 12  # Convert annual to monthly
 
-        total_mrr = 0
-        for sub in active_subs:
-            if sub.billing_period == BillingPeriod.MONTHLY:
-                total_mrr += sub.amount
-            elif sub.billing_period == BillingPeriod.ANNUAL:
-                total_mrr += sub.amount / 12  # Convert annual to monthly
-
-        return jsonify({
-            'success': True,
-            'stats': {
-                'total_subscriptions': total_subs,
-                'by_plan': by_plan,
-                'by_status': by_status,
-                'total_mrr': int(total_mrr),
-                'currency': 'KRW'
-            }
-        }), 200
+            return jsonify({
+                'success': True,
+                'stats': {
+                    'total_subscriptions': total_subs,
+                    'by_plan': by_plan,
+                    'by_status': by_status,
+                    'total_mrr': int(total_mrr),
+                    'currency': 'KRW'
+                }
+            }), 200
 
     except Exception as e:
         return jsonify({
             'success': False,
             'error': str(e)
         }), 500
-    finally:
-        session.close()
 
 
 @subscription_admin_bp.route('/health', methods=['GET'])
