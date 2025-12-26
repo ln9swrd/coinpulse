@@ -6,7 +6,7 @@ Surge Alert System Models
 참고 문서: docs/features/SURGE_ALERT_SYSTEM.md v2.0
 """
 
-from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, ForeignKey, Index, BigInteger, Text, JSON
+from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, ForeignKey, Index, BigInteger, Text, JSON, Numeric
 from datetime import datetime
 from backend.database.connection import Base
 
@@ -200,20 +200,21 @@ class SurgeAlert(Base):
     # Signal info
     confidence = Column(Float, nullable=False)   # 85.5
 
-    # Price info
-    entry_price = Column(BigInteger, nullable=True)      # Entry price at signal time
-    target_price = Column(BigInteger, nullable=True)     # Predicted target price
-    stop_loss_price = Column(BigInteger, nullable=True)  # Stop loss price
+    # Price info (Numeric(20, 6) for up to 6 decimal places)
+    entry_price = Column(Numeric(20, 6), nullable=True)      # Entry price at signal time
+    target_price = Column(Numeric(20, 6), nullable=True)     # Predicted target price
+    stop_loss_price = Column(Numeric(20, 6), nullable=True)  # Stop loss price
+    exit_price = Column(Numeric(20, 6), nullable=True)       # Exit price when signal closed
 
     # Auto trading info
     auto_traded = Column(Boolean, default=False, nullable=False)  # Was auto-traded?
-    trade_amount = Column(BigInteger, nullable=True)      # Trade amount in KRW
+    trade_amount = Column(Numeric(20, 6), nullable=True)      # Trade amount in KRW (supports decimal)
     trade_quantity = Column(Float, nullable=True)         # Quantity purchased
     order_id = Column(String(50), nullable=True)          # Upbit order ID
 
     # Result info
     status = Column(String(20), nullable=True)            # pending/executed/stopped/completed
-    profit_loss = Column(BigInteger, nullable=True)       # Profit/loss in KRW
+    profit_loss = Column(Numeric(20, 6), nullable=True)       # Profit/loss in KRW (supports decimal)
     profit_loss_percent = Column(Float, nullable=True)    # Profit/loss %
 
     # Alert metadata
@@ -252,6 +253,7 @@ class SurgeAlert(Base):
             'entry_price': self.entry_price,
             'target_price': self.target_price,
             'stop_loss_price': self.stop_loss_price,
+            'exit_price': self.exit_price,
             'auto_traded': self.auto_traded,
             'trade_amount': self.trade_amount,
             'trade_quantity': self.trade_quantity,

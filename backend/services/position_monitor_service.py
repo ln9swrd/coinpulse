@@ -267,7 +267,7 @@ class PositionMonitorService:
 
                     position.profit_loss = profit_loss
                     position.profit_loss_percent = profit_loss_percent
-                    position.exit_price = int(current_price)
+                    position.exit_price = round(current_price, 6)  # Support up to 6 decimal places
                     position.closed_at = datetime.utcnow()
 
                     session.commit()
