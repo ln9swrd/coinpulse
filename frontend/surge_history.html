@@ -800,6 +800,15 @@
             };
         }
 
+        // Format price with 2 decimal places
+        function formatPrice(price) {
+            if (price === null || price === undefined) return '-';
+            return Number(price).toLocaleString('ko-KR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
         // State
         let currentPage = 1;
         let perPage = 50;
@@ -970,7 +979,7 @@
             statConfidence.textContent = stats.avg_confidence.toFixed(1);
 
             const profit = stats.total_profit_loss;
-            profitEl.textContent = Math.abs(profit).toLocaleString();
+            profitEl.textContent = formatPrice(Math.abs(profit));
             profitEl.style.color = profit >= 0 ? '#10b981' : '#ef4444';
 
             statProfitable.textContent = stats.profitable_trades.toLocaleString();
@@ -1080,17 +1089,17 @@
                         </td>
                         <td>${confidence}%</td>
                         <td>${autoTradedBadge}</td>
-                        <td>${alert.entry_price ? alert.entry_price.toLocaleString() + '원' : '-'}</td>
-                        <td style="color: #10b981; font-weight: 600;">${alert.target_price ? alert.target_price.toLocaleString() + '원' : '-'}</td>
-                        <td style="color: #3b82f6; font-weight: 600;">${alert.exit_price ? alert.exit_price.toLocaleString() + '원' : '-'}</td>
-                        <td style="color: #ef4444; font-weight: 600;">${alert.stop_loss_price ? alert.stop_loss_price.toLocaleString() + '원' : '-'}</td>
+                        <td>${alert.entry_price ? formatPrice(alert.entry_price) + '원' : '-'}</td>
+                        <td style="color: #10b981; font-weight: 600;">${alert.target_price ? formatPrice(alert.target_price) + '원' : '-'}</td>
+                        <td style="color: #3b82f6; font-weight: 600;">${alert.exit_price ? formatPrice(alert.exit_price) + '원' : '-'}</td>
+                        <td style="color: #ef4444; font-weight: 600;">${alert.stop_loss_price ? formatPrice(alert.stop_loss_price) + '원' : '-'}</td>
                         <td>
                             <span class="badge ${statusBadge}">
                                 ${statusIcon} ${statusText}
                             </span>
                         </td>
                         <td style="color: ${profitLoss > 0 ? '#10b981' : profitLoss < 0 ? '#ef4444' : '#666'}; font-weight: 600;">
-                            ${profitLoss > 0 ? '+' : ''}${profitLoss.toLocaleString()}원
+                            ${profitLoss > 0 ? '+' : ''}${formatPrice(profitLoss)}원
                             <span style="font-size: 0.9em;">(${profitLoss > 0 ? '+' : ''}${profitLossPercent}%)</span>
                             ${alert.close_reason ? '<br><span style="font-size: 0.85em; color: #888;">' + alert.close_reason + '</span>' : ''}
                         </td>

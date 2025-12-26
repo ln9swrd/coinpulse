@@ -210,6 +210,15 @@
             return localStorage.getItem('access_token') || localStorage.getItem('auth_token');
         }
 
+        // Format price with 2 decimal places and thousand separators
+        function formatPrice(price) {
+            if (price === null || price === undefined) return '-';
+            return Number(price).toLocaleString('ko-KR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
         // Initialize
         async function init() {
             console.log('[Signals] Initializing...');
@@ -263,9 +272,7 @@
 
                     if (profitLossEl) {
                         const profitLoss = stats.total_profit_loss || 0;
-                        const profitLossText = profitLoss >= 0 ?
-                            '+' + profitLoss.toLocaleString() + ' KRW' :
-                            profitLoss.toLocaleString() + ' KRW';
+                        const profitLossText = (profitLoss >= 0 ? '+' : '') + formatPrice(profitLoss) + ' KRW';
                         profitLossEl.textContent = profitLossText;
                         profitLossEl.style.color = profitLoss >= 0 ? '#10b981' : '#ef4444';
                     }
@@ -351,15 +358,15 @@
                             <div class="signal-prices">
                                 <div class="price-item">
                                     <div class="price-label">진입가</div>
-                                    <div class="price-value">KRW ${signal.entry_price ? signal.entry_price.toLocaleString() : '-'}</div>
+                                    <div class="price-value">KRW ${formatPrice(signal.entry_price)}</div>
                                 </div>
                                 <div class="price-item">
                                     <div class="price-label">목표가</div>
-                                    <div class="price-value" style="color: #10b981;">KRW ${signal.target_price ? signal.target_price.toLocaleString() : '-'}</div>
+                                    <div class="price-value" style="color: #10b981;">KRW ${formatPrice(signal.target_price)}</div>
                                 </div>
                                 <div class="price-item">
                                     <div class="price-label">손절가</div>
-                                    <div class="price-value" style="color: #ef4444;">KRW ${signal.stop_loss ? signal.stop_loss.toLocaleString() : '-'}</div>
+                                    <div class="price-value" style="color: #ef4444;">KRW ${formatPrice(signal.stop_loss)}</div>
                                 </div>
                                 <div class="price-item">
                                     <div class="price-label">예상 수익률</div>
@@ -373,7 +380,7 @@
 
                             ${item.profit_loss !== null && item.profit_loss !== undefined ? `
                                 <div class="signal-info" style="background: ${item.profit_loss >= 0 ? '#d1fae5' : '#fee2e2'}; padding: 10px; border-radius: 6px;">
-                                    <strong>실행 결과:</strong> ${item.profit_loss >= 0 ? '+' : ''}${item.profit_loss.toLocaleString()} KRW
+                                    <strong>실행 결과:</strong> ${item.profit_loss >= 0 ? '+' : ''}${formatPrice(item.profit_loss)} KRW
                                     ${item.profit_loss_ratio !== null && item.profit_loss_ratio !== undefined ? `(${item.profit_loss_ratio >= 0 ? '+' : ''}${item.profit_loss_ratio.toFixed(2)}%)` : ''}
                                 </div>
                             ` : ''}

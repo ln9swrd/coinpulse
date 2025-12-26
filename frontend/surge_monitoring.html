@@ -913,21 +913,13 @@
             return html;
         }
 
-        // 가격 포맷
+        // 가격 포맷 (소수점 2자리로 통일)
         function formatPrice(price) {
-            // Null/undefined check
-            if (price === null || price === undefined || isNaN(price)) {
-                return '—';
-            }
-
-            const numPrice = Number(price);
-            if (numPrice >= 1000) {
-                return numPrice.toLocaleString('ko-KR', { maximumFractionDigits: 0 });
-            } else if (numPrice >= 1) {
-                return numPrice.toLocaleString('ko-KR', { maximumFractionDigits: 2 });
-            } else {
-                return numPrice.toLocaleString('ko-KR', { maximumFractionDigits: 4 });
-            }
+            if (price === null || price === undefined) return '-';
+            return Number(price).toLocaleString('ko-KR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
         }
 
         // 에러 표시
