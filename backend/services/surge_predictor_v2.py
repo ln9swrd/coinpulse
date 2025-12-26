@@ -13,7 +13,7 @@ Key difference from V1:
 import statistics
 
 
-class SurgePredictor:
+class SurgePredictorV2:
     """
     Early Detection Surge Predictor.
 
@@ -110,7 +110,7 @@ class SurgePredictor:
             }
 
         except Exception as e:
-            print(f"[SurgePredictor] ERROR analyzing {coin_symbol}: {e}")
+            print(f"[SurgePredictorV2] ERROR analyzing {coin_symbol}: {e}")
             return {
                 'coin': coin_symbol,
                 'score': 0,
@@ -177,7 +177,7 @@ class SurgePredictor:
             }
 
         except Exception as e:
-            print(f"[SurgePredictor] Accumulation detection error: {e}")
+            print(f"[SurgePredictorV2] Accumulation detection error: {e}")
             return {'score': 0, 'description': 'Error'}
 
     def _detect_support_bounce(self, candle_data, current_price):
@@ -235,7 +235,7 @@ class SurgePredictor:
             }
 
         except Exception as e:
-            print(f"[SurgePredictor] Support bounce error: {e}")
+            print(f"[SurgePredictorV2] Support bounce error: {e}")
             return {'score': 0, 'description': 'Error'}
 
     def _detect_early_momentum(self, candle_data):
@@ -294,7 +294,7 @@ class SurgePredictor:
             }
 
         except Exception as e:
-            print(f"[SurgePredictor] Early momentum error: {e}")
+            print(f"[SurgePredictorV2] Early momentum error: {e}")
             return {'score': 0, 'description': 'Error'}
 
     def _detect_volume_timing(self, candle_data):
@@ -352,7 +352,7 @@ class SurgePredictor:
             }
 
         except Exception as e:
-            print(f"[SurgePredictor] Volume timing error: {e}")
+            print(f"[SurgePredictorV2] Volume timing error: {e}")
             return {'score': 0, 'description': 'Error'}
 
     def _detect_pattern(self, candle_data):
@@ -406,7 +406,7 @@ class SurgePredictor:
             }
 
         except Exception as e:
-            print(f"[SurgePredictor] Pattern detection error: {e}")
+            print(f"[SurgePredictorV2] Pattern detection error: {e}")
             return {'score': 0, 'description': 'Error'}
 
     def _calculate_rsi(self, candle_data, period=14):
@@ -441,7 +441,7 @@ class SurgePredictor:
             return rsi
 
         except Exception as e:
-            print(f"[SurgePredictor] RSI calculation error: {e}")
+            print(f"[SurgePredictorV2] RSI calculation error: {e}")
             return 50
 
     def _calculate_score(self, signals):
@@ -498,7 +498,7 @@ class SurgePredictor:
                 return 'missed'
 
         except Exception as e:
-            print(f"[SurgePredictor] Entry timing error: {e}")
+            print(f"[SurgePredictorV2] Entry timing error: {e}")
             return 'unknown'
 
     def get_target_prices(self, entry_price, analysis_result, settings=None):
