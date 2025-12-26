@@ -244,45 +244,43 @@ def update_user_plan(current_user, user_id):
         plan_code = plan_mapping.get(plan_code, plan_code)
 
         with get_db_session() as session:
-            # 기존 구독 비활성화
-            deactivate_query = text("""
-                UPDATE user_subscriptions
-                SET status = 'cancelled',
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE user_id = :user_id
-                AND status = 'active'
-            """)
-            session.execute(deactivate_query, {"user_id": user_id})
-
-            # 새 구독 생성
-            expires_at = None  # Initialize to avoid NameError when plan is 'free'
+            # Calculate expires_at
+            expires_at = None
             if plan_code != 'free':
-                # Calculate expires_at based on duration_days
-                # If duration_days is None, expires_at remains None (unlimited period)
                 if duration_days is not None:
                     expires_at = datetime.now() + timedelta(days=duration_days)
-                # else: expires_at stays None (unlimited)
 
-                insert_query = text("""
-                    INSERT INTO user_subscriptions (
-                        user_id, plan, status,
-                        started_at, current_period_start, current_period_end,
-                        billing_period, amount, currency,
-                        created_at, updated_at
-                    )
-                    VALUES (
-                        :user_id, :plan, 'active',
-                        CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :expires_at,
-                        'monthly', 0, 'KRW',
-                        CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
-                    )
-                """)
+            # Use UPSERT to handle existing subscription
+            upsert_query = text("""
+                INSERT INTO user_subscriptions (
+                    user_id, plan, status,
+                    started_at, expires_at,
+                    current_period_start, current_period_end,
+                    billing_period, amount, currency,
+                    created_at, updated_at
+                )
+                VALUES (
+                    :user_id, :plan, 'active',
+                    CURRENT_TIMESTAMP, :expires_at,
+                    CURRENT_TIMESTAMP, :expires_at,
+                    'monthly', 0, 'KRW',
+                    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+                )
+                ON CONFLICT (user_id) DO UPDATE SET
+                    plan = EXCLUDED.plan,
+                    status = 'active',
+                    started_at = CURRENT_TIMESTAMP,
+                    expires_at = EXCLUDED.expires_at,
+                    current_period_start = CURRENT_TIMESTAMP,
+                    current_period_end = EXCLUDED.expires_at,
+                    updated_at = CURRENT_TIMESTAMP
+            """)
 
-                session.execute(insert_query, {
-                    "user_id": user_id,
-                    "plan": plan_code,
-                    "expires_at": expires_at
-                })
+            session.execute(upsert_query, {
+                "user_id": user_id,
+                "plan": plan_code,
+                "expires_at": expires_at
+            })
 
             session.commit()
 
