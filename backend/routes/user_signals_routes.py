@@ -171,13 +171,14 @@ def get_user_signal_stats():
 
         with get_db_session() as session:
             # Get statistics
-            # Calculate wins/losses based on actual exit_price vs entry_price (like surge monitoring)
+            # Calculate wins/losses based on actual exit_price vs entry_price
+            # NOTE: exit_price <= entry_price is considered a loss (due to trading fees ~0.1%)
             stats_query = text("""
                 SELECT
                     COUNT(*) as total_received,
                     COUNT(CASE WHEN auto_traded = true THEN 1 END) as executed,
                     COUNT(CASE WHEN exit_price IS NOT NULL AND exit_price > entry_price THEN 1 END) as wins,
-                    COUNT(CASE WHEN exit_price IS NOT NULL AND exit_price < entry_price THEN 1 END) as losses,
+                    COUNT(CASE WHEN exit_price IS NOT NULL AND exit_price <= entry_price THEN 1 END) as losses,
                     SUM(COALESCE(profit_loss, 0)) as total_profit_loss,
                     COUNT(CASE WHEN sent_at >= DATE_TRUNC('month', CURRENT_DATE) THEN 1 END) as this_month
                 FROM surge_alerts
