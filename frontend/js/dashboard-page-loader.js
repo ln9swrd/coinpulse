@@ -204,9 +204,19 @@
             window.addEventListener('hashchange', handleHashChange);
 
             // Load initial page based on hash
-            const initialHash = window.location.hash.substring(1);
-            if (initialHash && initialHash !== 'overview') {
-                handleHashChange();
+            const initialHash = window.location.hash.substring(1) || 'overview';
+            console.log('[Dashboard] Initial hash:', initialHash);
+
+            // Always load the page (including overview)
+            if (PAGE_ROUTES[initialHash]) {
+                loadExternalPage(initialHash);
+            } else if (initialHash === 'overview') {
+                // Load overview page
+                loadExternalPage('overview');
+            } else {
+                // Unknown hash - load overview as fallback
+                console.warn('[Dashboard] Unknown hash, loading overview as fallback');
+                loadExternalPage('overview');
             }
 
             console.log('[Dashboard] Page router initialized');
