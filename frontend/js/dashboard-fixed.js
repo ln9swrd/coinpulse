@@ -2907,6 +2907,12 @@
             const settingsContainer = document.getElementById('coin-settings-container');
             const saveButton = document.getElementById('save-trading-settings');
 
+            // Skip if trading settings UI elements don't exist (e.g., in simple settings page)
+            if (!searchInput || !dropdown || !dropdownList || !dropdownLoading) {
+                console.log('[Settings] Trading settings UI not found, skipping...');
+                return;
+            }
+
             let selectedCoins = [];
             let allCoins = [];
             const MAX_COINS = 5;
