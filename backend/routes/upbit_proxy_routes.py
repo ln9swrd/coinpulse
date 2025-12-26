@@ -244,38 +244,56 @@ def get_accounts():
         401: Unauthorized
         500: Error fetching accounts
     """
-    from backend.common import UpbitAPI, load_api_keys
+    from backend.common import UpbitAPI
+    from backend.database.connection import get_db_session
+    from backend.database.models import User
 
     try:
         user_id = request.user_id
 
-        # Load user's API keys
-        access_key, secret_key = load_api_keys(user_id=user_id)
+        # Get user's API keys from database
+        db = get_db_session()
+        try:
+            user = db.query(User).filter(User.id == user_id).first()
 
-        if not access_key or not secret_key:
-            logger.warning(f"[UpbitProxy] No API keys found for user {user_id}")
-            return jsonify({
-                'success': False,
-                'error': 'No Upbit API keys configured',
-                'code': 'NO_API_KEYS'
-            }), 400
+            if not user:
+                logger.warning(f"[UpbitProxy] User {user_id} not found")
+                return jsonify({
+                    'success': False,
+                    'error': 'User not found',
+                    'code': 'USER_NOT_FOUND'
+                }), 404
 
-        # Initialize Upbit API with user's keys
-        upbit_api = UpbitAPI(access_key, secret_key)
+            access_key = user.upbit_access_key
+            secret_key = user.upbit_secret_key
 
-        # Fetch accounts
-        accounts = upbit_api.get_accounts()
+            if not access_key or not secret_key:
+                logger.warning(f"[UpbitProxy] No API keys found for user {user_id}")
+                return jsonify({
+                    'success': False,
+                    'error': 'No Upbit API keys configured',
+                    'code': 'NO_API_KEYS'
+                }), 400
 
-        if accounts is not None:
-            logger.info(f"[UpbitProxy] Fetched {len(accounts)} accounts for user {user_id}")
-            return jsonify(accounts), 200
-        else:
-            logger.error(f"[UpbitProxy] Failed to fetch accounts for user {user_id}")
-            return jsonify({
-                'success': False,
-                'error': 'Failed to fetch accounts from Upbit',
-                'code': 'UPBIT_API_ERROR'
-            }), 500
+            # Initialize Upbit API with user's keys
+            upbit_api = UpbitAPI(access_key, secret_key)
+
+            # Fetch accounts
+            accounts = upbit_api.get_accounts()
+
+            if accounts is not None:
+                logger.info(f"[UpbitProxy] Fetched {len(accounts)} accounts for user {user_id}")
+                return jsonify(accounts), 200
+            else:
+                logger.error(f"[UpbitProxy] Failed to fetch accounts for user {user_id}")
+                return jsonify({
+                    'success': False,
+                    'error': 'Failed to fetch accounts from Upbit',
+                    'code': 'UPBIT_API_ERROR'
+                }), 500
+
+        finally:
+            db.close()
 
     except Exception as e:
         logger.error(f"[UpbitProxy] Error fetching accounts: {e}")
