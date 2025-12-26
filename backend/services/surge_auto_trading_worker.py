@@ -16,6 +16,7 @@ from sqlalchemy import and_
 from backend.database.connection import get_db_session
 from backend.database.models import User
 from backend.models.surge_alert_models import SurgeAutoTradingSettings, SurgeAlert
+from backend.models.subscription_models import UserSubscription
 from backend.services.surge_alert_service import get_surge_alert_service
 from backend.common import UpbitAPI, load_api_keys
 from backend.services.surge_predictor import SurgePredictor
@@ -130,15 +131,15 @@ class SurgeAutoTradingWorker:
         Get users with auto-trading enabled
 
         Returns:
-            List of (user, settings) tuples
+            List of (user, settings, plan) tuples
         """
         session = get_db_session()
 
         try:
-            # Query users with auto-trading enabled
-            # Note: Plan validation happens later when executing trades
-            results = session.query(User, SurgeAutoTradingSettings)\
+            # Query users with auto-trading enabled and join with subscription
+            results = session.query(User, SurgeAutoTradingSettings, UserSubscription)\
                 .join(SurgeAutoTradingSettings, User.id == SurgeAutoTradingSettings.user_id)\
+                .outerjoin(UserSubscription, User.id == UserSubscription.user_id)\
                 .filter(
                     and_(
                         SurgeAutoTradingSettings.enabled == True,
@@ -197,15 +198,18 @@ class SurgeAutoTradingWorker:
                     logger.debug(f"[AutoTradingWorker] {market} already processed in this cycle")
                     continue
 
-                for user, settings in active_users:
+                for user, settings, subscription in active_users:
                     try:
+                        # Get user's plan from subscription
+                        user_plan = subscription.plan if subscription else 'free'
+
                         # Check user's minimum confidence threshold
                         user_min_confidence = getattr(settings, 'min_confidence', 60.0)  # Default: 60% (stored as 60.0 in DB)
                         candidate_score = candidate['score']  # Score is already in 0-100 range
 
                         if candidate_score < user_min_confidence:
                             logger.debug(
-                                f"[AutoTradingWorker] User {user.id} skipped {market}: "
+                                f"[AutoTradingWorker] User {user.id} (plan: {user_plan}) skipped {market}: "
                                 f"score {candidate_score:.1f} < required {user_min_confidence:.1f}"
                             )
                             continue
@@ -236,7 +240,7 @@ class SurgeAutoTradingWorker:
                         target_percent = target_result['target_percent']
 
                         logger.info(
-                            f"[AutoTradingWorker] Dynamic target for user {user.id} on {market}: "
+                            f"[AutoTradingWorker] Dynamic target for user {user.id} (plan: {user_plan}) on {market}: "
                             f"Entry={current_price:,}, Target={target_price:,} (+{target_percent:.2f}%), "
                             f"Stop={stop_loss_price:,} ({target_result['stop_loss_percent']:.2f}%), "
                             f"Mode={target_result['calculation_mode']}"
@@ -245,7 +249,7 @@ class SurgeAutoTradingWorker:
                         # Send alert and potentially execute trade with dynamic prices
                         success, alert = surge_service.send_alert_to_user(
                             user_id=user.id,
-                            plan=user.plan or 'free',
+                            plan=user_plan,
                             market=market,
                             coin=candidate['coin'],
                             confidence=candidate['score'],
