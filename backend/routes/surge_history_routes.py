@@ -143,14 +143,15 @@ def get_surge_history(current_user):
                 alerts.append(alert)
 
             # Get statistics
+            # NOTE: Use exit_price comparison instead of profit_loss to include breakeven as loss
             stats_query = f"""
                 SELECT
                     COUNT(*) as total_alerts,
                     SUM(CASE WHEN auto_traded = true THEN 1 ELSE 0 END) as auto_traded_count,
                     AVG(confidence) as avg_confidence,
                     SUM(COALESCE(profit_loss, 0)) as total_profit_loss,
-                    SUM(CASE WHEN profit_loss > 0 THEN 1 ELSE 0 END) as profitable_trades,
-                    SUM(CASE WHEN profit_loss < 0 THEN 1 ELSE 0 END) as losing_trades
+                    SUM(CASE WHEN exit_price IS NOT NULL AND exit_price > entry_price THEN 1 ELSE 0 END) as profitable_trades,
+                    SUM(CASE WHEN exit_price IS NOT NULL AND exit_price <= entry_price THEN 1 ELSE 0 END) as losing_trades
                 FROM surge_alerts
                 {where_sql}
             """
