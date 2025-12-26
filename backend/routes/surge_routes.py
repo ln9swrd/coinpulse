@@ -146,6 +146,8 @@ def calculate_backtest_stats(period_start=None, period_end=None, use_dynamic_per
 
             if result and result.total_trades > 0:
                 win_rate = (result.wins / result.total_trades * 100) if result.total_trades > 0 else 0
+                # Cap win rate at 99.5% (100% is unrealistic)
+                win_rate = min(win_rate, 99.5)
 
                 return {
                     'win_rate': round(win_rate, 2),
