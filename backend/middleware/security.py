@@ -166,10 +166,12 @@ class RateLimiter:
            path_without_query.startswith('/api/auto-trading/history/'):
             return True, 0
 
-        # Exclude Upbit proxy endpoints (chart data, market info)
+        # Exclude Upbit proxy endpoints (chart data, market info, accounts, orders)
         if path_without_query.startswith('/api/upbit/candles/') or \
            path_without_query.startswith('/api/upbit/ticker') or \
-           path_without_query.startswith('/api/upbit/market/'):
+           path_without_query.startswith('/api/upbit/market/') or \
+           path_without_query.startswith('/api/upbit/accounts') or \
+           path_without_query.startswith('/api/upbit/orders'):
             return True, 0
 
         # Exclude WebSocket (Socket.IO) endpoints (real-time communication)
