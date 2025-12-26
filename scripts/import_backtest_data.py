@@ -60,6 +60,9 @@ def import_backtest_data(min_score=60):
                 # Parse date
                 sent_at = datetime.strptime(surge_date[:19], '%Y-%m-%dT%H:%M:%S')
 
+                # Calculate week number (ISO week)
+                week_number = sent_at.isocalendar()[1]
+
                 # Calculate target and stop loss
                 target_price = int(entry_price * 1.10)  # +10%
                 stop_loss_price = int(entry_price * 0.95)  # -5%
@@ -125,7 +128,7 @@ def import_backtest_data(min_score=60):
                 # Insert surge alert
                 insert_query = text("""
                     INSERT INTO surge_alerts (
-                        user_id, market, coin, confidence, signal_type,
+                        user_id, market, coin, confidence, signal_type, week_number,
                         entry_price, target_price, stop_loss_price, expected_return,
                         current_price, peak_price, exit_price,
                         reason, alert_message,
@@ -134,7 +137,7 @@ def import_backtest_data(min_score=60):
                         close_reason, closed_at,
                         auto_traded, trade_amount, order_id
                     ) VALUES (
-                        :user_id, :market, :coin, :confidence, :signal_type,
+                        :user_id, :market, :coin, :confidence, :signal_type, :week_number,
                         :entry_price, :target_price, :stop_loss_price, :expected_return,
                         :current_price, :peak_price, :exit_price,
                         :reason, :alert_message,
@@ -153,6 +156,7 @@ def import_backtest_data(min_score=60):
                     'coin': coin,
                     'confidence': score,
                     'signal_type': 'surge',  # This is a surge signal
+                    'week_number': week_number,
                     'entry_price': entry_price,
                     'target_price': target_price,
                     'stop_loss_price': stop_loss_price,
