@@ -280,6 +280,9 @@
             <button class="tab-button" data-tab="notifications">
                 🔔 알림 설정
             </button>
+            <button class="tab-button" data-tab="account">
+                🔐 계정 관리
+            </button>
         </div>
 
         <!-- Tab: API Keys -->
@@ -413,6 +416,40 @@
 
                 <button class="btn-save" onclick="saveNotificationSettings()">
                     알림 설정 저장
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab: Account Management -->
+        <div class="tab-content" id="tab-account">
+            <div class="settings-section">
+                <h2>🔐 비밀번호 변경</h2>
+                <form id="password-form">
+                    <div class="form-group">
+                        <label for="current-password">현재 비밀번호</label>
+                        <input type="password" id="current-password" placeholder="현재 비밀번호를 입력하세요" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-password">새 비밀번호</label>
+                        <input type="password" id="new-password" placeholder="새 비밀번호를 입력하세요 (최소 8자)" required minlength="8">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-password">새 비밀번호 확인</label>
+                        <input type="password" id="confirm-password" placeholder="새 비밀번호를 다시 입력하세요" required minlength="8">
+                    </div>
+                    <button type="submit" class="btn-save">
+                        비밀번호 변경
+                    </button>
+                </form>
+            </div>
+
+            <div class="settings-section" style="margin-top: 24px;">
+                <h2 style="color: #dc2626;">⚠️ 위험 구역</h2>
+                <p style="color: #666; margin-bottom: 16px;">
+                    계정을 삭제하면 모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다.
+                </p>
+                <button class="btn-save" id="delete-account-btn" style="background: #dc2626;" onclick="deleteAccount()">
+                    계정 삭제
                 </button>
             </div>
         </div>
@@ -623,6 +660,95 @@
         function saveNotificationSettings() {
             // TODO: Implement notification settings save
             alert('알림 설정이 저장되었습니다.');
+        }
+
+        // Handle password change form
+        const passwordForm = document.getElementById('password-form');
+        if (passwordForm) {
+            passwordForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const currentPassword = document.getElementById('current-password').value;
+                const newPassword = document.getElementById('new-password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+
+                if (newPassword !== confirmPassword) {
+                    alert('새 비밀번호가 일치하지 않습니다.');
+                    return;
+                }
+
+                if (newPassword.length < 8) {
+                    alert('비밀번호는 최소 8자 이상이어야 합니다.');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${window.API_BASE}/api/user/password`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${getAuthToken()}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            current_password: currentPassword,
+                            new_password: newPassword
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        alert('✅ 비밀번호가 성공적으로 변경되었습니다!');
+                        passwordForm.reset();
+                    } else {
+                        alert('❌ 비밀번호 변경 실패:\n' + (data.error || '알 수 없는 오류'));
+                    }
+                } catch (error) {
+                    console.error('[Settings] Password change error:', error);
+                    alert('❌ 서버 오류가 발생했습니다. 다시 시도해주세요.');
+                }
+            });
+        }
+
+        // Delete account function
+        async function deleteAccount() {
+            const confirmed = confirm(
+                '⚠️ 정말로 계정을 삭제하시겠습니까?\n\n' +
+                '이 작업은 되돌릴 수 없으며, 모든 데이터가 영구적으로 삭제됩니다.\n\n' +
+                '계속하려면 "확인"을 클릭하세요.'
+            );
+
+            if (!confirmed) return;
+
+            const doubleConfirm = confirm(
+                '⚠️ 마지막 확인\n\n' +
+                '정말로 계정을 삭제하시겠습니까?\n' +
+                '이 작업은 취소할 수 없습니다!'
+            );
+
+            if (!doubleConfirm) return;
+
+            try {
+                const response = await fetch(`${window.API_BASE}/api/user/account`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('계정이 삭제되었습니다. 로그인 페이지로 이동합니다.');
+                    localStorage.clear();
+                    window.location.href = '/login.html';
+                } else {
+                    alert('❌ 계정 삭제 실패:\n' + (data.error || '알 수 없는 오류'));
+                }
+            } catch (error) {
+                console.error('[Settings] Account deletion error:', error);
+                alert('❌ 서버 오류가 발생했습니다. 고객 지원에 문의하세요.');
+            }
         }
 
         // Initialize
