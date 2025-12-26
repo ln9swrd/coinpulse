@@ -182,30 +182,48 @@
 
                         // Render candidates
                         notificationList.innerHTML = candidates.map(candidate => {
-                            const priceChange = ((candidate.predicted_price - candidate.current_price) / candidate.current_price * 100).toFixed(2);
-                            const scorePercent = (candidate.surge_score * 100).toFixed(1);
+                            // API returns 'score' (0-100), not 'surge_score' (0-1)
+                            const score = candidate.score || 0;
+                            const scoreColor = score >= 70 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
+
+                            // Calculate expected price increase based on score
+                            const expectedIncrease = score >= 70 ? 10 : score >= 50 ? 5 : 3;
+                            const predictedPrice = candidate.current_price * (1 + expectedIncrease / 100);
+
+                            // Get main signal info
+                            const signals = candidate.signals || {};
+                            let signalInfo = '';
+                            if (signals.panic_recovery) {
+                                signalInfo = signals.panic_recovery.description || '';
+                            } else if (signals.oversold_detection) {
+                                signalInfo = signals.oversold_detection.description || '';
+                            } else if (signals.volume_reversal) {
+                                signalInfo = signals.volume_reversal.description || '';
+                            }
 
                             return `
-                                <div style="padding: 15px; margin-bottom: 10px; border-radius: 8px; background: #f9fafb; border-left: 4px solid ${candidate.surge_score >= 0.7 ? '#10b981' : '#f59e0b'}; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#f9fafb'" onclick="window.location.hash='surge'">
+                                <div style="padding: 15px; margin-bottom: 10px; border-radius: 8px; background: #f9fafb; border-left: 4px solid ${scoreColor}; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#f9fafb'" onclick="window.location.hash='surge'">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                         <div style="display: flex; align-items: center; gap: 8px;">
                                             <span style="font-weight: 700; font-size: 16px; color: #1f2937;">${candidate.market}</span>
-                                            <span style="background: ${candidate.surge_score >= 0.7 ? '#10b981' : '#f59e0b'}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600;">신뢰도 ${scorePercent}%</span>
+                                            <span style="background: ${scoreColor}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600;">점수 ${score}</span>
+                                            ${candidate.recommendation === 'strong_buy' ? '<span style="background: #10b981; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600;">강력 매수</span>' : ''}
                                         </div>
-                                        <span style="font-weight: 700; color: ${priceChange >= 0 ? '#10b981' : '#ef4444'}; font-size: 14px;">+${priceChange}%</span>
+                                        <span style="font-weight: 700; color: #10b981; font-size: 14px;">+${expectedIncrease}%</span>
                                     </div>
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; color: #6b7280;">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; color: #6b7280; margin-bottom: 8px;">
                                         <div>
                                             <span style="color: #9ca3af;">현재가:</span>
                                             <span style="font-weight: 600; color: #374151; margin-left: 4px;">${candidate.current_price.toLocaleString()}원</span>
                                         </div>
                                         <div>
                                             <span style="color: #9ca3af;">예상가:</span>
-                                            <span style="font-weight: 600; color: #10b981; margin-left: 4px;">${candidate.predicted_price.toLocaleString()}원</span>
+                                            <span style="font-weight: 600; color: #10b981; margin-left: 4px;">${predictedPrice.toLocaleString()}원</span>
                                         </div>
                                     </div>
-                                    <div style="font-size: 11px; color: #9ca3af; margin-top: 6px;">
-                                        ${new Date(candidate.predicted_at).toLocaleString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })} 예측
+                                    ${signalInfo ? `<div style="font-size: 11px; color: #6b7280; padding: 6px 8px; background: #f3f4f6; border-radius: 4px; margin-bottom: 6px;">📊 ${signalInfo}</div>` : ''}
+                                    <div style="font-size: 11px; color: #9ca3af;">
+                                        ${new Date(candidate.analyzed_at).toLocaleString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })} 분석
                                     </div>
                                 </div>
                             `;
