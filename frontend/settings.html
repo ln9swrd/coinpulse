@@ -418,39 +418,66 @@
             <div class="settings-section">
                 <h2>🔔 알림 설정</h2>
 
-                <div class="form-group">
-                    <label style="display: flex; align-items: center; cursor: pointer;">
-                        <input type="checkbox" id="notify-surge" style="width: auto; margin-right: 10px;">
-                        급등 알림 받기
-                    </label>
-                    <p style="margin: 5px 0 0 28px; font-size: 13px; color: #666;">
-                        급등 감지 시 알림을 받습니다 (Enterprise 플랜 전용)
-                    </p>
+                <!-- Development Notice -->
+                <div class="alert alert-info" style="margin-bottom: 24px;">
+                    <strong>ℹ️ 개발 중인 기능입니다</strong><br>
+                    알림 기능은 현재 개발 중이며, 향후 업데이트를 통해 제공될 예정입니다.
                 </div>
 
-                <div class="form-group">
-                    <label style="display: flex; align-items: center; cursor: pointer;">
-                        <input type="checkbox" id="notify-order" style="width: auto; margin-right: 10px;">
-                        주문 체결 알림
-                    </label>
-                    <p style="margin: 5px 0 0 28px; font-size: 13px; color: #666;">
-                        주문이 체결되면 알림을 받습니다
-                    </p>
-                </div>
+                <!-- Notification Types (Planned) -->
+                <div style="display: grid; gap: 16px;">
+                    <!-- 1. Surge Alerts -->
+                    <div style="background: #f9fafb; padding: 16px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                        <h3 style="font-size: 16px; font-weight: 600; color: #1a1a1a; margin: 0 0 8px 0;">
+                            📈 급등 알림
+                        </h3>
+                        <p style="font-size: 14px; color: #666; margin: 0 0 8px 0;">
+                            급등 신호가 감지되면 실시간으로 알림을 받습니다
+                        </p>
+                        <span style="display: inline-block; padding: 4px 12px; background: #fef3c7; color: #92400e; font-size: 12px; font-weight: 600; border-radius: 4px;">
+                            ⏳ 추후 개발 예정
+                        </span>
+                    </div>
 
-                <div class="form-group">
-                    <label style="display: flex; align-items: center; cursor: pointer;">
-                        <input type="checkbox" id="notify-price" style="width: auto; margin-right: 10px;">
-                        가격 알림
-                    </label>
-                    <p style="margin: 5px 0 0 28px; font-size: 13px; color: #666;">
-                        설정한 가격에 도달하면 알림을 받습니다
-                    </p>
-                </div>
+                    <!-- 2. Order Execution Alerts -->
+                    <div style="background: #f9fafb; padding: 16px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                        <h3 style="font-size: 16px; font-weight: 600; color: #1a1a1a; margin: 0 0 8px 0;">
+                            ✅ 주문 체결 알림
+                        </h3>
+                        <p style="font-size: 14px; color: #666; margin: 0 0 8px 0;">
+                            매수/매도 주문이 체결되면 알림을 받습니다
+                        </p>
+                        <span style="display: inline-block; padding: 4px 12px; background: #fef3c7; color: #92400e; font-size: 12px; font-weight: 600; border-radius: 4px;">
+                            ⏳ 추후 개발 예정
+                        </span>
+                    </div>
 
-                <button class="btn-save" onclick="saveNotificationSettings()">
-                    알림 설정 저장
-                </button>
+                    <!-- 3. Price Alerts -->
+                    <div style="background: #f9fafb; padding: 16px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                        <h3 style="font-size: 16px; font-weight: 600; color: #1a1a1a; margin: 0 0 8px 0;">
+                            💰 가격 알림
+                        </h3>
+                        <p style="font-size: 14px; color: #666; margin: 0 0 8px 0;">
+                            설정한 목표 가격에 도달하면 알림을 받습니다
+                        </p>
+                        <span style="display: inline-block; padding: 4px 12px; background: #fef3c7; color: #92400e; font-size: 12px; font-weight: 600; border-radius: 4px;">
+                            ⏳ 추후 개발 예정
+                        </span>
+                    </div>
+
+                    <!-- 4. System Alerts -->
+                    <div style="background: #f9fafb; padding: 16px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                        <h3 style="font-size: 16px; font-weight: 600; color: #1a1a1a; margin: 0 0 8px 0;">
+                            🔔 시스템 알림
+                        </h3>
+                        <p style="font-size: 14px; color: #666; margin: 0 0 8px 0;">
+                            시스템 점검, 업데이트 등 중요한 공지사항을 받습니다
+                        </p>
+                        <span style="display: inline-block; padding: 4px 12px; background: #fef3c7; color: #92400e; font-size: 12px; font-weight: 600; border-radius: 4px;">
+                            ⏳ 추후 개발 예정
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
