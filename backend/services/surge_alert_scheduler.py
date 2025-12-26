@@ -254,6 +254,22 @@ class SurgeAlertScheduler:
 
                 logger.info(f"[SurgeAlertScheduler] Checking {len(pending_signals)} pending signals for closure")
 
+                # Batch fetch current prices (avoid rate limit)
+                unique_markets = list(set([s['market'] for s in pending_signals]))
+                all_prices = {}
+
+                # Upbit allows up to 100 markets per request
+                for i in range(0, len(unique_markets), 100):
+                    batch_markets = unique_markets[i:i+100]
+                    try:
+                        ticker_data = self.upbit_api.get_ticker(batch_markets)
+                        for ticker in ticker_data:
+                            all_prices[ticker['market']] = int(ticker.get('trade_price', 0))
+                    except Exception as e:
+                        logger.warning(f"[SurgeAlertScheduler] Failed to fetch batch prices: {e}")
+
+                logger.info(f"[SurgeAlertScheduler] Fetched prices for {len(all_prices)} markets in {(len(unique_markets) + 99) // 100} batch(es)")
+
                 closed_count = 0
                 for signal in pending_signals:
                     signal_id = signal['id']
@@ -269,16 +285,10 @@ class SurgeAlertScheduler:
                     # Calculate elapsed time
                     hours_elapsed = (datetime.now() - entry_time).total_seconds() / 3600
 
-                    # Get current price
-                    try:
-                        ticker_data = self.upbit_api.get_ticker([market])
-                        if not ticker_data:
-                            continue
-                        current_price = int(ticker_data[0].get('trade_price', 0))
-                        if current_price == 0:
-                            continue
-                    except Exception as e:
-                        logger.warning(f"[SurgeAlertScheduler] Failed to get price for {market}: {e}")
+                    # Get current price from batch cache
+                    current_price = all_prices.get(market)
+                    if not current_price or current_price == 0:
+                        logger.warning(f"[SurgeAlertScheduler] No price data for {market}, skipping")
                         continue
 
                     # Update peak price if current is higher
