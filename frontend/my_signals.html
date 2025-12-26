@@ -343,6 +343,13 @@
                     return;
                 }
 
+                // Sort by received_at DESC (most recent first)
+                data.signals.sort((a, b) => {
+                    const dateA = new Date(a.received_at || 0);
+                    const dateB = new Date(b.received_at || 0);
+                    return dateB - dateA;  // Descending order
+                });
+
                 let html = '';
                 data.signals.forEach(item => {
                     const signal = item.signal;
