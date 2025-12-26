@@ -1025,8 +1025,8 @@
 
                 // Status badge color and text
                 let statusBadge = 'badge-secondary';
-                let statusText = 'N/A';
-                let statusIcon = '';
+                let statusText = '알 수 없음';
+                let statusIcon = '❓';
 
                 if (alert.status === 'win') {
                     statusBadge = 'badge-success';
@@ -1040,6 +1040,14 @@
                     statusBadge = 'badge-info';
                     statusText = '진행중';
                     statusIcon = '⏳';
+                } else if (alert.status === 'closed') {
+                    statusBadge = profitLoss >= 0 ? 'badge-success' : 'badge-danger';
+                    statusText = profitLoss >= 0 ? '종료(수익)' : '종료(손실)';
+                    statusIcon = profitLoss >= 0 ? '✅' : '❌';
+                } else if (alert.status === 'expired') {
+                    statusBadge = profitLoss >= 0 ? 'badge-success' : 'badge-danger';
+                    statusText = profitLoss >= 0 ? '만료(수익)' : '만료(손실)';
+                    statusIcon = profitLoss >= 0 ? '✅' : '❌';
                 } else if (alert.status === 'neutral') {
                     statusBadge = 'badge-secondary';
                     statusText = '중립';
@@ -1074,9 +1082,10 @@
                                 ${statusIcon} ${statusText}
                             </span>
                         </td>
-                        <td style="color: ${profitLoss >= 0 ? '#10b981' : '#ef4444'}; font-weight: 600;">
-                            ${profitLoss !== 0 ? (profitLoss >= 0 ? '+' : '') + profitLoss.toLocaleString() + '원' : '-'}
-                            ${profitLoss !== 0 ? ' (' + (profitLoss >= 0 ? '+' : '') + profitLossPercent + '%)' : ''}
+                        <td style="color: ${profitLoss > 0 ? '#10b981' : profitLoss < 0 ? '#ef4444' : '#666'}; font-weight: 600;">
+                            ${profitLoss > 0 ? '+' : ''}${profitLoss.toLocaleString()}원
+                            <span style="font-size: 0.9em;">(${profitLoss > 0 ? '+' : ''}${profitLossPercent}%)</span>
+                            ${alert.close_reason ? '<br><span style="font-size: 0.85em; color: #888;">' + alert.close_reason + '</span>' : ''}
                         </td>
                         <td>${new Date(alert.sent_at).toLocaleString('ko-KR')}</td>
                     </tr>
