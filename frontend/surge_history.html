@@ -1003,6 +1003,7 @@
                             <th>ID</th>
                             <th>마켓</th>
                             <th>신뢰도</th>
+                            <th>자동거래</th>
                             <th>진입가</th>
                             <th>목표가</th>
                             <th>종료가</th>
@@ -1058,6 +1059,11 @@
                     statusIcon = '📊';
                 }
 
+                // Auto-traded badge
+                const autoTradedBadge = alert.auto_traded
+                    ? '<span style="background: #10b981; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">✅ 거래 시도</span>'
+                    : '<span style="background: #e5e7eb; color: #6b7280; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">❌ 수동</span>';
+
                 html += `
                     <tr onclick="viewDetail(${alert.id})" style="cursor: pointer;">
                         <td>${alert.id}</td>
@@ -1073,6 +1079,7 @@
                             </div>
                         </td>
                         <td>${confidence}%</td>
+                        <td>${autoTradedBadge}</td>
                         <td>${alert.entry_price ? alert.entry_price.toLocaleString() + '원' : '-'}</td>
                         <td style="color: #10b981; font-weight: 600;">${alert.target_price ? alert.target_price.toLocaleString() + '원' : '-'}</td>
                         <td style="color: #3b82f6; font-weight: 600;">${alert.exit_price ? alert.exit_price.toLocaleString() + '원' : '-'}</td>
