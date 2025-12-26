@@ -211,14 +211,14 @@ def update_user_plan(current_user, user_id):
     Request Body:
     {
         "plan_code": "PREMIUM",
-        "duration_days": 30,
+        "duration_days": 30,  # Or null for unlimited period
         "notes": "계좌이체 확인 완료"
     }
     """
     try:
         data = request.json
         plan_code = data.get('plan_code')
-        duration_days = data.get('duration_days', 30)
+        duration_days = data.get('duration_days')  # Allow None for unlimited period
         notes = data.get('notes', '')
 
         if not plan_code:
@@ -227,8 +227,8 @@ def update_user_plan(current_user, user_id):
                 "error": "plan_code required"
             }), 400
 
-        # Updated 2025.12.22: Support new plan codes (free, basic, pro)
-        valid_plans = ['free', 'basic', 'pro', 'FREE', 'PREMIUM']  # Support legacy codes
+        # Updated 2025.12.22: Support new plan codes (free, basic, pro, enterprise)
+        valid_plans = ['free', 'basic', 'pro', 'enterprise', 'FREE', 'PREMIUM', 'ENTERPRISE']  # Support legacy codes
         if plan_code not in valid_plans:
             return jsonify({
                 "success": False,
@@ -238,7 +238,8 @@ def update_user_plan(current_user, user_id):
         # Convert legacy plan codes to new format
         plan_mapping = {
             'FREE': 'free',
-            'PREMIUM': 'pro'
+            'PREMIUM': 'pro',
+            'ENTERPRISE': 'enterprise'
         }
         plan_code = plan_mapping.get(plan_code, plan_code)
 
@@ -256,7 +257,11 @@ def update_user_plan(current_user, user_id):
             # 새 구독 생성
             expires_at = None  # Initialize to avoid NameError when plan is 'free'
             if plan_code != 'free':
-                expires_at = datetime.now() + timedelta(days=duration_days)
+                # Calculate expires_at based on duration_days
+                # If duration_days is None, expires_at remains None (unlimited period)
+                if duration_days is not None:
+                    expires_at = datetime.now() + timedelta(days=duration_days)
+                # else: expires_at stays None (unlimited)
 
                 insert_query = text("""
                     INSERT INTO user_subscriptions (
