@@ -897,9 +897,15 @@
                     <small>구독 시작 날짜</small>
                 </div>
                 <div class="form-group">
-                    <label>종료 날짜 *</label>
+                    <label style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <span>종료 날짜</span>
+                        <label style="font-weight: normal; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; margin: 0;">
+                            <input type="checkbox" id="subUnlimited" onchange="toggleSubUnlimitedPeriod()" style="cursor: pointer;">
+                            <span>♾️ 무제한</span>
+                        </label>
+                    </label>
                     <input type="datetime-local" id="subEndDate" required>
-                    <small>구독 만료 날짜</small>
+                    <small id="subEndDateHelp">구독 만료 날짜</small>
                 </div>
                 <div class="form-group">
                     <label>사유</label>
@@ -1212,6 +1218,29 @@
                 durationInput.setAttribute('required', 'required');
                 durationInput.style.background = '';
                 helpText.textContent = '플랜 활성 기간 (기본: 30일)';
+                helpText.style.color = '';
+                helpText.style.fontWeight = '';
+            }
+        }
+
+        function toggleSubUnlimitedPeriod() {
+            const unlimited = document.getElementById('subUnlimited').checked;
+            const endDateInput = document.getElementById('subEndDate');
+            const helpText = document.getElementById('subEndDateHelp');
+
+            if (unlimited) {
+                endDateInput.disabled = true;
+                endDateInput.value = '';
+                endDateInput.removeAttribute('required');
+                endDateInput.style.background = '#f8f9fa';
+                helpText.textContent = '♾️ 무제한 - 만료되지 않습니다';
+                helpText.style.color = '#28a745';
+                helpText.style.fontWeight = '600';
+            } else {
+                endDateInput.disabled = false;
+                endDateInput.setAttribute('required', 'required');
+                endDateInput.style.background = '';
+                helpText.textContent = '구독 만료 날짜';
                 helpText.style.color = '';
                 helpText.style.fontWeight = '';
             }
@@ -1709,11 +1738,19 @@
                     if (sub.current_period_end) {
                         const endDate = new Date(sub.current_period_end);
                         document.getElementById('subEndDate').value = endDate.toISOString().slice(0, 16);
+                        document.getElementById('subUnlimited').checked = false;
+                        document.getElementById('subEndDate').disabled = false;
+                        document.getElementById('subEndDate').style.background = '';
                     } else {
-                        // Default to 1 month from now
-                        const defaultEnd = new Date();
-                        defaultEnd.setMonth(defaultEnd.getMonth() + 1);
-                        document.getElementById('subEndDate').value = defaultEnd.toISOString().slice(0, 16);
+                        // No end date = unlimited
+                        document.getElementById('subUnlimited').checked = true;
+                        document.getElementById('subEndDate').value = '';
+                        document.getElementById('subEndDate').disabled = true;
+                        document.getElementById('subEndDate').removeAttribute('required');
+                        document.getElementById('subEndDate').style.background = '#f8f9fa';
+                        document.getElementById('subEndDateHelp').textContent = '♾️ 무제한 - 만료되지 않습니다';
+                        document.getElementById('subEndDateHelp').style.color = '#28a745';
+                        document.getElementById('subEndDateHelp').style.fontWeight = '600';
                     }
                 } else {
                     // No subscription - set defaults
@@ -1747,7 +1784,8 @@
             const plan = document.getElementById('subPlan').value;
             const billingPeriod = document.getElementById('subBillingPeriod').value;
             const startDate = document.getElementById('subStartDate').value;
-            const endDate = document.getElementById('subEndDate').value;
+            const unlimited = document.getElementById('subUnlimited').checked;
+            const endDate = unlimited ? null : document.getElementById('subEndDate').value;
             const reason = document.getElementById('subReason').value || 'Admin subscription update';
 
             if (!confirm('구독 정보를 저장하시겠습니까?')) {
