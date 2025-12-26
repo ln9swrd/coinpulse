@@ -967,7 +967,7 @@
 
             statTotal.textContent = stats.total_alerts.toLocaleString();
             statAutoTraded.textContent = stats.auto_traded_count.toLocaleString();
-            statConfidence.textContent = (stats.avg_confidence * 100).toFixed(1);
+            statConfidence.textContent = stats.avg_confidence.toFixed(1);
 
             const profit = stats.total_profit_loss;
             profitEl.textContent = Math.abs(profit).toLocaleString();
@@ -1016,7 +1016,7 @@
             `;
 
             data.forEach(alert => {
-                const confidence = (alert.confidence * 100).toFixed(1);
+                const confidence = alert.confidence.toFixed(1);
                 const profitLoss = alert.profit_loss || 0;
                 const profitLossPercent = alert.profit_loss_percent ? alert.profit_loss_percent.toFixed(2) : '0.00';
 
