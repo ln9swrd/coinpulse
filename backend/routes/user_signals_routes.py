@@ -203,6 +203,8 @@ def get_user_signal_stats():
                     'total_received': total_received,
                     'executed': executed,
                     'execution_rate': round(execution_rate, 1),
+                    'wins': wins,
+                    'losses': losses,
                     'win_rate': round(win_rate, 1),
                     'total_profit_loss': int(total_profit_loss),
                     'this_month': this_month

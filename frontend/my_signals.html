@@ -156,6 +156,16 @@
                 <div class="label">Execution rate</div>
             </div>
             <div class="stat-card">
+                <h3>수익 거래</h3>
+                <div class="value" id="winTrades" style="color: #10b981;">-</div>
+                <div class="label">Win trades</div>
+            </div>
+            <div class="stat-card">
+                <h3>손실 거래</h3>
+                <div class="value" id="lossTrades" style="color: #ef4444;">-</div>
+                <div class="label">Loss trades</div>
+            </div>
+            <div class="stat-card">
                 <h3>승률</h3>
                 <div class="value" id="winRate">-%</div>
                 <div class="label">Win rate</div>
@@ -258,6 +268,8 @@
                     const totalEl = document.getElementById('totalReceived');
                     const executedEl = document.getElementById('executed');
                     const execRateEl = document.getElementById('executionRate');
+                    const winTradesEl = document.getElementById('winTrades');
+                    const lossTradesEl = document.getElementById('lossTrades');
                     const winRateEl = document.getElementById('winRate');
                     const profitLossEl = document.getElementById('totalProfitLoss');
                     const thisMonthEl = document.getElementById('thisMonth');
@@ -268,6 +280,8 @@
                     if (totalEl) totalEl.textContent = stats.total_received || 0;
                     if (executedEl) executedEl.textContent = stats.executed || 0;
                     if (execRateEl) execRateEl.textContent = (stats.execution_rate || 0) + '%';
+                    if (winTradesEl) winTradesEl.textContent = stats.wins || 0;
+                    if (lossTradesEl) lossTradesEl.textContent = stats.losses || 0;
                     if (winRateEl) winRateEl.textContent = (stats.win_rate || 0) + '%';
 
                     if (profitLossEl) {
