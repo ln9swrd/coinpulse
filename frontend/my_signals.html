@@ -371,10 +371,10 @@
                                 <strong>이유:</strong> ${signal.reason}
                             </div>
 
-                            ${item.profit_loss !== null ? `
+                            ${item.profit_loss !== null && item.profit_loss !== undefined ? `
                                 <div class="signal-info" style="background: ${item.profit_loss >= 0 ? '#d1fae5' : '#fee2e2'}; padding: 10px; border-radius: 6px;">
                                     <strong>실행 결과:</strong> ${item.profit_loss >= 0 ? '+' : ''}${item.profit_loss.toLocaleString()} KRW
-                                    (${item.profit_loss_ratio >= 0 ? '+' : ''}${item.profit_loss_ratio}%)
+                                    ${item.profit_loss_ratio !== null && item.profit_loss_ratio !== undefined ? `(${item.profit_loss_ratio >= 0 ? '+' : ''}${item.profit_loss_ratio.toFixed(2)}%)` : ''}
                                 </div>
                             ` : ''}
 
@@ -415,7 +415,7 @@
         }
 
         async function executeSignal(historyId, market) {
-            if (!confirm(`${market} 시그널을 실행하시겠습니까?\n\n이 작업은 취소할 수 없습니다.`)) {
+            if (!confirm(`${market} 시그널을 시장가로 매수 실행하시겠습니까?\n\n기본 금액: 50,000 KRW\n이 작업은 실제 거래를 진행하며 취소할 수 없습니다.`)) {
                 return;
             }
 
@@ -427,16 +427,24 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        notes: 'Web UI execution'
+                        trade_amount: 50000  // Default: 50,000 KRW
                     })
                 });
 
                 const data = await response.json();
 
                 if (data.success) {
-                    alert('시그널이 실행되었습니다!\n\n' +
-                          '실행 시간: ' + new Date(data.history.executed_at).toLocaleString() + '\n' +
-                          '실행 가격: KRW ' + data.history.execution_price.toLocaleString());
+                    const order = data.order || {};
+                    const executionPrice = data.execution_price || 0;
+                    const tradeAmount = data.trade_amount || 0;
+                    const volume = order.executed_volume || '0';
+
+                    alert('시장가 매수 주문이 실행되었습니다!\n\n' +
+                          '마켓: ' + order.market + '\n' +
+                          '주문 금액: ' + tradeAmount.toLocaleString() + ' KRW\n' +
+                          '체결 수량: ' + volume + '\n' +
+                          (executionPrice > 0 ? '평균 가격: ' + executionPrice.toLocaleString() + ' KRW\n' : '') +
+                          '주문 ID: ' + order.uuid);
 
                     // Reload signals to show updated status
                     await loadSignals();
@@ -447,7 +455,8 @@
 
             } catch (error) {
                 console.error('Error executing signal:', error);
-                alert('시그널 실행 중 오류가 발생했습니다.');
+                alert('시그널 실행 중 오류가 발생했습니다.\n\n' +
+                      '설정에서 Upbit API 키가 등록되어 있는지 확인하세요.');
             }
         }
 

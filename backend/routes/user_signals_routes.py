@@ -221,28 +221,51 @@ def get_user_signal_stats():
 @require_auth
 def execute_signal(signal_id):
     """
-    Execute a signal (manual trade execution)
+    Execute a signal by placing a market buy order
 
-    Note: This is for manual execution tracking only.
-    Actual trading should be done through auto-trading system.
+    Request Body (optional):
+        {
+            "trade_amount": 50000  // Amount in KRW (default: 50000)
+        }
 
     Returns:
         {
             "success": true,
-            "message": "Signal execution recorded"
+            "message": "Order executed successfully",
+            "order": {
+                "uuid": "...",
+                "market": "KRW-BTC",
+                "side": "bid",
+                "ord_type": "market",
+                "price": "50000",
+                "executed_volume": "0.0012"
+            },
+            "execution_price": 41666667
         }
     """
     try:
         user_id = g.user_id
 
+        # Get user's Upbit API
+        from backend.middleware.user_api_keys import get_user_upbit_api
+        user_upbit_api = get_user_upbit_api()
+
+        if not user_upbit_api:
+            return jsonify({
+                'success': False,
+                'error': 'Upbit API keys not configured. Please add your API keys in Settings.',
+                'error_code': 'NO_API_KEYS'
+            }), 400
+
         with get_db_session() as session:
-            # Verify signal belongs to user
-            verify_query = text("""
-                SELECT id FROM surge_alerts
+            # Get signal details
+            signal_query = text("""
+                SELECT id, market, coin, entry_price, auto_traded
+                FROM surge_alerts
                 WHERE id = :signal_id AND user_id = :user_id
             """)
 
-            signal = session.execute(verify_query, {
+            signal = session.execute(signal_query, {
                 'signal_id': signal_id,
                 'user_id': user_id
             }).fetchone()
@@ -253,24 +276,89 @@ def execute_signal(signal_id):
                     'error': 'Signal not found or access denied'
                 }), 404
 
-            # Update execution status (mark as manually executed)
+            # Check if already executed
+            if signal.auto_traded:
+                return jsonify({
+                    'success': False,
+                    'error': 'Signal has already been executed'
+                }), 400
+
+            # Get trade amount from request or use default
+            request_data = request.get_json() or {}
+            trade_amount = request_data.get('trade_amount', 50000)  # Default: 50,000 KRW
+
+            # Validate trade amount
+            if trade_amount < 5000:
+                return jsonify({
+                    'success': False,
+                    'error': 'Minimum trade amount is 5,000 KRW'
+                }), 400
+
+            print(f"[UserSignals] Executing signal {signal_id}: market={signal.market}, amount={trade_amount} KRW")
+
+            # Place market buy order
+            order_result = user_upbit_api.place_order(
+                market=signal.market,
+                side='bid',  # Buy
+                price=trade_amount,  # Total amount to spend in KRW
+                ord_type='market'
+            )
+
+            if not order_result.get('success'):
+                error_msg = order_result.get('error', 'Unknown error')
+                print(f"[UserSignals] Order failed: {error_msg}")
+                return jsonify({
+                    'success': False,
+                    'error': f'Failed to place order: {error_msg}'
+                }), 400
+
+            # Extract order details
+            order_data = order_result.get('order', {})
+            order_uuid = order_result.get('uuid')
+            executed_volume = float(order_data.get('executed_volume', 0))
+            avg_price = float(order_data.get('avg_price', 0)) if order_data.get('avg_price') else None
+
+            print(f"[UserSignals] Order success: uuid={order_uuid}, volume={executed_volume}, price={avg_price}")
+
+            # Update surge_alerts with execution details
             update_query = text("""
                 UPDATE surge_alerts
                 SET auto_traded = true,
-                    executed_at = CURRENT_TIMESTAMP
+                    executed_at = CURRENT_TIMESTAMP,
+                    trade_amount = :trade_amount,
+                    trade_quantity = :trade_quantity,
+                    order_id = :order_id,
+                    status = 'executed'
                 WHERE id = :signal_id
             """)
 
-            session.execute(update_query, {'signal_id': signal_id})
+            session.execute(update_query, {
+                'signal_id': signal_id,
+                'trade_amount': trade_amount,
+                'trade_quantity': executed_volume,
+                'order_id': order_uuid
+            })
             session.commit()
 
             return jsonify({
                 'success': True,
-                'message': 'Signal execution recorded'
+                'message': 'Order executed successfully',
+                'order': {
+                    'uuid': order_uuid,
+                    'market': signal.market,
+                    'side': 'bid',
+                    'ord_type': 'market',
+                    'price': str(trade_amount),
+                    'executed_volume': str(executed_volume)
+                },
+                'execution_price': avg_price,
+                'trade_amount': trade_amount
             }), 200
 
     except Exception as e:
         print(f"[UserSignals] Execute error: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({
             'success': False,
             'error': str(e)
