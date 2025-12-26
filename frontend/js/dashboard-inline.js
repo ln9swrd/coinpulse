@@ -149,6 +149,7 @@
                     const surgeMenuLink = document.getElementById('surge-menu-link');
                     const signalsMenuLink = document.getElementById('signals-menu-link');
                     const autoTradingMenuLink = document.getElementById('auto-trading-menu-link');
+                    const telegramMenuLink = document.getElementById('telegram-menu-link');
 
                     // Show Enterprise features only for Enterprise plan
                     if (plan === 'enterprise') {
@@ -181,6 +182,19 @@
                         }
                     }
 
+                    // Show Telegram integration for Expert OR Enterprise plans
+                    if (plan === 'expert' || plan === 'enterprise') {
+                        console.log(`[Dashboard] ${plan} plan - showing Telegram integration`);
+                        if (telegramMenuLink) {
+                            telegramMenuLink.style.display = 'flex';
+                        }
+                    } else {
+                        console.log('[Dashboard] Free/Basic/Pro plan - hiding Telegram integration');
+                        if (telegramMenuLink) {
+                            telegramMenuLink.style.display = 'none';
+                        }
+                    }
+
                 } catch (error) {
                     console.error('[Dashboard] Failed to check Enterprise feature access:', error);
                     // On error, hide Enterprise features by default
@@ -188,6 +202,7 @@
                     const surgeMenuLink = document.getElementById('surge-menu-link');
                     const signalsMenuLink = document.getElementById('signals-menu-link');
                     const autoTradingMenuLink = document.getElementById('auto-trading-menu-link');
+                    const telegramMenuLink = document.getElementById('telegram-menu-link');
                     if (enterpriseSectionTitle) {
                         enterpriseSectionTitle.style.display = 'none';
                     }
@@ -199,6 +214,9 @@
                     }
                     if (autoTradingMenuLink) {
                         autoTradingMenuLink.style.display = 'none';
+                    }
+                    if (telegramMenuLink) {
+                        telegramMenuLink.style.display = 'none';
                     }
                 }
             }
@@ -429,8 +447,8 @@
                     // Load all dashboard data
                     await Promise.all([
                         loadPortfolio(),
-                        loadOrders(),
-                        loadAutoTradingStatus()
+                        loadOrders()
+                        // DEPRECATED: loadAutoTradingStatus() removed
                     ]);
 
                     // Clear any existing interval before creating a new one
@@ -444,8 +462,8 @@
                         console.log('[Dashboard] Auto-refreshing data...');
                         await Promise.all([
                             loadPortfolio(),
-                            loadOrders(),
-                            loadAutoTradingStatus()
+                            loadOrders()
+                            // DEPRECATED: loadAutoTradingStatus() removed
                         ]);
                     }, 30000); // 30 seconds
 
@@ -778,6 +796,8 @@
             // Auto-Trading Status
             // ================================================================
 
+            // DEPRECATED: Old auto-trading status function (removed from UI)
+            /*
             async function loadAutoTradingStatus() {
                 const container = document.getElementById('auto-trading-container');
                 if (!container) return;
@@ -1047,7 +1067,10 @@
                     </div>
                 `;
             }
+            */
 
+            // DEPRECATED: Old toggle function (removed from UI)
+            /*
             async function toggleAutoTrading(enable) {
                 try {
                     console.log(`[Dashboard] ${enable ? 'Starting' : 'Stopping'} auto-trading...`);
@@ -1082,6 +1105,7 @@
                     loadAutoTradingStatus();
                 }
             }
+            */
 
             // ================================================================
             // Dashboard Content
@@ -1138,25 +1162,6 @@
                             </div>
                         </div>
 
-                        <!-- Auto-Trading Status Section -->
-                        <div class="dashboard-card">
-                            <div class="card-header">
-                                <h2>자동 거래 상태</h2>
-                                <button class="btn-refresh" onclick="loadAutoTradingStatus()">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-                                    </svg>
-                                    새로고침
-                                </button>
-                            </div>
-                            <div class="card-content" id="auto-trading-container">
-                                <div class="loading-state">
-                                    <div class="spinner-small"></div>
-                                    <p>자동 거래 상태 로딩 중...</p>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- Quick Links Section -->
                         <div class="dashboard-card">
                             <div class="card-header">
@@ -1170,19 +1175,18 @@
                                         </svg>
                                         <span>거래 차트</span>
                                     </a>
-                                    <a href="/swing_trading_settings.html" class="quick-link">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                            <circle cx="12" cy="12" r="3"></circle>
-                                            <path d="M12 1v6m0 6v6m-9-9h6m6 0h6"></path>
+                                    <a href="#auto-trading" class="quick-link" onclick="event.preventDefault(); window.location.hash = 'auto-trading';">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
                                         </svg>
-                                        <span>거래 설정</span>
+                                        <span>단타설정</span>
                                     </a>
-                                    <a href="/policy_manager.html" class="quick-link">
+                                    <a href="#telegram" class="quick-link" onclick="event.preventDefault(); window.location.hash = 'telegram';">
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                            <polyline points="14 2 14 8 20 8"></polyline>
+                                            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
                                         </svg>
-                                        <span>정책 관리자</span>
+                                        <span>텔레그램 연동</span>
                                     </a>
                                 </div>
                             </div>
@@ -1196,8 +1200,9 @@
             // ================================================================
 
             // Expose functions to window for external access
-            window.loadAutoTradingStatus = loadAutoTradingStatus;
-            window.toggleAutoTrading = toggleAutoTrading;
+            // DEPRECATED: Removed auto-trading status feature
+            // window.loadAutoTradingStatus = loadAutoTradingStatus;
+            // window.toggleAutoTrading = toggleAutoTrading;
             window.showDashboardContent = showDashboardContent;
             window.showPage = function(pageName) {
                 if (window.dashboardApp) {
