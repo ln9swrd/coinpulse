@@ -1940,7 +1940,7 @@
                     return;
                 }
 
-                const response = await fetch('/api/auth/me?include_api_keys=true', {
+                const response = await fetch('/api/user/api-keys', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -1948,10 +1948,10 @@
 
                 if (response.ok) {
                     const data = await response.json();
-                    if (data.success && data.user) {
+                    if (data.success) {
                         const editBtn = document.getElementById('edit-access-key-btn');
                         const guideDiv = document.getElementById('api-key-guide');
-                        const hasApiKeys = data.user.upbit_access_key && data.user.upbit_secret_key_masked;
+                        const hasApiKeys = data.access_key && data.secret_key_masked;
 
                         // Show guide if no API keys
                         if (!hasApiKeys && guideDiv) {
@@ -1960,8 +1960,8 @@
                         }
 
                         // Display access key (if exists)
-                        if (data.user.upbit_access_key) {
-                            accessKeyInput.value = data.user.upbit_access_key;
+                        if (data.access_key) {
+                            accessKeyInput.value = data.access_key;
                             accessKeyInput.setAttribute('readonly', 'readonly');
                             accessKeyInput.style.backgroundColor = 'var(--input-disabled-bg, #f5f5f5)';
                             accessKeyInput.style.color = '#2563eb';
@@ -1998,8 +1998,8 @@
                         }
 
                         // Display masked secret key as placeholder
-                        if (data.user.upbit_secret_key_masked) {
-                            secretKeyInput.placeholder = `저장된 키: ${data.user.upbit_secret_key_masked} (변경하려면 새 키 입력)`;
+                        if (data.secret_key_masked) {
+                            secretKeyInput.placeholder = `저장된 키: ${data.secret_key_masked} (변경하려면 새 키 입력)`;
                             secretKeyInput.style.backgroundColor = 'var(--input-disabled-bg, #f5f5f5)';
 
                             // Add visual indicator
@@ -2019,7 +2019,7 @@
                         }
 
                         // Show success message if both keys are loaded
-                        if (data.user.upbit_access_key && data.user.upbit_secret_key_masked) {
+                        if (data.access_key && data.secret_key_masked) {
                             // Create success notification
                             const successMsg = document.createElement('div');
                             successMsg.style.cssText = `
