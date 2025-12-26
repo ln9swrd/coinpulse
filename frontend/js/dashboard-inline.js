@@ -182,8 +182,8 @@
                         }
                     }
 
-                    // Show Telegram integration for Expert OR Enterprise plans
-                    if (plan === 'expert' || plan === 'enterprise') {
+                    // Show Telegram integration for Enterprise plan only
+                    if (plan === 'enterprise') {
                         console.log(`[Dashboard] ${plan} plan - showing Telegram integration`);
                         if (telegramMenuLink) {
                             telegramMenuLink.style.display = 'flex';

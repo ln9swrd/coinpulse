@@ -61,7 +61,8 @@ class UserFeatureOverride(Base):
 
 
 # Default feature sets for each plan
-# Updated 2025.12.24 v3.0: 5단계 플랜 구조 (Free/Basic/Pro/Expert/Enterprise)
+# Updated 2025.12.26 v3.1: 4단계 플랜 구조 (Free/Basic/Pro/Enterprise)
+# Expert 플랜 제거 - Enterprise만 급등 자동매매 및 텔레그램 제공
 #
 # 두 가지 독립적인 시스템:
 # 1. 투자조언 알림 (Investment Advisory)
@@ -72,7 +73,7 @@ class UserFeatureOverride(Base):
 # 2. 급등 알림 자동매매 (Surge Auto Trading)
 #    - 시스템이 전체 마켓 스캔하여 급등 감지
 #    - 자동 매수 실행 (예산/금액 설정 기반)
-#    - 요금제별 주간 횟수 제한
+#    - Enterprise 플랜만 제공
 #
 # 실제 데이터 (2025.12):
 #    - 3주간 급등 시그널: 16개
@@ -154,31 +155,6 @@ PLAN_FEATURES = {
         'important_notifications': True,  # 중요 알림
         'general_notifications': True  # 일반 알림
     },
-    'expert': {
-        'manual_trading': True,
-        # 투자조언 알림
-        'advisory_coins': True,  # 투자조언 코인 설정 가능
-        'max_advisory_coins': 30,  # 선택 가능 코인 수: 30개
-        # 급등 알림 자동매매
-        'surge_auto_trading': True,  # 급등 자동매매 가능
-        'max_surge_alerts': 20,  # 실제: 주 20회 자동매수
-        'max_alerts_per_week': 10,  # 표시: 주 10회
-        'surge_monitoring': True,
-        'telegram_alerts': True,
-        'max_surge_budget': -1,  # 총 예산 제한: 무제한
-        # 기타 (단순화)
-        'advanced_indicators': True,  # 고급 지표 (Custom 포함)
-        # custom_indicators 제거
-        'backtesting': True,  # 전체 기간
-        'backtesting_period_months': -1,  # Unlimited
-        'data_export': True,  # CSV, JSON
-        'api_access': True,  # 제한적
-        'priority_support': True,
-        'trade_history_days': -1,  # Unlimited
-        # 알림 단순화
-        'important_notifications': True,  # 중요 알림
-        'general_notifications': True  # 일반 알림
-    },
     'enterprise': {
         'manual_trading': True,
         # 투자조언 알림
@@ -214,7 +190,7 @@ def get_user_features(plan: str, overrides: dict = None) -> dict:
     Get effective features for a user based on plan and overrides
 
     Args:
-        plan: User's subscription plan ('free', 'basic', 'pro', 'expert', 'enterprise')
+        plan: User's subscription plan ('free', 'basic', 'pro', 'enterprise')
         overrides: Optional feature overrides from UserFeatureOverride
 
     Returns:
