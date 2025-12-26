@@ -339,9 +339,16 @@
                     <input type="password" id="secret_key" placeholder="업비트 Secret Key를 입력하세요" autocomplete="off">
                 </div>
 
-                <button class="btn-save" id="save-api-keys" onclick="saveApiKeys()">
-                    저장하기
-                </button>
+                <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                    <button class="btn-save" id="test-api-keys" onclick="testApiConnection()" style="background: #10b981; flex: 1;">
+                        연결 테스트
+                    </button>
+                    <button class="btn-save" id="save-api-keys" onclick="saveApiKeys()" style="flex: 1;">
+                        저장하기
+                    </button>
+                </div>
+
+                <div id="api-test-result" style="display: none; padding: 12px; border-radius: 8px; margin-bottom: 16px;"></div>
 
                 <!-- Permissions Notice -->
                 <div class="permissions-note" id="permissions-notice">
@@ -653,6 +660,75 @@
                 }
             } catch (error) {
                 console.error('[Settings] Error checking API key status:', error);
+            }
+        }
+
+        // Test API connection
+        async function testApiConnection() {
+            const accessKey = document.getElementById('access_key').value.trim();
+            const secretKey = document.getElementById('secret_key').value.trim();
+            const testBtn = document.getElementById('test-api-keys');
+            const resultDiv = document.getElementById('api-test-result');
+
+            if (!accessKey || !secretKey) {
+                resultDiv.style.display = 'block';
+                resultDiv.style.background = '#fee2e2';
+                resultDiv.style.color = '#991b1b';
+                resultDiv.style.border = '1px solid #fca5a5';
+                resultDiv.innerHTML = '<strong>⚠️ 입력 오류</strong><br>Access Key와 Secret Key를 모두 입력해주세요.';
+                return;
+            }
+
+            testBtn.disabled = true;
+            testBtn.textContent = '테스트 중...';
+            resultDiv.style.display = 'none';
+
+            try {
+                const response = await fetch(`${window.API_BASE}/api/user/test-api-keys`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        access_key: accessKey,
+                        secret_key: secretKey
+                    })
+                });
+
+                const data = await response.json();
+
+                resultDiv.style.display = 'block';
+
+                if (data.success) {
+                    resultDiv.style.background = '#d1fae5';
+                    resultDiv.style.color = '#065f46';
+                    resultDiv.style.border = '1px solid #6ee7b7';
+                    resultDiv.innerHTML = `
+                        <strong>✅ 연결 성공!</strong><br>
+                        API 키가 유효합니다. 계정 ${data.accounts_count || 0}개를 확인했습니다.<br>
+                        <small style="margin-top: 8px; display: block;">이제 "저장하기" 버튼을 눌러 API 키를 저장하세요.</small>
+                    `;
+                } else {
+                    resultDiv.style.background = '#fee2e2';
+                    resultDiv.style.color = '#991b1b';
+                    resultDiv.style.border = '1px solid #fca5a5';
+                    resultDiv.innerHTML = `
+                        <strong>❌ 연결 실패</strong><br>
+                        ${data.error || 'API 키가 유효하지 않거나 권한이 부족합니다.'}<br>
+                        <small style="margin-top: 8px; display: block;">업비트에서 API 키를 다시 확인해주세요.</small>
+                    `;
+                }
+            } catch (error) {
+                console.error('[Settings] Error testing API keys:', error);
+                resultDiv.style.display = 'block';
+                resultDiv.style.background = '#fee2e2';
+                resultDiv.style.color = '#991b1b';
+                resultDiv.style.border = '1px solid #fca5a5';
+                resultDiv.innerHTML = '<strong>❌ 서버 오류</strong><br>서버와 통신 중 오류가 발생했습니다. 다시 시도해주세요.';
+            } finally {
+                testBtn.disabled = false;
+                testBtn.textContent = '연결 테스트';
             }
         }
 

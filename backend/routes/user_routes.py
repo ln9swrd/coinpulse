@@ -454,6 +454,71 @@ def manage_api_keys():
         session.close()
 
 
+@user_bp.route('/test-api-keys', methods=['POST'])
+@require_auth
+def test_api_keys():
+    """
+    Test Upbit API keys without saving them
+
+    Request Body:
+    {
+        "access_key": "string",
+        "secret_key": "string"
+    }
+
+    Returns:
+        200: Connection successful
+        400: Invalid request or keys
+        401: Unauthorized
+    """
+    from backend.common import UpbitAPI
+
+    try:
+        data = request.get_json()
+
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': 'No data provided',
+                'code': 'INVALID_REQUEST'
+            }), 400
+
+        access_key = data.get('access_key', '').strip()
+        secret_key = data.get('secret_key', '').strip()
+
+        if not access_key or not secret_key:
+            return jsonify({
+                'success': False,
+                'error': 'Access key and secret key are required',
+                'code': 'MISSING_KEYS'
+            }), 400
+
+        # Test connection by fetching accounts
+        upbit_api = UpbitAPI(access_key, secret_key)
+        accounts = upbit_api.get_accounts()
+
+        if accounts is None:
+            return jsonify({
+                'success': False,
+                'error': 'Failed to connect to Upbit API. Please check your keys.',
+                'code': 'CONNECTION_FAILED'
+            }), 400
+
+        # Connection successful
+        return jsonify({
+            'success': True,
+            'message': 'API keys are valid and working',
+            'accounts_count': len(accounts)
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'code': 'INTERNAL_ERROR'
+        }), 500
+
+
 @user_bp.route('/health', methods=['GET'])
 def health_check():
     """
