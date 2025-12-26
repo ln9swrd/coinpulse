@@ -234,6 +234,72 @@ def get_user_profile():
         }), 500
 
 
+@user_bp.route('/subscription', methods=['GET'])
+@require_auth
+def get_user_subscription():
+    """
+    Get user's current subscription information
+
+    Returns:
+        200: {
+            "success": true,
+            "subscription": {
+                "plan": "free"|"basic"|"pro"|"enterprise",
+                "status": "active"|"expired"|"cancelled",
+                "expires_at": "2025-12-31T23:59:59",
+                ...
+            }
+        }
+        401: Unauthorized
+        404: No subscription found
+    """
+    from backend.models.subscription_models import UserSubscription
+
+    session = get_db_session()
+    try:
+        user_id = request.user_id
+
+        # Query user subscription
+        subscription = session.query(UserSubscription)\
+            .filter(UserSubscription.user_id == user_id)\
+            .first()
+
+        if subscription:
+            return jsonify({
+                'success': True,
+                'subscription': {
+                    'plan': subscription.plan,
+                    'status': subscription.status,
+                    'started_at': subscription.started_at.isoformat() if subscription.started_at else None,
+                    'expires_at': subscription.expires_at.isoformat() if subscription.expires_at else None,
+                    'auto_renew': subscription.auto_renew,
+                    'payment_method': subscription.payment_method
+                }
+            }), 200
+        else:
+            # No subscription found - default to free plan
+            return jsonify({
+                'success': True,
+                'subscription': {
+                    'plan': 'free',
+                    'status': 'active',
+                    'started_at': None,
+                    'expires_at': None,
+                    'auto_renew': False,
+                    'payment_method': None
+                }
+            }), 200
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'code': 'INTERNAL_ERROR'
+        }), 500
+    finally:
+        session.close()
+
+
 @user_bp.route('/health', methods=['GET'])
 def health_check():
     """
