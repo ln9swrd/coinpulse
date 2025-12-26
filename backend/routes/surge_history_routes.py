@@ -1,6 +1,6 @@
 """
-Surge Prediction History Admin API Routes
-급등예측 이력 관리 API 엔드포인트 (관리자 전용)
+Surge Prediction History API Routes
+급등예측 이력 관리 API 엔드포인트
 """
 from flask import Blueprint, request, jsonify
 from datetime import datetime
@@ -15,7 +15,9 @@ surge_history_bp = Blueprint('surge_history', __name__, url_prefix='/api/admin/s
 @admin_required
 def get_surge_history(current_user):
     """
-    급등예측 이력 조회 (관리자 전용)
+    급등예측 이력 조회
+    - 관리자: 모든 사용자 데이터 조회 가능
+    - 일반 사용자: 본인 데이터만 조회 가능
 
     Query Parameters:
     - page: 페이지 번호 (default: 1)
@@ -116,7 +118,7 @@ def get_surge_history(current_user):
                     reason, alert_message,
                     telegram_sent, telegram_message_id, sent_at,
                     week_number, user_action, action_timestamp,
-                    entry_price, stop_loss_price,
+                    entry_price, stop_loss_price, exit_price,
                     auto_traded, trade_amount, trade_quantity, order_id,
                     status, profit_loss, profit_loss_percent,
                     executed_at, closed_at
@@ -325,6 +327,7 @@ def export_surge_history(current_user):
                     id, user_id, market, coin, confidence, signal_type,
                     current_price, target_price, expected_return,
                     telegram_sent, sent_at,
+                    entry_price, exit_price, stop_loss_price,
                     auto_traded, trade_amount, order_id,
                     status, profit_loss, profit_loss_percent,
                     executed_at, closed_at
@@ -338,7 +341,7 @@ def export_surge_history(current_user):
             # Build CSV
             import io
             output = io.StringIO()
-            output.write('ID,User ID,Market,Coin,Confidence,Signal Type,Current Price,Target Price,Expected Return,Telegram Sent,Sent At,Auto Traded,Trade Amount,Order ID,Status,Profit Loss,Profit Loss %,Executed At,Closed At\n')
+            output.write('ID,User ID,Market,Coin,Confidence,Signal Type,Current Price,Target Price,Expected Return,Telegram Sent,Sent At,Entry Price,Exit Price,Stop Loss Price,Auto Traded,Trade Amount,Order ID,Status,Profit Loss,Profit Loss %,Executed At,Closed At\n')
 
             for row in result:
                 row_dict = dict(row._mapping)
@@ -354,6 +357,9 @@ def export_surge_history(current_user):
                     str(row_dict.get('expected_return', '')),
                     str(row_dict.get('telegram_sent', '')),
                     str(row_dict.get('sent_at', '')),
+                    str(row_dict.get('entry_price', '')),
+                    str(row_dict.get('exit_price', '')),
+                    str(row_dict.get('stop_loss_price', '')),
                     str(row_dict.get('auto_traded', '')),
                     str(row_dict.get('trade_amount', '')),
                     str(row_dict.get('order_id', '')),
@@ -371,6 +377,116 @@ def export_surge_history(current_user):
             response.headers['Content-Type'] = 'text/csv; charset=utf-8-sig'
             response.headers['Content-Disposition'] = f'attachment; filename=surge_history_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
             return response
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@surge_history_bp.route('/<int:alert_id>/close', methods=['POST'])
+@admin_required
+def close_surge_alert(current_user, alert_id):
+    """
+    급등 신호 종료 (관리자 전용)
+
+    신호가 더 이상 유효하지 않을 때 종료 가격을 기록하고 상태를 업데이트
+
+    Request Body:
+    {
+        "exit_price": 50000,  # 종료 가격 (선택, 없으면 현재가 자동 조회)
+        "status": "closed"    # 상태 (선택, 기본값: closed)
+    }
+
+    Returns:
+        200: Alert closed successfully
+        404: Alert not found
+        500: Server error
+    """
+    try:
+        data = request.get_json() or {}
+        exit_price = data.get('exit_price')
+        status = data.get('status', 'closed')
+
+        with get_db_session() as session:
+            # Get alert first
+            alert_query = text("SELECT * FROM surge_alerts WHERE id = :alert_id")
+            alert_result = session.execute(alert_query, {'alert_id': alert_id}).fetchone()
+
+            if not alert_result:
+                return jsonify({
+                    'success': False,
+                    'error': 'Alert not found'
+                }), 404
+
+            alert_dict = dict(alert_result._mapping)
+            market = alert_dict.get('market')
+
+            # If exit_price not provided, fetch current price from Upbit
+            if exit_price is None:
+                try:
+                    import requests
+                    response = requests.get(
+                        f'https://api.upbit.com/v1/ticker',
+                        params={'markets': market},
+                        timeout=5
+                    )
+                    if response.status_code == 200:
+                        ticker_data = response.json()
+                        if ticker_data and len(ticker_data) > 0:
+                            exit_price = int(ticker_data[0]['trade_price'])
+                except Exception as price_error:
+                    print(f"[CloseAlert] Failed to fetch current price: {price_error}")
+                    # If we can't get current price, use entry_price or target_price as fallback
+                    exit_price = alert_dict.get('entry_price') or alert_dict.get('target_price')
+
+            # Calculate profit/loss if entry_price exists
+            entry_price = alert_dict.get('entry_price')
+            trade_quantity = alert_dict.get('trade_quantity')
+
+            profit_loss = None
+            profit_loss_percent = None
+
+            if entry_price and exit_price and trade_quantity:
+                profit_loss = int((exit_price - entry_price) * trade_quantity)
+                profit_loss_percent = ((exit_price - entry_price) / entry_price) * 100
+
+            # Update alert
+            update_query = text("""
+                UPDATE surge_alerts
+                SET
+                    exit_price = :exit_price,
+                    status = :status,
+                    closed_at = :closed_at,
+                    profit_loss = COALESCE(:profit_loss, profit_loss),
+                    profit_loss_percent = COALESCE(:profit_loss_percent, profit_loss_percent)
+                WHERE id = :alert_id
+            """)
+
+            session.execute(update_query, {
+                'alert_id': alert_id,
+                'exit_price': exit_price,
+                'status': status,
+                'closed_at': datetime.utcnow(),
+                'profit_loss': profit_loss,
+                'profit_loss_percent': profit_loss_percent
+            })
+
+            session.commit()
+
+            return jsonify({
+                'success': True,
+                'message': 'Alert closed successfully',
+                'data': {
+                    'id': alert_id,
+                    'exit_price': exit_price,
+                    'status': status,
+                    'profit_loss': profit_loss,
+                    'profit_loss_percent': profit_loss_percent,
+                    'closed_at': datetime.utcnow().isoformat()
+                }
+            }), 200
 
     except Exception as e:
         return jsonify({
