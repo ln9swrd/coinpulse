@@ -226,18 +226,25 @@ class SurgeAlertScheduler:
 
     async def close_pending_signals(self):
         """
-        Check pending signals and close them if conditions are met:
-        - 48 hours elapsed
-        - Dropped >3% from peak
-        - Below entry price by >2%
+        Check pending signals and close them based on user settings:
+        - Take profit:達成時即時賣出
+        - Stop loss: 達成時即時賣出
+        - Peak tracking: 피크에서 일정 비율 하락 시 매도
+        - Time expiry: 48시간 경과 시 강제 종료
+
+        Uses user's auto-trading settings for dynamic thresholds.
         """
         try:
             with get_db_session() as session:
-                # Get all pending signals
+                # Get all pending signals with user settings
                 query = text("""
-                    SELECT id, market, coin, entry_price, peak_price, sent_at
-                    FROM surge_alerts
-                    WHERE status = 'pending'
+                    SELECT
+                        sa.id, sa.user_id, sa.market, sa.coin,
+                        sa.entry_price, sa.peak_price, sa.sent_at,
+                        ats.take_profit_percent, ats.stop_loss_percent
+                    FROM surge_alerts sa
+                    LEFT JOIN surge_auto_trading_settings ats ON sa.user_id = ats.user_id
+                    WHERE sa.status = 'pending'
                 """)
                 result = session.execute(query)
                 pending_signals = [dict(row._mapping) for row in result]
@@ -254,6 +261,10 @@ class SurgeAlertScheduler:
                     entry_price = signal['entry_price']
                     peak_price = signal.get('peak_price') or entry_price
                     entry_time = signal['sent_at']
+
+                    # User settings (default if not set)
+                    take_profit_pct = signal.get('take_profit_percent') or 10.0  # Default: +10%
+                    stop_loss_pct = signal.get('stop_loss_percent') or -5.0      # Default: -5%
 
                     # Calculate elapsed time
                     hours_elapsed = (datetime.now() - entry_time).total_seconds() / 3600
@@ -274,19 +285,41 @@ class SurgeAlertScheduler:
                     if current_price > peak_price:
                         peak_price = current_price
 
-                    # Determine if should close
+                    # Calculate profit percentage
+                    profit_pct = ((current_price - entry_price) / entry_price) * 100
+                    peak_profit_pct = ((peak_price - entry_price) / entry_price) * 100
+
+                    # Determine if should close (user-settings based)
                     should_close = False
                     close_reason = None
 
-                    if hours_elapsed >= 48:
+                    # 1. Take profit reached - INSTANT SELL
+                    if profit_pct >= take_profit_pct:
                         should_close = True
-                        close_reason = 'Expired (48h)'
-                    elif peak_price > entry_price and current_price < peak_price * 0.97:
+                        close_reason = f'Take profit (+{profit_pct:.1f}% >= +{take_profit_pct:.1f}%)'
+
+                    # 2. Stop loss reached - INSTANT SELL
+                    elif profit_pct <= stop_loss_pct:
                         should_close = True
-                        close_reason = 'Drop from peak (>3%)'
-                    elif current_price < entry_price * 0.98:
+                        close_reason = f'Stop loss ({profit_pct:.1f}% <= {stop_loss_pct:.1f}%)'
+
+                    # 3. Peak tracking - protect profits
+                    elif peak_price > entry_price:
+                        # If peak reached take_profit target, allow 8% drop from peak
+                        if peak_profit_pct >= take_profit_pct:
+                            if current_price < peak_price * 0.92:  # 8% drop from peak
+                                should_close = True
+                                close_reason = f'Peak profit secured (+{peak_profit_pct:.1f}% peak, now +{profit_pct:.1f}%)'
+                        # If peak not reached target yet, allow 5% drop from peak
+                        else:
+                            if current_price < peak_price * 0.95:  # 5% drop from peak
+                                should_close = True
+                                close_reason = f'Drop from peak (+{peak_profit_pct:.1f}% → +{profit_pct:.1f}%)'
+
+                    # 4. Time expiry - force close after 48 hours
+                    elif hours_elapsed >= 48:
                         should_close = True
-                        close_reason = 'Below entry price (>2%)'
+                        close_reason = f'Expired (48h, {profit_pct:+.1f}%)'
 
                     if should_close:
                         # Calculate profit
@@ -314,9 +347,11 @@ class SurgeAlertScheduler:
                         session.commit()
 
                         closed_count += 1
-                        logger.info(f"[SurgeAlertScheduler] Closed {market}: {status} "
-                                   f"(Entry: {entry_price:,}, Exit: {current_price:,}, {profit_pct:+.1f}%, "
-                                   f"Reason: {close_reason})")
+                        logger.info(
+                            f"[SurgeAlertScheduler] Closed {market} as '{status}': "
+                            f"Entry={entry_price:,} → Peak={peak_price:,} → Exit={current_price:,} "
+                            f"({profit_pct:+.1f}%) | {close_reason}"
+                        )
                     else:
                         # Just update peak price if higher
                         if current_price > peak_price:
