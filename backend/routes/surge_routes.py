@@ -105,37 +105,41 @@ def calculate_backtest_stats(period_start=None, period_end=None, use_dynamic_per
     try:
         with get_db_session() as session:
             # Dynamic period: calculate from all surge_alerts with confidence >= 60
+            # NOTE: Use price comparison instead of status field (status is unreliable)
+            # exit_price <= entry_price is considered a loss due to trading fees (~0.1%)
             if use_dynamic_period:
                 stats_query = text("""
                     SELECT
-                        COUNT(*) as total_trades,
-                        COUNT(CASE WHEN status = 'win' THEN 1 END) as wins,
-                        COUNT(CASE WHEN status = 'lose' THEN 1 END) as losses,
-                        AVG(CASE WHEN status IN ('win', 'lose', 'neutral') THEN profit_loss_percent END) as avg_return,
-                        AVG(CASE WHEN status = 'win' THEN profit_loss_percent END) as avg_win,
-                        AVG(CASE WHEN status = 'lose' THEN profit_loss_percent END) as avg_loss,
+                        COUNT(CASE WHEN exit_price IS NOT NULL THEN 1 END) as total_trades,
+                        COUNT(CASE WHEN exit_price > entry_price THEN 1 END) as wins,
+                        COUNT(CASE WHEN exit_price <= entry_price THEN 1 END) as losses,
+                        AVG(CASE WHEN exit_price IS NOT NULL THEN profit_loss_percent END) as avg_return,
+                        AVG(CASE WHEN exit_price > entry_price THEN profit_loss_percent END) as avg_win,
+                        AVG(CASE WHEN exit_price <= entry_price THEN profit_loss_percent END) as avg_loss,
                         MIN(DATE(sent_at)) as first_date,
                         MAX(DATE(sent_at)) as last_date
                     FROM surge_alerts
-                    WHERE status IN ('win', 'lose', 'neutral')
+                    WHERE exit_price IS NOT NULL
                       AND confidence >= 60
                 """)
                 result = session.execute(stats_query).first()
                 period_str = f"{result.first_date} ~ {result.last_date}" if result.first_date else "No data"
             else:
                 # Fixed period: use specified date range
+                # NOTE: Use price comparison instead of status field (status is unreliable)
+                # exit_price <= entry_price is considered a loss due to trading fees (~0.1%)
                 stats_query = text("""
                     SELECT
-                        COUNT(*) as total_trades,
-                        COUNT(CASE WHEN status = 'win' THEN 1 END) as wins,
-                        COUNT(CASE WHEN status = 'lose' THEN 1 END) as losses,
-                        AVG(CASE WHEN status IN ('win', 'lose', 'neutral') THEN profit_loss_percent END) as avg_return,
-                        AVG(CASE WHEN status = 'win' THEN profit_loss_percent END) as avg_win,
-                        AVG(CASE WHEN status = 'lose' THEN profit_loss_percent END) as avg_loss
+                        COUNT(CASE WHEN exit_price IS NOT NULL THEN 1 END) as total_trades,
+                        COUNT(CASE WHEN exit_price > entry_price THEN 1 END) as wins,
+                        COUNT(CASE WHEN exit_price <= entry_price THEN 1 END) as losses,
+                        AVG(CASE WHEN exit_price IS NOT NULL THEN profit_loss_percent END) as avg_return,
+                        AVG(CASE WHEN exit_price > entry_price THEN profit_loss_percent END) as avg_win,
+                        AVG(CASE WHEN exit_price <= entry_price THEN profit_loss_percent END) as avg_loss
                     FROM surge_alerts
                     WHERE DATE(sent_at) >= DATE(:start_date)
                       AND DATE(sent_at) <= DATE(:end_date)
-                      AND status IN ('win', 'lose', 'neutral')
+                      AND exit_price IS NOT NULL
                       AND confidence >= 60
                 """)
                 result = session.execute(stats_query, {
