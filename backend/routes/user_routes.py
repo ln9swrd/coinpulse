@@ -300,6 +300,121 @@ def get_user_subscription():
         session.close()
 
 
+@user_bp.route('/api-keys/status', methods=['GET'])
+@require_auth
+def get_api_keys_status():
+    """
+    Get user's API keys status (whether they have keys configured)
+
+    Returns:
+        200: API keys status
+        401: Unauthorized
+    """
+    from backend.database.models import User
+
+    session = get_db_session()
+    try:
+        user_id = request.user_id
+
+        # Query user
+        user = session.query(User).filter(User.id == user_id).first()
+
+        if not user:
+            return jsonify({
+                'success': False,
+                'error': 'User not found',
+                'code': 'USER_NOT_FOUND'
+            }), 404
+
+        has_keys = bool(user.upbit_access_key and user.upbit_secret_key)
+
+        return jsonify({
+            'success': True,
+            'has_keys': has_keys
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'code': 'INTERNAL_ERROR'
+        }), 500
+    finally:
+        session.close()
+
+
+@user_bp.route('/api-keys', methods=['POST'])
+@require_auth
+def save_api_keys():
+    """
+    Save user's Upbit API keys
+
+    Request Body:
+    {
+        "access_key": "string",
+        "secret_key": "string"
+    }
+
+    Returns:
+        200: API keys saved successfully
+        400: Invalid request
+        401: Unauthorized
+    """
+    from backend.database.models import User
+
+    session = get_db_session()
+    try:
+        user_id = request.user_id
+        data = request.get_json()
+
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': 'No data provided',
+                'code': 'INVALID_REQUEST'
+            }), 400
+
+        access_key = data.get('access_key', '').strip()
+        secret_key = data.get('secret_key', '').strip()
+
+        if not access_key or not secret_key:
+            return jsonify({
+                'success': False,
+                'error': 'Access key and secret key are required',
+                'code': 'MISSING_KEYS'
+            }), 400
+
+        # Update user's API keys
+        user = session.query(User).filter(User.id == user_id).first()
+
+        if not user:
+            return jsonify({
+                'success': False,
+                'error': 'User not found',
+                'code': 'USER_NOT_FOUND'
+            }), 404
+
+        user.upbit_access_key = access_key
+        user.upbit_secret_key = secret_key
+
+        session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': 'API keys saved successfully'
+        }), 200
+
+    except Exception as e:
+        session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'code': 'INTERNAL_ERROR'
+        }), 500
+    finally:
+        session.close()
+
+
 @user_bp.route('/health', methods=['GET'])
 def health_check():
     """
