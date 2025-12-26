@@ -1983,7 +1983,7 @@
         setInterval(loadDashboard, 30000);
 
         // ===== Enterprise Inquiries Management =====
-        let allEnterpriseInquiries = [];
+        window.allEnterpriseInquiries = window.allEnterpriseInquiries || [];
 
         async function loadEnterpriseInquiries() {
             const tbody = document.getElementById('enterpriseTable');
@@ -2005,8 +2005,8 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    allEnterpriseInquiries = data.inquiries;
-                    displayEnterpriseInquiries(allEnterpriseInquiries);
+                    window.allEnterpriseInquiries = data.inquiries;
+                    displayEnterpriseInquiries(window.allEnterpriseInquiries);
                 } else {
                     tbody.innerHTML = '<tr><td colspan="9" class="error-state"><div class="error-state-icon">⚠️</div><div class="error-state-text">상담 신청을 불러오는데 실패했습니다</div></td></tr>';
                 }
@@ -2172,11 +2172,11 @@
             const searchTerm = document.getElementById('enterpriseSearch').value.toLowerCase();
 
             if (!searchTerm) {
-                displayEnterpriseInquiries(allEnterpriseInquiries);
+                displayEnterpriseInquiries(window.allEnterpriseInquiries);
                 return;
             }
 
-            const filtered = allEnterpriseInquiries.filter(inquiry => {
+            const filtered = window.allEnterpriseInquiries.filter(inquiry => {
                 return inquiry.name.toLowerCase().includes(searchTerm) ||
                        inquiry.email.toLowerCase().includes(searchTerm) ||
                        inquiry.phone.includes(searchTerm) ||
