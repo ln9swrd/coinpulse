@@ -253,13 +253,16 @@
                     const profitLossEl = document.getElementById('totalProfitLoss');
                     const thisMonthEl = document.getElementById('thisMonth');
 
-                    if (totalEl) totalEl.textContent = data.total_received;
-                    if (executedEl) executedEl.textContent = data.executed;
-                    if (execRateEl) execRateEl.textContent = data.execution_rate + '%';
-                    if (winRateEl) winRateEl.textContent = data.win_rate + '%';
+                    // Access stats object from response
+                    const stats = data.stats || data;
+
+                    if (totalEl) totalEl.textContent = stats.total_received || 0;
+                    if (executedEl) executedEl.textContent = stats.executed || 0;
+                    if (execRateEl) execRateEl.textContent = (stats.execution_rate || 0) + '%';
+                    if (winRateEl) winRateEl.textContent = (stats.win_rate || 0) + '%';
 
                     if (profitLossEl) {
-                        const profitLoss = data.total_profit_loss;
+                        const profitLoss = stats.total_profit_loss || 0;
                         const profitLossText = profitLoss >= 0 ?
                             '+' + profitLoss.toLocaleString() + ' KRW' :
                             profitLoss.toLocaleString() + ' KRW';
@@ -267,7 +270,7 @@
                         profitLossEl.style.color = profitLoss >= 0 ? '#10b981' : '#ef4444';
                     }
 
-                    if (thisMonthEl) thisMonthEl.textContent = data.this_month.received;
+                    if (thisMonthEl) thisMonthEl.textContent = stats.this_month || 0;
                 }
             } catch (error) {
                 console.error('Error loading stats:', error);
