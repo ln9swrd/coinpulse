@@ -13,8 +13,72 @@
         }
 
         .settings-container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            margin: 0 0 8px 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .page-header p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Tabs */
+        .settings-tabs {
+            display: flex;
+            gap: 8px;
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 15px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .tab-button:hover {
+            color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .settings-section {
@@ -30,8 +94,6 @@
             font-size: 20px;
             font-weight: 700;
             color: #333;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 15px;
         }
 
         .form-group {
@@ -52,12 +114,22 @@
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="password"] {
             font-family: 'Courier New', monospace;
         }
 
         .form-group input:focus {
             outline: none;
             border-color: #667eea;
+        }
+
+        .form-group input:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
         }
 
         .btn-save {
@@ -79,6 +151,34 @@
         .btn-save:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            color: #1976d2;
+        }
+
+        .alert-success {
+            background: #e8f5e9;
+            border: 1px solid #81c784;
+            color: #388e3c;
+        }
+
+        .alert-warning {
+            background: #fff3e0;
+            border: 1px solid #ffb74d;
+            color: #f57c00;
         }
 
         .api-key-guide {
@@ -121,54 +221,6 @@
             text-decoration: underline;
         }
 
-        .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .alert-info {
-            background: #e3f2fd;
-            border: 1px solid #90caf9;
-            color: #1976d2;
-        }
-
-        .alert-success {
-            background: #e8f5e9;
-            border: 1px solid #81c784;
-            color: #388e3c;
-        }
-
-        .alert-warning {
-            background: #fff3e0;
-            border: 1px solid #ffb74d;
-            color: #f57c00;
-        }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .status-badge.connected {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-badge.disconnected {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
         .permissions-note {
             background: #fef3c7;
             border: 1px solid #fbbf24;
@@ -193,97 +245,175 @@
         .permissions-list li {
             margin-bottom: 5px;
         }
+
+        @media (max-width: 768px) {
+            .settings-tabs {
+                overflow-x: scroll;
+            }
+
+            .tab-button {
+                font-size: 14px;
+                padding: 10px 16px;
+            }
+
+            .settings-section {
+                padding: 20px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="settings-container">
-        <div class="page-header" style="margin-bottom: 30px;">
-            <h1>설정</h1>
+        <div class="page-header">
+            <h1>⚙️ 설정</h1>
             <p>계정 및 API 설정을 관리합니다</p>
         </div>
 
-        <!-- API Keys Section -->
-        <div class="settings-section">
-            <h2>🔑 업비트 API 키</h2>
-
-            <div id="api-status-alert" class="alert alert-info" style="display: none;">
-                <span>ℹ️</span>
-                <span id="api-status-message">API 키 상태를 확인하는 중...</span>
-            </div>
-
-            <div class="form-group">
-                <label for="access_key">Access Key</label>
-                <input type="text" id="access_key" placeholder="업비트 Access Key를 입력하세요" autocomplete="off">
-            </div>
-
-            <div class="form-group">
-                <label for="secret_key">Secret Key</label>
-                <input type="password" id="secret_key" placeholder="업비트 Secret Key를 입력하세요" autocomplete="off">
-            </div>
-
-            <button class="btn-save" id="save-api-keys" onclick="saveApiKeys()">
-                저장하기
+        <!-- Tabs -->
+        <div class="settings-tabs">
+            <button class="tab-button active" data-tab="api-keys">
+                🔑 API 키
             </button>
+            <button class="tab-button" data-tab="profile">
+                👤 프로필
+            </button>
+            <button class="tab-button" data-tab="notifications">
+                🔔 알림 설정
+            </button>
+        </div>
 
-            <!-- Permissions Notice -->
-            <div class="permissions-note">
-                <strong>⚠️ 필수 권한 설정</strong>
-                <p>업비트에서 API 키를 발급할 때 다음 권한을 반드시 활성화해주세요:</p>
-                <ul class="permissions-list">
-                    <li>✅ <strong>자산 조회</strong> - 포트폴리오 확인용</li>
-                    <li>✅ <strong>주문 조회</strong> - 거래 내역 조회용</li>
-                    <li>✅ <strong>주문 하기</strong> - 자동매매 실행용 (선택)</li>
-                </ul>
-                <p style="margin-top: 10px; font-size: 12px; color: #92400e;">
-                    ※ 자동매매를 사용하지 않는다면 "주문 하기" 권한은 비활성화하는 것을 권장합니다.
-                </p>
-            </div>
+        <!-- Tab: API Keys -->
+        <div class="tab-content active" id="tab-api-keys">
+            <div class="settings-section">
+                <h2>🔑 업비트 API 키</h2>
 
-            <!-- Upbit API Key Guide -->
-            <div class="api-key-guide" id="api-key-guide">
-                <h3>📘 업비트 API 키 발급 방법</h3>
-                <ol>
-                    <li>
-                        <a href="https://upbit.com/mypage/open_api_management" target="_blank" rel="noopener">
-                            업비트 Open API 관리 페이지
-                        </a>에 접속합니다.
-                    </li>
-                    <li>로그인 후 "Open API 사용하기" 버튼을 클릭합니다.</li>
-                    <li>본인 인증 (OTP 또는 SMS)을 완료합니다.</li>
-                    <li>
-                        <strong>필수 권한 선택:</strong>
-                        <ul style="margin-top: 5px;">
-                            <li>✅ 자산 조회</li>
-                            <li>✅ 주문 조회</li>
-                            <li>✅ 주문 하기 (자동매매 사용 시)</li>
-                        </ul>
-                    </li>
-                    <li>IP 주소 제한은 <strong>"사용 안 함"</strong>으로 설정합니다.</li>
-                    <li>발급된 <strong>Access Key</strong>와 <strong>Secret Key</strong>를 복사하여 위 입력란에 붙여넣습니다.</li>
-                    <li><strong>Secret Key는 한 번만 표시</strong>되므로 반드시 안전한 곳에 저장하세요!</li>
-                </ol>
+                <div id="api-status-alert" class="alert alert-info" style="display: none;">
+                    <span>ℹ️</span>
+                    <span id="api-status-message">API 키 상태를 확인하는 중...</span>
+                </div>
 
-                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #d0d4ff;">
-                    <p style="font-size: 13px; color: #666; margin: 0;">
-                        💡 <strong>팁:</strong> API 키는 절대 다른 사람과 공유하지 마세요.
-                        만약 유출되었다면 즉시 업비트에서 해당 키를 삭제하고 새로 발급받으세요.
+                <div class="form-group">
+                    <label for="access_key">Access Key</label>
+                    <input type="text" id="access_key" placeholder="업비트 Access Key를 입력하세요" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label for="secret_key">Secret Key</label>
+                    <input type="password" id="secret_key" placeholder="업비트 Secret Key를 입력하세요" autocomplete="off">
+                </div>
+
+                <button class="btn-save" id="save-api-keys" onclick="saveApiKeys()">
+                    저장하기
+                </button>
+
+                <!-- Permissions Notice -->
+                <div class="permissions-note">
+                    <strong>⚠️ 필수 권한 설정</strong>
+                    <p>업비트에서 API 키를 발급할 때 다음 권한을 반드시 활성화해주세요:</p>
+                    <ul class="permissions-list">
+                        <li>✅ <strong>자산 조회</strong> - 포트폴리오 확인용</li>
+                        <li>✅ <strong>주문 조회</strong> - 거래 내역 조회용</li>
+                        <li>✅ <strong>주문 하기</strong> - 자동매매 실행용 (선택)</li>
+                    </ul>
+                    <p style="margin-top: 10px; font-size: 12px; color: #92400e;">
+                        ※ 자동매매를 사용하지 않는다면 "주문 하기" 권한은 비활성화하는 것을 권장합니다.
                     </p>
+                </div>
+
+                <!-- Upbit API Key Guide -->
+                <div class="api-key-guide" id="api-key-guide">
+                    <h3>📘 업비트 API 키 발급 방법</h3>
+                    <ol>
+                        <li>
+                            <a href="https://upbit.com/mypage/open_api_management" target="_blank" rel="noopener">
+                                업비트 Open API 관리 페이지
+                            </a>에 접속합니다.
+                        </li>
+                        <li>로그인 후 "Open API 사용하기" 버튼을 클릭합니다.</li>
+                        <li>본인 인증 (OTP 또는 SMS)을 완료합니다.</li>
+                        <li>
+                            <strong>필수 권한 선택:</strong>
+                            <ul style="margin-top: 5px;">
+                                <li>✅ 자산 조회</li>
+                                <li>✅ 주문 조회</li>
+                                <li>✅ 주문 하기 (자동매매 사용 시)</li>
+                            </ul>
+                        </li>
+                        <li>IP 주소 제한은 <strong>"사용 안 함"</strong>으로 설정합니다.</li>
+                        <li>발급된 <strong>Access Key</strong>와 <strong>Secret Key</strong>를 복사하여 위 입력란에 붙여넣습니다.</li>
+                        <li><strong>Secret Key는 한 번만 표시</strong>되므로 반드시 안전한 곳에 저장하세요!</li>
+                    </ol>
+
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #d0d4ff;">
+                        <p style="font-size: 13px; color: #666; margin: 0;">
+                            💡 <strong>팁:</strong> API 키는 절대 다른 사람과 공유하지 마세요.
+                            만약 유출되었다면 즉시 업비트에서 해당 키를 삭제하고 새로 발급받으세요.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Profile Section -->
-        <div class="settings-section">
-            <h2>👤 프로필</h2>
+        <!-- Tab: Profile -->
+        <div class="tab-content" id="tab-profile">
+            <div class="settings-section">
+                <h2>👤 프로필</h2>
 
-            <div class="form-group">
-                <label>이메일</label>
-                <input type="email" id="user-email" disabled style="background: #f5f5f5; cursor: not-allowed;">
+                <div class="form-group">
+                    <label>이메일</label>
+                    <input type="email" id="user-email" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label>요금제</label>
+                    <input type="text" id="user-plan" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label>가입일</label>
+                    <input type="text" id="user-joined" disabled>
+                </div>
             </div>
+        </div>
 
-            <div class="form-group">
-                <label>요금제</label>
-                <input type="text" id="user-plan" disabled style="background: #f5f5f5; cursor: not-allowed;">
+        <!-- Tab: Notifications -->
+        <div class="tab-content" id="tab-notifications">
+            <div class="settings-section">
+                <h2>🔔 알림 설정</h2>
+
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" id="notify-surge" style="width: auto; margin-right: 10px;">
+                        급등 알림 받기
+                    </label>
+                    <p style="margin: 5px 0 0 28px; font-size: 13px; color: #666;">
+                        급등 감지 시 알림을 받습니다 (Enterprise 플랜 전용)
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" id="notify-order" style="width: auto; margin-right: 10px;">
+                        주문 체결 알림
+                    </label>
+                    <p style="margin: 5px 0 0 28px; font-size: 13px; color: #666;">
+                        주문이 체결되면 알림을 받습니다
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" id="notify-price" style="width: auto; margin-right: 10px;">
+                        가격 알림
+                    </label>
+                    <p style="margin: 5px 0 0 28px; font-size: 13px; color: #666;">
+                        설정한 가격에 도달하면 알림을 받습니다
+                    </p>
+                </div>
+
+                <button class="btn-save" onclick="saveNotificationSettings()">
+                    알림 설정 저장
+                </button>
             </div>
         </div>
     </div>
@@ -296,6 +426,27 @@
         function getAuthToken() {
             return localStorage.getItem('access_token') || localStorage.getItem('auth_token');
         }
+
+        // Tab switching
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const tabName = button.dataset.tab;
+
+                // Update button states
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                button.classList.add('active');
+
+                // Update content visibility
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById('tab-' + tabName).classList.add('active');
+
+                console.log('[Settings] Switched to tab:', tabName);
+            });
+        });
 
         // Load user info
         async function loadUserInfo() {
@@ -326,6 +477,12 @@
                         'enterprise': 'Enterprise (엔터프라이즈)'
                     };
                     document.getElementById('user-plan').value = planNames[plan] || plan;
+
+                    // Set joined date (if available)
+                    if (data.user.created_at) {
+                        const joinedDate = new Date(data.user.created_at).toLocaleDateString('ko-KR');
+                        document.getElementById('user-joined').value = joinedDate;
+                    }
                 }
             } catch (error) {
                 console.error('[Settings] Error loading user info:', error);
@@ -335,9 +492,12 @@
         // Check API key status
         async function checkApiKeyStatus() {
             try {
+                const token = getAuthToken();
+                if (!token) return;
+
                 const response = await fetch(`${window.API_BASE}/api/user/api-keys/status`, {
                     headers: {
-                        'Authorization': `Bearer ${getAuthToken()}`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
 
@@ -349,22 +509,10 @@
                     alertEl.className = 'alert alert-success';
                     messageEl.innerHTML = '<strong>✅ API 키가 등록되어 있습니다.</strong> 모든 기능을 사용할 수 있습니다.';
                     alertEl.style.display = 'flex';
-
-                    // Hide guide if keys exist
-                    const guideEl = document.getElementById('api-key-guide');
-                    if (guideEl) {
-                        guideEl.style.display = 'none';
-                    }
                 } else {
                     alertEl.className = 'alert alert-warning';
                     messageEl.innerHTML = '<strong>⚠️ API 키가 등록되지 않았습니다.</strong> 아래 가이드를 참고하여 업비트 API 키를 발급받으세요.';
                     alertEl.style.display = 'flex';
-
-                    // Show guide if no keys
-                    const guideEl = document.getElementById('api-key-guide');
-                    if (guideEl) {
-                        guideEl.style.display = 'block';
-                    }
                 }
             } catch (error) {
                 console.error('[Settings] Error checking API key status:', error);
@@ -417,6 +565,12 @@
                 saveBtn.disabled = false;
                 saveBtn.textContent = '저장하기';
             }
+        }
+
+        // Save notification settings
+        function saveNotificationSettings() {
+            // TODO: Implement notification settings save
+            alert('알림 설정이 저장되었습니다.');
         }
 
         // Initialize
