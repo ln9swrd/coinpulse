@@ -69,7 +69,11 @@ class SurgePredictor:
             signals['momentum'] = self._analyze_momentum(candle_data)
 
             # Calculate total score (0-100)
-            total_score = self._calculate_score(signals)
+            base_score = self._calculate_score(signals)
+
+            # Apply risk adjustments (penalties for high-risk entries)
+            penalties = self._calculate_risk_penalties(candle_data, current_price, signals)
+            total_score = max(0, base_score - penalties)
 
             # Generate recommendation
             min_score = self.surge_config.get('min_surge_probability_score', 70)
@@ -394,6 +398,74 @@ class SurgePredictor:
         total += signals.get('momentum', {}).get('score', 0)
 
         return min(100, max(0, total))  # Clamp to 0-100
+
+    def _calculate_risk_penalties(self, candle_data, current_price, signals):
+        """
+        Calculate risk penalties to prevent high-point entry (고점 진입 방지).
+
+        Penalties:
+        1. High Entry Penalty: 최근 고점 근처 진입 (-20점)
+        2. Overheating Penalty: 단기 급등 후 진입 (-15점)
+        3. RSI Overbought Penalty: RSI > 60 (-10점)
+        4. Excessive Momentum Penalty: 5일간 10% 이상 상승 (-10점)
+
+        Returns:
+            int: Total penalty points (0-55)
+        """
+        penalty = 0
+
+        try:
+            # 1. High Entry Penalty (최근 30일 고점 대비 현재 가격 위치)
+            highs_30d = [float(c.get('high_price', 0)) for c in candle_data[:30]]
+            if highs_30d and current_price > 0:
+                recent_high = max(highs_30d)
+                price_position = (current_price / recent_high) * 100
+
+                if price_position >= 95:
+                    penalty += 25  # 고점 95% 이상: 매우 위험
+                elif price_position >= 90:
+                    penalty += 20  # 고점 90% 이상: 위험
+                elif price_position >= 85:
+                    penalty += 15  # 고점 85% 이상: 주의
+                elif price_position >= 80:
+                    penalty += 10  # 고점 80% 이상: 경계
+
+            # 2. Overheating Penalty (최근 7일 vs 이전 7일 급등 감지)
+            if len(candle_data) >= 14:
+                recent_7d_avg = statistics.mean([float(c.get('trade_price', 0)) for c in candle_data[:7]])
+                previous_7d_avg = statistics.mean([float(c.get('trade_price', 0)) for c in candle_data[7:14]])
+
+                if previous_7d_avg > 0:
+                    weekly_surge = ((recent_7d_avg - previous_7d_avg) / previous_7d_avg) * 100
+
+                    if weekly_surge >= 30:
+                        penalty += 20  # 1주일간 30% 이상 상승: 과열
+                    elif weekly_surge >= 20:
+                        penalty += 15  # 1주일간 20% 이상 상승: 과열 위험
+                    elif weekly_surge >= 15:
+                        penalty += 10  # 1주일간 15% 이상 상승: 주의
+
+            # 3. RSI Overbought Penalty (RSI > 60)
+            rsi = signals.get('rsi', {}).get('rsi')
+            if rsi:
+                if rsi >= 70:
+                    penalty += 15  # RSI 70 이상: 과매수
+                elif rsi >= 65:
+                    penalty += 10  # RSI 65 이상: 과매수 위험
+                elif rsi >= 60:
+                    penalty += 5   # RSI 60 이상: 주의
+
+            # 4. Excessive Momentum Penalty (5일간 10% 이상 상승)
+            momentum_pct = signals.get('momentum', {}).get('momentum_percent', 0)
+            if momentum_pct >= 15:
+                penalty += 15  # 5일간 15% 이상 상승: 이미 충분히 올랐음
+            elif momentum_pct >= 10:
+                penalty += 10  # 5일간 10% 이상 상승: 주의
+
+        except Exception as e:
+            print(f"[SurgePredictor] Risk penalty calculation error: {e}")
+
+        return penalty
 
     def calculate_dynamic_target(self, analysis_result, min_target=3.0, max_target=10.0):
         """
