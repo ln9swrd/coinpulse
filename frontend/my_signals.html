@@ -351,19 +351,19 @@
                             <div class="signal-prices">
                                 <div class="price-item">
                                     <div class="price-label">진입가</div>
-                                    <div class="price-value">KRW ${signal.entry_price.toLocaleString()}</div>
+                                    <div class="price-value">KRW ${signal.entry_price ? signal.entry_price.toLocaleString() : '-'}</div>
                                 </div>
                                 <div class="price-item">
                                     <div class="price-label">목표가</div>
-                                    <div class="price-value" style="color: #10b981;">KRW ${signal.target_price.toLocaleString()}</div>
+                                    <div class="price-value" style="color: #10b981;">KRW ${signal.target_price ? signal.target_price.toLocaleString() : '-'}</div>
                                 </div>
                                 <div class="price-item">
                                     <div class="price-label">손절가</div>
-                                    <div class="price-value" style="color: #ef4444;">KRW ${signal.stop_loss.toLocaleString()}</div>
+                                    <div class="price-value" style="color: #ef4444;">KRW ${signal.stop_loss ? signal.stop_loss.toLocaleString() : '-'}</div>
                                 </div>
                                 <div class="price-item">
                                     <div class="price-label">예상 수익률</div>
-                                    <div class="price-value" style="color: #667eea;">+${signal.expected_return.toFixed(2)}%</div>
+                                    <div class="price-value" style="color: #667eea;">+${signal.expected_return ? signal.expected_return.toFixed(2) : '0.00'}%</div>
                                 </div>
                             </div>
 
