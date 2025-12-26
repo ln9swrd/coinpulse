@@ -20,35 +20,49 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
-        /* Signals Grid Layout - Optimized for horizontal display */
-        #signalsList {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 16px;
+        /* Signals Table Layout */
+        .table-container {
+            overflow-x: auto;
             margin-top: 20px;
         }
 
-        .signal-card {
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            padding: 20px;
-            background: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-            transition: all 0.3s;
-            display: flex;
-            flex-direction: column;
+        .signals-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
         }
 
-        .signal-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transform: translateY(-2px);
+        .signals-table thead {
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .signals-table th {
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            white-space: nowrap;
+        }
+
+        .signals-table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #dee2e6;
+            vertical-align: middle;
+        }
+
+        .signals-table tbody tr:hover {
+            background: #f8f9fa;
         }
 
         /* Mobile responsive */
         @media (max-width: 768px) {
-            #signalsList {
-                grid-template-columns: 1fr;
-                gap: 16px;
+            .table-container {
+                font-size: 12px;
+            }
+            .signals-table th,
+            .signals-table td {
+                padding: 8px 4px;
             }
         }
 
@@ -114,22 +128,55 @@
             border-top: 1px solid #e0e0e0;
         }
 
-        .bonus-badge {
-            background: #fbbf24;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            margin-left: 10px;
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 20px 0;
         }
 
-        @media (max-width: 768px) {
-            .signal-header {
-                flex-direction: column;
-                gap: 15px;
-            }
+        .pagination button {
+            padding: 8px 16px;
+            border: 1px solid #dee2e6;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
         }
+
+        .pagination button:hover:not(:disabled) {
+            background: #f8f9fa;
+            border-color: #adb5bd;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination .page-info {
+            color: #666;
+            font-size: 14px;
+            margin: 0 10px;
+        }
+
+        /* Badges */
+        .badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .badge-neutral { background: #f3f4f6; color: #374151; }
     </style>
 </head>
 <body>
@@ -209,7 +256,40 @@
         </div>
 
         <div class="signals-container">
-            <div id="signalsList" class="loading">시그널 목록을 불러오는 중...</div>
+            <div class="table-container">
+                <table class="signals-table">
+                    <thead>
+                        <tr>
+                            <th>시간</th>
+                            <th>코인</th>
+                            <th>신뢰도</th>
+                            <th>진입가</th>
+                            <th>목표가</th>
+                            <th>손절가</th>
+                            <th>현재가/종가</th>
+                            <th>손익</th>
+                            <th>손익률</th>
+                            <th>상태</th>
+                            <th>액션</th>
+                        </tr>
+                    </thead>
+                    <tbody id="signalsList">
+                        <tr>
+                            <td colspan="11" style="text-align: center; padding: 40px;">시그널 목록을 불러오는 중...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination">
+                <button id="prevPage">이전</button>
+                <span class="page-info">
+                    <span id="currentPage">1</span> / <span id="totalPages">1</span>
+                    (<span id="totalCount">0</span>건)
+                </span>
+                <button id="nextPage">다음</button>
+            </div>
         </div>
     </div>
 
@@ -218,6 +298,12 @@
         window.API_BASE = window.location.origin;
         window.currentExecutionFilter = window.currentExecutionFilter || 'all';
         window.currentConfidenceMin = window.currentConfidenceMin || 70;
+
+        // Pagination state
+        window.currentPage = 1;
+        window.pageSize = 50;
+        window.totalCount = 0;
+        window.totalPages = 1;
 
         // Helper function to safely get element with retry
         async function waitForElement(elementId, maxRetries = 10, delayMs = 100) {
@@ -326,45 +412,33 @@
         async function loadSignals() {
             console.log('[Signals] Loading signals list...');
             try {
-                // First, check if element exists before making API call
-                console.log('[Signals] Checking if signalsList element exists...');
-                const preCheckEl = document.getElementById('signalsList');
-                console.log('[Signals] Pre-check result:', preCheckEl ? 'Element EXISTS' : 'Element MISSING');
-
-                if (preCheckEl) {
-                    console.log('[Signals] Element found immediately, making API call');
-                } else {
-                    console.warn('[Signals] Element not found, will retry after API call');
-                }
-
-                const response = await fetch(`${window.API_BASE}/api/user/signals?execution_status=${window.currentExecutionFilter}&confidence_min=${window.currentConfidenceMin}&limit=50`, {
+                const offset = (window.currentPage - 1) * window.pageSize;
+                const response = await fetch(`${window.API_BASE}/api/user/signals?execution_status=${window.currentExecutionFilter}&confidence_min=${window.currentConfidenceMin}&limit=${window.pageSize}&offset=${offset}`, {
                     headers: {
                         'Authorization': `Bearer ${getAuthToken()}`
                     }
                 });
 
-                console.log('[Signals] API response status:', response.status);
                 const data = await response.json();
-                console.log('[Signals] API data received, waiting for container element');
-
-                const container = await waitForElement('signalsList');
+                const container = document.getElementById('signalsList');
 
                 if (!container) {
-                    console.error('[Signals] signalsList container not found after retry');
-                    console.error('[Signals] DOM structure:', document.body ? 'body exists' : 'body missing');
-                    console.error('[Signals] Content container:', document.getElementById('content-container') ? 'exists' : 'missing');
+                    console.error('[Signals] signalsList container not found');
                     return;
                 }
-
-                console.log('[Signals] Container found, rendering signals');
 
                 if (!data.success) {
-                    container.innerHTML = '<div class="empty-state"><h3>오류 발생</h3><p>' + data.error + '</p></div>';
+                    container.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 40px; color: #ef4444;">오류 발생: ' + data.error + '</td></tr>';
                     return;
                 }
 
+                // Update pagination info
+                window.totalCount = data.count || 0;
+                window.totalPages = Math.ceil(window.totalCount / window.pageSize) || 1;
+                updatePaginationUI();
+
                 if (data.signals.length === 0) {
-                    container.innerHTML = '<div class="empty-state"><h3>시그널이 없습니다</h3><p>아직 받은 시그널이 없습니다.</p></div>';
+                    container.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 40px; color: #999;">시그널이 없습니다</td></tr>';
                     return;
                 }
 
@@ -372,7 +446,7 @@
                 data.signals.sort((a, b) => {
                     const dateA = new Date(a.received_at || 0);
                     const dateB = new Date(b.received_at || 0);
-                    return dateB - dateA;  // Descending order
+                    return dateB - dateA;
                 });
 
                 let html = '';
@@ -381,68 +455,46 @@
                     const statusMap = {
                         'not_executed': { class: 'badge-warning', text: '미실행' },
                         'executed': { class: 'badge-success', text: '실행됨' },
-                        'failed': { class: 'badge-error', text: '실패' },
-                        'pending': { class: 'badge-info', text: '대기중' }
+                        'failed': { class: 'badge-danger', text: '실패' }
                     };
                     const status = statusMap[item.execution_status] || { class: 'badge-neutral', text: item.execution_status };
-                    const statusClass = `badge ${status.class}`;
-                    const statusText = status.text;
 
-                    const isExpired = signal.is_expired;
-                    const bonusBadge = item.is_bonus ? '<span class="bonus-badge">BONUS</span>' : '';
+                    const receivedAt = item.received_at ? new Date(item.received_at).toLocaleString('ko-KR', {
+                        month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+                    }) : '-';
+
+                    const currentOrExitPrice = item.exit_price || item.current_price;
+                    const profitLoss = item.profit_loss;
+                    const profitLossPct = item.profit_loss_percent;
+
+                    const profitLossColor = profitLoss && profitLoss > 0 ? '#10b981' : (profitLoss < 0 ? '#ef4444' : '#666');
+                    const profitLossText = profitLoss ? (profitLoss > 0 ? '+' : '') + formatPrice(profitLoss) : '-';
+                    const profitLossPctText = profitLossPct ? (profitLossPct > 0 ? '+' : '') + profitLossPct.toFixed(2) + '%' : '-';
+
+                    const isExpired = item.is_expired;
+                    const canExecute = item.execution_status === 'not_executed' && !isExpired;
 
                     html += `
-                        <div class="signal-card">
-                            <div class="signal-header">
-                                <div>
-                                    <div class="signal-market">${signal.market}${bonusBadge}</div>
-                                    <small style="color: #999;">받은 시간: ${new Date(item.received_at).toLocaleString()}</small>
-                                </div>
-                                <div class="signal-confidence">${signal.confidence}% 신뢰도</div>
-                            </div>
-
-                            <div class="signal-prices">
-                                <div class="price-item">
-                                    <div class="price-label">진입가</div>
-                                    <div class="price-value">KRW ${formatPrice(signal.entry_price)}</div>
-                                </div>
-                                <div class="price-item">
-                                    <div class="price-label">목표가</div>
-                                    <div class="price-value" style="color: #10b981;">KRW ${formatPrice(signal.target_price)}</div>
-                                </div>
-                                <div class="price-item">
-                                    <div class="price-label">손절가</div>
-                                    <div class="price-value" style="color: #ef4444;">KRW ${formatPrice(signal.stop_loss)}</div>
-                                </div>
-                                <div class="price-item">
-                                    <div class="price-label">예상 수익률</div>
-                                    <div class="price-value" style="color: #667eea;">+${signal.expected_return ? signal.expected_return.toFixed(2) : '0.00'}%</div>
-                                </div>
-                            </div>
-
-                            <div class="signal-info">
-                                <strong>이유:</strong> ${signal.reason}
-                            </div>
-
-                            ${item.profit_loss !== null && item.profit_loss !== undefined ? `
-                                <div class="signal-info" style="background: ${item.profit_loss >= 0 ? '#d1fae5' : '#fee2e2'}; padding: 10px; border-radius: 6px;">
-                                    <strong>실행 결과:</strong> ${item.profit_loss >= 0 ? '+' : ''}${formatPrice(item.profit_loss)} KRW
-                                    ${item.profit_loss_ratio !== null && item.profit_loss_ratio !== undefined ? `(${item.profit_loss_ratio >= 0 ? '+' : ''}${item.profit_loss_ratio.toFixed(2)}%)` : ''}
-                                </div>
-                            ` : ''}
-
-                            <div class="signal-footer">
-                                <div>
-                                    <span class="${statusClass}">${statusText}</span>
-                                    ${isExpired ? '<span class="badge badge-neutral">만료됨</span>' : ''}
-                                </div>
-                                <button class="btn btn-success"
+                        <tr>
+                            <td style="white-space: nowrap;">${receivedAt}</td>
+                            <td><strong>${signal.coin || signal.market}</strong></td>
+                            <td>${signal.confidence}%</td>
+                            <td>${formatPrice(signal.entry_price)}</td>
+                            <td style="color: #10b981;">${formatPrice(signal.target_price)}</td>
+                            <td style="color: #ef4444;">${formatPrice(signal.stop_loss_price)}</td>
+                            <td>${currentOrExitPrice ? formatPrice(currentOrExitPrice) : '-'}</td>
+                            <td style="color: ${profitLossColor};">${profitLossText}</td>
+                            <td style="color: ${profitLossColor};">${profitLossPctText}</td>
+                            <td><span class="badge ${status.class}">${status.text}</span></td>
+                            <td>
+                                <button class="btn btn-sm"
                                         onclick="executeSignal(${item.id}, '${signal.market}')"
-                                        ${item.execution_status !== 'not_executed' || isExpired ? 'disabled' : ''}>
-                                    ${item.execution_status === 'not_executed' && !isExpired ? '실행하기' : '실행 완료'}
+                                        ${!canExecute ? 'disabled' : ''}
+                                        style="padding: 4px 12px; font-size: 12px;">
+                                    ${canExecute ? '실행' : '완료'}
                                 </button>
-                            </div>
-                        </div>
+                            </td>
+                        </tr>
                     `;
                 });
 
@@ -450,9 +502,20 @@
 
             } catch (error) {
                 console.error('Error loading signals:', error);
-                document.getElementById('signalsList').innerHTML =
-                    '<div class="empty-state"><h3>오류 발생</h3><p>시그널을 불러올 수 없습니다.</p></div>';
+                const container = document.getElementById('signalsList');
+                if (container) {
+                    container.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 40px; color: #ef4444;">시그널을 불러올 수 없습니다</td></tr>';
+                }
             }
+        }
+
+        function updatePaginationUI() {
+            document.getElementById('currentPage').textContent = window.currentPage;
+            document.getElementById('totalPages').textContent = window.totalPages;
+            document.getElementById('totalCount').textContent = window.totalCount;
+
+            document.getElementById('prevPage').disabled = window.currentPage <= 1;
+            document.getElementById('nextPage').disabled = window.currentPage >= window.totalPages;
         }
 
         function setupFilters() {
@@ -462,6 +525,7 @@
                     filterBtns.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     window.currentExecutionFilter = btn.dataset.executionStatus;
+                    window.currentPage = 1;  // Reset to first page
                     loadSignals();
                 });
             });
@@ -471,9 +535,25 @@
             if (confidenceFilter) {
                 confidenceFilter.addEventListener('change', (e) => {
                     window.currentConfidenceMin = parseInt(e.target.value);
+                    window.currentPage = 1;  // Reset to first page
                     loadSignals();
                 });
             }
+
+            // Pagination buttons
+            document.getElementById('prevPage').addEventListener('click', () => {
+                if (window.currentPage > 1) {
+                    window.currentPage--;
+                    loadSignals();
+                }
+            });
+
+            document.getElementById('nextPage').addEventListener('click', () => {
+                if (window.currentPage < window.totalPages) {
+                    window.currentPage++;
+                    loadSignals();
+                }
+            });
         }
 
         async function executeSignal(historyId, market) {
