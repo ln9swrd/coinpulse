@@ -650,13 +650,7 @@
                     <div style="font-size: 0.9em; color: #64748b; margin-bottom: 16px;">
                         💡 ${recommendation.tip}
                     </div>
-                    <div class="candidate-signals">
-                        ${createSignalItem('거래량', signals.volume, '매수세')}
-                        ${createSignalItem('추세', signals.trend, '방향성')}
-                        ${createSignalItem('모멘텀', signals.momentum, '상승력')}
-                        ${createSignalItem('RSI', signals.rsi, '과열도')}
-                        ${createSignalItem('지지선', signals.support, '조정위험')}
-                    </div>
+                    ${createDetailedSignals(candidate)}
                 `;
             }
 
@@ -812,6 +806,111 @@
                 default:
                     return { icon: '❓', text: signal.description || '알 수 없음' };
             }
+        }
+
+        // 상세 시그널 생성
+        function createDetailedSignals(candidate) {
+            const signals = candidate.signals || {};
+            let html = '<div class="candidate-signals" style="background: #fff; border-radius: 12px; padding: 16px; margin-top: 16px; border: 1px solid #e5e7eb;">';
+
+            // Panic Recovery Signal
+            if (signals.panic_recovery) {
+                const pr = signals.panic_recovery;
+                html += `
+                    <div style="padding: 12px; background: #f0fdf4; border-left: 4px solid #10b981; border-radius: 8px; margin-bottom: 12px;">
+                        <div style="font-weight: 700; color: #10b981; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 18px;">📈</span>
+                            <span>패닉 회복 감지</span>
+                            <span style="background: #10b981; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px;">${pr.score}점</span>
+                        </div>
+                        <div style="font-size: 13px; color: #064e3b; margin-bottom: 8px;">${pr.description}</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;">
+                            <div style="background: white; padding: 8px; border-radius: 6px;">
+                                <div style="color: #6b7280; margin-bottom: 2px;">최근 저점</div>
+                                <div style="font-weight: 600; color: #059669;">${formatPrice(pr.recent_low)} KRW</div>
+                            </div>
+                            <div style="background: white; padding: 8px; border-radius: 6px;">
+                                <div style="color: #6b7280; margin-bottom: 2px;">회복률</div>
+                                <div style="font-weight: 600; color: #059669;">+${pr.recovery_pct?.toFixed(2)}%</div>
+                            </div>
+                            <div style="background: white; padding: 8px; border-radius: 6px;">
+                                <div style="color: #6b7280; margin-bottom: 2px;">회복 기간</div>
+                                <div style="font-weight: 600; color: #059669;">${pr.recovery_days}일</div>
+                            </div>
+                            <div style="background: white; padding: 8px; border-radius: 6px;">
+                                <div style="color: #6b7280; margin-bottom: 2px;">상승 지속</div>
+                                <div style="font-weight: 600; color: #059669;">${pr.higher_lows ? '✅ 예' : '❌ 아니오'}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Oversold Detection Signal
+            if (signals.oversold_detection) {
+                const od = signals.oversold_detection;
+                html += `
+                    <div style="padding: 12px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 8px; margin-bottom: 12px;">
+                        <div style="font-weight: 700; color: #f59e0b; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 18px;">⚠️</span>
+                            <span>과매도 감지</span>
+                            <span style="background: #f59e0b; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px;">${od.score}점</span>
+                        </div>
+                        <div style="font-size: 13px; color: #78350f; margin-bottom: 8px;">${od.description}</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;">
+                            <div style="background: white; padding: 8px; border-radius: 6px;">
+                                <div style="color: #6b7280; margin-bottom: 2px;">RSI 지수</div>
+                                <div style="font-weight: 600; color: #d97706;">${od.rsi?.toFixed(2)}</div>
+                            </div>
+                            <div style="background: white; padding: 8px; border-radius: 6px;">
+                                <div style="color: #6b7280; margin-bottom: 2px;">하락률</div>
+                                <div style="font-weight: 600; color: #dc2626;">${od.drop_pct?.toFixed(2)}%</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Volume Reversal Signal
+            if (signals.volume_reversal) {
+                const vr = signals.volume_reversal;
+                html += `
+                    <div style="padding: 12px; background: #dbeafe; border-left: 4px solid #3b82f6; border-radius: 8px; margin-bottom: 12px;">
+                        <div style="font-weight: 700; color: #3b82f6; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 18px;">📊</span>
+                            <span>거래량 변화</span>
+                            <span style="background: #3b82f6; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px;">${vr.score}점</span>
+                        </div>
+                        <div style="font-size: 13px; color: #1e3a8a; margin-bottom: 8px;">${vr.description}</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;">
+                            <div style="background: white; padding: 8px; border-radius: 6px;">
+                                <div style="color: #6b7280; margin-bottom: 2px;">현재 거래량 비율</div>
+                                <div style="font-weight: 600; color: #2563eb;">${vr.current_ratio?.toFixed(2)}배</div>
+                            </div>
+                            <div style="background: white; padding: 8px; border-radius: 6px;">
+                                <div style="color: #6b7280; margin-bottom: 2px;">어제 거래량 비율</div>
+                                <div style="font-weight: 600; color: #2563eb;">${vr.yesterday_ratio?.toFixed(2)}배</div>
+                            </div>
+                            <div style="background: white; padding: 8px; border-radius: 6px; grid-column: 1 / -1;">
+                                <div style="color: #6b7280; margin-bottom: 2px;">거래량 증가 추세</div>
+                                <div style="font-weight: 600; color: #2563eb;">${vr.volume_increasing ? '✅ 증가 중' : '⚠️ 감소 중'}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 시그널이 없는 경우
+            if (!signals.panic_recovery && !signals.oversold_detection && !signals.volume_reversal) {
+                html += `
+                    <div style="padding: 20px; text-align: center; color: #9ca3af;">
+                        <p>🔍 상세 시그널 정보가 없습니다</p>
+                    </div>
+                `;
+            }
+
+            html += '</div>';
+            return html;
         }
 
         // 가격 포맷
