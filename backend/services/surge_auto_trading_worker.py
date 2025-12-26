@@ -71,7 +71,7 @@ class SurgeAutoTradingWorker:
         self.alerted_in_cycle: Set[str] = set()
 
         # Base minimum score for initial filtering (user-specific filtering happens later)
-        self.base_min_score = 60  # Base threshold to reduce API calls
+        self.base_min_score = 70  # Raised from 60 to improve signal quality
 
         logger.info(f"[AutoTradingWorker] Initialized (interval: {check_interval}s, coins: {len(self.monitor_coins)})")
         logger.info(f"[AutoTradingWorker] Dynamic market selection enabled (auto-update every 24h)")

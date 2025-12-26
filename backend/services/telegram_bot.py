@@ -47,7 +47,7 @@ class SurgeTelegramBot:
         self.app = None
         self.bot = None
         self.subscribers = set()  # Set of chat_ids to send notifications
-        self.min_score = 60  # Minimum score to send alert
+        self.min_score = 70  # Raised from 60 to improve signal quality
 
         logger.info("[TelegramBot] Initialized")
 

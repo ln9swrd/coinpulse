@@ -72,7 +72,7 @@ class SurgePredictor:
             total_score = self._calculate_score(signals)
 
             # Generate recommendation
-            min_score = self.surge_config.get('min_surge_probability_score', 60)
+            min_score = self.surge_config.get('min_surge_probability_score', 70)
             if total_score >= min_score:
                 recommendation = 'strong_buy'
             elif total_score >= 50:
@@ -616,7 +616,7 @@ class SurgePredictor:
                     analysis = self.analyze_coin(coin_symbol, candle_data, current_price)
 
                     # Only include coins with minimum score
-                    min_score = self.surge_config.get('min_surge_probability_score', 60)
+                    min_score = self.surge_config.get('min_surge_probability_score', 70)
                     if analysis['score'] >= min_score:
                         candidates.append(analysis)
                         print(f"[SurgePredictor] ✅ {coin_symbol}: Score {analysis['score']} - {analysis['recommendation']}")

@@ -68,7 +68,7 @@ class SurgeAlertScheduler:
 
         # Track alerted candidates (to avoid duplicate alerts)
         self.alerted_candidates: Set[str] = set()  # Set of market names
-        self.min_score = 60
+        self.min_score = 70  # Raised from 60 to improve signal quality
 
         logger.info(f"[SurgeAlertScheduler] Initialized (interval: {check_interval}s, coins: {len(self.monitor_coins)})")
         logger.info(f"[SurgeAlertScheduler] Dynamic market selection enabled (auto-update every 24h)")
