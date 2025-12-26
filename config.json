@@ -58,5 +58,15 @@
       "enabled": true,
       "interval_seconds": 60
     }
+  },
+  "surge_prediction": {
+    "min_surge_probability_score": 60,
+    "target_return_percent": 10.0,
+    "stop_loss_percent": -5.0,
+    "max_position_size_percent": 10.0,
+    "patterns_enabled": {
+      "pattern_a_accumulation": true,
+      "pattern_b_oversold_bounce": true
+    }
   }
 }
