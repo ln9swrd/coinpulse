@@ -151,6 +151,11 @@
                 <div class="label">Executed signals</div>
             </div>
             <div class="stat-card">
+                <h3>미실행 시그널</h3>
+                <div class="value" id="notExecuted" style="color: #f59e0b;">-</div>
+                <div class="label">Not executed</div>
+            </div>
+            <div class="stat-card">
                 <h3>실행률</h3>
                 <div class="value" id="executionRate">-%</div>
                 <div class="label">Execution rate</div>
@@ -184,10 +189,23 @@
 
         <div class="filters">
             <span style="color: #666; font-weight: 600;">필터:</span>
-            <button class="filter-btn active" data-status="all">전체</button>
-            <button class="filter-btn" data-status="not_executed">미실행</button>
-            <button class="filter-btn" data-status="executed">실행됨</button>
-            <button class="filter-btn" data-status="failed">실패</button>
+            <button class="filter-btn active" data-execution-status="all">전체</button>
+            <button class="filter-btn" data-execution-status="not_executed">미실행</button>
+            <button class="filter-btn" data-execution-status="executed">실행됨</button>
+            <button class="filter-btn" data-execution-status="failed">실패</button>
+
+            <!-- Confidence filter -->
+            <div style="display: inline-flex; align-items: center; margin-left: 20px; gap: 10px;">
+                <label for="confidenceFilter" style="color: #666; font-size: 14px;">신뢰도:</label>
+                <select id="confidenceFilter" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                    <option value="0">전체</option>
+                    <option value="50">50% 이상</option>
+                    <option value="60">60% 이상</option>
+                    <option value="70" selected>70% 이상</option>
+                    <option value="80">80% 이상</option>
+                    <option value="90">90% 이상</option>
+                </select>
+            </div>
         </div>
 
         <div class="signals-container">
@@ -198,7 +216,8 @@
     <script>
         // Force reset API_BASE to origin (prevent conflicts from previously loaded pages)
         window.API_BASE = window.location.origin;
-        window.currentFilter = window.currentFilter || 'all';
+        window.currentExecutionFilter = window.currentExecutionFilter || 'all';
+        window.currentConfidenceMin = window.currentConfidenceMin || 70;
 
         // Helper function to safely get element with retry
         async function waitForElement(elementId, maxRetries = 10, delayMs = 100) {
@@ -267,6 +286,7 @@
                     // Wait for elements with defensive checks
                     const totalEl = document.getElementById('totalReceived');
                     const executedEl = document.getElementById('executed');
+                    const notExecutedEl = document.getElementById('notExecuted');
                     const execRateEl = document.getElementById('executionRate');
                     const winTradesEl = document.getElementById('winTrades');
                     const lossTradesEl = document.getElementById('lossTrades');
@@ -277,8 +297,13 @@
                     // Access stats object from response
                     const stats = data.stats || data;
 
-                    if (totalEl) totalEl.textContent = stats.total_received || 0;
-                    if (executedEl) executedEl.textContent = stats.executed || 0;
+                    const totalReceived = stats.total_received || 0;
+                    const executed = stats.executed || 0;
+                    const notExecuted = totalReceived - executed;
+
+                    if (totalEl) totalEl.textContent = totalReceived;
+                    if (executedEl) executedEl.textContent = executed;
+                    if (notExecutedEl) notExecutedEl.textContent = notExecuted;
                     if (execRateEl) execRateEl.textContent = (stats.execution_rate || 0) + '%';
                     if (winTradesEl) winTradesEl.textContent = stats.wins || 0;
                     if (lossTradesEl) lossTradesEl.textContent = stats.losses || 0;
@@ -312,7 +337,7 @@
                     console.warn('[Signals] Element not found, will retry after API call');
                 }
 
-                const response = await fetch(`${window.API_BASE}/api/user/signals?status=${window.currentFilter}&limit=50`, {
+                const response = await fetch(`${window.API_BASE}/api/user/signals?execution_status=${window.currentExecutionFilter}&confidence_min=${window.currentConfidenceMin}&limit=50`, {
                     headers: {
                         'Authorization': `Bearer ${getAuthToken()}`
                     }
@@ -436,10 +461,19 @@
                 btn.addEventListener('click', () => {
                     filterBtns.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    window.currentFilter = btn.dataset.status;
+                    window.currentExecutionFilter = btn.dataset.executionStatus;
                     loadSignals();
                 });
             });
+
+            // Confidence filter
+            const confidenceFilter = document.getElementById('confidenceFilter');
+            if (confidenceFilter) {
+                confidenceFilter.addEventListener('change', (e) => {
+                    window.currentConfidenceMin = parseInt(e.target.value);
+                    loadSignals();
+                });
+            }
         }
 
         async function executeSignal(historyId, market) {

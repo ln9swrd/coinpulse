@@ -21,6 +21,8 @@ def get_user_signals():
 
     Query params:
         status: filter by status (all, pending, win, lose, closed, expired)
+        execution_status: filter by execution (all, not_executed, executed, failed)
+        confidence_min: minimum confidence (0-100, default 0)
         limit: number of results (default 50, max 200)
         offset: pagination offset
 
@@ -56,6 +58,8 @@ def get_user_signals():
     try:
         user_id = g.user_id
         status_filter = request.args.get('status', 'all')
+        execution_filter = request.args.get('execution_status', 'all')
+        confidence_min = max(0, min(100, int(request.args.get('confidence_min', 0))))
         limit = min(200, max(1, int(request.args.get('limit', 50))))
         offset = max(0, int(request.args.get('offset', 0)))
 
@@ -68,6 +72,20 @@ def get_user_signals():
             if status_filter != 'all':
                 where_clauses.append("status = :status")
                 params['status'] = status_filter
+
+            # Apply execution status filter
+            if execution_filter == 'not_executed':
+                where_clauses.append("(auto_traded IS NULL OR auto_traded = false)")
+            elif execution_filter == 'executed':
+                where_clauses.append("auto_traded = true")
+            elif execution_filter == 'failed':
+                # Failed = executed but resulted in loss
+                where_clauses.append("auto_traded = true AND exit_price IS NOT NULL AND exit_price <= entry_price")
+
+            # Apply confidence filter
+            if confidence_min > 0:
+                where_clauses.append("confidence >= :confidence_min")
+                params['confidence_min'] = confidence_min
 
             where_sql = " AND ".join(where_clauses)
 
