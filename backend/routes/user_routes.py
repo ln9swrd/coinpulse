@@ -343,69 +343,108 @@ def get_api_keys_status():
         session.close()
 
 
-@user_bp.route('/api-keys', methods=['POST'])
+@user_bp.route('/api-keys', methods=['GET', 'POST'])
 @require_auth
-def save_api_keys():
+def manage_api_keys():
     """
-    Save user's Upbit API keys
+    Get or save user's Upbit API keys
 
-    Request Body:
-    {
-        "access_key": "string",
-        "secret_key": "string"
-    }
+    GET:
+        Returns user's API keys (secret key is masked)
+
+    POST:
+        Request Body:
+        {
+            "access_key": "string",
+            "secret_key": "string"
+        }
 
     Returns:
-        200: API keys saved successfully
-        400: Invalid request
+        200: Success
+        400: Invalid request (POST only)
         401: Unauthorized
+        404: User not found
     """
     from backend.database.models import User
 
     session = get_db_session()
     try:
         user_id = request.user_id
-        data = request.get_json()
 
-        if not data:
+        # GET: Return existing API keys
+        if request.method == 'GET':
+            user = session.query(User).filter(User.id == user_id).first()
+
+            if not user:
+                return jsonify({
+                    'success': False,
+                    'error': 'User not found',
+                    'code': 'USER_NOT_FOUND'
+                }), 404
+
+            # Return keys with secret key masked
+            access_key = user.upbit_access_key
+            secret_key = user.upbit_secret_key
+
+            response_data = {
+                'success': True,
+                'access_key': access_key if access_key else None,
+                'secret_key_masked': None
+            }
+
+            # Mask secret key (show only last 4 characters)
+            if secret_key:
+                if len(secret_key) > 4:
+                    response_data['secret_key_masked'] = '****' + secret_key[-4:]
+                else:
+                    response_data['secret_key_masked'] = '****'
+
+            return jsonify(response_data), 200
+
+        # POST: Save new API keys
+        elif request.method == 'POST':
+            data = request.get_json()
+
+            if not data:
+                return jsonify({
+                    'success': False,
+                    'error': 'No data provided',
+                    'code': 'INVALID_REQUEST'
+                }), 400
+
+            access_key = data.get('access_key', '').strip()
+            secret_key = data.get('secret_key', '').strip()
+
+            if not access_key or not secret_key:
+                return jsonify({
+                    'success': False,
+                    'error': 'Access key and secret key are required',
+                    'code': 'MISSING_KEYS'
+                }), 400
+
+            # Update user's API keys
+            user = session.query(User).filter(User.id == user_id).first()
+
+            if not user:
+                return jsonify({
+                    'success': False,
+                    'error': 'User not found',
+                    'code': 'USER_NOT_FOUND'
+                }), 404
+
+            user.upbit_access_key = access_key
+            user.upbit_secret_key = secret_key
+
+            session.commit()
+
             return jsonify({
-                'success': False,
-                'error': 'No data provided',
-                'code': 'INVALID_REQUEST'
-            }), 400
-
-        access_key = data.get('access_key', '').strip()
-        secret_key = data.get('secret_key', '').strip()
-
-        if not access_key or not secret_key:
-            return jsonify({
-                'success': False,
-                'error': 'Access key and secret key are required',
-                'code': 'MISSING_KEYS'
-            }), 400
-
-        # Update user's API keys
-        user = session.query(User).filter(User.id == user_id).first()
-
-        if not user:
-            return jsonify({
-                'success': False,
-                'error': 'User not found',
-                'code': 'USER_NOT_FOUND'
-            }), 404
-
-        user.upbit_access_key = access_key
-        user.upbit_secret_key = secret_key
-
-        session.commit()
-
-        return jsonify({
-            'success': True,
-            'message': 'API keys saved successfully'
-        }), 200
+                'success': True,
+                'message': 'API keys saved successfully'
+            }), 200
 
     except Exception as e:
-        session.rollback()
+        if request.method == 'POST':
+            session.rollback()
         return jsonify({
             'success': False,
             'error': str(e),
