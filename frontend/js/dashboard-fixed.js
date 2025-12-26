@@ -2877,6 +2877,12 @@
             const tabs = document.querySelectorAll('.settings-tab');
             const tabContents = document.querySelectorAll('.settings-tab-content');
 
+            // Skip if using external settings page with its own tab logic
+            if (tabs.length === 0 || tabContents.length === 0) {
+                console.log('[Settings] Using external settings page tab logic');
+                return;
+            }
+
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
                     const tabName = tab.dataset.tab;
