@@ -252,7 +252,6 @@ def change_user_plan(user_id):
                 # Create new subscription if none exists
                 subscription = Subscription(
                     user_id=user_id,
-                    user_email=f'user_{user_id}@coinpulse.com',  # Placeholder
                     plan=new_plan_str,  # Store as string, not Enum
                     billing_period=billing_period_str,  # Store as string, not Enum
                     status='active',  # Store as string, not Enum
