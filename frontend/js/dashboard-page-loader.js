@@ -2,6 +2,7 @@
 
         // Page mapping: route -> file path
         const PAGE_ROUTES = {
+            'overview': 'overview.html',  // Dashboard home
             'signals': 'my_signals.html',
             'telegram': 'telegram_settings.html',
             'trading': 'trading_chart.html',
@@ -10,6 +11,7 @@
             'auto-trading': 'surge_auto_trading.html',  // Surge-based auto-trading settings
             'referral': 'referral.html',
             'my-feedback': 'my_feedback.html',  // User feedback history
+            'settings': 'settings.html',  // User settings (API keys, profile)
             'admin': 'admin.html',
             'surge-history': 'surge_history.html'  // Surge prediction history (admin only)
             // Note: trading chart, surge, and auto-trading pages loaded via iframe

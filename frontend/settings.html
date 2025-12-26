@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>설정 - CoinPulse</title>
+    <link rel="stylesheet" href="css/internal-pages.css">
+    <style>
+        body {
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .settings-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .settings-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .settings-section h2 {
+            margin: 0 0 20px 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-save:hover {
+            opacity: 0.9;
+        }
+
+        .btn-save:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .api-key-guide {
+            background: #f8f9ff;
+            border: 1px solid #e0e5ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .api-key-guide h3 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .api-key-guide ol {
+            margin: 0;
+            padding-left: 20px;
+            line-height: 1.8;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .api-key-guide li {
+            margin-bottom: 12px;
+        }
+
+        .api-key-guide a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .api-key-guide a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            color: #1976d2;
+        }
+
+        .alert-success {
+            background: #e8f5e9;
+            border: 1px solid #81c784;
+            color: #388e3c;
+        }
+
+        .alert-warning {
+            background: #fff3e0;
+            border: 1px solid #ffb74d;
+            color: #f57c00;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-badge.connected {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.disconnected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .permissions-note {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #78350f;
+        }
+
+        .permissions-note strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #92400e;
+        }
+
+        .permissions-list {
+            margin: 10px 0 0 0;
+            padding-left: 20px;
+        }
+
+        .permissions-list li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        <div class="page-header" style="margin-bottom: 30px;">
+            <h1>설정</h1>
+            <p>계정 및 API 설정을 관리합니다</p>
+        </div>
+
+        <!-- API Keys Section -->
+        <div class="settings-section">
+            <h2>🔑 업비트 API 키</h2>
+
+            <div id="api-status-alert" class="alert alert-info" style="display: none;">
+                <span>ℹ️</span>
+                <span id="api-status-message">API 키 상태를 확인하는 중...</span>
+            </div>
+
+            <div class="form-group">
+                <label for="access_key">Access Key</label>
+                <input type="text" id="access_key" placeholder="업비트 Access Key를 입력하세요" autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <label for="secret_key">Secret Key</label>
+                <input type="password" id="secret_key" placeholder="업비트 Secret Key를 입력하세요" autocomplete="off">
+            </div>
+
+            <button class="btn-save" id="save-api-keys" onclick="saveApiKeys()">
+                저장하기
+            </button>
+
+            <!-- Permissions Notice -->
+            <div class="permissions-note">
+                <strong>⚠️ 필수 권한 설정</strong>
+                <p>업비트에서 API 키를 발급할 때 다음 권한을 반드시 활성화해주세요:</p>
+                <ul class="permissions-list">
+                    <li>✅ <strong>자산 조회</strong> - 포트폴리오 확인용</li>
+                    <li>✅ <strong>주문 조회</strong> - 거래 내역 조회용</li>
+                    <li>✅ <strong>주문 하기</strong> - 자동매매 실행용 (선택)</li>
+                </ul>
+                <p style="margin-top: 10px; font-size: 12px; color: #92400e;">
+                    ※ 자동매매를 사용하지 않는다면 "주문 하기" 권한은 비활성화하는 것을 권장합니다.
+                </p>
+            </div>
+
+            <!-- Upbit API Key Guide -->
+            <div class="api-key-guide" id="api-key-guide">
+                <h3>📘 업비트 API 키 발급 방법</h3>
+                <ol>
+                    <li>
+                        <a href="https://upbit.com/mypage/open_api_management" target="_blank" rel="noopener">
+                            업비트 Open API 관리 페이지
+                        </a>에 접속합니다.
+                    </li>
+                    <li>로그인 후 "Open API 사용하기" 버튼을 클릭합니다.</li>
+                    <li>본인 인증 (OTP 또는 SMS)을 완료합니다.</li>
+                    <li>
+                        <strong>필수 권한 선택:</strong>
+                        <ul style="margin-top: 5px;">
+                            <li>✅ 자산 조회</li>
+                            <li>✅ 주문 조회</li>
+                            <li>✅ 주문 하기 (자동매매 사용 시)</li>
+                        </ul>
+                    </li>
+                    <li>IP 주소 제한은 <strong>"사용 안 함"</strong>으로 설정합니다.</li>
+                    <li>발급된 <strong>Access Key</strong>와 <strong>Secret Key</strong>를 복사하여 위 입력란에 붙여넣습니다.</li>
+                    <li><strong>Secret Key는 한 번만 표시</strong>되므로 반드시 안전한 곳에 저장하세요!</li>
+                </ol>
+
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #d0d4ff;">
+                    <p style="font-size: 13px; color: #666; margin: 0;">
+                        💡 <strong>팁:</strong> API 키는 절대 다른 사람과 공유하지 마세요.
+                        만약 유출되었다면 즉시 업비트에서 해당 키를 삭제하고 새로 발급받으세요.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="settings-section">
+            <h2>👤 프로필</h2>
+
+            <div class="form-group">
+                <label>이메일</label>
+                <input type="email" id="user-email" disabled style="background: #f5f5f5; cursor: not-allowed;">
+            </div>
+
+            <div class="form-group">
+                <label>요금제</label>
+                <input type="text" id="user-plan" disabled style="background: #f5f5f5; cursor: not-allowed;">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Force reset API_BASE
+        window.API_BASE = window.location.origin;
+
+        // Get auth token
+        function getAuthToken() {
+            return localStorage.getItem('access_token') || localStorage.getItem('auth_token');
+        }
+
+        // Load user info
+        async function loadUserInfo() {
+            try {
+                const response = await fetch(`${window.API_BASE}/api/user/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('user-email').value = data.user.email || '-';
+
+                    // Get subscription info
+                    const subResponse = await fetch(`${window.API_BASE}/api/user/subscription`, {
+                        headers: {
+                            'Authorization': `Bearer ${getAuthToken()}`
+                        }
+                    });
+
+                    const subData = await subResponse.json();
+                    const plan = subData?.subscription?.plan || 'free';
+                    const planNames = {
+                        'free': 'Free (무료)',
+                        'basic': 'Basic (베이직)',
+                        'pro': 'Pro (프로)',
+                        'enterprise': 'Enterprise (엔터프라이즈)'
+                    };
+                    document.getElementById('user-plan').value = planNames[plan] || plan;
+                }
+            } catch (error) {
+                console.error('[Settings] Error loading user info:', error);
+            }
+        }
+
+        // Check API key status
+        async function checkApiKeyStatus() {
+            try {
+                const response = await fetch(`${window.API_BASE}/api/user/api-keys/status`, {
+                    headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    }
+                });
+
+                const data = await response.json();
+                const alertEl = document.getElementById('api-status-alert');
+                const messageEl = document.getElementById('api-status-message');
+
+                if (data.has_keys) {
+                    alertEl.className = 'alert alert-success';
+                    messageEl.innerHTML = '<strong>✅ API 키가 등록되어 있습니다.</strong> 모든 기능을 사용할 수 있습니다.';
+                    alertEl.style.display = 'flex';
+
+                    // Hide guide if keys exist
+                    const guideEl = document.getElementById('api-key-guide');
+                    if (guideEl) {
+                        guideEl.style.display = 'none';
+                    }
+                } else {
+                    alertEl.className = 'alert alert-warning';
+                    messageEl.innerHTML = '<strong>⚠️ API 키가 등록되지 않았습니다.</strong> 아래 가이드를 참고하여 업비트 API 키를 발급받으세요.';
+                    alertEl.style.display = 'flex';
+
+                    // Show guide if no keys
+                    const guideEl = document.getElementById('api-key-guide');
+                    if (guideEl) {
+                        guideEl.style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                console.error('[Settings] Error checking API key status:', error);
+            }
+        }
+
+        // Save API keys
+        async function saveApiKeys() {
+            const accessKey = document.getElementById('access_key').value.trim();
+            const secretKey = document.getElementById('secret_key').value.trim();
+            const saveBtn = document.getElementById('save-api-keys');
+
+            if (!accessKey || !secretKey) {
+                alert('Access Key와 Secret Key를 모두 입력해주세요.');
+                return;
+            }
+
+            saveBtn.disabled = true;
+            saveBtn.textContent = '저장 중...';
+
+            try {
+                const response = await fetch(`${window.API_BASE}/api/user/api-keys`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        access_key: accessKey,
+                        secret_key: secretKey
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ API 키가 성공적으로 저장되었습니다!');
+                    // Clear inputs for security
+                    document.getElementById('access_key').value = '';
+                    document.getElementById('secret_key').value = '';
+                    // Reload status
+                    await checkApiKeyStatus();
+                } else {
+                    alert('❌ API 키 저장 실패:\n' + (data.error || '알 수 없는 오류'));
+                }
+            } catch (error) {
+                console.error('[Settings] Error saving API keys:', error);
+                alert('❌ 서버 오류가 발생했습니다. 다시 시도해주세요.');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = '저장하기';
+            }
+        }
+
+        // Initialize
+        async function init() {
+            console.log('[Settings] Initializing...');
+
+            const token = getAuthToken();
+            if (!token) {
+                console.warn('[Settings] No auth token, redirecting to login');
+                window.location.href = '/login.html';
+                return;
+            }
+
+            await Promise.all([
+                loadUserInfo(),
+                checkApiKeyStatus()
+            ]);
+
+            console.log('[Settings] Initialization complete');
+        }
+
+        // Initialize on page load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
