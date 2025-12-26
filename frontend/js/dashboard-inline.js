@@ -188,11 +188,21 @@
                         if (telegramMenuLink) {
                             telegramMenuLink.style.display = 'flex';
                         }
+                        // Show footer Enterprise links
+                        const footerEnterpriseLinks = document.querySelectorAll('.enterprise-only-link');
+                        footerEnterpriseLinks.forEach(link => {
+                            link.style.display = 'list-item';
+                        });
                     } else {
                         console.log('[Dashboard] Free/Basic/Pro plan - hiding Telegram integration');
                         if (telegramMenuLink) {
                             telegramMenuLink.style.display = 'none';
                         }
+                        // Hide footer Enterprise links
+                        const footerEnterpriseLinks = document.querySelectorAll('.enterprise-only-link');
+                        footerEnterpriseLinks.forEach(link => {
+                            link.style.display = 'none';
+                        });
                     }
 
                 } catch (error) {
@@ -218,6 +228,11 @@
                     if (telegramMenuLink) {
                         telegramMenuLink.style.display = 'none';
                     }
+                    // Hide footer Enterprise links on error
+                    const footerEnterpriseLinks = document.querySelectorAll('.enterprise-only-link');
+                    footerEnterpriseLinks.forEach(link => {
+                        link.style.display = 'none';
+                    });
                 }
             }
 
