@@ -89,27 +89,17 @@ class SurgeStatusUpdater:
                 logger.warning(f"[SurgeStatusUpdater] Could not get price for {market}")
                 return False
 
-            # Determine status
-            new_status = None
-            profit_loss = 0
-            profit_loss_percent = 0.0
+            # Determine status based on actual price comparison
+            # NOTE: Breakeven (current_price = entry_price) is considered a loss due to ~0.1% trading fees
+            profit_loss = int(current_price - entry_price)
+            profit_loss_percent = ((current_price - entry_price) / entry_price) * 100
 
-            if current_price >= target_price:
-                # Target reached - WIN
+            if current_price > entry_price:
+                # Profit - WIN
                 new_status = 'win'
-                profit_loss = int(current_price - entry_price)
-                profit_loss_percent = ((current_price - entry_price) / entry_price) * 100
-
-            elif current_price <= stop_loss_price:
-                # Stop loss hit - LOSE
-                new_status = 'lose'
-                profit_loss = int(current_price - entry_price)  # Negative value
-                profit_loss_percent = ((current_price - entry_price) / entry_price) * 100
-
             else:
-                # Price between stop loss and target - still pending, check again later
-                logger.debug(f"[SurgeStatusUpdater] {market} still pending (price: {current_price:,}원)")
-                return False
+                # Loss or breakeven - LOSE (includes current_price <= entry_price)
+                new_status = 'lose'
 
             # Update database
             with get_db_session() as session:

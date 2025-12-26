@@ -332,9 +332,13 @@ class SurgeAlertScheduler:
                         close_reason = f'Expired (48h, {profit_pct:+.1f}%)'
 
                     if should_close:
-                        # Calculate profit
-                        profit_pct = ((current_price - entry_price) / entry_price) * 100
-                        status = 'win' if profit_pct > 0 else 'lose'
+                        # Calculate profit (actual P/L in KRW and percentage)
+                        profit_loss = int(current_price - entry_price)
+                        profit_loss_pct = ((current_price - entry_price) / entry_price) * 100
+
+                        # Determine status: exit_price > entry_price = win, else lose
+                        # NOTE: Breakeven (exit_price = entry_price) is considered a loss due to ~0.1% trading fees
+                        status = 'win' if current_price > entry_price else 'lose'
 
                         # Update signal
                         update_query = text("""
@@ -343,6 +347,8 @@ class SurgeAlertScheduler:
                                 exit_price = :exit_price,
                                 close_reason = :close_reason,
                                 status = :status,
+                                profit_loss = :profit_loss,
+                                profit_loss_percent = :profit_loss_percent,
                                 closed_at = NOW()
                             WHERE id = :signal_id
                         """)
@@ -352,7 +358,9 @@ class SurgeAlertScheduler:
                             'peak_price': peak_price,
                             'exit_price': current_price,
                             'close_reason': close_reason,
-                            'status': status
+                            'status': status,
+                            'profit_loss': profit_loss,
+                            'profit_loss_percent': profit_loss_pct
                         })
                         session.commit()
 
@@ -360,7 +368,7 @@ class SurgeAlertScheduler:
                         logger.info(
                             f"[SurgeAlertScheduler] Closed {market} as '{status}': "
                             f"Entry={entry_price:,} → Peak={peak_price:,} → Exit={current_price:,} "
-                            f"({profit_pct:+.1f}%) | {close_reason}"
+                            f"({profit_loss_pct:+.1f}%, {profit_loss:+,}원) | {close_reason}"
                         )
                     else:
                         # Just update peak price if higher
