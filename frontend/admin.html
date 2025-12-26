@@ -794,9 +794,15 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>기간 (일수) *</label>
-                    <input type="number" id="editDurationDays" value="30" min="1" max="365" required>
-                    <small>플랜 활성 기간 (기본: 30일)</small>
+                    <label style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <span>기간 (일수)</span>
+                        <label style="font-weight: normal; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; margin: 0;">
+                            <input type="checkbox" id="editUnlimited" onchange="toggleUnlimitedPeriod()" style="cursor: pointer;">
+                            <span>♾️ 무제한</span>
+                        </label>
+                    </label>
+                    <input type="number" id="editDurationDays" value="30" min="1" max="99999" required style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 14px;">
+                    <small id="durationHelp" style="display: block; margin-top: 4px; color: #6c757d; font-size: 12px;">플랜 활성 기간 (기본: 30일)</small>
                 </div>
                 <div class="form-group">
                     <label>관리자 메모</label>
@@ -1065,7 +1071,7 @@
                     fetch(`${window.ADMIN_API_BASE}/users?status=all`, { headers: getHeaders() }).then(r => r.json()),
                     fetch(`${window.ADMIN_API_BASE}/payment-requests?status=pending`, { headers: getHeaders() }).then(r => r.json()),
                     fetch(`${window.ADMIN_API_BASE}/beta-testers`, { headers: getHeaders() }).then(r => r.json()),
-                    fetch(`${window.ADMIN_API_BASE}/plans`, { headers: getHeaders() }).then(r => r.json())
+                    fetch(`${window.ADMIN_API_BASE}/features/plans`, { headers: getHeaders() }).then(r => r.json())
                 ]);
 
                 // Update stats (check if elements exist first)
@@ -1174,7 +1180,41 @@
             document.getElementById('editUserId').value = userId;
             document.getElementById('editUserEmail').value = email;
             document.getElementById('editUserPlan').value = plan;
+
+            // Reset unlimited checkbox
+            document.getElementById('editUnlimited').checked = false;
+            document.getElementById('editDurationDays').disabled = false;
+            document.getElementById('editDurationDays').value = '30';
+            document.getElementById('editDurationDays').setAttribute('required', 'required');
+            document.getElementById('durationHelp').textContent = '플랜 활성 기간 (기본: 30일)';
+            document.getElementById('durationHelp').style.color = '';
+            document.getElementById('durationHelp').style.fontWeight = '';
+
             openModal('userModal');
+        }
+
+        function toggleUnlimitedPeriod() {
+            const unlimited = document.getElementById('editUnlimited').checked;
+            const durationInput = document.getElementById('editDurationDays');
+            const helpText = document.getElementById('durationHelp');
+
+            if (unlimited) {
+                durationInput.disabled = true;
+                durationInput.value = '';
+                durationInput.removeAttribute('required');
+                durationInput.style.background = '#f8f9fa';
+                helpText.textContent = '무제한 - 만료되지 않습니다';
+                helpText.style.color = '#28a745';
+                helpText.style.fontWeight = '600';
+            } else {
+                durationInput.disabled = false;
+                durationInput.value = '30';
+                durationInput.setAttribute('required', 'required');
+                durationInput.style.background = '';
+                helpText.textContent = '플랜 활성 기간 (기본: 30일)';
+                helpText.style.color = '';
+                helpText.style.fontWeight = '';
+            }
         }
 
         async function deleteUser(userId, email) {
@@ -1250,10 +1290,15 @@
 
             const userId = document.getElementById('editUserId').value;
             const planCode = document.getElementById('editUserPlan').value;
-            const durationDays = parseInt(document.getElementById('editDurationDays').value);
+            const unlimited = document.getElementById('editUnlimited').checked;
+            const durationDays = unlimited ? null : parseInt(document.getElementById('editDurationDays').value);
             const notes = document.getElementById('editNotes').value;
 
-            if (!confirm(`${planCode} 플랜을 ${durationDays}일 동안 활성화하시겠습니까?`)) {
+            const confirmMsg = unlimited
+                ? `${planCode} 플랜을 무제한으로 활성화하시겠습니까?`
+                : `${planCode} 플랜을 ${durationDays}일 동안 활성화하시겠습니까?`;
+
+            if (!confirm(confirmMsg)) {
                 return;
             }
 
@@ -1274,7 +1319,12 @@
                     closeModal('userModal');
                     loadUsers();
                     loadDashboard();
-                    alert(`✓ ${planCode} 플랜이 활성화되었습니다!\n만료일: ${data.expires_at || '확인 필요'}`);
+
+                    const expiryMsg = data.expires_at
+                        ? `만료일: ${new Date(data.expires_at).toLocaleDateString('ko-KR')}`
+                        : '만료일: ♾️ 무제한';
+
+                    alert(`✓ ${planCode} 플랜이 활성화되었습니다!\n${expiryMsg}`);
                 } else {
                     alert('실패: ' + data.error);
                 }
@@ -1501,11 +1551,19 @@
         // Plans
         async function loadPlans() {
             try {
-                const response = await fetch(`${window.ADMIN_API_BASE}/plans`, { headers: getHeaders() });
+                const response = await fetch(`${window.ADMIN_API_BASE}/features/plans`, { headers: getHeaders() });
                 const data = await response.json();
 
                 if (data.success) {
-                    renderPlans(data.plans);
+                    // Convert plans object to array format
+                    const plansArray = Object.entries(data.plans).map(([code, features]) => ({
+                        plan_code: code,
+                        plan_name_ko: code.toUpperCase(),
+                        description: `${code} 플랜`,
+                        price: { monthly: 0 }, // Placeholder, real pricing would come from backend
+                        display: { is_active: true }
+                    }));
+                    renderPlans(plansArray);
                 } else {
                     alert('플랜 로드 실패: ' + data.error);
                 }
