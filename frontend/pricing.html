@@ -212,6 +212,97 @@
             color: #666;
             line-height: 1.6;
         }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .pricing-grid {
+                grid-template-columns: 1fr;
+                max-width: 500px;
+                margin: 0 auto 48px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+
+            .page-title {
+                font-size: 28px;
+            }
+
+            .page-subtitle {
+                font-size: 14px;
+            }
+
+            .pricing-card {
+                padding: 24px;
+            }
+
+            .plan-name {
+                font-size: 20px;
+            }
+
+            .plan-price {
+                font-size: 36px;
+            }
+
+            .plan-features li {
+                font-size: 13px;
+                padding: 10px 0;
+            }
+
+            .btn-select {
+                padding: 12px 20px;
+                font-size: 15px;
+            }
+
+            .faq-section {
+                padding: 24px;
+            }
+
+            .faq-title {
+                font-size: 20px;
+            }
+
+            .faq-question {
+                font-size: 15px;
+            }
+
+            .faq-answer {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-header {
+                margin-bottom: 32px;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .page-subtitle {
+                font-size: 13px;
+            }
+
+            .pricing-card {
+                padding: 20px;
+            }
+
+            .plan-price {
+                font-size: 32px;
+            }
+
+            .plan-features li {
+                font-size: 12px;
+            }
+
+            .faq-section {
+                padding: 20px;
+            }
+        }
     </style>
 </head>
 <body>
