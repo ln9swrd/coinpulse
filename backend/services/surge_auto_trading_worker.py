@@ -16,7 +16,6 @@ from sqlalchemy import and_
 from backend.database.connection import get_db_session
 from backend.database.models import User
 from backend.models.surge_alert_models import SurgeAutoTradingSettings, SurgeAlert
-from backend.models.subscription_models import UserSubscription
 from backend.services.surge_alert_service import get_surge_alert_service
 from backend.common import UpbitAPI, load_api_keys
 from backend.services.surge_predictor import SurgePredictor

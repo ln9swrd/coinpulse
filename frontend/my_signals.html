@@ -471,8 +471,13 @@
                     const profitLossText = profitLoss ? (profitLoss > 0 ? '+' : '') + formatPrice(profitLoss) : '-';
                     const profitLossPctText = profitLossPct ? (profitLossPct > 0 ? '+' : '') + profitLossPct.toFixed(2) + '%' : '-';
 
+                    // Can execute only if:
+                    // 1. Not yet executed (execution_status = 'not_executed')
+                    // 2. Not expired (is_expired = false)
+                    // 3. Signal not closed (status = 'pending')
                     const isExpired = item.is_expired;
-                    const canExecute = item.execution_status === 'not_executed' && !isExpired;
+                    const isClosed = ['win', 'lose', 'closed', 'expired'].includes(item.status);
+                    const canExecute = item.execution_status === 'not_executed' && !isExpired && !isClosed;
 
                     html += `
                         <tr>
