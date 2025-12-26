@@ -19,6 +19,7 @@ from sqlalchemy import and_
 from backend.database.connection import get_db_session
 from backend.models.surge_alert_models import SurgeAlert
 from backend.common import UpbitAPI, load_api_keys
+from backend.services.surge_predictor import SurgePredictor
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +43,24 @@ class PositionMonitorService:
         self.running = False
         self.thread = None
 
-        logger.info(f"[PositionMonitor] Initialized (interval: {check_interval}s)")
+        # Initialize Upbit API for market data
+        access_key, secret_key = load_api_keys()
+        self.upbit_api = UpbitAPI(access_key, secret_key)
+
+        # Initialize SurgePredictor for AI analysis
+        self.config = {
+            "surge_prediction": {
+                "volume_increase_threshold": 1.5,
+                "rsi_oversold_level": 35,
+                "rsi_buy_zone_max": 50,
+                "support_level_proximity": 0.02,
+                "uptrend_confirmation_days": 3,
+                "min_surge_probability_score": 60
+            }
+        }
+        self.predictor = SurgePredictor(self.config)
+
+        logger.info(f"[PositionMonitor] Initialized with AI analysis (interval: {check_interval}s)")
 
     def get_open_positions(self) -> List[SurgeAlert]:
         """
@@ -80,28 +98,99 @@ class PositionMonitorService:
         current_price: float
     ) -> Optional[str]:
         """
-        Check if position should be closed
+        Check if position should be closed using AI analysis
+
+        Priority:
+        1. Target/Stop loss (highest priority)
+        2. AI signal re-evaluation
+        3. Momentum/RSI/Volume analysis
 
         Args:
             position: SurgeAlert object
             current_price: Current market price
 
         Returns:
-            Action to take: 'take_profit', 'stop_loss', or None
+            Action to take: 'take_profit', 'stop_loss', 'signal_weakening', 'momentum_loss', 'overbought', or None
         """
-        # Check take profit
+        # Priority 1: Check target price (익절)
         if position.target_price and current_price >= position.target_price:
             profit_pct = ((current_price - position.entry_price) / position.entry_price) * 100
-            logger.info(f"[PositionMonitor] Take profit triggered for {position.market}")
+            logger.info(f"[PositionMonitor] ✅ Take profit triggered for {position.market}")
             logger.info(f"  Entry: {position.entry_price:,} -> Current: {current_price:,} (+{profit_pct:.2f}%)")
             return 'take_profit'
 
-        # Check stop loss
+        # Priority 2: Check stop loss (손절)
         if position.stop_loss_price and current_price <= position.stop_loss_price:
             loss_pct = ((current_price - position.entry_price) / position.entry_price) * 100
-            logger.info(f"[PositionMonitor] Stop loss triggered for {position.market}")
+            logger.info(f"[PositionMonitor] 🛑 Stop loss triggered for {position.market}")
             logger.info(f"  Entry: {position.entry_price:,} -> Current: {current_price:,} ({loss_pct:.2f}%)")
             return 'stop_loss'
+
+        # Priority 3: AI-based early exit analysis
+        # Only check if position is still profitable or break-even
+        current_profit_pct = ((current_price - position.entry_price) / position.entry_price) * 100
+
+        if current_profit_pct >= -2.0:  # Only analyze if loss < 2%
+            try:
+                # Get fresh market data for AI analysis
+                candles = self.upbit_api.get_day_candles(position.market, count=30)
+
+                if not candles or len(candles) < 20:
+                    logger.warning(f"[PositionMonitor] Insufficient data for AI analysis: {position.market}")
+                    return None
+
+                # Re-analyze surge signal with current data
+                analysis_result = self.predictor.analyze_surge_candidate(
+                    market=position.market,
+                    candles=candles
+                )
+
+                if not analysis_result:
+                    return None
+
+                current_score = analysis_result.get('score', 0)
+                signals = analysis_result.get('signals', {})
+
+                # Get RSI and volume data
+                latest_candle = candles[0]
+                rsi = analysis_result.get('rsi', 50)
+
+                logger.debug(f"[PositionMonitor] AI analysis for {position.market}:")
+                logger.debug(f"  Original score: {position.confidence:.1f}")
+                logger.debug(f"  Current score: {current_score:.1f}")
+                logger.debug(f"  RSI: {rsi:.1f}")
+                logger.debug(f"  Current P/L: {current_profit_pct:.2f}%")
+
+                # Decision 1: Signal severely weakened (score dropped > 30 points)
+                score_drop = position.confidence - current_score
+                if score_drop >= 30:
+                    logger.info(f"[PositionMonitor] 🔻 Signal weakening detected for {position.market}")
+                    logger.info(f"  Score dropped: {position.confidence:.1f} → {current_score:.1f} (-{score_drop:.1f})")
+                    logger.info(f"  Current P/L: {current_profit_pct:+.2f}%")
+                    return 'signal_weakening'
+
+                # Decision 2: Overbought with weak signals (RSI > 70 and low score)
+                if rsi > 70 and current_score < 40:
+                    logger.info(f"[PositionMonitor] 📈 Overbought + weak signal for {position.market}")
+                    logger.info(f"  RSI: {rsi:.1f}, Score: {current_score:.1f}")
+                    logger.info(f"  Current P/L: {current_profit_pct:+.2f}%")
+                    return 'overbought'
+
+                # Decision 3: Volume drying up + momentum loss
+                volume_ratio = latest_candle.get('candle_acc_trade_volume', 0) / latest_candle.get('prev_closing_price', 1)
+                avg_volume = sum([c.get('candle_acc_trade_volume', 0) for c in candles[:5]]) / 5
+                volume_drop = (volume_ratio / avg_volume) if avg_volume > 0 else 1.0
+
+                if volume_drop < 0.5 and current_score < 50:  # Volume < 50% of average
+                    logger.info(f"[PositionMonitor] 📉 Momentum loss detected for {position.market}")
+                    logger.info(f"  Volume drop: {volume_drop*100:.1f}% of average")
+                    logger.info(f"  Current score: {current_score:.1f}")
+                    logger.info(f"  Current P/L: {current_profit_pct:+.2f}%")
+                    return 'momentum_loss'
+
+            except Exception as e:
+                logger.error(f"[PositionMonitor] Error in AI analysis for {position.market}: {e}")
+                return None
 
         return None
 
@@ -117,7 +206,12 @@ class PositionMonitorService:
         Args:
             position: SurgeAlert object
             current_price: Current market price
-            reason: Reason for closing ('take_profit' or 'stop_loss')
+            reason: Reason for closing
+                - 'take_profit': Target price reached
+                - 'stop_loss': Stop loss triggered
+                - 'signal_weakening': AI detected signal deterioration
+                - 'momentum_loss': Volume/momentum dried up
+                - 'overbought': RSI overbought with weak signal
 
         Returns:
             True if successful, False otherwise
@@ -161,13 +255,23 @@ class PositionMonitorService:
                 # Update position in database
                 session = get_db_session()
                 try:
-                    position.status = 'completed' if reason == 'take_profit' else 'stopped'
+                    # Set status based on exit reason
+                    if reason == 'take_profit':
+                        position.status = 'completed'  # Reached target
+                    elif reason == 'stop_loss':
+                        position.status = 'stopped'  # Hit stop loss
+                    elif reason in ['signal_weakening', 'momentum_loss', 'overbought']:
+                        position.status = 'ai_exit'  # AI-based early exit
+                    else:
+                        position.status = 'completed'  # Default
+
                     position.profit_loss = profit_loss
                     position.profit_loss_percent = profit_loss_percent
+                    position.exit_price = int(current_price)
                     position.closed_at = datetime.utcnow()
 
                     session.commit()
-                    logger.info(f"[PositionMonitor] Position updated in database")
+                    logger.info(f"[PositionMonitor] Position updated: status={position.status}, P/L={profit_loss_percent:+.2f}%")
 
                 except Exception as db_error:
                     logger.error(f"[PositionMonitor] Database update failed: {db_error}")
