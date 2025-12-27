@@ -51,6 +51,7 @@ function formatDate(dateString) {
 
 // Load orders with filters
 async function loadOrders() {
+    console.log('[History] Loading orders...');
     const token = getAuthToken();
     if (!token) {
         console.warn('[History] No auth token');
@@ -59,7 +60,11 @@ async function loadOrders() {
     }
 
     const container = $id('orders-container');
-    if (!container) return;
+    if (!container) {
+        console.warn('[History] Container not found');
+        return;
+    }
+    console.log('[History] Container found, loading data...');
 
     // Show skeleton loader
     container.innerHTML = `
@@ -208,5 +213,6 @@ function showEmptyState(message) {
 
 // Load data on page load
 window.addEventListener('DOMContentLoaded', () => {
+    console.log('[History] Initializing history page...');
     loadOrders();
 });
