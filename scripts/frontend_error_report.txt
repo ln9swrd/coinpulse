@@ -1,0 +1,849 @@
+Frontend Error Report
+================================================================================
+
+
+dashboard.html
+--------------
+
+overview.html
+-------------
+
+Errors:
+  - Error reading file: 'set' object is not subscriptable
+
+Warnings:
+  - Fetch call without .catch(): fetch(`${window.API_BASE}/api/upbit/accounts`, {
+ ...
+  - Fetch call without .catch(): fetch(`${window.API_BASE}/api/user/signals/stats`,...
+  - Fetch call without .catch(): fetch(`${window.API_BASE}/api/upbit/orders/open`, ...
+  - Fetch call without .catch(): fetch(`${window.API_BASE}/api/user/subscription`, ...
+  - getElementById('active-orders') used without null check
+  - getElementById('total-pl-change') used without null check
+  - getElementById('surge-action-card') used without null check
+  - getElementById('surge-action-card') used without null check
+  - getElementById('available-balance') used without null check
+  - getElementById('available-balance') used without null check
+  - getElementById('auto-trading-action-card') used without null check
+  - getElementById('total-profit-loss') used without null check
+  - getElementById('total-assets') used without null check
+  - getElementById('total-balance') used without null check
+  - getElementById('total-balance') used without null check
+  - getElementById('signals-action-card') used without null check
+  - getElementById('signals-action-card') used without null check
+
+Info:
+  - API endpoints: ;
+            }
+        }
+
+        // Load stats data
+        async function loadStatsData() {
+            const token = getAuthToken();
+            if (!token) return;
+
+            try {
+                // Get signal stats
+                const response = await fetch(`${window.API_BASE}/api/user/signals/stats`, {
+                    headers: {
+                        , , error);
+            }
+        }
+
+        // Check plan access for surge features
+        async function checkPlanAccess() {
+            try {
+                const response = await fetch(`${window.API_BASE}/api/user/subscription`, {
+                    headers: {
+                        , );
+                }
+
+                // Get active orders count
+                const ordersResponse = await fetch(`${window.API_BASE}/api/upbit/orders/open`, {
+                    headers: {
+                        , );
+                return;
+            }
+
+            try {
+                // Get Upbit accounts
+                const response = await fetch(`${window.API_BASE}/api/upbit/accounts`, {
+                    headers: {
+                        
+  - Event listeners: DOMContentLoaded
+
+trading_chart.html
+------------------
+
+portfolio.html
+--------------
+
+Errors:
+  - Error reading file: 'set' object is not subscriptable
+
+Warnings:
+  - Fetch call without .catch(): fetch(`${API_BASE}/api/holdings`, {
+              ...
+  - getElementById('total-value') used without null check
+  - getElementById('total-profit') used without null check
+  - getElementById('total-investment') used without null check
+  - getElementById('holdings-container') used without null check
+  - getElementById('holdings-container') used without null check
+  - getElementById('holdings-container') used without null check
+  - getElementById('holdings-count') used without null check
+  - getElementById('profit-rate') used without null check
+
+Info:
+  - API endpoints: ;
+
+            try {
+                // Fetch holdings from API
+                const response = await fetch(`${API_BASE}/api/holdings`, {
+                    headers: {
+                        
+  - Event listeners: DOMContentLoaded
+
+history.html
+------------
+
+Errors:
+  - Error reading file: 'set' object is not subscriptable
+
+Warnings:
+  - Fetch call without .catch(): fetch(`${API_BASE}/api/orders`, {
+                ...
+  - getElementById('filter-sort') used without null check
+  - getElementById('filter-type') used without null check
+  - getElementById('filter-state') used without null check
+  - getElementById('orders-container') used without null check
+  - getElementById('orders-container') used without null check
+  - getElementById('orders-container') used without null check
+
+Info:
+  - API endpoints: ).value;
+
+                // Fetch orders from API
+                const response = await fetch(`${API_BASE}/api/orders`, {
+                    headers: {
+                        
+  - Event listeners: DOMContentLoaded
+
+surge_monitoring.html
+---------------------
+
+Errors:
+  - API_BASE may be undefined - check if it's set globally
+  - Error reading file: 'set' object is not subscriptable
+
+Warnings:
+  - Fetch call without .catch(): fetch(url)...
+  - getElementById('total-trades') used without null check
+  - getElementById('total-trades') used without null check
+  - getElementById('win-rate') used without null check
+  - getElementById('avg-win') used without null check
+  - getElementById('avg-win') used without null check
+  - getElementById('refresh-btn') used without null check
+  - getElementById('avg-return') used without null check
+  - getElementById('avg-return') used without null check
+  - getElementById('candidates-container') used without null check
+  - getElementById('candidates-container') used without null check
+  - getElementById('last-update') used without null check
+  - getElementById('candidate-count') used without null check
+  - getElementById('avg-loss') used without null check
+  - getElementById('avg-loss') used without null check
+
+Info:
+  - API endpoints: ;
+
+            try {
+                const url = `${API_BASE_URL}/api/surge-candidates`;
+                console.log(
+  - Event listeners: beforeunload, DOMContentLoaded
+
+my_signals.html
+---------------
+
+Errors:
+  - Error reading file: 'set' object is not subscriptable
+
+Warnings:
+  - Fetch call without .catch(): fetch(`${window.API_BASE}/api/user/signals/stats`,...
+  - Fetch call without .catch(): fetch(`${window.API_BASE}/api/user/signals?executi...
+  - Fetch call without .catch(): fetch(`${API_BASE}/api/user/signals/${historyId}/e...
+  - getElementById('executed') used without null check
+  - getElementById('executionRate') used without null check
+  - getElementById('totalReceived') used without null check
+  - getElementById('notExecuted') used without null check
+  - getElementById('thisMonth') used without null check
+  - getElementById('totalPages') used without null check
+  - getElementById('lossTrades') used without null check
+  - getElementById('winTrades') used without null check
+  - getElementById('totalProfitLoss') used without null check
+  - getElementById('currentPage') used without null check
+  - getElementById('prevPage') used without null check
+  - getElementById('nextPage') used without null check
+  - getElementById('winRate') used without null check
+  - getElementById('totalCount') used without null check
+
+Info:
+  - API endpoints: , () => {
+                if (window.currentPage < window.totalPages) {
+                    window.currentPage++;
+                    loadSignals();
+                }
+            });
+        }
+
+        async function executeSignal(historyId, market) {
+            if (!confirm(`${market} 시그널을 시장가로 매수 실행하시겠습니까?\n\n기본 금액: 50,000 KRW\n이 작업은 실제 거래를 진행하며 취소할 수 없습니다.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/user/signals/${historyId}/execute`, {
+                    method: , );
+            await Promise.all([
+                loadStats(),
+                loadSignals()
+            ]);
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`${window.API_BASE}/api/user/signals/stats`, {
+                    headers: {
+                        , );
+            try {
+                const offset = (window.currentPage - 1) * window.pageSize;
+                const response = await fetch(`${window.API_BASE}/api/user/signals?execution_status=${window.currentExecutionFilter}&confidence_min=${window.currentConfidenceMin}&limit=${window.pageSize}&offset=${offset}`, {
+                    headers: {
+                        
+  - Event listeners: DOMContentLoaded, click, change
+
+surge_auto_trading.html
+-----------------------
+
+Errors:
+  - Error reading file: 'set' object is not subscriptable
+
+Warnings:
+  - Fetch call without .catch(): fetch(apiUrl, {
+                    headers: {'Aut...
+  - Fetch call without .catch(): fetch(`${API_BASE}/api/agreements/record`, {
+     ...
+  - Fetch call without .catch(): fetch(`${API_BASE}/api/surge/auto-trading/settings...
+  - getElementById('max-target-percent') used without null check
+  - getElementById('max-target-percent') used without null check
+  - getElementById('amount-per-trade') used without null check
+  - getElementById('amount-per-trade') used without null check
+  - getElementById('dynamic-target-options') used without null check
+  - getElementById('stop-loss-percent') used without null check
+  - getElementById('stop-loss-percent') used without null check
+  - getElementById('stop-loss-percent') used without null check
+  - getElementById('position-strategy') used without null check
+  - getElementById('position-strategy') used without null check
+  - getElementById('position-strategy') used without null check
+  - getElementById('enabled') used without null check
+  - getElementById('enabled') used without null check
+  - getElementById('excluded-coins') used without null check
+  - getElementById('excluded-coins') used without null check
+  - getElementById('take-profit-enabled') used without null check
+  - getElementById('take-profit-enabled') used without null check
+  - getElementById('stat-total-trades') used without null check
+  - getElementById('target-calculation-mode') used without null check
+  - getElementById('target-calculation-mode') used without null check
+  - getElementById('target-calculation-mode') used without null check
+  - getElementById('risk-level') used without null check
+  - getElementById('risk-level') used without null check
+  - getElementById('min-target-percent') used without null check
+  - getElementById('min-target-percent') used without null check
+  - getElementById('settings-section') used without null check
+  - getElementById('use-dynamic-target') used without null check
+  - getElementById('use-dynamic-target') used without null check
+  - getElementById('use-dynamic-target') used without null check
+  - getElementById('risk-acknowledgement') used without null check
+  - getElementById('stat-success-rate') used without null check
+  - getElementById('plan-badge') used without null check
+  - getElementById('avoid-high-price-entry') used without null check
+  - getElementById('avoid-high-price-entry') used without null check
+  - getElementById('telegram-enabled') used without null check
+  - getElementById('telegram-enabled') used without null check
+  - getElementById('allow-duplicate-positions') used without null check
+  - getElementById('allow-duplicate-positions') used without null check
+  - getElementById('stat-total-pl') used without null check
+  - getElementById('max-positions') used without null check
+  - getElementById('max-positions') used without null check
+  - getElementById('stats-section') used without null check
+  - getElementById('alert-container') used without null check
+  - getElementById('min-confidence') used without null check
+  - getElementById('min-confidence') used without null check
+  - getElementById('total-budget') used without null check
+  - getElementById('total-budget') used without null check
+  - getElementById('take-profit-percent') used without null check
+  - getElementById('take-profit-percent') used without null check
+  - getElementById('take-profit-percent') used without null check
+  - getElementById('mode-description') used without null check
+  - getElementById('min-target-group') used without null check
+  - getElementById('stop-loss-enabled') used without null check
+  - getElementById('stop-loss-enabled') used without null check
+  - getElementById('single-strategy-options') used without null check
+  - getElementById('restriction-message') used without null check
+  - getElementById('max-target-group') used without null check
+  - getElementById('max-amount-per-coin') used without null check
+  - getElementById('max-amount-per-coin') used without null check
+
+Info:
+  - API endpoints: , 2000);
+                    return;
+                }
+
+                // Record agreement in database if enabling auto-trading
+                if (isEnabling && isAcknowledged) {
+                    try {
+                        const agreementResponse = await fetch(`${API_BASE}/api/agreements/record`, {
+                            method: , ).value)
+                };
+
+                const response = await fetch(`${API_BASE}/api/surge/auto-trading/settings`, {
+                    method: , , 1500);
+                return;
+            }
+
+            try {
+                const apiUrl = `${API_BASE}/api/surge/auto-trading/settings`;
+                console.log(
+  - Event listeners: DOMContentLoaded, change
+
+telegram_settings.html
+----------------------
+
+Errors:
+  - Error reading file: 'set' object is not subscriptable
+
+Warnings:
+  - Fetch call without .catch(): fetch(`${window.API_BASE}/api/telegram/link/status...
+  - Fetch call without .catch(): fetch(`${window.API_BASE}/api/telegram/link/genera...
+  - Fetch call without .catch(): fetch(`${window.API_BASE}/api/telegram/link/unlink...
+  - getElementById('linkSection') used without null check
+
+Info:
+  - API endpoints: ;
+
+            try {
+                const response = await fetch(`${window.API_BASE}/api/telegram/link/unlink`, {
+                    method: , );
+
+                const response = await fetch(`${window.API_BASE}/api/telegram/link/status`, {
+                    headers: {
+                        , ;
+
+            try {
+                const response = await fetch(`${window.API_BASE}/api/telegram/link/generate`, {
+                    method: 
+  - Event listeners: DOMContentLoaded, click
+
+pricing.html
+------------
+
+Warnings:
+  - No JavaScript found in file
+
+referral.html
+-------------
+
+Errors:
+  - Error reading file: 'set' object is not subscriptable
+
+Warnings:
+  - Fetch call without .catch(): fetch(`${window.API_BASE}/api/referral/code`, {
+  ...
+  - Fetch call without .catch(): fetch(`${window.API_BASE}/api/referral/stats`, {
+ ...
+  - getElementById('referral-code') used without null check
+  - getElementById('referral-code') used without null check
+  - getElementById('rewarded-referrals') used without null check
+  - getElementById('copy-link-btn') used without null check
+  - getElementById('total-referrals') used without null check
+
+Info:
+  - API endpoints: );
+
+                const response = await fetch(`${window.API_BASE}/api/referral/code`, {
+                    method: , );
+            try {
+                const response = await fetch(`${window.API_BASE}/api/referral/stats`, {
+                    method: 
+  - Event listeners: DOMContentLoaded
+
+my_feedback.html
+----------------
+
+Errors:
+  - Error reading file: 'set' object is not subscriptable
+
+Warnings:
+  - Fetch call without .catch(): fetch('/api/feedback/my', {
+                      ...
+  - Fetch call without .catch(): fetch('/api/feedback/my', {
+                      ...
+  - getElementById('feedback-floating-btn') used without null check
+  - getElementById('modal-close') used without null check
+  - getElementById('feedbackModal') used without null check
+  - getElementById('feedback-container') used without null check
+  - getElementById('modal-body') used without null check
+
+Info:
+  - API endpoints: /api/feedback/my
+  - Event listeners: click
+
+settings.html
+-------------
+
+Errors:
+  - Error reading file: 'set' object is not subscriptable
+
+Warnings:
+  - Fetch call without .catch(): fetch(`${window.API_BASE}/api/user/profile`, {
+   ...
+  - Fetch call without .catch(): fetch(`${window.API_BASE}/api/user/subscription`, ...
+  - Fetch call without .catch(): fetch(`${window.API_BASE}/api/user/api-keys`, {
+  ...
+  - Fetch call without .catch(): fetch(`${window.API_BASE}/api/user/api-keys/status...
+  - Fetch call without .catch(): fetch(`${window.API_BASE}/api/user/test-api-keys`,...
+  - Fetch call without .catch(): fetch(`${window.API_BASE}/api/user/api-keys`, {
+  ...
+  - Fetch call without .catch(): fetch(`${window.API_BASE}/api/user/password`, {
+  ...
+  - Fetch call without .catch(): fetch(`${window.API_BASE}/api/user/account`, {
+   ...
+  - getElementById('current-password') used without null check
+  - getElementById('access_key') used without null check
+  - getElementById('access_key') used without null check
+  - getElementById('api-status-message') used without null check
+  - getElementById('user-joined') used without null check
+  - getElementById('api-key-guide') used without null check
+  - getElementById('new-password') used without null check
+  - getElementById('secret_key') used without null check
+  - getElementById('secret_key') used without null check
+  - getElementById('user-plan') used without null check
+  - getElementById('api-status-alert') used without null check
+
+Info:
+  - API endpoints: , tabName);
+            });
+        });
+
+        // Load user info
+        async function loadUserInfo() {
+            try {
+                const response = await fetch(`${window.API_BASE}/api/user/profile`, {
+                    headers: {
+                        , , error);
+            }
+        }
+
+        // Check API key status
+        async function checkApiKeyStatus() {
+            try {
+                const token = getAuthToken();
+                if (!token) return;
+
+                const response = await fetch(`${window.API_BASE}/api/user/api-keys/status`, {
+                    headers: {
+                        , ;
+
+            try {
+                const response = await fetch(`${window.API_BASE}/api/user/api-keys`, {
+                    method: , );
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${window.API_BASE}/api/user/password`, {
+                        method: , ;
+
+                    // Get subscription info
+                    const subResponse = await fetch(`${window.API_BASE}/api/user/subscription`, {
+                        headers: {
+                            , 
+            );
+
+            if (!doubleConfirm) return;
+
+            try {
+                const response = await fetch(`${window.API_BASE}/api/user/account`, {
+                    method: , );
+
+                const response = await fetch(`${window.API_BASE}/api/user/api-keys`, {
+                    method: , ;
+
+            try {
+                const response = await fetch(`${window.API_BASE}/api/user/test-api-keys`, {
+                    method: 
+  - Event listeners: submit, DOMContentLoaded, click
+
+admin.html
+----------
+
+Errors:
+  - API_BASE may be undefined - check if it's set globally
+  - Error reading file: 'set' object is not subscriptable
+
+Warnings:
+  - Fetch call without .catch(): fetch(`${window.location.origin}/api/auth/me`, {
+ ...
+  - Fetch call without .catch(): fetch(`${window.ADMIN_API_BASE}/users?status=all`,...
+  - Fetch call without .catch(): fetch(`${window.ADMIN_API_BASE}/payment-requests?s...
+  - Fetch call without .catch(): fetch(`${window.ADMIN_API_BASE}/beta-testers`, { h...
+  - Fetch call without .catch(): fetch(`${window.ADMIN_API_BASE}/features/plans`, {...
+  - Fetch call without .catch(): fetch(`${window.ADMIN_API_BASE}/users?status=${sta...
+  - Fetch call without .catch(): fetch(`${window.ADMIN_API_BASE}/users/${userId}`, ...
+  - Fetch call without .catch(): fetch(`${window.ADMIN_API_BASE}/users/${userId}/re...
+  - Fetch call without .catch(): fetch(`${window.ADMIN_API_BASE}/users/${userId}/pl...
+  - Fetch call without .catch(): fetch(`${window.ADMIN_API_BASE}/payment-requests${...
+  - Fetch call without .catch(): fetch(`${window.ADMIN_API_BASE}/payment-requests/$...
+  - Fetch call without .catch(): fetch(`${window.ADMIN_API_BASE}/beta-testers`, { h...
+  - Fetch call without .catch(): fetch(`${window.ADMIN_API_BASE}/beta-tester`, {
+  ...
+  - Fetch call without .catch(): fetch(`${window.ADMIN_API_BASE}/beta-tester/${id}`...
+  - Fetch call without .catch(): fetch(`${window.ADMIN_API_BASE}/features/plans`, {...
+  - Fetch call without .catch(): fetch(`${window.location.origin}/api/admin/subscri...
+  - Fetch call without .catch(): fetch(`${window.location.origin}/api/admin/subscri...
+  - Fetch call without .catch(): fetch(`${window.location.origin}/api/admin/subscri...
+  - Fetch call without .catch(): fetch(`${window.location.origin}/api/admin/subscri...
+  - Fetch call without .catch(): fetch(url, { headers: getHeaders()...
+  - Fetch call without .catch(): fetch(`${window.location.origin}/api/feedback/admi...
+  - Fetch call without .catch(): fetch(`${window.location.origin}/api/feedback/admi...
+  - Fetch call without .catch(): fetch(url, { headers: getHeaders()...
+  - Fetch call without .catch(): fetch(`${window.location.origin}/api/enterprise/in...
+  - Fetch call without .catch(): fetch(`${window.location.origin}/api/enterprise/in...
+  - Fetch call without .catch(): fetch(`${window.location.origin}/api/admin/surge/s...
+  - Fetch call without .catch(): fetch(`${window.location.origin}/api/admin/surge/s...
+  - Fetch call without .catch(): fetch(`${window.location.origin}/api/admin/surge/s...
+  - getElementById('durationHelp') used without null check
+  - getElementById('durationHelp') used without null check
+  - getElementById('durationHelp') used without null check
+  - getElementById('editNotes') used without null check
+  - getElementById('subUserId') used without null check
+  - getElementById('subUserId') used without null check
+  - getElementById('subBillingPeriod') used without null check
+  - getElementById('subBillingPeriod') used without null check
+  - getElementById('subBillingPeriod') used without null check
+  - getElementById('surge-telegram-min-score') used without null check
+  - getElementById('surge-telegram-min-score') used without null check
+  - getElementById('surge-telegram-min-score') used without null check
+  - getElementById('editUserEmail') used without null check
+  - getElementById('surge-min-surge-score') used without null check
+  - getElementById('surge-min-surge-score') used without null check
+  - getElementById('surge-min-surge-score') used without null check
+  - getElementById('editUserPlan') used without null check
+  - getElementById('editUserPlan') used without null check
+  - getElementById('feedbackPriorityFilter') used without null check
+  - getElementById('feedbackId') used without null check
+  - getElementById('feedbackId') used without null check
+  - getElementById('betaSearch') used without null check
+  - getElementById('subStatus') used without null check
+  - getElementById('subStatus') used without null check
+  - getElementById('subUnlimited') used without null check
+  - getElementById('subUnlimited') used without null check
+  - getElementById('subUnlimited') used without null check
+  - getElementById('subUnlimited') used without null check
+  - getElementById('betaName') used without null check
+  - getElementById('enterpriseTable') used without null check
+  - getElementById('surge-last-scan') used without null check
+  - getElementById('enterpriseDetails') used without null check
+  - getElementById('enterpriseId') used without null check
+  - getElementById('enterpriseId') used without null check
+  - getElementById('betaEmail') used without null check
+  - getElementById('surge-rsi-oversold') used without null check
+  - getElementById('surge-rsi-oversold') used without null check
+  - getElementById('surge-rsi-oversold') used without null check
+  - getElementById('surge-rsi-buy-zone') used without null check
+  - getElementById('surge-rsi-buy-zone') used without null check
+  - getElementById('surge-rsi-buy-zone') used without null check
+  - getElementById('surge-uptrend-days') used without null check
+  - getElementById('surge-uptrend-days') used without null check
+  - getElementById('surge-uptrend-days') used without null check
+  - getElementById('tokenDisplay') used without null check
+  - getElementById('feedbackStatusFilter') used without null check
+  - getElementById('enterpriseStatusFilter') used without null check
+  - getElementById('userForm') used without null check
+  - getElementById('enterpriseAdminNote') used without null check
+  - getElementById('enterpriseAdminNote') used without null check
+  - getElementById('betaForm') used without null check
+  - getElementById('betaForm') used without null check
+  - getElementById('surge-current-settings') used without null check
+  - getElementById('surge-monitor-coins-count') used without null check
+  - getElementById('surge-monitor-coins-count') used without null check
+  - getElementById('surge-monitor-coins-count') used without null check
+  - getElementById('editUserId') used without null check
+  - getElementById('editUserId') used without null check
+  - getElementById('subPlan') used without null check
+  - getElementById('subPlan') used without null check
+  - getElementById('subPlan') used without null check
+  - getElementById('userSearch') used without null check
+  - getElementById('userStatusFilter') used without null check
+  - getElementById('surge-worker-badge') used without null check
+  - getElementById('surge-active-signals') used without null check
+  - getElementById('feedbackTypeFilter') used without null check
+  - getElementById('paymentDetails') used without null check
+  - getElementById('editDurationDays') used without null check
+  - getElementById('editDurationDays') used without null check
+  - getElementById('editDurationDays') used without null check
+  - getElementById('editDurationDays') used without null check
+  - getElementById('feedbackTable') used without null check
+  - getElementById('feedbackSearch') used without null check
+  - getElementById('surge-base-min-score') used without null check
+  - getElementById('surge-base-min-score') used without null check
+  - getElementById('surge-duplicate-alert-hours') used without null check
+  - getElementById('surge-duplicate-alert-hours') used without null check
+  - getElementById('surge-duplicate-alert-hours') used without null check
+  - getElementById('subEndDateHelp') used without null check
+  - getElementById('subEndDateHelp') used without null check
+  - getElementById('subEndDateHelp') used without null check
+  - getElementById('surge-db-save-threshold') used without null check
+  - getElementById('surge-db-save-threshold') used without null check
+  - getElementById('surge-db-save-threshold') used without null check
+  - getElementById('surge-alertContainer') used without null check
+  - getElementById('enterpriseForm') used without null check
+  - getElementById('paymentStatusFilter') used without null check
+  - getElementById('surge-support-proximity') used without null check
+  - getElementById('surge-support-proximity') used without null check
+  - getElementById('surge-support-proximity') used without null check
+  - getElementById('surge-volume-threshold') used without null check
+  - getElementById('surge-volume-threshold') used without null check
+  - getElementById('surge-volume-threshold') used without null check
+  - getElementById('paymentSearch') used without null check
+  - getElementById('surge-check-interval') used without null check
+  - getElementById('surge-check-interval') used without null check
+  - getElementById('surge-check-interval') used without null check
+  - getElementById('subEndDate') used without null check
+  - getElementById('subEndDate') used without null check
+  - getElementById('subEndDate') used without null check
+  - getElementById('subEndDate') used without null check
+  - getElementById('subEndDate') used without null check
+  - getElementById('subEndDate') used without null check
+  - getElementById('subEndDate') used without null check
+  - getElementById('subEndDate') used without null check
+  - getElementById('subEndDate') used without null check
+  - getElementById('editUnlimited') used without null check
+  - getElementById('editUnlimited') used without null check
+  - getElementById('editUnlimited') used without null check
+  - getElementById('feedbackAdminNotes') used without null check
+  - getElementById('feedbackStatus') used without null check
+  - getElementById('feedbackStatus') used without null check
+  - getElementById('feedbackForm') used without null check
+  - getElementById('subStartDate') used without null check
+  - getElementById('subStartDate') used without null check
+  - getElementById('subStartDate') used without null check
+  - getElementById('feedbackDetails') used without null check
+  - getElementById('subscriptionForm') used without null check
+  - getElementById('enterpriseStatus') used without null check
+  - getElementById('enterpriseStatus') used without null check
+
+Info:
+  - API endpoints: ).value;
+
+            try {
+                let url = `${window.location.origin}/api/enterprise/inquiries?per_page=100`;
+                if (statusFilter) {
+                    url += `&status=${statusFilter}`;
+                }
+
+                const response = await fetch(url, { headers: getHeaders() });
+                const data = await response.json();
+
+                if (data.success) {
+                    window.allEnterpriseInquiries = data.inquiries;
+                    displayEnterpriseInquiries(window.allEnterpriseInquiries);
+                } else {
+                    tbody.innerHTML = , )) {
+                return;
+            }
+
+            try {
+                console.log(`[Admin] Updating subscription for user ${userId}`);
+
+                // Step 1: Change plan (creates/updates subscription)
+                const planResponse = await fetch(`${window.location.origin}/api/admin/subscriptions/users/${userId}/plan`, {
+                    method: , ;
+            container.appendChild(alert);
+
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        async function loadSurgeStatus() {
+            try {
+                const response = await fetch(`${window.location.origin}/api/admin/surge/status`, {
+                    headers: getHeaders()
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const status = data.status;
+
+                    document.getElementById(, /api/admin, );
+        }
+
+        // Open subscription detail modal
+        async function openSubscriptionModal(userId, email) {
+            try {
+                console.log(`[Admin] Loading subscription details for user ${userId}`);
+
+                // Fetch subscription details
+                const response = await fetch(`${window.location.origin}/api/admin/subscriptions/users/${userId}`, {
+                    headers: getHeaders()
+                });
+
+                const data = await response.json();
+                console.log(, ).value)
+                    },
+                    notes: `Updated via admin panel at ${new Date().toISOString()}`
+                };
+
+                const response = await fetch(`${window.location.origin}/api/admin/surge/settings`, {
+                    method: , ).value;
+
+            try {
+                const response = await fetch(`${window.location.origin}/api/enterprise/inquiry/${inquiryId}/status`, {
+                    method: , 
+            };
+            return texts[volume] || volume;
+        }
+
+        async function openEnterpriseModal(inquiryId) {
+            try {
+                const response = await fetch(`${window.location.origin}/api/enterprise/inquiry/${inquiryId}`, {
+                    headers: getHeaders()
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const inquiry = data.inquiry;
+
+                    // Display details
+                    const detailsHtml = `
+                        <div style=, ).value;
+
+                let url = `${window.location.origin}/api/feedback/admin?`;
+                if (typeFilter) url += `type=${typeFilter}&`;
+                if (statusFilter) url += `status=${statusFilter}&`;
+                if (priorityFilter) url += `priority=${priorityFilter}&`;
+
+                const response = await fetch(url, { headers: getHeaders() });
+                const data = await response.json();
+
+                if (data.success) {
+                    cachedFeedbackList = data.feedback; // Store in cache
+                    renderFeedback(data.feedback);
+                } else {
+                    alert(, )) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${window.location.origin}/api/feedback/admin/${feedbackId}`, {
+                    method: , , planData);
+
+                if (!planData.success) {
+                    alert(`❌ 플랜 변경 실패: ${planData.error}`);
+                    return;
+                }
+
+                // Step 2: Set custom period dates
+                const periodResponse = await fetch(`${window.location.origin}/api/admin/subscriptions/users/${userId}/custom-period`, {
+                    method: , , error);
+            }
+        }
+
+        async function loadSurgeSettings() {
+            try {
+                const response = await fetch(`${window.location.origin}/api/admin/surge/settings`, {
+                    headers: getHeaders()
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.settings) {
+                    const s = data.settings;
+                    const config = s.analysis_config || {};
+
+                    document.getElementById(, ).textContent = `토큰: ${window.adminToken.substring(0, 20)}...`;
+
+            // Verify admin access
+            verifyAdminAccess();
+        }
+
+        async function verifyAdminAccess() {
+            try {
+                const response = await fetch(`${window.location.origin}/api/auth/me`, {
+                    headers: {
+                        , 
+            };
+
+            if (!confirm(`구독 기간을 ${periods[days]} 연장하시겠습니까?\n(+${days}일)`)) {
+                return;
+            }
+
+            try {
+                console.log(`[Admin] Extending subscription for user ${userId} by ${days} days`);
+
+                const response = await fetch(`${window.location.origin}/api/admin/subscriptions/users/${userId}/extend`, {
+                    method: 
+  - Event listeners: submit, click, DOMContentLoaded
+
+surge_history.html
+------------------
+
+Errors:
+  - Error reading file: 'set' object is not subscriptable
+
+Warnings:
+  - Fetch call without .catch(): fetch(url, {
+                    headers: {
+      ...
+  - Fetch call without .catch(): fetch(url, {
+                    headers: {
+      ...
+  - Fetch call without .catch(): fetch(`${window.location.origin}/api/admin/surge-h...
+  - getElementById('stat-auto-traded') used without null check
+  - getElementById('stat-confidence') used without null check
+  - getElementById('stat-total') used without null check
+  - getElementById('filter-market') used without null check
+  - getElementById('filter-market') used without null check
+  - getElementById('filter-signal-type') used without null check
+  - getElementById('filter-signal-type') used without null check
+  - getElementById('filter-auto-traded') used without null check
+  - getElementById('filter-auto-traded') used without null check
+  - getElementById('filter-status') used without null check
+  - getElementById('filter-status') used without null check
+  - getElementById('stat-profit') used without null check
+
+Info:
+  - API endpoints: https://cryptoicon-api.pages.dev/api/icon/stg, https://cryptoicon-api.pages.dev/api/icon/wet, https://cryptoicon-api.pages.dev/api/icon/nxpc, https://cryptoicon-api.pages.dev/api/icon/ens, https://cryptoicon-api.pages.dev/api/icon/avnt, https://cryptoicon-api.pages.dev/api/icon/waxp, https://cryptoicon-api.pages.dev/api/icon/bio, https://cryptoicon-api.pages.dev/api/icon/moodeng, https://cryptoicon-api.pages.dev/api/icon/gas, https://cryptoicon-api.pages.dev/api/icon/btc, https://cryptoicon-api.pages.dev/api/icon/astr, https://cryptoicon-api.pages.dev/api/icon/inj, https://cryptoicon-api.pages.dev/api/icon/zkc, https://cryptoicon-api.pages.dev/api/icon/bat, https://cryptoicon-api.pages.dev/api/icon/pepe, https://cryptoicon-api.pages.dev/api/icon/steem, https://cryptoicon-api.pages.dev/api/icon/dot, https://cryptoicon-api.pages.dev/api/icon/virtual, https://cryptoicon-api.pages.dev/api/icon/ckb, https://cryptoicon-api.pages.dev/api/icon/beam, https://cryptoicon-api.pages.dev/api/icon/dka, https://cryptoicon-api.pages.dev/api/icon/mmt, https://cryptoicon-api.pages.dev/api/icon/g, https://cryptoicon-api.pages.dev/api/icon/fluid, https://cryptoicon-api.pages.dev/api/icon/somi, https://cryptoicon-api.pages.dev/api/icon/axl, https://cryptoicon-api.pages.dev/api/icon/pump, https://cryptoicon-api.pages.dev/api/icon/grt, https://cryptoicon-api.pages.dev/api/icon/game2, https://cryptoicon-api.pages.dev/api/icon/shib, https://cryptoicon-api.pages.dev/api/icon/rvn, https://cryptoicon-api.pages.dev/api/icon/chz, https://cryptoicon-api.pages.dev/api/icon/zeta, https://cryptoicon-api.pages.dev/api/icon/hbar, https://cryptoicon-api.pages.dev/api/icon/linea, https://cryptoicon-api.pages.dev/api/icon/btt, );
+            try {
+                const params = new URLSearchParams({
+                    page: currentPage,
+                    per_page: perPage,
+                    ...filters
+                });
+
+                const url = `${window.location.origin}/api/admin/surge-history?${params}`;
+                console.log(, https://cryptoicon-api.pages.dev/api/icon/mlk, https://cryptoicon-api.pages.dev/api/icon/near, https://cryptoicon-api.pages.dev/api/icon/lpt, https://cryptoicon-api.pages.dev/api/icon/gmt, https://cryptoicon-api.pages.dev/api/icon/vet, https://cryptoicon-api.pages.dev/api/icon/bch, https://cryptoicon-api.pages.dev/api/icon/jst, https://cryptoicon-api.pages.dev/api/icon/era, https://cryptoicon-api.pages.dev/api/icon/avax, https://cryptoicon-api.pages.dev/api/icon/neo, https://cryptoicon-api.pages.dev/api/icon/storj, https://cryptoicon-api.pages.dev/api/icon/f, https://cryptoicon-api.pages.dev/api/icon/blast, https://cryptoicon-api.pages.dev/api/icon/tt, https://cryptoicon-api.pages.dev/api/icon/order, https://cryptoicon-api.pages.dev/api/icon/render, https://cryptoicon-api.pages.dev/api/icon/dood, https://cryptoicon-api.pages.dev/api/icon/carv, https://cryptoicon-api.pages.dev/api/icon/kaito, https://cryptoicon-api.pages.dev/api/icon/ada, https://cryptoicon-api.pages.dev/api/icon/ankr, https://cryptoicon-api.pages.dev/api/icon/ctc, https://cryptoicon-api.pages.dev/api/icon/taiko, https://cryptoicon-api.pages.dev/api/icon/mnt, https://cryptoicon-api.pages.dev/api/icon/elf, https://cryptoicon-api.pages.dev/api/icon/atom, https://cryptoicon-api.pages.dev/api/icon/bigtime, https://cryptoicon-api.pages.dev/api/icon/stx, https://cryptoicon-api.pages.dev/api/icon/icx, https://cryptoicon-api.pages.dev/api/icon/aqt, https://cryptoicon-api.pages.dev/api/icon/super, https://cryptoicon-api.pages.dev/api/icon/theta, https://cryptoicon-api.pages.dev/api/icon/mtl, https://cryptoicon-api.pages.dev/api/icon/ena, https://cryptoicon-api.pages.dev/api/icon/meta, https://cryptoicon-api.pages.dev/api/icon/soph, https://cryptoicon-api.pages.dev/api/icon/aave, https://cryptoicon-api.pages.dev/api/icon/id, https://cryptoicon-api.pages.dev/api/icon/comp, https://cryptoicon-api.pages.dev/api/icon/sxp, https://cryptoicon-api.pages.dev/api/icon/zil, https://cryptoicon-api.pages.dev/api/icon/moc, https://cryptoicon-api.pages.dev/api/icon/pengu, https://cryptoicon-api.pages.dev/api/icon/axs, https://cryptoicon-api.pages.dev/api/icon/t, https://cryptoicon-api.pages.dev/api/icon/enso, https://cryptoicon-api.pages.dev/api/icon/ondo, https://cryptoicon-api.pages.dev/api/icon/lsk, https://cryptoicon-api.pages.dev/api/icon/apt, https://cryptoicon-api.pages.dev/api/icon/mina, https://cryptoicon-api.pages.dev/api/icon/zora, https://cryptoicon-api.pages.dev/api/icon/sonic, https://cryptoicon-api.pages.dev/api/icon/zro, https://cryptoicon-api.pages.dev/api/icon/orbs, https://cryptoicon-api.pages.dev/api/icon/a, https://cryptoicon-api.pages.dev/api/icon/zrx, https://cryptoicon-api.pages.dev/api/icon/knc, https://cryptoicon-api.pages.dev/api/icon/om, https://cryptoicon-api.pages.dev/api/icon/mira, https://cryptoicon-api.pages.dev/api/icon/holo, https://cryptoicon-api.pages.dev/api/icon/cpool, https://cryptoicon-api.pages.dev/api/icon/tfuel, https://cryptoicon-api.pages.dev/api/icon/anime, https://cryptoicon-api.pages.dev/api/icon/wld, https://cryptoicon-api.pages.dev/api/icon/xtz, https://cryptoicon-api.pages.dev/api/icon/aero, https://cryptoicon-api.pages.dev/api/icon/fct2, https://cryptoicon-api.pages.dev/api/icon/trust, https://cryptoicon-api.pages.dev/api/icon/usd1, https://cryptoicon-api.pages.dev/api/icon/arb, https://cryptoicon-api.pages.dev/api/icon/trx, https://cryptoicon-api.pages.dev/api/icon/mask, https://cryptoicon-api.pages.dev/api/icon/sui, https://cryptoicon-api.pages.dev/api/icon/polyx, https://cryptoicon-api.pages.dev/api/icon/safe, https://cryptoicon-api.pages.dev/api/icon/auction, https://cryptoicon-api.pages.dev/api/icon/pyth, https://cryptoicon-api.pages.dev/api/icon/xpl, https://cryptoicon-api.pages.dev/api/icon/cvc, https://cryptoicon-api.pages.dev/api/icon/wal, https://cryptoicon-api.pages.dev/api/icon/plume, https://cryptoicon-api.pages.dev/api/icon/sc, https://cryptoicon-api.pages.dev/api/icon/sahara, https://cryptoicon-api.pages.dev/api/icon/ont, https://cryptoicon-api.pages.dev/api/icon/bard, https://cryptoicon-api.pages.dev/api/icon/hive, https://cryptoicon-api.pages.dev/api/icon/powr, https://cryptoicon-api.pages.dev/api/icon/sand, https://cryptoicon-api.pages.dev/api/icon/trump, https://cryptoicon-api.pages.dev/api/icon/wct, https://cryptoicon-api.pages.dev/api/icon/bsv, https://cryptoicon-api.pages.dev/api/icon/0g, https://cryptoicon-api.pages.dev/api/icon/xlm, https://cryptoicon-api.pages.dev/api/icon/akt, https://cryptoicon-api.pages.dev/api/icon/ong, );
+            try {
+                const url = `${window.location.origin}/api/admin/surge-history/markets`;
+                console.log(, https://cryptoicon-api.pages.dev/api/icon/med, https://cryptoicon-api.pages.dev/api/icon/snt, https://cryptoicon-api.pages.dev/api/icon/flock, https://cryptoicon-api.pages.dev/api/icon/zbt, https://cryptoicon-api.pages.dev/api/icon/etc, https://cryptoicon-api.pages.dev/api/icon/usdt, https://cryptoicon-api.pages.dev/api/icon/la, https://cryptoicon-api.pages.dev/api/icon/pol, https://cryptoicon-api.pages.dev/api/icon/alt, https://cryptoicon-api.pages.dev/api/icon/xec, https://cryptoicon-api.pages.dev/api/icon/mana, https://cryptoicon-api.pages.dev/api/icon/pundix, https://cryptoicon-api.pages.dev/api/icon/hunt, https://cryptoicon-api.pages.dev/api/icon/iota, https://cryptoicon-api.pages.dev/api/icon/ark, https://cryptoicon-api.pages.dev/api/icon/deep, https://cryptoicon-api.pages.dev/api/icon/newt, https://cryptoicon-api.pages.dev/api/icon/bonk, https://cryptoicon-api.pages.dev/api/icon/hp, https://cryptoicon-api.pages.dev/api/icon/wlfi, https://cryptoicon-api.pages.dev/api/icon/kava, https://cryptoicon-api.pages.dev/api/icon/agld, https://cryptoicon-api.pages.dev/api/icon/mvl, https://cryptoicon-api.pages.dev/api/icon/ray, https://cryptoicon-api.pages.dev/api/icon/layer, https://cryptoicon-api.pages.dev/api/icon/jup, https://cryptoicon-api.pages.dev/api/icon/pokt, https://cryptoicon-api.pages.dev/api/icon/iost, https://cryptoicon-api.pages.dev/api/icon/qkc, https://cryptoicon-api.pages.dev/api/icon/mbl, https://cryptoicon-api.pages.dev/api/icon/mew, https://cryptoicon-api.pages.dev/api/icon/eth, https://cryptoicon-api.pages.dev/api/icon/algo, https://cryptoicon-api.pages.dev/api/icon/sol, https://cryptoicon-api.pages.dev/api/icon/bora, https://cryptoicon-api.pages.dev/api/icon/sei, https://cryptoicon-api.pages.dev/api/icon/ff, https://cryptoicon-api.pages.dev/api/icon/aergo, https://cryptoicon-api.pages.dev/api/icon/met2, https://cryptoicon-api.pages.dev/api/icon/xrp, https://cryptoicon-api.pages.dev/api/icon/pendle, https://cryptoicon-api.pages.dev/api/icon/cow, https://cryptoicon-api.pages.dev/api/icon/vana, https://cryptoicon-api.pages.dev/api/icon/usdc, https://cryptoicon-api.pages.dev/api/icon/uni, https://cryptoicon-api.pages.dev/api/icon/cbk, https://cryptoicon-api.pages.dev/api/icon/imx, https://cryptoicon-api.pages.dev/api/icon/open, https://cryptoicon-api.pages.dev/api/icon/prove, https://cryptoicon-api.pages.dev/api/icon/syrup, https://cryptoicon-api.pages.dev/api/icon/ip, https://cryptoicon-api.pages.dev/api/icon/doge, https://cryptoicon-api.pages.dev/api/icon/blur, https://cryptoicon-api.pages.dev/api/icon/ath, https://cryptoicon-api.pages.dev/api/icon/cyber, https://cryptoicon-api.pages.dev/api/icon/tokamak, https://cryptoicon-api.pages.dev/api/icon/2z, https://cryptoicon-api.pages.dev/api/icon/link, , alertId);
+        }
+
+        // Export CSV
+        async function exportCSV() {
+            try {
+                const params = new URLSearchParams(filters);
+
+                const response = await fetch(`${window.location.origin}/api/admin/surge-history/export?${params}`, {
+                    headers: {
+                        , https://cryptoicon-api.pages.dev/api/icon/moca, https://cryptoicon-api.pages.dev/api/icon/awe, https://cryptoicon-api.pages.dev/api/icon/drift, https://cryptoicon-api.pages.dev/api/icon/strax, https://cryptoicon-api.pages.dev/api/icon/op, https://cryptoicon-api.pages.dev/api/icon/iq, https://cryptoicon-api.pages.dev/api/icon/jto, https://cryptoicon-api.pages.dev/api/icon/egld, https://cryptoicon-api.pages.dev/api/icon/kernel, https://cryptoicon-api.pages.dev/api/icon/arkm, https://cryptoicon-api.pages.dev/api/icon/mon, https://cryptoicon-api.pages.dev/api/icon/ardr, https://cryptoicon-api.pages.dev/api/icon/aht, https://cryptoicon-api.pages.dev/api/icon/toshi, https://cryptoicon-api.pages.dev/api/icon/cro, https://cryptoicon-api.pages.dev/api/icon/tree, https://cryptoicon-api.pages.dev/api/icon/sun, https://cryptoicon-api.pages.dev/api/icon/orca, https://cryptoicon-api.pages.dev/api/icon/kite, https://cryptoicon-api.pages.dev/api/icon/ygg, https://cryptoicon-api.pages.dev/api/icon/waves, https://cryptoicon-api.pages.dev/api/icon/fil, https://cryptoicon-api.pages.dev/api/icon/bera, https://cryptoicon-api.pages.dev/api/icon/nom, https://cryptoicon-api.pages.dev/api/icon/api3, https://cryptoicon-api.pages.dev/api/icon/w, https://cryptoicon-api.pages.dev/api/icon/in, https://cryptoicon-api.pages.dev/api/icon/glm, https://cryptoicon-api.pages.dev/api/icon/qtum, https://cryptoicon-api.pages.dev/api/icon/grs, https://cryptoicon-api.pages.dev/api/icon/sign, https://cryptoicon-api.pages.dev/api/icon/celo, https://cryptoicon-api.pages.dev/api/icon/me, https://cryptoicon-api.pages.dev/api/icon/flow, https://cryptoicon-api.pages.dev/api/icon/tia, https://cryptoicon-api.pages.dev/api/icon/red, https://cryptoicon-api.pages.dev/api/icon/hyper, https://cryptoicon-api.pages.dev/api/icon/move, https://cryptoicon-api.pages.dev/api/icon/vtho, https://cryptoicon-api.pages.dev/api/icon/bounty, https://cryptoicon-api.pages.dev/api/icon/1inch
+  - Event listeners: DOMContentLoaded
