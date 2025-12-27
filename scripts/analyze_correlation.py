@@ -14,14 +14,41 @@ Examples:
 import sys
 import os
 from datetime import datetime, timedelta
-import pandas as pd
-import numpy as np
+from collections import defaultdict
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from backend.database.connection import get_db_session
 from sqlalchemy import text
+
+
+def calculate_correlation_coefficient(x, y):
+    """
+    Calculate Pearson correlation coefficient
+
+    Args:
+        x: List of values
+        y: List of values
+
+    Returns:
+        float: Correlation coefficient (-1 to 1)
+    """
+    if len(x) != len(y) or len(x) == 0:
+        return 0
+
+    n = len(x)
+    mean_x = sum(x) / n
+    mean_y = sum(y) / n
+
+    numerator = sum((x[i] - mean_x) * (y[i] - mean_y) for i in range(n))
+    denominator_x = sum((x[i] - mean_x) ** 2 for i in range(n)) ** 0.5
+    denominator_y = sum((y[i] - mean_y) ** 2 for i in range(n)) ** 0.5
+
+    if denominator_x == 0 or denominator_y == 0:
+        return 0
+
+    return numerator / (denominator_x * denominator_y)
 
 
 def fetch_balance_history(db, user_id, days=0):
@@ -34,7 +61,7 @@ def fetch_balance_history(db, user_id, days=0):
         days: Number of days (0 = all)
 
     Returns:
-        DataFrame with columns: date, total_value, krw_total, crypto_value
+        list of dicts with keys: date, total_value, krw_total, crypto_value
     """
     query_str = """
         SELECT
@@ -71,7 +98,7 @@ def fetch_balance_history(db, user_id, days=0):
             'total_profit_rate': float(row[5]) if row[5] else 0
         })
 
-    return pd.DataFrame(data)
+    return data
 
 
 def fetch_coin_prices(db, days=0):
@@ -83,7 +110,7 @@ def fetch_coin_prices(db, days=0):
         days: Number of days (0 = all)
 
     Returns:
-        DataFrame with columns: date, btc_price, eth_price, xrp_price
+        list of dicts with keys: date, btc_price, eth_price, xrp_price
     """
     query_str = """
         SELECT
@@ -106,7 +133,7 @@ def fetch_coin_prices(db, days=0):
     query = text(query_str)
     result = db.execute(query, params)
 
-    # Pivot data: date as index, market as columns
+    # Pivot data: date as key, market as columns
     data = {}
     for row in result:
         date = row[0]
@@ -118,73 +145,90 @@ def fetch_coin_prices(db, days=0):
 
         data[date][market] = price
 
-    # Convert to DataFrame
-    df_data = []
-    for date, prices in data.items():
-        df_data.append({
+    # Convert to list of dicts
+    result_data = []
+    for date, prices in sorted(data.items()):
+        result_data.append({
             'date': date,
-            'btc_price': prices.get('KRW-BTC', np.nan),
-            'eth_price': prices.get('KRW-ETH', np.nan),
-            'xrp_price': prices.get('KRW-XRP', np.nan)
+            'btc_price': prices.get('KRW-BTC'),
+            'eth_price': prices.get('KRW-ETH'),
+            'xrp_price': prices.get('KRW-XRP')
         })
 
-    return pd.DataFrame(df_data)
+    return result_data
 
 
-def calculate_correlation(balance_df, price_df):
+def calculate_correlation(balance_data, price_data):
     """
     Calculate correlation between balance and coin prices
 
     Args:
-        balance_df: Balance history DataFrame
-        price_df: Coin price DataFrame
+        balance_data: List of balance history dicts
+        price_data: List of coin price dicts
 
     Returns:
         dict: Correlation results
     """
-    # Merge dataframes on date
-    merged = pd.merge(balance_df, price_df, on='date', how='inner')
+    # Merge data on date (inner join)
+    balance_by_date = {item['date']: item for item in balance_data}
+    price_by_date = {item['date']: item for item in price_data}
+
+    merged = []
+    for date in balance_by_date:
+        if date in price_by_date:
+            item = {**balance_by_date[date], **price_by_date[date]}
+            # Skip if any price is None
+            if item.get('btc_price') and item.get('eth_price') and item.get('xrp_price'):
+                merged.append(item)
 
     if len(merged) == 0:
         return None
 
-    # Calculate correlations
+    # Extract data for calculations
+    total_values = [item['total_value'] for item in merged]
+    crypto_values = [item['crypto_value'] for item in merged]
+    profit_rates = [item['total_profit_rate'] for item in merged]
+    btc_prices = [item['btc_price'] for item in merged]
+    eth_prices = [item['eth_price'] for item in merged]
+    xrp_prices = [item['xrp_price'] for item in merged]
+
+    # Calculate statistics
+    dates = [item['date'] for item in merged]
     results = {
         'period': {
-            'start_date': merged['date'].min().strftime('%Y-%m-%d'),
-            'end_date': merged['date'].max().strftime('%Y-%m-%d'),
+            'start_date': min(dates).strftime('%Y-%m-%d'),
+            'end_date': max(dates).strftime('%Y-%m-%d'),
             'days': len(merged)
         },
         'balance_stats': {
-            'avg_total_value': merged['total_value'].mean(),
-            'min_total_value': merged['total_value'].min(),
-            'max_total_value': merged['total_value'].max(),
-            'avg_crypto_value': merged['crypto_value'].mean()
+            'avg_total_value': sum(total_values) / len(total_values),
+            'min_total_value': min(total_values),
+            'max_total_value': max(total_values),
+            'avg_crypto_value': sum(crypto_values) / len(crypto_values)
         },
         'correlations': {}
     }
 
     # Correlation with total portfolio value
     results['correlations']['total_value'] = {
-        'btc': merged['total_value'].corr(merged['btc_price']),
-        'eth': merged['total_value'].corr(merged['eth_price']),
-        'xrp': merged['total_value'].corr(merged['xrp_price'])
+        'btc': calculate_correlation_coefficient(total_values, btc_prices),
+        'eth': calculate_correlation_coefficient(total_values, eth_prices),
+        'xrp': calculate_correlation_coefficient(total_values, xrp_prices)
     }
 
     # Correlation with crypto holdings only
     results['correlations']['crypto_value'] = {
-        'btc': merged['crypto_value'].corr(merged['btc_price']),
-        'eth': merged['crypto_value'].corr(merged['eth_price']),
-        'xrp': merged['crypto_value'].corr(merged['xrp_price'])
+        'btc': calculate_correlation_coefficient(crypto_values, btc_prices),
+        'eth': calculate_correlation_coefficient(crypto_values, eth_prices),
+        'xrp': calculate_correlation_coefficient(crypto_values, xrp_prices)
     }
 
     # Correlation with profit rate
-    if 'total_profit_rate' in merged.columns:
-        results['correlations']['profit_rate'] = {
-            'btc': merged['total_profit_rate'].corr(merged['btc_price']),
-            'eth': merged['total_profit_rate'].corr(merged['eth_price']),
-            'xrp': merged['total_profit_rate'].corr(merged['xrp_price'])
-        }
+    results['correlations']['profit_rate'] = {
+        'btc': calculate_correlation_coefficient(profit_rates, btc_prices),
+        'eth': calculate_correlation_coefficient(profit_rates, eth_prices),
+        'xrp': calculate_correlation_coefficient(profit_rates, xrp_prices)
+    }
 
     return results
 
