@@ -8,6 +8,8 @@
   },
   "api": {
     "upbit_base_url": "https://api.upbit.com",
+    "chartServerUrl": "auto",
+    "tradingServerUrl": "auto",
     "request_timeout": 5,
     "max_retries": 3,
     "default_count": 200,
