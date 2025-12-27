@@ -90,15 +90,15 @@ class SurgeAutoTradingSettings(Base):
     total_budget = Column(BigInteger, nullable=False, default=1000000)  # 총 예산 (원)
     amount_per_trade = Column(BigInteger, nullable=False, default=100000)  # 1회 투자금액 (원)
 
-    # Risk management
-    risk_level = Column(String(20), default='moderate', nullable=False)  # conservative/moderate/aggressive
+    # Risk management (Preset-based)
+    risk_level = Column(String(20), default='balanced', nullable=False)  # Preset: conservative/balanced/aggressive
     stop_loss_enabled = Column(Boolean, default=True, nullable=False)
-    stop_loss_percent = Column(Float, default=-5.0, nullable=False)  # -5%
+    stop_loss_percent = Column(Float, default=-5.0, nullable=False)  # -5% (updated by preset)
     take_profit_enabled = Column(Boolean, default=True, nullable=False)
-    take_profit_percent = Column(Float, default=10.0, nullable=False)  # +10%
+    take_profit_percent = Column(Float, default=10.0, nullable=False)  # +10% (updated by preset)
 
     # Filtering
-    min_confidence = Column(Float, default=80.0, nullable=False)  # Minimum confidence threshold
+    min_confidence = Column(Float, default=65.0, nullable=False)  # Minimum confidence threshold (updated by preset)
     max_positions = Column(Integer, default=5, nullable=False)  # Maximum concurrent positions
     excluded_coins = Column(JSON, nullable=True)  # ['DOGE', 'SHIB'] - coins to exclude
     avoid_high_price_entry = Column(Boolean, default=True, nullable=False)  # 고점 진입 방지 (avoid buying at peak prices)

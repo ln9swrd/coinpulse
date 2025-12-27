@@ -13,6 +13,9 @@ from backend.database.connection import get_db_session
 from backend.utils.auth_utils import require_auth
 from backend.models.surge_alert_models import SurgeAutoTradingSettings, SurgeAlert
 from backend.models.plan_features import get_user_features
+from backend.models.auto_trading_presets import (
+    get_all_presets, get_preset_settings, apply_preset_to_settings, PRESET_COMPARISON
+)
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +71,31 @@ def get_settings(current_user):
         return jsonify({
             'success': False,
             'error': 'Failed to get settings'
+        }), 500
+
+
+@surge_auto_trading_bp.route('/presets', methods=['GET'])
+def get_presets():
+    """
+    Get available auto-trading presets
+
+    Returns:
+        JSON response with all presets and comparison table
+    """
+    try:
+        presets = get_all_presets()
+
+        return jsonify({
+            'success': True,
+            'presets': presets,
+            'comparison': PRESET_COMPARISON
+        }), 200
+
+    except Exception as e:
+        logger.error(f"[AutoTrading] Error getting presets: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to get presets'
         }), 500
 
 
@@ -140,13 +168,21 @@ def update_settings(current_user):
             settings.total_budget = data['total_budget']
         if 'amount_per_trade' in data:
             settings.amount_per_trade = data['amount_per_trade']
+
+        # Handle preset change (risk_level)
         if 'risk_level' in data:
-            if data['risk_level'] not in ['conservative', 'moderate', 'aggressive']:
+            preset_name = data['risk_level']
+
+            # Validate preset name
+            if preset_name not in ['conservative', 'balanced', 'aggressive']:
                 return jsonify({
                     'success': False,
-                    'error': 'Invalid risk level'
+                    'error': 'Invalid preset. Must be "conservative", "balanced", or "aggressive"'
                 }), 400
-            settings.risk_level = data['risk_level']
+
+            # Apply preset configuration
+            settings = apply_preset_to_settings(settings, preset_name)
+            logger.info(f"[AutoTrading] Applied preset '{preset_name}' for user {current_user.id}")
         if 'stop_loss_enabled' in data:
             settings.stop_loss_enabled = data['stop_loss_enabled']
         if 'stop_loss_percent' in data:

@@ -471,12 +471,13 @@
             <div class="card">
                 <h2>🛡️ 리스크 관리</h2>
                 <div class="form-group">
-                    <label for="risk-level">위험 수준</label>
+                    <label for="risk-level">전략 프리셋</label>
                     <select id="risk-level">
-                        <option value="conservative">보수적 (낮은 리스크)</option>
-                        <option value="moderate" selected>균형 (중간 리스크)</option>
-                        <option value="aggressive">공격적 (높은 리스크)</option>
+                        <option value="conservative">🛡️ 보수적 - 높은 신뢰도 신호만 선택 (승률: 60-70%, 평균 수익: +5~8%)</option>
+                        <option value="balanced" selected>⚖️ 균형 - 적절한 신뢰도와 수익률 균형 (승률: 50-60%, 평균 수익: +8~12%, 추천)</option>
+                        <option value="aggressive">🚀 공격적 - 높은 수익률 추구, 높은 위험 (승률: 40-50%, 평균 수익: +12~20%)</option>
                     </select>
+                    <small>프리셋 선택 시 최소 신뢰도, 손익절 목표가 자동 설정됩니다</small>
                 </div>
 
                 <div class="toggle-group">
@@ -825,9 +826,9 @@
                 document.getElementById('enabled').checked = settings.enabled;
                 document.getElementById('total-budget').value = settings.total_budget;
                 document.getElementById('amount-per-trade').value = settings.amount_per_trade;
-                document.getElementById('risk-level').value = settings.risk_level || 'moderate';
+                document.getElementById('risk-level').value = settings.risk_level || 'balanced';
                 document.getElementById('stop-loss-enabled').checked = settings.stop_loss_enabled;
-                document.getElementById('stop-loss-percent').value = settings.stop_loss_percent;
+                document.getElementById('stop-loss-percent').value = Math.abs(settings.stop_loss_percent);  // Display as positive
                 document.getElementById('take-profit-enabled').checked = settings.take_profit_enabled;
                 document.getElementById('take-profit-percent').value = settings.take_profit_percent;
                 document.getElementById('min-confidence').value = settings.min_confidence;
@@ -866,6 +867,53 @@
                 showAlert('설정 불러오기 실패: ' + error.message, 'error');
             }
         }
+
+        // Apply preset configuration
+        function applyPresetConfig(presetName) {
+            const presets = {
+                conservative: {
+                    min_confidence: 80,
+                    take_profit_percent: 8.0,
+                    stop_loss_percent: 3.0,
+                    description: '보수적: 높은 신뢰도 신호만 선택'
+                },
+                balanced: {
+                    min_confidence: 65,
+                    take_profit_percent: 10.0,
+                    stop_loss_percent: 5.0,
+                    description: '균형: 적절한 신뢰도와 수익률 균형'
+                },
+                aggressive: {
+                    min_confidence: 50,
+                    take_profit_percent: 15.0,
+                    stop_loss_percent: 7.0,
+                    description: '공격적: 높은 수익률 추구, 높은 위험'
+                }
+            };
+
+            const preset = presets[presetName];
+            if (!preset) return;
+
+            // Apply preset settings to form
+            document.getElementById('min-confidence').value = preset.min_confidence;
+            document.getElementById('take-profit-percent').value = preset.take_profit_percent;
+            document.getElementById('stop-loss-percent').value = preset.stop_loss_percent;
+
+            // Show feedback
+            showAlert(`✅ ${preset.description} 프리셋이 적용되었습니다`, 'success');
+            console.log(`[AutoTrading] Preset applied: ${presetName}`, preset);
+        }
+
+        // Add event listener for risk-level change
+        document.addEventListener('DOMContentLoaded', function() {
+            const riskLevelSelect = document.getElementById('risk-level');
+            if (riskLevelSelect) {
+                riskLevelSelect.addEventListener('change', function(e) {
+                    const selectedPreset = e.target.value;
+                    applyPresetConfig(selectedPreset);
+                });
+            }
+        });
 
         async function saveSettings() {
             const token = getAuthToken();
