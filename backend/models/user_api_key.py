@@ -30,7 +30,6 @@ class UpbitAPIKey(Base):
 
     # API key metadata
     key_name = Column(String(100), nullable=True)  # User-defined name for this key
-    permissions = Column(String(500), nullable=True)  # Comma-separated permissions (e.g., "trade,withdraw")
 
     # Status
     is_active = Column(Boolean, nullable=False, default=True)
@@ -38,11 +37,10 @@ class UpbitAPIKey(Base):
 
     # Last usage
     last_used_at = Column(DateTime, nullable=True)
-    last_verified_at = Column(DateTime, nullable=True)
+    last_error_at = Column(DateTime, nullable=True)
 
     # Error tracking
     error_count = Column(Integer, nullable=False, default=0)  # Consecutive API errors
-    last_error = Column(Text, nullable=True)  # Last error message
 
     # Timestamps
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
@@ -65,11 +63,10 @@ class UpbitAPIKey(Base):
             'id': self.id,
             'user_id': self.user_id,
             'key_name': self.key_name,
-            'permissions': self.permissions.split(',') if self.permissions else [],
             'is_active': self.is_active,
             'is_verified': self.is_verified,
             'last_used_at': self.last_used_at.isoformat() if self.last_used_at else None,
-            'last_verified_at': self.last_verified_at.isoformat() if self.last_verified_at else None,
+            'last_error_at': self.last_error_at.isoformat() if self.last_error_at else None,
             'error_count': self.error_count,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat()
@@ -89,14 +86,13 @@ class UpbitAPIKey(Base):
     def mark_verified(self):
         """Mark API key as verified"""
         self.is_verified = True
-        self.last_verified_at = datetime.utcnow()
         self.error_count = 0
-        self.last_error = None
+        self.last_error_at = None
 
-    def record_error(self, error_message: str):
+    def record_error(self, error_message: str = None):
         """Record an API error"""
         self.error_count += 1
-        self.last_error = error_message
+        self.last_error_at = datetime.utcnow()
 
         # Auto-disable after 5 consecutive errors
         if self.error_count >= 5:
@@ -105,4 +101,4 @@ class UpbitAPIKey(Base):
     def reset_errors(self):
         """Reset error count after successful API call"""
         self.error_count = 0
-        self.last_error = None
+        self.last_error_at = None
