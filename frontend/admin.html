@@ -1847,6 +1847,8 @@
         });
 
         // Feedback Management
+        let cachedFeedbackList = []; // Cache to prevent rate limit errors
+
         async function loadFeedback() {
             try {
                 const typeFilter = document.getElementById('feedbackTypeFilter').value;
@@ -1862,6 +1864,7 @@
                 const data = await response.json();
 
                 if (data.success) {
+                    cachedFeedbackList = data.feedback; // Store in cache
                     renderFeedback(data.feedback);
                 } else {
                     alert('피드백 로드 실패: ' + data.error);
@@ -1913,43 +1916,38 @@
 
         async function viewFeedback(feedbackId) {
             try {
-                const response = await fetch(`${window.location.origin}/api/feedback/admin`, { headers: getHeaders() });
-                const data = await response.json();
+                // Use cached data to prevent rate limit errors
+                const feedback = cachedFeedbackList.find(f => f.id === feedbackId);
 
-                if (data.success) {
-                    const feedback = data.feedback.find(f => f.id === feedbackId);
-                    if (!feedback) {
-                        alert('피드백을 찾을 수 없습니다');
-                        return;
-                    }
-
-                    const typeEmoji = { 'bug': '🐛', 'feature': '💡', 'general': '💭' };
-                    const priorityEmoji = { 'urgent': '🚨', 'high': '⚠️', 'normal': 'ℹ️', 'low': '💬' };
-
-                    // Populate details
-                    document.getElementById('feedbackDetails').innerHTML = `
-                        <div style="margin-bottom: 20px;">
-                            <p style="margin-bottom: 12px;"><strong>ID:</strong> #${feedback.id}</p>
-                            <p style="margin-bottom: 12px;"><strong>유형:</strong> ${typeEmoji[feedback.type] || ''} ${feedback.type}</p>
-                            <p style="margin-bottom: 12px;"><strong>우선순위:</strong> ${priorityEmoji[feedback.priority] || ''} ${feedback.priority}</p>
-                            <p style="margin-bottom: 12px;"><strong>제목:</strong> ${feedback.subject}</p>
-                            <p style="margin-bottom: 12px;"><strong>사용자:</strong> ${feedback.user ? `${feedback.user.username} (${feedback.user.email})` : 'Unknown'}</p>
-                            <p style="margin-bottom: 12px;"><strong>생성일:</strong> ${new Date(feedback.created_at).toLocaleString('ko-KR')}</p>
-                            <p style="margin-bottom: 12px;"><strong>내용:</strong></p>
-                            <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; white-space: pre-wrap; margin-bottom: 16px;">${feedback.content}</div>
-                            ${feedback.screenshot_url ? `<p style="margin-bottom: 12px;"><strong>스크린샷:</strong> <a href="${feedback.screenshot_url}" target="_blank">${feedback.screenshot_url}</a></p>` : ''}
-                        </div>
-                    `;
-
-                    // Populate form
-                    document.getElementById('feedbackId').value = feedback.id;
-                    document.getElementById('feedbackStatus').value = feedback.status;
-                    document.getElementById('feedbackAdminNotes').value = feedback.admin_notes || '';
-
-                    openModal('feedbackModal');
-                } else {
-                    alert('피드백 로드 실패: ' + data.error);
+                if (!feedback) {
+                    alert('피드백을 찾을 수 없습니다');
+                    return;
                 }
+
+                const typeEmoji = { 'bug': '🐛', 'feature': '💡', 'general': '💭' };
+                const priorityEmoji = { 'urgent': '🚨', 'high': '⚠️', 'normal': 'ℹ️', 'low': '💬' };
+
+                // Populate details
+                document.getElementById('feedbackDetails').innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <p style="margin-bottom: 12px;"><strong>ID:</strong> #${feedback.id}</p>
+                        <p style="margin-bottom: 12px;"><strong>유형:</strong> ${typeEmoji[feedback.type] || ''} ${feedback.type}</p>
+                        <p style="margin-bottom: 12px;"><strong>우선순위:</strong> ${priorityEmoji[feedback.priority] || ''} ${feedback.priority}</p>
+                        <p style="margin-bottom: 12px;"><strong>제목:</strong> ${feedback.subject}</p>
+                        <p style="margin-bottom: 12px;"><strong>사용자:</strong> ${feedback.user ? `${feedback.user.username} (${feedback.user.email})` : 'Unknown'}</p>
+                        <p style="margin-bottom: 12px;"><strong>생성일:</strong> ${new Date(feedback.created_at).toLocaleString('ko-KR')}</p>
+                        <p style="margin-bottom: 12px;"><strong>내용:</strong></p>
+                        <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; white-space: pre-wrap; margin-bottom: 16px;">${feedback.content}</div>
+                        ${feedback.screenshot_url ? `<p style="margin-bottom: 12px;"><strong>스크린샷:</strong> <a href="${feedback.screenshot_url}" target="_blank">${feedback.screenshot_url}</a></p>` : ''}
+                    </div>
+                `;
+
+                // Populate form
+                document.getElementById('feedbackId').value = feedback.id;
+                document.getElementById('feedbackStatus').value = feedback.status;
+                document.getElementById('feedbackAdminNotes').value = feedback.admin_notes || '';
+
+                openModal('feedbackModal');
             } catch (error) {
                 console.error('피드백 상세 로드 실패:', error);
                 alert('피드백 상세를 불러오는데 실패했습니다');
