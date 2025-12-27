@@ -166,8 +166,9 @@ export class PageLoader {
                 newScript.src = oldScript.src;
                 await this.loadScriptAsync(newScript);
             } else {
-                // Inline script - copy content
-                newScript.textContent = oldScript.textContent;
+                // Inline script - wrap in IIFE to avoid variable conflicts
+                const scriptContent = oldScript.textContent;
+                newScript.textContent = `(function() {\n${scriptContent}\n})();`;
             }
 
             // Replace old script with new one
