@@ -1154,31 +1154,13 @@
 
             try {
                 // Fetch all required data in parallel
-                console.log('[DEBUG] Fetching holdings and orders...');
                 const [holdingsData, ordersData] = await Promise.all([
                     this.fetchHoldings(),
                     this.fetchOrders()
                 ]);
 
-                console.log('[DEBUG] Data fetched successfully');
-                console.log('[DEBUG] holdingsData:', holdingsData);
-                console.log('[DEBUG] ordersData:', ordersData);
-
-                // Calculate and update stats
-                console.log('[DEBUG] Updating portfolio stats...');
+                // Update stats (balance cards and stat cards)
                 this.updatePortfolioStats(holdingsData, ordersData);
-
-                // Display holdings table
-                console.log('[DEBUG] Calling displayHoldingsTable...');
-                await this.displayHoldingsTable(holdingsData);
-
-                // Display portfolio performance
-                console.log('[DEBUG] Displaying portfolio performance...');
-                this.displayPortfolioPerformance(holdingsData, ordersData);
-
-                // Display recent activity
-                console.log('[DEBUG] Displaying recent activity...');
-                this.displayRecentActivity(ordersData);
 
                 console.log('[Dashboard] Overview page loaded successfully');
             } catch (error) {
