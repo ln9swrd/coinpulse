@@ -42,12 +42,20 @@ def get_historical_price(api, market, timestamp):
     Returns:
         float: 해당 날짜의 종가
     """
+    import time
+
     try:
+        # Rate limiting: 0.1초 대기
+        time.sleep(0.1)
+
         # 일봉 1개만 가져오기
         candles = api.get_candles_days(market=market, count=1, to=f"{timestamp}T23:59:59Z")
         if candles and len(candles) > 0:
             return float(candles[0]['trade_price'])
     except Exception as e:
+        # 429 에러인 경우 더 긴 대기
+        if '429' in str(e):
+            time.sleep(1)
         print(f"  Warning: Failed to get historical price for {market} at {timestamp}: {e}")
     return 0
 
@@ -100,9 +108,11 @@ def backfill_balance_history(user_id, days=90):
 
     # 업비트 API는 한 번에 최대 100개씩만 조회 가능
     # 여러 번 호출하여 모든 이력 수집
+    import time
+
     all_orders = []
     page = 1
-    max_pages = 10  # 최대 1000개 주문 (100 * 10)
+    max_pages = 50  # 최대 5000개 주문 (100 * 50) - 더 많은 과거 데이터 확보
 
     while page <= max_pages:
         try:
@@ -119,11 +129,18 @@ def backfill_balance_history(user_id, days=90):
 
             all_orders.extend(filtered_orders)
 
+            print(f"  Page {page}: {len(filtered_orders)}/{len(orders)} orders within {days} days")
+
             # 모든 주문이 90일 이전이면 중단
             if len(filtered_orders) < len(orders):
+                print(f"  Reached cutoff date, stopping at page {page}")
                 break
 
             page += 1
+
+            # Rate limiting: 0.1초 대기 (초당 10회 제한 준수)
+            time.sleep(0.1)
+
         except Exception as e:
             print(f"  Warning: Failed to fetch orders page {page}: {e}")
             break
