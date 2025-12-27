@@ -7,6 +7,7 @@
 
     <!-- Socket.IO Client -->
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js?v=20251218"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="js/coin_info.js?v=20251224"></script>
     <script src="js/notification_system.js?v=20251224"></script>
 
@@ -221,22 +222,48 @@
             flex-wrap: wrap;
         }
 
-        .market-tag {
-            padding: 8px 16px;
-            background: #f3f4f6;
-            border-radius: 20px;
+        /* Balance Grid */
+        .balance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .balance-item {
+            text-align: center;
+        }
+
+        .balance-label {
             font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
+            color: #6b7280;
+            margin-bottom: 8px;
+            font-weight: 500;
         }
 
-        .market-tag:hover {
-            background: #e5e7eb;
+        .balance-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1f2937;
         }
 
-        .market-tag.active {
-            background: #667eea;
-            color: white;
+        .balance-value.primary {
+            color: #667eea;
+            font-size: 28px;
+        }
+
+        .balance-value.positive {
+            color: #10b981;
+        }
+
+        .balance-value.negative {
+            color: #ef4444;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            padding: 20px;
+            min-height: 300px;
         }
 
         /* Mobile Responsive */
@@ -285,18 +312,34 @@
             </div>
         </div>
 
-        <!-- Market Selector -->
+        <!-- Balance Info -->
         <div class="card">
-            <div class="card-header">모니터링할 마켓 선택</div>
-            <div class="market-selector" id="market-selector">
-                <div class="market-tag active" data-market="KRW-BTC">BTC</div>
-                <div class="market-tag active" data-market="KRW-ETH">ETH</div>
-                <div class="market-tag active" data-market="KRW-XRP">XRP</div>
-                <div class="market-tag" data-market="KRW-ADA">ADA</div>
-                <div class="market-tag" data-market="KRW-SOL">SOL</div>
-                <div class="market-tag" data-market="KRW-DOGE">DOGE</div>
-                <div class="market-tag" data-market="KRW-DOT">DOT</div>
-                <div class="market-tag" data-market="KRW-MATIC">MATIC</div>
+            <div class="card-header">💰 잔고 현황</div>
+            <div class="balance-grid">
+                <div class="balance-item">
+                    <div class="balance-label">보유 원화 (KRW)</div>
+                    <div class="balance-value" id="krw-balance">0원</div>
+                </div>
+                <div class="balance-item">
+                    <div class="balance-label">주문 가능 금액</div>
+                    <div class="balance-value" id="available-balance">0원</div>
+                </div>
+                <div class="balance-item">
+                    <div class="balance-label">총 평가 금액</div>
+                    <div class="balance-value primary" id="total-value">0원</div>
+                </div>
+                <div class="balance-item">
+                    <div class="balance-label">평가 손익</div>
+                    <div class="balance-value" id="profit-loss">0원 (0.00%)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Portfolio Chart -->
+        <div class="card">
+            <div class="card-header">📊 포트폴리오 차트</div>
+            <div class="chart-container">
+                <canvas id="portfolio-chart" style="max-height: 300px;"></canvas>
             </div>
         </div>
 
@@ -373,7 +416,6 @@
         const statusText = document.getElementById('status-text');
         const priceContainer = document.getElementById('price-container');
         const notificationsContainer = document.getElementById('notifications-container');
-        const marketSelector = document.getElementById('market-selector');
 
         // Socket.IO Event Handlers
         socket.on('connect', () => {
@@ -537,29 +579,151 @@
             }).join('');
         }
 
-        // Market selector
-        marketSelector.addEventListener('click', (e) => {
-            if (e.target.classList.contains('market-tag')) {
-                const market = e.target.dataset.market;
-                const isActive = e.target.classList.contains('active');
+        // Portfolio Chart
+        let portfolioChart = null;
 
-                if (isActive) {
-                    // Unsubscribe
-                    e.target.classList.remove('active');
-                    state.subscribedMarkets.delete(market);
-                    socket.emit('unsubscribe_market', { market });
-                    console.log(`[WebSocket] Unsubscribed from ${market}`);
-                } else {
-                    // Subscribe
-                    e.target.classList.add('active');
-                    state.subscribedMarkets.add(market);
-                    socket.emit('subscribe_market', { market });
-                    console.log(`[WebSocket] Subscribed to ${market}`);
+        function createPortfolioChart(holdings) {
+            const canvas = document.getElementById('portfolio-chart');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+
+            // Destroy existing chart
+            if (portfolioChart) {
+                portfolioChart.destroy();
+            }
+
+            // Prepare data
+            const labels = holdings.map(h => h.coin);
+            const data = holdings.map(h => parseFloat(h.value) || 0);
+            const colors = [
+                '#667eea', '#764ba2', '#f093fb', '#4facfe',
+                '#43e97b', '#fa709a', '#fee140', '#30cfd0'
+            ];
+
+            // Create chart
+            portfolioChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors.slice(0, holdings.length),
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(2);
+                                    return `${context.label}: ${value.toLocaleString()}원 (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load balance info
+        async function loadBalanceInfo() {
+            try {
+                const token = localStorage.getItem('access_token');
+                if (!token) return;
+
+                const response = await fetch('https://coinpulse.sinsi.ai/api/balance', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) return;
+
+                const data = await response.json();
+                if (!data.success) return;
+
+                // Update balance display
+                const krwBalance = data.balance || [];
+                const krwAccount = krwBalance.find(b => b.currency === 'KRW');
+
+                if (krwAccount) {
+                    const balance = parseFloat(krwAccount.balance) || 0;
+                    const locked = parseFloat(krwAccount.locked) || 0;
+                    const available = balance - locked;
+
+                    document.getElementById('krw-balance').textContent =
+                        balance.toLocaleString() + '원';
+                    document.getElementById('available-balance').textContent =
+                        available.toLocaleString() + '원';
                 }
 
-                renderPrices();
+                // Load holdings for total value
+                const holdingsResponse = await fetch('https://coinpulse.sinsi.ai/api/holdings', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (holdingsResponse.ok) {
+                    const holdingsData = await holdingsResponse.json();
+                    if (holdingsData.success && holdingsData.holdings) {
+                        const holdings = holdingsData.holdings;
+
+                        // Calculate total value
+                        let totalValue = 0;
+                        let totalInvested = 0;
+
+                        holdings.forEach(h => {
+                            totalValue += parseFloat(h.value) || 0;
+                            totalInvested += parseFloat(h.avg_buy_price) * parseFloat(h.balance) || 0;
+                        });
+
+                        // Add KRW balance
+                        if (krwAccount) {
+                            totalValue += parseFloat(krwAccount.balance) || 0;
+                        }
+
+                        const profitLoss = totalValue - totalInvested;
+                        const profitLossPercent = totalInvested > 0 ?
+                            ((profitLoss / totalInvested) * 100).toFixed(2) : 0;
+
+                        document.getElementById('total-value').textContent =
+                            totalValue.toLocaleString() + '원';
+
+                        const profitLossEl = document.getElementById('profit-loss');
+                        profitLossEl.textContent =
+                            `${profitLoss >= 0 ? '+' : ''}${profitLoss.toLocaleString()}원 (${profitLossPercent}%)`;
+                        profitLossEl.className = profitLoss >= 0 ?
+                            'balance-value positive' : 'balance-value negative';
+
+                        // Create chart
+                        const chartData = holdings.filter(h => parseFloat(h.value) > 0);
+                        if (chartData.length > 0) {
+                            createPortfolioChart(chartData);
+                        }
+                    }
+                }
+
+            } catch (error) {
+                console.error('[Balance] Error loading balance:', error);
             }
-        });
+        }
 
         // Fetch portfolio status periodically
         async function fetchPortfolioStatus() {
@@ -583,6 +747,10 @@
         renderPrices();
         fetchPortfolioStatus();
         setInterval(fetchPortfolioStatus, 5000); // Update every 5 seconds
+
+        // Load balance info on init
+        loadBalanceInfo();
+        setInterval(loadBalanceInfo, 10000); // Update every 10 seconds
 
         console.log('[Dashboard] Initialized');
     </script>
