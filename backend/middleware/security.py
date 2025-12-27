@@ -121,6 +121,14 @@ class RateLimiter:
         if path_without_query.startswith('/api/admin/'):
             return True, 0
 
+        # Exclude coin price endpoints (public data, no rate limit needed)
+        if path_without_query.startswith('/api/coin-prices/'):
+            return True, 0
+
+        # Exclude balance history endpoints (already secured by JWT tokens, high frequency)
+        if path_without_query.startswith('/api/balance/'):
+            return True, 0
+
         # Exclude auth and data GET endpoints (already secured by JWT tokens)
         auth_get_endpoints = [
             '/api/auth/me',
