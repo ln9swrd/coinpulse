@@ -424,17 +424,23 @@
                     if (holdingsData.success && holdingsData.coins) {
                         const holdings = holdingsData.coins;
                         console.log('[Holdings] Holdings count:', holdings.length);
+                        console.log('[Holdings] First coin sample:', holdings[0]);
 
                         // Calculate total value
                         let totalValue = 0;
                         let totalInvested = 0;
 
                         holdings.forEach(h => {
-                            const value = parseFloat(h.value) || 0;
-                            const invested = parseFloat(h.avg_buy_price) * parseFloat(h.balance) || 0;
+                            // Check what fields are available
+                            const currency = h.currency || h.coin || 'unknown';
+                            const value = parseFloat(h.value || h.current_value || 0);
+                            const balance = parseFloat(h.balance || h.amount || 0);
+                            const avgPrice = parseFloat(h.avg_buy_price || h.avg_price || 0);
+                            const invested = avgPrice * balance;
+
                             totalValue += value;
                             totalInvested += invested;
-                            console.log(`[Holdings] ${h.currency}: value=${value}, invested=${invested}`);
+                            console.log(`[Holdings] ${currency}: value=${value}, balance=${balance}, avgPrice=${avgPrice}, invested=${invested}`);
                         });
 
                         // Add KRW balance
