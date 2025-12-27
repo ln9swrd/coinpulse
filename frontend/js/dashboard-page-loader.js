@@ -86,8 +86,10 @@
                 }
 
                 // Load page content for other pages
+                // Disable cache for history to ensure fresh JS execution
+                const useCache = pageName !== 'history' && pageName !== 'overview';
                 await pageLoader.loadPage(filePath, contentContainer, {
-                    useCache: true,
+                    useCache: useCache,
                     showLoading: true,
                     extractBody: true,
                     executeScripts: true
