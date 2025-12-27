@@ -9,7 +9,7 @@ Usage:
 
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from collections import defaultdict
 
 # Add parent directory to path
@@ -111,7 +111,7 @@ def backfill_balance_history(user_id, days=90):
                 break
 
             # 90일 이전 주문은 제외
-            cutoff_date = datetime.utcnow() - timedelta(days=days)
+            cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
             filtered_orders = [
                 order for order in orders
                 if datetime.fromisoformat(order['created_at'].replace('Z', '+00:00')) > cutoff_date
@@ -138,7 +138,7 @@ def backfill_balance_history(user_id, days=90):
         withdraws = api.get_withdraws(limit=100)
 
         # 90일 이전 제외
-        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
         deposits = [
             d for d in deposits
             if datetime.fromisoformat(d['created_at'].replace('Z', '+00:00')) > cutoff_date
@@ -197,7 +197,7 @@ def backfill_balance_history(user_id, days=90):
     daily_snapshots = {}
 
     # 오늘 스냅샷 (현재 상태)
-    today = datetime.utcnow().date()
+    today = datetime.now(timezone.utc).date()
     daily_snapshots[str(today)] = create_snapshot(balance_tracker, api, today)
 
     # 거래를 역으로 적용하며 과거 복원
