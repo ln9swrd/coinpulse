@@ -403,7 +403,11 @@ async function loadPricingPlans() {
 
         console.log('[Pricing] Loading plans:', plans.length, plans.map(p => p.plan_code));
 
-        container.innerHTML = plans.map((plan, index) => {
+        // 엔터프라이즈 플랜 제외
+        const filteredPlans = plans.filter(plan => plan.plan_code !== 'enterprise');
+        console.log('[Pricing] Filtered plans (without enterprise):', filteredPlans.length);
+
+        container.innerHTML = filteredPlans.map((plan, index) => {
             const isFree = plan.plan_code === 'free';
             const isEnterprise = plan.plan_code === 'enterprise';
             const isFeatured = plan.display?.is_featured || isEnterprise; // Enterprise도 featured로
