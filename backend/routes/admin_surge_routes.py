@@ -6,7 +6,7 @@ Admin Surge Settings Routes
 from flask import Blueprint, jsonify, request
 from backend.database.connection import get_db_session
 from backend.models.surge_system_settings import SurgeSystemSettings
-from backend.middleware.auth_middleware import admin_required
+from backend.middleware.auth import admin_required
 from sqlalchemy import text
 
 admin_surge_bp = Blueprint('admin_surge', __name__)
@@ -14,7 +14,7 @@ admin_surge_bp = Blueprint('admin_surge', __name__)
 
 @admin_surge_bp.route('/api/admin/surge/settings', methods=['GET'])
 @admin_required
-def get_surge_settings():
+def get_surge_settings(current_user):
     """
     Get current surge system settings
 
@@ -52,7 +52,7 @@ def get_surge_settings():
 
 @admin_surge_bp.route('/api/admin/surge/settings', methods=['PUT'])
 @admin_required
-def update_surge_settings():
+def update_surge_settings(current_user):
     """
     Update surge system settings
 
@@ -83,7 +83,7 @@ def update_surge_settings():
     """
     try:
         data = request.get_json()
-        admin_email = request.user_email  # From middleware
+        admin_email = current_user.email  # From admin_required decorator
 
         with get_db_session() as session:
             settings = session.query(SurgeSystemSettings).filter_by(id=1).first()
@@ -136,7 +136,7 @@ def update_surge_settings():
 
 @admin_surge_bp.route('/api/admin/surge/status', methods=['GET'])
 @admin_required
-def get_surge_status():
+def get_surge_status(current_user):
     """
     Get current surge system status
 
@@ -201,7 +201,7 @@ def get_surge_status():
 
 @admin_surge_bp.route('/api/admin/surge/restart', methods=['POST'])
 @admin_required
-def restart_surge_worker():
+def restart_surge_worker(current_user):
     """
     Restart surge worker and scheduler
     (실제 구현은 app.py에서 워커 재시작 로직 필요)
@@ -237,7 +237,7 @@ def restart_surge_worker():
 
 @admin_surge_bp.route('/api/admin/surge/test', methods=['POST'])
 @admin_required
-def test_surge_detection():
+def test_surge_detection(current_user):
     """
     Test surge detection with current settings
 
