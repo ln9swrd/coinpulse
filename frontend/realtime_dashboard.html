@@ -368,7 +368,7 @@
             try {
                 console.log(`[Balance] Fetching ${days} days of history from API...`);
 
-                const token = localStorage.getItem('token');
+                const token = localStorage.getItem('access_token');
                 if (!token) {
                     console.warn('[Balance] No auth token, cannot fetch history');
                     return [];
@@ -404,7 +404,7 @@
             try {
                 console.log('[Balance] Capturing current balance snapshot...');
 
-                const token = localStorage.getItem('token');
+                const token = localStorage.getItem('access_token');
                 if (!token) {
                     console.warn('[Balance] No auth token, cannot capture snapshot');
                     return false;
@@ -764,18 +764,12 @@
 
         // Initialize - Check login status first
         if (checkLoginStatus()) {
-            // Load initial chart (will show sample data if available)
+            // Load initial chart from API
             createChart();
 
             // User is logged in, load data
             loadBalanceInfo();
             setInterval(loadBalanceInfo, 10000); // Update every 10 seconds
-        }
-
-        // Add event listener for clear history button
-        const clearBtn = document.getElementById('clear-history-btn');
-        if (clearBtn) {
-            clearBtn.addEventListener('click', clearHistory);
         }
 
         console.log('[Dashboard] Initialized');
