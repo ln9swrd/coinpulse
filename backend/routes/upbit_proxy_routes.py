@@ -78,25 +78,31 @@ def get_candles(interval):
     """
     Proxy endpoint for Upbit candle data
 
-    Intervals: minutes/1, minutes/3, minutes/5, minutes/10, minutes/15,
-               minutes/30, minutes/60, minutes/240, days, weeks, months
+    Intervals: minutes, days, weeks, months
 
     Query params:
         market: Market code (e.g., KRW-BTC)
         count: Number of candles (max 200, default 200)
+        unit: Unit for minutes interval (1, 3, 5, 10, 15, 30, 60, 240)
         to: End time (ISO 8601 format, optional)
     """
     try:
         market = request.args.get('market', 'KRW-BTC')
         count = request.args.get('count', 200, type=int)
+        unit = request.args.get('unit', type=int)
         to = request.args.get('to')
 
         # Validate count
         if count > 200:
             count = 200
 
-        # Build Upbit API URL
-        upbit_url = f"{UPBIT_BASE_URL}/v1/candles/{interval}"
+        # Build Upbit API URL with unit for minutes interval
+        if interval == 'minutes' and unit:
+            # For minutes candles, append unit to URL
+            upbit_url = f"{UPBIT_BASE_URL}/v1/candles/{interval}/{unit}"
+        else:
+            # For days, weeks, months - no unit needed
+            upbit_url = f"{UPBIT_BASE_URL}/v1/candles/{interval}"
 
         # Build query parameters
         params = {
@@ -106,7 +112,7 @@ def get_candles(interval):
         if to:
             params['to'] = to
 
-        logger.info(f"[UpbitProxy] Fetching {interval} candles for {market}, count={count}")
+        logger.info(f"[UpbitProxy] Fetching {interval} candles for {market}, count={count}, unit={unit}")
 
         # Make request to Upbit API
         response = requests.get(upbit_url, params=params, timeout=10)

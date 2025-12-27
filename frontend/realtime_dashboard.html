@@ -242,8 +242,8 @@
                     기록 초기화
                 </button>
             </div>
-            <div style="padding: 20px; height: 600px; position: relative;">
-                <canvas id="balance-chart"></canvas>
+            <div style="padding: 20px;">
+                <div id="balance-chart"></div>
             </div>
         </div>
 
@@ -286,7 +286,7 @@
                     console.log('[Dashboard] Starting library loading...');
 
                     // Load libraries in sequence
-                    await loadScript('https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js');
+                    await loadScript('https://cdn.jsdelivr.net/npm/apexcharts@3.45.1/dist/apexcharts.min.js');
                     await loadScript('js/coin_info.js?v=20251227');
                     await loadScript('js/notification_system.js?v=20251227');
 
@@ -450,15 +450,14 @@
         }
 
         function createChart() {
-            const ctx = document.getElementById('balance-chart');
-            if (!ctx) return;
+            const chartElement = document.getElementById('balance-chart');
+            if (!chartElement) return;
 
             const history = getBalanceHistory();
             if (history.length === 0) return;
 
             // Always group by day for consistent daily view
             console.log('[Chart] Grouping by day (daily view)');
-            const xAxisLabel = '날짜';
             const dataByDate = {};
 
             history.forEach(d => {
@@ -489,7 +488,7 @@
             });
 
             // Use aggregated data for chart
-            const labels = aggregatedData.map(d => d.label);
+            const categories = aggregatedData.map(d => d.label);
             const krwData = aggregatedData.map(d => d.krw);
             const availableData = aggregatedData.map(d => d.available);
             const totalData = aggregatedData.map(d => d.total);
@@ -498,140 +497,135 @@
                 balanceChart.destroy();
             }
 
-            balanceChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: '총 잔고액 (KRW)',
-                            data: krwData,
-                            borderColor: 'rgb(102, 126, 234)',
-                            backgroundColor: 'rgba(102, 126, 234, 0.3)',
-                            fill: true,
-                            tension: 0.4,
-                            borderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                            pointBackgroundColor: 'rgb(102, 126, 234)',
-                            yAxisID: 'y-left'
-                        },
-                        {
-                            label: '주문가능액',
-                            data: availableData,
-                            borderColor: 'rgb(16, 185, 129)',
-                            backgroundColor: 'rgba(16, 185, 129, 0.3)',
-                            fill: true,
-                            tension: 0.4,
-                            borderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                            pointBackgroundColor: 'rgb(16, 185, 129)',
-                            yAxisID: 'y-left'
-                        },
-                        {
-                            label: '포트폴리오 총액',
-                            data: totalData,
-                            borderColor: 'rgb(239, 68, 68)',
-                            backgroundColor: 'rgba(239, 68, 68, 0.3)',
-                            fill: true,
-                            tension: 0.4,
-                            borderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                            pointBackgroundColor: 'rgb(239, 68, 68)',
-                            yAxisID: 'y-right'
+            const options = {
+                series: [
+                    {
+                        name: '총 잔고액 (KRW)',
+                        type: 'area',
+                        data: krwData
+                    },
+                    {
+                        name: '주문가능액',
+                        type: 'area',
+                        data: availableData
+                    },
+                    {
+                        name: '포트폴리오 총액',
+                        type: 'line',
+                        data: totalData
+                    }
+                ],
+                chart: {
+                    height: 550,
+                    type: 'line',
+                    stacked: false,
+                    toolbar: {
+                        show: true,
+                        tools: {
+                            download: true,
+                            selection: true,
+                            zoom: true,
+                            zoomin: true,
+                            zoomout: true,
+                            pan: true,
+                            reset: true
                         }
-                    ]
+                    },
+                    animations: {
+                        enabled: true,
+                        easing: 'easeinout',
+                        speed: 800
+                    }
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false
+                colors: ['#667eea', '#10b981', '#ef4444'],
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    width: [2, 2, 3],
+                    curve: 'smooth'
+                },
+                fill: {
+                    type: ['gradient', 'gradient', 'solid'],
+                    gradient: {
+                        opacityFrom: 0.6,
+                        opacityTo: 0.1
+                    }
+                },
+                xaxis: {
+                    categories: categories,
+                    title: {
+                        text: '날짜'
                     },
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top'
+                    labels: {
+                        rotate: 0,
+                        maxHeight: 120
+                    }
+                },
+                yaxis: [
+                    {
+                        seriesName: '총 잔고액 (KRW)',
+                        title: {
+                            text: 'KRW 잔고 (원)',
+                            style: {
+                                color: '#667eea'
+                            }
                         },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    label += context.parsed.y.toLocaleString() + '원';
-                                    return label;
-                                }
+                        labels: {
+                            formatter: function(value) {
+                                return value ? value.toLocaleString() + '원' : '0원';
+                            },
+                            style: {
+                                colors: '#667eea'
                             }
                         }
                     },
-                    scales: {
-                        'y-left': {
-                            type: 'linear',
-                            position: 'left',
-                            beginAtZero: false,
-                            title: {
-                                display: true,
-                                text: 'KRW 잔고 (원)',
-                                color: 'rgb(102, 126, 234)'
-                            },
-                            ticks: {
-                                callback: function(value) {
-                                    return value.toLocaleString() + '원';
-                                },
-                                color: 'rgb(102, 126, 234)'
-                            },
-                            grid: {
-                                drawOnChartArea: false
+                    {
+                        seriesName: '총 잔고액 (KRW)',
+                        show: false
+                    },
+                    {
+                        opposite: true,
+                        seriesName: '포트폴리오 총액',
+                        title: {
+                            text: '포트폴리오 총액 (원)',
+                            style: {
+                                color: '#ef4444'
                             }
                         },
-                        'y-right': {
-                            type: 'linear',
-                            position: 'right',
-                            beginAtZero: false,
-                            title: {
-                                display: true,
-                                text: '포트폴리오 총액 (원)',
-                                color: 'rgb(239, 68, 68)'
+                        labels: {
+                            formatter: function(value) {
+                                return value ? value.toLocaleString() + '원' : '0원';
                             },
-                            ticks: {
-                                callback: function(value) {
-                                    return value.toLocaleString() + '원';
-                                },
-                                color: 'rgb(239, 68, 68)'
-                            },
-                            grid: {
-                                drawOnChartArea: true
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: xAxisLabel
-                            },
-                            ticks: {
-                                maxRotation: 0,
-                                minRotation: 0,
-                                maxTicksLimit: 10,
-                                autoSkip: true,
-                                callback: function(value, index, ticks) {
-                                    // Show only unique dates (skip duplicate consecutive labels)
-                                    const currentLabel = this.getLabelForValue(value);
-                                    if (index === 0) return currentLabel;
-                                    const previousLabel = this.getLabelForValue(ticks[index - 1].value);
-                                    return currentLabel !== previousLabel ? currentLabel : '';
-                                }
+                            style: {
+                                colors: '#ef4444'
                             }
                         }
                     }
+                ],
+                legend: {
+                    show: true,
+                    position: 'top',
+                    horizontalAlign: 'left'
+                },
+                tooltip: {
+                    shared: true,
+                    intersect: false,
+                    y: {
+                        formatter: function(value) {
+                            return value ? value.toLocaleString() + '원' : '0원';
+                        }
+                    }
+                },
+                grid: {
+                    borderColor: '#e5e7eb'
                 }
-            });
+            };
 
-            console.log('[Chart] Created with', history.length, 'data points');
+            balanceChart = new ApexCharts(chartElement, options);
+            balanceChart.render();
+
+            console.log('[Chart] ApexCharts created with', history.length, 'data points');
         }
 
         function updateChart() {
@@ -672,11 +666,32 @@
                 };
             });
 
-            balanceChart.data.labels = aggregatedData.map(d => d.label);
-            balanceChart.data.datasets[0].data = aggregatedData.map(d => d.krw);
-            balanceChart.data.datasets[1].data = aggregatedData.map(d => d.available);
-            balanceChart.data.datasets[2].data = aggregatedData.map(d => d.total);
-            balanceChart.update('none'); // 'none' mode for better performance
+            // Update ApexCharts data
+            const categories = aggregatedData.map(d => d.label);
+            const krwData = aggregatedData.map(d => d.krw);
+            const availableData = aggregatedData.map(d => d.available);
+            const totalData = aggregatedData.map(d => d.total);
+
+            balanceChart.updateOptions({
+                xaxis: {
+                    categories: categories
+                }
+            }, false, false);
+
+            balanceChart.updateSeries([
+                {
+                    name: '총 잔고액 (KRW)',
+                    data: krwData
+                },
+                {
+                    name: '주문가능액',
+                    data: availableData
+                },
+                {
+                    name: '포트폴리오 총액',
+                    data: totalData
+                }
+            ], false);
         }
 
         function clearHistory() {
