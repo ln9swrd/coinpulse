@@ -414,7 +414,7 @@
                 }
 
                 // Get active orders count
-                const ordersResponse = await fetch(`${window.API_BASE}/api/upbit/orders?state=wait`, {
+                const ordersResponse = await fetch(`${window.API_BASE}/api/orders?state=wait`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
