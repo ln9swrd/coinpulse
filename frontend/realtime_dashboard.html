@@ -421,8 +421,8 @@
                     const holdingsData = await holdingsResponse.json();
                     console.log('[Holdings] Response data:', holdingsData);
 
-                    if (holdingsData.success && holdingsData.holdings) {
-                        const holdings = holdingsData.holdings;
+                    if (holdingsData.success && holdingsData.coins) {
+                        const holdings = holdingsData.coins;
                         console.log('[Holdings] Holdings count:', holdings.length);
 
                         // Calculate total value
