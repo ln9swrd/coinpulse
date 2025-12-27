@@ -460,7 +460,7 @@
             if (!chartElement) return;
 
             // Fetch history from API (365 days to show full year of data)
-            const history = await fetchBalanceHistory(365);
+            const history = await fetchBalanceHistory(2000);
             if (history.length === 0) {
                 console.log('[Chart] No historical data available');
                 return;
