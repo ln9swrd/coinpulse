@@ -535,6 +535,11 @@
                         enabled: true,
                         easing: 'easeinout',
                         speed: 800
+                    },
+                    zoom: {
+                        enabled: true,
+                        type: 'x',
+                        autoScaleYaxis: true
                     }
                 },
                 colors: ['#667eea', '#10b981', '#ef4444'],
@@ -558,9 +563,17 @@
                         text: '날짜'
                     },
                     labels: {
-                        rotate: 0,
-                        maxHeight: 120
-                    }
+                        rotate: -45,
+                        rotateAlways: false,
+                        hideOverlappingLabels: true,
+                        showDuplicates: false,
+                        trim: false,
+                        style: {
+                            fontSize: '11px'
+                        }
+                    },
+                    tickAmount: Math.min(categories.length, 30),
+                    tickPlacement: 'on'
                 },
                 yaxis: [
                     {
