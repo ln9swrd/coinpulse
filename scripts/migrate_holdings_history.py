@@ -15,14 +15,23 @@ from sqlalchemy import text, inspect
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from backend.database.connection import get_db_session, engine
+from backend.database.connection import get_db_session, get_engine
 
 
-def check_column_exists(table_name, column_name):
+def check_column_exists(db, table_name, column_name):
     """Check if column exists in table"""
-    inspector = inspect(engine)
-    columns = [col['name'] for col in inspector.get_columns(table_name)]
-    return column_name in columns
+    try:
+        result = db.execute(text(f"""
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_name='{table_name}' AND column_name='{column_name}'
+        """))
+        return result.fetchone() is not None
+    except:
+        # Fallback for SQLite
+        result = db.execute(text(f"PRAGMA table_info({table_name})"))
+        columns = [row[1] for row in result.fetchall()]
+        return column_name in columns
 
 
 def migrate():
@@ -33,7 +42,7 @@ def migrate():
 
     try:
         # Check if user_id column already exists
-        if check_column_exists('holdings_history', 'user_id'):
+        if check_column_exists(db, 'holdings_history', 'user_id'):
             print("[Migration] ✓ user_id column already exists, skipping migration")
             return
 
