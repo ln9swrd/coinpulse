@@ -127,6 +127,21 @@
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
         }
 
+        .candidate-card:not(.locked):hover::after {
+            content: '📈 차트 보기';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(102, 126, 234, 0.95);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 600;
+            pointer-events: none;
+            z-index: 10;
+        }
+
         .candidate-card.high-score {
             border-color: #10b981;
             background: #f0fdf4;
@@ -653,6 +668,15 @@
                     </div>
                     ${createDetailedSignals(candidate)}
                 `;
+
+                // 클릭 이벤트 추가: 새 탭에서 차트 열기
+                card.addEventListener('click', (e) => {
+                    // 버튼이나 링크 클릭은 무시
+                    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') {
+                        return;
+                    }
+                    window.open(`trading_chart.html?market=${encodeURIComponent(candidate.market)}`, '_blank');
+                });
             }
 
             return card;

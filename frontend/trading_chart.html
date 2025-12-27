@@ -659,5 +659,54 @@
             <span style="margin-left: 16px; opacity: 0.8; font-size: 12px;">(ESC to cancel)</span>
         </div>
     </div>
+
+    <!-- URL 파라미터 처리 스크립트 -->
+    <script>
+        (function() {
+            // URL에서 market 파라미터 읽기
+            const urlParams = new URLSearchParams(window.location.search);
+            const market = urlParams.get('market');
+
+            if (market) {
+                console.log('[TradingChart] Market parameter detected:', market);
+
+                // 페이지 로드 후 코인 선택 변경
+                window.addEventListener('load', function() {
+                    const coinSelect = document.getElementById('coin-select');
+                    if (coinSelect) {
+                        // 약간의 지연을 두어 코인 목록이 로드될 때까지 대기
+                        setTimeout(function() {
+                            // 해당 마켓이 옵션에 있는지 확인
+                            const option = Array.from(coinSelect.options).find(opt => opt.value === market);
+
+                            if (option) {
+                                // 마켓 선택
+                                coinSelect.value = market;
+                                console.log('[TradingChart] Market selected:', market);
+
+                                // change 이벤트 발생시켜 차트 로드
+                                const event = new Event('change', { bubbles: true });
+                                coinSelect.dispatchEvent(event);
+                            } else {
+                                console.warn('[TradingChart] Market not found in options:', market);
+
+                                // 옵션이 없으면 추가 후 선택 (동적 로딩 대비)
+                                const newOption = document.createElement('option');
+                                newOption.value = market;
+                                newOption.textContent = market;
+                                coinSelect.appendChild(newOption);
+                                coinSelect.value = market;
+
+                                const event = new Event('change', { bubbles: true });
+                                coinSelect.dispatchEvent(event);
+                            }
+                        }, 1000); // 1초 대기
+                    } else {
+                        console.error('[TradingChart] coin-select element not found');
+                    }
+                });
+            }
+        })();
+    </script>
 </body>
 </html>

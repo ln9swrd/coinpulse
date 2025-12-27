@@ -55,6 +55,19 @@
             background: #f8f9fa;
         }
 
+        .coin-link {
+            color: #667eea;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .coin-link:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
         /* Mobile responsive */
         @media (max-width: 768px) {
             .table-container {
@@ -483,7 +496,11 @@
                     html += `
                         <tr>
                             <td style="white-space: nowrap;">${receivedAt}</td>
-                            <td><strong>${signal.coin || signal.market}</strong></td>
+                            <td>
+                                <a class="coin-link" href="trading_chart.html?market=${encodeURIComponent(signal.market)}" target="_blank" title="차트에서 보기">
+                                    ${signal.coin || signal.market} 📈
+                                </a>
+                            </td>
                             <td>${signal.confidence}%</td>
                             <td>${formatPrice(signal.entry_price)}</td>
                             <td style="color: #10b981;">${formatPrice(signal.target_price)}</td>
