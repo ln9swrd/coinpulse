@@ -34,6 +34,7 @@ from backend.routes.user_signals_routes import user_signals_bp  # User signals h
 from backend.routes.telegram_link_routes import telegram_link_bp  # Telegram account linking
 from backend.routes.holdings_routes import holdings_bp
 from backend.routes.balance_history_routes import balance_history_bp  # Balance history tracking
+from backend.routes.coin_price_routes import coin_price_bp  # Coin price history (shared BTC/ETH/XRP)
 from backend.routes.auto_trading_routes import auto_trading_bp
 from backend.routes.subscription_routes import subscription_bp  # ✅ Re-enabled
 from backend.routes.payment import payment_bp  # Payment routes
@@ -221,6 +222,7 @@ def register_blueprints():
         (telegram_link_bp, None),  # Telegram linking routes (already has /api/telegram prefix)
         (holdings_bp, None),  # Holdings routes (already has /api prefix in routes)
         (balance_history_bp, None),  # Balance history tracking (already has /api/balance prefix)
+        (coin_price_bp, None),  # Coin price history (shared BTC/ETH/XRP, already has /api/coin-prices prefix)
         (auto_trading_bp, '/api'),
         (payment_bp, '/api/payment'),  # Payment routes
         (subscription_bp, None),  # ✅ Re-enabled - Subscription routes (already has /api/subscription prefix)
