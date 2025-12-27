@@ -242,7 +242,7 @@
                     기록 초기화
                 </button>
             </div>
-            <div style="padding: 20px; height: 400px; position: relative;">
+            <div style="padding: 20px; height: 600px; position: relative;">
                 <canvas id="balance-chart"></canvas>
             </div>
         </div>
@@ -387,9 +387,17 @@
             const history = getBalanceHistory();
             const now = new Date();
 
+            // Format: MM/DD HH:MM
+            const timeLabel = now.toLocaleString('ko-KR', {
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            }).replace(/\. /g, '/').replace('.', '');
+
             history.push({
                 timestamp: now.toISOString(),
-                time: now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
+                time: timeLabel,
                 krw: krwBalance,
                 available: availableBalance,
                 total: totalValue
@@ -516,7 +524,9 @@
                         x: {
                             ticks: {
                                 maxRotation: 45,
-                                minRotation: 45
+                                minRotation: 45,
+                                maxTicksLimit: 20,
+                                autoSkip: true
                             }
                         }
                     }
