@@ -149,9 +149,13 @@ class PositionMonitorService:
                     return None
 
                 # Re-analyze surge signal with current data
-                analysis_result = self.predictor.analyze_surge_candidate(
-                    market=position.market,
-                    candles=candles
+                # Extract coin symbol from market (e.g., "KRW-AXL" -> "AXL")
+                coin_symbol = position.market.split('-')[1] if '-' in position.market else position.market
+
+                analysis_result = self.predictor.analyze_coin(
+                    coin_symbol=coin_symbol,
+                    candle_data=candles,
+                    current_price=current_price
                 )
 
                 if not analysis_result:
