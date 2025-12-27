@@ -22,7 +22,16 @@
 
             <!-- Navigation Menu -->
             <nav class="sidebar-nav">
-                <!-- Dashboard -->
+                <!-- 모니터링 섹션 -->
+                <div class="nav-section-title">📊 모니터링</div>
+
+                <a href="#realtime" class="nav-item" data-page="realtime">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                    </svg>
+                    <span>대시보드</span>
+                </a>
+
                 <a href="#overview" class="nav-item active" data-page="overview">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <rect x="3" y="3" width="7" height="7"></rect>
@@ -30,11 +39,11 @@
                         <rect x="14" y="14" width="7" height="7"></rect>
                         <rect x="3" y="14" width="7" height="7"></rect>
                     </svg>
-                    <span>대시보드 홈</span>
+                    <span>개요</span>
                 </a>
 
                 <!-- 거래 섹션 -->
-                <div class="nav-section-title">거래</div>
+                <div class="nav-section-title">💹 거래</div>
 
                 <a href="#trading" class="nav-item" data-page="trading">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -121,7 +130,7 @@
                 </a>
 
                 <!-- 설정 -->
-                <div class="nav-section-title">설정</div>
+                <div class="nav-section-title">⚙️ 설정</div>
 
                 <a href="#settings" class="nav-item" data-page="settings">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -132,7 +141,7 @@
                 </a>
 
                 <!-- 관리자 섹션 (Admin only) -->
-                <div class="nav-section-title admin-only" id="admin-section-title" style="display: none;">관리자</div>
+                <div class="nav-section-title admin-only" id="admin-section-title" style="display: none;">👨‍💼 관리자</div>
 
                 <a href="#admin" class="nav-item admin-only" id="admin-menu-link" style="display: none;" onclick="event.preventDefault(); window.location.hash = 'admin';">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
