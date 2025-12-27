@@ -60,7 +60,165 @@ class PositionMonitorService:
         }
         self.predictor = SurgePredictor(self.config)
 
-        logger.info(f"[PositionMonitor] Initialized with AI analysis (interval: {check_interval}s)")
+        logger.info(f"[PositionMonitor] Initialized with AI + Support/Resistance analysis (interval: {check_interval}s)")
+
+    def calculate_atr(self, candles: List[Dict], period: int = 14) -> float:
+        """
+        Calculate Average True Range (ATR)
+
+        Args:
+            candles: List of candle data
+            period: ATR period (default: 14)
+
+        Returns:
+            ATR value
+        """
+        if not candles or len(candles) < period + 1:
+            return 0.0
+
+        true_ranges = []
+        for i in range(1, len(candles)):
+            current = candles[i]
+            previous = candles[i - 1]
+
+            tr = max(
+                current['high_price'] - current['low_price'],
+                abs(current['high_price'] - previous['trade_price']),
+                abs(current['low_price'] - previous['trade_price'])
+            )
+            true_ranges.append(tr)
+
+        # Take last 'period' TRs and average
+        recent_trs = true_ranges[-period:]
+        atr = sum(recent_trs) / len(recent_trs)
+        return atr
+
+    def calculate_support_resistance(self, candles: List[Dict], current_price: float) -> Dict:
+        """
+        Calculate support and resistance levels using pivot points + ATR
+
+        Args:
+            candles: List of candle data (at least 50 candles recommended)
+            current_price: Current market price
+
+        Returns:
+            Dict with 'supports' and 'resistances' lists, each containing price and strength
+        """
+        if not candles or len(candles) < 50:
+            logger.warning("[SR] Insufficient candles for S/R calculation (need 50+)")
+            return {'supports': [], 'resistances': []}
+
+        lookback = 5  # 5 candles lookback/forward for pivot points
+        levels = []
+
+        # Calculate ATR for dynamic tolerance
+        atr = self.calculate_atr(candles, 14)
+        dynamic_tolerance = (atr / current_price) if atr > 0 else 0.015  # Fallback to 1.5%
+
+        logger.debug(f"[SR] Using dynamic tolerance: {dynamic_tolerance*100:.2f}%, ATR: {atr:.2f}")
+
+        # Find pivot points
+        for i in range(lookback, len(candles) - lookback):
+            candle = candles[i]
+            is_resistance = True
+            is_support = True
+
+            # Check if this is a pivot high (resistance)
+            for j in range(1, lookback + 1):
+                if candle['high_price'] <= candles[i-j]['high_price'] or \
+                   candle['high_price'] <= candles[i+j]['high_price']:
+                    is_resistance = False
+                    break
+
+            # Check if this is a pivot low (support)
+            for j in range(1, lookback + 1):
+                if candle['low_price'] >= candles[i-j]['low_price'] or \
+                   candle['low_price'] >= candles[i+j]['low_price']:
+                    is_support = False
+                    break
+
+            if is_resistance:
+                levels.append({
+                    'price': candle['high_price'],
+                    'type': 'resistance',
+                    'index': i
+                })
+
+            if is_support:
+                levels.append({
+                    'price': candle['low_price'],
+                    'type': 'support',
+                    'index': i
+                })
+
+        # Merge similar levels (clustering)
+        merged_levels = self._merge_similar_levels(levels, dynamic_tolerance)
+
+        # Calculate strength for each level
+        all_prices = []
+        for c in candles:
+            all_prices.extend([c['high_price'], c['low_price']])
+
+        for level in merged_levels:
+            level['strength'] = self._calculate_level_strength(level['price'], all_prices, dynamic_tolerance)
+            level['distance_from_current'] = abs(level['price'] - current_price) / current_price
+            # Score: strength * (1 + proximity bonus)
+            level['score'] = level['strength'] * (1 + (1 - min(level['distance_from_current'] * 2, 1)))
+
+        # Sort by score and separate supports/resistances
+        merged_levels.sort(key=lambda x: x['score'], reverse=True)
+
+        supports = [l for l in merged_levels if l['type'] == 'support'][:3]
+        resistances = [l for l in merged_levels if l['type'] == 'resistance'][:3]
+
+        logger.debug(f"[SR] Found {len(supports)} supports, {len(resistances)} resistances")
+
+        return {
+            'supports': supports,
+            'resistances': resistances
+        }
+
+    def _merge_similar_levels(self, levels: List[Dict], tolerance: float) -> List[Dict]:
+        """Merge nearby price levels"""
+        if not levels:
+            return []
+
+        merged = []
+        sorted_levels = sorted(levels, key=lambda x: x['price'])
+
+        current_group = [sorted_levels[0]]
+
+        for i in range(1, len(sorted_levels)):
+            if abs(sorted_levels[i]['price'] - current_group[0]['price']) / current_group[0]['price'] < tolerance:
+                current_group.append(sorted_levels[i])
+            else:
+                # Average the group
+                avg_price = sum(l['price'] for l in current_group) / len(current_group)
+                merged.append({
+                    'price': avg_price,
+                    'type': current_group[0]['type'],
+                    'index': current_group[0]['index']
+                })
+                current_group = [sorted_levels[i]]
+
+        # Add last group
+        if current_group:
+            avg_price = sum(l['price'] for l in current_group) / len(current_group)
+            merged.append({
+                'price': avg_price,
+                'type': current_group[0]['type'],
+                'index': current_group[0]['index']
+            })
+
+        return merged
+
+    def _calculate_level_strength(self, level_price: float, all_prices: List[float], tolerance: float) -> float:
+        """Calculate how many times price touched this level"""
+        touches = 0
+        for price in all_prices:
+            if abs(price - level_price) / level_price < tolerance:
+                touches += 1
+        return touches
 
     def get_open_positions(self) -> List[SurgeAlert]:
         """
@@ -98,19 +256,21 @@ class PositionMonitorService:
         current_price: float
     ) -> Optional[str]:
         """
-        Check if position should be closed using AI analysis
+        Check if position should be closed using AI + Support/Resistance analysis
 
         Priority:
         1. Target/Stop loss (highest priority)
-        2. AI signal re-evaluation
-        3. Momentum/RSI/Volume analysis
+        2. Support/Resistance levels (NEW!)
+        3. AI signal re-evaluation
+        4. Momentum/RSI/Volume analysis
 
         Args:
             position: SurgeAlert object
             current_price: Current market price
 
         Returns:
-            Action to take: 'take_profit', 'stop_loss', 'signal_weakening', 'momentum_loss', 'overbought', or None
+            Action to take: 'take_profit', 'stop_loss', 'resistance_exit', 'support_hold',
+                            'signal_weakening', 'momentum_loss', 'overbought', or None
         """
         # Convert Decimal fields to float for calculations
         entry_price = float(position.entry_price) if position.entry_price else None
@@ -134,6 +294,47 @@ class PositionMonitorService:
             logger.info(f"[PositionMonitor] 🛑 Stop loss triggered for {position.market}")
             logger.info(f"  Entry: {entry_price:,} -> Current: {current_price:,} ({loss_pct:.2f}%)")
             return 'stop_loss'
+
+        # Priority 2.5: Support/Resistance analysis (NEW!)
+        try:
+            # Get fresh candle data for S/R analysis
+            candles = self.upbit_api.get_candles_days(position.market, count=50)
+
+            if candles and len(candles) >= 50:
+                sr_levels = self.calculate_support_resistance(candles, current_price)
+                current_profit_pct = ((current_price - entry_price) / entry_price) * 100
+
+                # Check resistance levels (매도 신호)
+                for resistance in sr_levels.get('resistances', []):
+                    resistance_price = resistance['price']
+                    distance_pct = abs(current_price - resistance_price) / resistance_price
+
+                    # If price is near resistance (within 1%) and in profit
+                    if distance_pct < 0.01 and current_profit_pct > 2.0:
+                        strength = resistance.get('strength', 0)
+                        logger.info(f"[PositionMonitor] 📊 Near resistance level for {position.market}")
+                        logger.info(f"  Current: {current_price:,}, Resistance: {resistance_price:,} (strength: {strength:.0f})")
+                        logger.info(f"  Current P/L: {current_profit_pct:+.2f}%")
+                        logger.info(f"  Decision: Early exit to lock profit before resistance rejection")
+                        return 'resistance_exit'
+
+                # Check support levels (손절 보류 신호)
+                for support in sr_levels.get('supports', []):
+                    support_price = support['price']
+                    distance_pct = abs(current_price - support_price) / support_price
+
+                    # If price is near support (within 1%) and near stop loss
+                    if distance_pct < 0.01 and stop_loss_price and current_price <= stop_loss_price * 1.02:
+                        strength = support.get('strength', 0)
+                        logger.info(f"[PositionMonitor] 📊 Near support level for {position.market}")
+                        logger.info(f"  Current: {current_price:,}, Support: {support_price:,} (strength: {strength:.0f})")
+                        logger.info(f"  Current P/L: {current_profit_pct:+.2f}%")
+                        logger.info(f"  Decision: Hold position - support bounce expected")
+                        # Return None to keep position open (support bounce expected)
+                        return None
+
+        except Exception as e:
+            logger.debug(f"[PositionMonitor] S/R analysis skipped for {position.market}: {e}")
 
         # Priority 3: AI-based early exit analysis
         # Only check if position is still profitable or break-even
@@ -222,6 +423,7 @@ class PositionMonitorService:
             reason: Reason for closing
                 - 'take_profit': Target price reached
                 - 'stop_loss': Stop loss triggered
+                - 'resistance_exit': Near resistance level (NEW!)
                 - 'signal_weakening': AI detected signal deterioration
                 - 'momentum_loss': Volume/momentum dried up
                 - 'overbought': RSI overbought with weak signal
@@ -273,6 +475,8 @@ class PositionMonitorService:
                         position.status = 'completed'  # Reached target
                     elif reason == 'stop_loss':
                         position.status = 'stopped'  # Hit stop loss
+                    elif reason == 'resistance_exit':
+                        position.status = 'sr_exit'  # Support/Resistance based exit
                     elif reason in ['signal_weakening', 'momentum_loss', 'overbought']:
                         position.status = 'ai_exit'  # AI-based early exit
                     else:
