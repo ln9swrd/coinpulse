@@ -44,7 +44,7 @@ def get_historical_price(api, market, timestamp):
     """
     try:
         # 일봉 1개만 가져오기
-        candles = api.get_candles(market=market, unit='days', count=1, to=f"{timestamp}T23:59:59Z")
+        candles = api.get_candles_days(market=market, count=1, to=f"{timestamp}T23:59:59Z")
         if candles and len(candles) > 0:
             return float(candles[0]['trade_price'])
     except Exception as e:
@@ -106,7 +106,7 @@ def backfill_balance_history(user_id, days=90):
 
     while page <= max_pages:
         try:
-            orders = api.get_order_list(state='done', limit=100, page=page)
+            orders = api.get_orders_history(state='done', limit=100, page=page)
             if not orders or len(orders) == 0:
                 break
 
