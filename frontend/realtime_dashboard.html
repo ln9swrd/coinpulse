@@ -438,26 +438,30 @@
     </div>
 
     <script>
-        // WebSocket Connection
-        const socket = io('https://coinpulse.sinsi.ai', {
-            transports: ['websocket', 'polling'],
-            reconnection: true,
-            reconnectionDelay: 1000,
-            reconnectionAttempts: 10
-        });
+        // Wrap in IIFE to avoid variable conflicts
+        (function() {
+            'use strict';
 
-        // State
-        const state = {
-            subscribedMarkets: new Set(['KRW-BTC', 'KRW-ETH', 'KRW-XRP']),
-            prices: {},
-            notifications: []
-        };
+            // WebSocket Connection
+            const socket = io('https://coinpulse.sinsi.ai', {
+                transports: ['websocket', 'polling'],
+                reconnection: true,
+                reconnectionDelay: 1000,
+                reconnectionAttempts: 10
+            });
 
-        // Elements
-        const connectionStatus = document.getElementById('connection-status');
-        const statusText = document.getElementById('status-text');
-        const priceContainer = document.getElementById('price-container');
-        const notificationsContainer = document.getElementById('notifications-container');
+            // State
+            const state = {
+                subscribedMarkets: new Set(['KRW-BTC', 'KRW-ETH', 'KRW-XRP']),
+                prices: {},
+                notifications: []
+            };
+
+            // Elements
+            const connectionStatus = document.getElementById('connection-status');
+            const statusText = document.getElementById('status-text');
+            const priceContainer = document.getElementById('price-container');
+            const notificationsContainer = document.getElementById('notifications-container');
 
         // Socket.IO Event Handlers
         socket.on('connect', () => {
@@ -900,6 +904,7 @@
         }
 
         console.log('[Dashboard] Initialized');
+        })(); // End of IIFE
     </script>
 
     <!-- Legal Disclaimer Footer -->
