@@ -182,7 +182,8 @@ def main():
     print()
 
     # Initialize API (no auth needed for public data)
-    api = UpbitAPI()
+    # Pass None for keys since we're only fetching public market data
+    api = UpbitAPI(access_key=None, secret_key=None)
 
     # Markets to fetch
     markets = ['KRW-BTC', 'KRW-ETH', 'KRW-XRP']
