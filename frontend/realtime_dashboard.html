@@ -681,35 +681,44 @@
             const chartElement = document.getElementById('coin-price-chart');
             if (!chartElement) return;
 
-            // Fetch history from API (365 days to show full year of data)
-            const history = await fetchBalanceHistory(365);
-            if (history.length === 0) {
-                console.log('[CoinChart] No historical data available');
-                return;
-            }
+            try {
+                // Fetch coin price history from shared API (no auth needed)
+                console.log('[CoinChart] Fetching coin price history...');
+                const response = await fetch('/api/coin-prices/history?markets=KRW-BTC,KRW-ETH,KRW-XRP&days=365');
 
-            console.log('[CoinChart] Creating coin price chart with', history.length, 'data points');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
 
-            // Extract data from API response
-            const categories = history.map(h => {
-                const parts = h.date.split('-');
-                const year = parts[0].slice(2); // YY (last 2 digits)
-                return `${year}-${parts[1]}-${parts[2]}`; // YY-MM-DD
-            });
+                const data = await response.json();
+                if (!data.success || !data.data) {
+                    console.log('[CoinChart] No coin price data available');
+                    return;
+                }
 
-            // Extract BTC/ETH/XRP prices from holdings_detail
-            const btcPrices = history.map(h => {
-                const refPrices = h.holdings_detail?.reference_prices;
-                return refPrices ? refPrices['KRW-BTC'] : null;
-            });
-            const ethPrices = history.map(h => {
-                const refPrices = h.holdings_detail?.reference_prices;
-                return refPrices ? refPrices['KRW-ETH'] : null;
-            });
-            const xrpPrices = history.map(h => {
-                const refPrices = h.holdings_detail?.reference_prices;
-                return refPrices ? refPrices['KRW-XRP'] : null;
-            });
+                console.log('[CoinChart] Loaded coin price data:', data);
+
+                // Get the longest series to determine date range
+                const btcData = data.data['KRW-BTC'] || [];
+                const ethData = data.data['KRW-ETH'] || [];
+                const xrpData = data.data['KRW-XRP'] || [];
+
+                if (btcData.length === 0 && ethData.length === 0 && xrpData.length === 0) {
+                    console.log('[CoinChart] No price data for any market');
+                    return;
+                }
+
+                // Use BTC dates as baseline (assuming all have same dates)
+                const categories = btcData.map(item => {
+                    const parts = item.date.split('-');
+                    const year = parts[0].slice(2); // YY (last 2 digits)
+                    return `${year}-${parts[1]}-${parts[2]}`; // YY-MM-DD
+                });
+
+                // Extract prices
+                const btcPrices = btcData.map(item => item.close_price);
+                const ethPrices = ethData.map(item => item.close_price);
+                const xrpPrices = xrpData.map(item => item.close_price);
 
             console.log('[CoinChart] Date range:', categories[0], 'to', categories[categories.length - 1]);
             console.log('[CoinChart] Data points:', categories.length);
@@ -826,10 +835,14 @@
                 }
             };
 
-            coinPriceChart = new ApexCharts(chartElement, options);
-            coinPriceChart.render();
+                coinPriceChart = new ApexCharts(chartElement, options);
+                coinPriceChart.render();
 
-            console.log('[CoinChart] ApexCharts created with', history.length, 'data points');
+                console.log('[CoinChart] ApexCharts created with', categories.length, 'data points');
+
+            } catch (error) {
+                console.error('[CoinChart] Error creating coin price chart:', error);
+            }
         }
 
 
