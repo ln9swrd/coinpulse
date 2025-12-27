@@ -119,9 +119,9 @@ async function loadOrders() {
 
         // Apply sorting
         orders.sort((a, b) => {
-            // Use kr_time first (pre-formatted), then fallback to executed_at/created_at
-            const dateStrA = a.kr_time || a.executed_at || a.created_at;
-            const dateStrB = b.kr_time || b.executed_at || b.created_at;
+            // Use kr_time first (if valid), then fallback to executed_at/created_at
+            const dateStrA = (a.kr_time && a.kr_time !== 'N/A') ? a.kr_time : (a.executed_at || a.created_at);
+            const dateStrB = (b.kr_time && b.kr_time !== 'N/A') ? b.kr_time : (b.executed_at || b.created_at);
 
             const dateA = new Date(dateStrA);
             const dateB = new Date(dateStrB);
@@ -164,7 +164,7 @@ function renderOrdersTable(orders) {
             <tbody>
                 ${orders.map(order => `
                     <tr>
-                        <td>${formatDate(order.kr_time || order.executed_at || order.created_at)}</td>
+                        <td>${formatDate((order.kr_time && order.kr_time !== 'N/A') ? order.kr_time : (order.executed_at || order.created_at))}</td>
                         <td><strong>${order.market}</strong></td>
                         <td>
                             <span class="badge ${order.side === 'bid' ? 'badge-buy' : 'badge-sell'}">
