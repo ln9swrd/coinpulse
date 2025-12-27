@@ -238,9 +238,14 @@
         <div class="card" id="chart-card">
             <div class="card-header">
                 📈 잔고 변화 추이
-                <button id="clear-history-btn" class="btn btn-sm" style="padding: 5px 10px; font-size: 12px;">
-                    기록 초기화
-                </button>
+                <div style="display: inline-flex; gap: 8px;">
+                    <button id="refresh-data-btn" class="btn btn-sm" style="padding: 5px 12px; font-size: 12px; background: #10b981; color: white; border: none;" onclick="refreshAllData()">
+                        🔄 데이터 새로고침
+                    </button>
+                    <button id="clear-history-btn" class="btn btn-sm" style="padding: 5px 10px; font-size: 12px;">
+                        기록 초기화
+                    </button>
+                </div>
             </div>
             <div style="padding: 20px;">
                 <div id="balance-chart"></div>
@@ -851,6 +856,21 @@
             }
         }
 
+        // Refresh all data (chart + balance)
+        async function refreshAllData() {
+            console.log('[Dashboard] Refreshing all data...');
+            await createChart();
+            await loadBalanceInfo();
+
+            const refreshBtn = document.getElementById('refresh-data-btn');
+            if (refreshBtn) {
+                refreshBtn.textContent = '✓ 새로고침 완료';
+                setTimeout(() => {
+                    refreshBtn.textContent = '🔄 데이터 새로고침';
+                }, 2000);
+            }
+        }
+
         // Initialize - Check login status first
         if (checkLoginStatus()) {
             // Load initial chart from API
@@ -858,7 +878,7 @@
 
             // User is logged in, load data
             loadBalanceInfo();
-            setInterval(loadBalanceInfo, 10000); // Update every 10 seconds
+            setInterval(loadBalanceInfo, 60000); // Update every 60 seconds (reduced from 10s)
         }
 
         console.log('[Dashboard] Initialized');
