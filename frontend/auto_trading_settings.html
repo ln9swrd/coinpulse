@@ -150,6 +150,36 @@
 
         <div id="alertContainer"></div>
 
+        <!-- Auto-Trading Status Card -->
+        <div id="status-card" class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px;">
+                <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <div id="status-indicator" style="width: 12px; height: 12px; border-radius: 50%; background: #fbbf24; animation: pulse 2s infinite;"></div>
+                        <h2 style="margin: 0; color: white;">자동매매 상태</h2>
+                    </div>
+                    <p id="status-message" style="margin: 0; font-size: 16px; opacity: 0.9;">
+                        설정을 불러오는 중...
+                    </p>
+                    <p id="status-detail" style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.7;">
+                        <!-- 상세 정보가 여기에 표시됩니다 -->
+                    </p>
+                </div>
+                <div id="status-action" style="display: none;">
+                    <button onclick="scrollToSave()" style="padding: 12px 24px; background: white; color: #667eea; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;">
+                        ⚙️ 설정 시작하기
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            @keyframes pulse {
+                0%, 100% { opacity: 1; transform: scale(1); }
+                50% { opacity: 0.5; transform: scale(1.1); }
+            }
+        </style>
+
         <!-- Plan Restriction Notice -->
         <div id="plan-restriction" style="display: none;" class="card">
             <div style="text-align: center; padding: 40px;">
@@ -547,13 +577,69 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        showAlert('설정이 저장되었습니다.', 'success');
+                        // Update status card to show active state
+                        updateStatusCard(true, true);
+                        showAlert('✅ 설정이 저장되었습니다! 자동매매가 활성화되었습니다.', 'success');
+
+                        // Scroll to status card to show confirmation
+                        setTimeout(() => {
+                            document.getElementById('status-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 500);
                     } else {
                         throw new Error(data.error || '설정 저장 실패');
                     }
                 } catch (error) {
                     console.error('Save settings error:', error);
                     showAlert('설정 저장 실패: ' + error.message, 'error');
+                }
+            };
+
+            // Update status card
+            function updateStatusCard(hasSettings, isEnabled) {
+                const statusIndicator = document.getElementById('status-indicator');
+                const statusMessage = document.getElementById('status-message');
+                const statusDetail = document.getElementById('status-detail');
+                const statusAction = document.getElementById('status-action');
+
+                if (!hasSettings) {
+                    // No settings - prompt user to configure
+                    statusIndicator.style.background = '#ef4444'; // Red
+                    statusIndicator.style.animation = 'pulse 2s infinite';
+                    statusMessage.textContent = '자동매매가 설정되지 않았습니다';
+                    statusDetail.textContent = '아래 설정을 완료하고 저장 버튼을 눌러 자동매매를 시작하세요';
+                    statusAction.style.display = 'block';
+                } else if (isEnabled) {
+                    // Settings exist and enabled
+                    statusIndicator.style.background = '#10b981'; // Green
+                    statusIndicator.style.animation = 'pulse 2s infinite';
+                    statusMessage.textContent = '자동매매 활성화됨';
+                    statusDetail.textContent = '5분마다 50개 코인을 스캔하여 급등 신호를 감지합니다';
+                    statusAction.style.display = 'none';
+                } else {
+                    // Settings exist but disabled
+                    statusIndicator.style.background = '#fbbf24'; // Yellow
+                    statusIndicator.style.animation = 'none';
+                    statusMessage.textContent = '자동매매 일시 중지됨';
+                    statusDetail.textContent = '설정은 저장되어 있지만 자동매매가 비활성화되어 있습니다';
+                    statusAction.style.display = 'none';
+                }
+            }
+
+            // Scroll to save button
+            window.scrollToSave = function() {
+                const saveButton = document.querySelector('.button-group');
+                if (saveButton) {
+                    saveButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Highlight the save button briefly
+                    const btn = saveButton.querySelector('.btn-primary');
+                    if (btn) {
+                        btn.style.transform = 'scale(1.1)';
+                        btn.style.boxShadow = '0 0 20px rgba(102, 126, 234, 0.5)';
+                        setTimeout(() => {
+                            btn.style.transform = '';
+                            btn.style.boxShadow = '';
+                        }, 1000);
+                    }
                 }
             };
 
@@ -577,6 +663,7 @@
 
                     if (data.success && data.config) {
                         const config = data.config;
+                        const isEnabled = config.enabled !== false;
 
                         document.getElementById('strategy-type').value = config.strategy_type || 'trend_following';
                         document.getElementById('entry-signal').value = config.entry_signal || 'ma_cross';
@@ -616,12 +703,18 @@
                         document.getElementById('enable-partial-profit').checked = config.enable_partial_profit || false;
 
                         toggleTradingHours();
+
+                        // Update status card
+                        updateStatusCard(true, isEnabled);
                         showAlert('설정을 불러왔습니다.', 'success');
                     } else {
-                        showAlert('저장된 설정이 없습니다. 기본값을 사용합니다.', 'info');
+                        // No settings found - show empty state
+                        updateStatusCard(false, false);
+                        showAlert('저장된 설정이 없습니다. 아래 설정을 완료하고 저장하여 자동매매를 시작하세요.', 'info');
                     }
                 } catch (error) {
                     console.error('Load settings error:', error);
+                    updateStatusCard(false, false);
                     showAlert('설정 불러오기 실패: ' + error.message, 'error');
                 }
             };
