@@ -442,6 +442,17 @@
         (function() {
             'use strict';
 
+            // Wait for Socket.IO to load
+            function initDashboard() {
+                // Check if Socket.IO is loaded
+                if (typeof io === 'undefined') {
+                    console.log('[Dashboard] Waiting for Socket.IO...');
+                    setTimeout(initDashboard, 100);
+                    return;
+                }
+
+                console.log('[Dashboard] Socket.IO loaded, initializing...');
+
             // WebSocket Connection
             const socket = io('https://coinpulse.sinsi.ai', {
                 transports: ['websocket', 'polling'],
@@ -904,6 +915,10 @@
         }
 
         console.log('[Dashboard] Initialized');
+            } // End of initDashboard function
+
+            // Start initialization
+            initDashboard();
         })(); // End of IIFE
     </script>
 
