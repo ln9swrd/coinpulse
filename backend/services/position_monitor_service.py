@@ -112,23 +112,32 @@ class PositionMonitorService:
         Returns:
             Action to take: 'take_profit', 'stop_loss', 'signal_weakening', 'momentum_loss', 'overbought', or None
         """
+        # Convert Decimal fields to float for calculations
+        entry_price = float(position.entry_price) if position.entry_price else None
+        target_price = float(position.target_price) if position.target_price else None
+        stop_loss_price = float(position.stop_loss_price) if position.stop_loss_price else None
+
+        if not entry_price:
+            logger.warning(f"[PositionMonitor] No entry price for {position.market}")
+            return None
+
         # Priority 1: Check target price (익절)
-        if position.target_price and current_price >= position.target_price:
-            profit_pct = ((current_price - position.entry_price) / position.entry_price) * 100
+        if target_price and current_price >= target_price:
+            profit_pct = ((current_price - entry_price) / entry_price) * 100
             logger.info(f"[PositionMonitor] ✅ Take profit triggered for {position.market}")
-            logger.info(f"  Entry: {position.entry_price:,} -> Current: {current_price:,} (+{profit_pct:.2f}%)")
+            logger.info(f"  Entry: {entry_price:,} -> Current: {current_price:,} (+{profit_pct:.2f}%)")
             return 'take_profit'
 
         # Priority 2: Check stop loss (손절)
-        if position.stop_loss_price and current_price <= position.stop_loss_price:
-            loss_pct = ((current_price - position.entry_price) / position.entry_price) * 100
+        if stop_loss_price and current_price <= stop_loss_price:
+            loss_pct = ((current_price - entry_price) / entry_price) * 100
             logger.info(f"[PositionMonitor] 🛑 Stop loss triggered for {position.market}")
-            logger.info(f"  Entry: {position.entry_price:,} -> Current: {current_price:,} ({loss_pct:.2f}%)")
+            logger.info(f"  Entry: {entry_price:,} -> Current: {current_price:,} ({loss_pct:.2f}%)")
             return 'stop_loss'
 
         # Priority 3: AI-based early exit analysis
         # Only check if position is still profitable or break-even
-        current_profit_pct = ((current_price - position.entry_price) / position.entry_price) * 100
+        current_profit_pct = ((current_price - entry_price) / entry_price) * 100
 
         if current_profit_pct >= -2.0:  # Only analyze if loss < 2%
             try:
