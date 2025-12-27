@@ -347,7 +347,7 @@ def get_api_keys_status():
 @require_auth
 def manage_api_keys():
     """
-    Get or save user's Upbit API keys
+    Get or save user's Upbit API keys (encrypted storage)
 
     GET:
         Returns user's API keys (secret key is masked)
@@ -366,15 +366,19 @@ def manage_api_keys():
         404: User not found
     """
     from backend.database.models import User
+    from backend.models.user_api_key import UpbitAPIKey
+    from backend.utils.crypto import encrypt_api_credentials, decrypt_api_credentials
+    from backend.common import UpbitAPI
+    from datetime import datetime
 
     session = get_db_session()
     try:
         user_id = request.user_id
 
-        # GET: Return existing API keys
+        # GET: Return existing API keys from encrypted storage
         if request.method == 'GET':
+            # Check if user exists
             user = session.query(User).filter(User.id == user_id).first()
-
             if not user:
                 return jsonify({
                     'success': False,
@@ -382,26 +386,44 @@ def manage_api_keys():
                     'code': 'USER_NOT_FOUND'
                 }), 404
 
-            # Return keys with secret key masked
-            access_key = user.upbit_access_key
-            secret_key = user.upbit_secret_key
+            # Get encrypted keys from upbit_api_keys table
+            api_key_record = session.query(UpbitAPIKey).filter(
+                UpbitAPIKey.user_id == user_id
+            ).first()
 
-            response_data = {
-                'success': True,
-                'access_key': access_key if access_key else None,
-                'secret_key_masked': None
-            }
+            if not api_key_record:
+                # No keys registered
+                return jsonify({
+                    'success': True,
+                    'access_key': None,
+                    'secret_key_masked': None,
+                    'has_keys': False
+                }), 200
+
+            # Decrypt and return access key
+            access_key, secret_key = decrypt_api_credentials(
+                api_key_record.access_key_encrypted,
+                api_key_record.secret_key_encrypted
+            )
 
             # Mask secret key (show only last 4 characters)
+            secret_key_masked = None
             if secret_key:
                 if len(secret_key) > 4:
-                    response_data['secret_key_masked'] = '****' + secret_key[-4:]
+                    secret_key_masked = '****' + secret_key[-4:]
                 else:
-                    response_data['secret_key_masked'] = '****'
+                    secret_key_masked = '****'
 
-            return jsonify(response_data), 200
+            return jsonify({
+                'success': True,
+                'access_key': access_key,
+                'secret_key_masked': secret_key_masked,
+                'has_keys': True,
+                'is_verified': api_key_record.is_verified,
+                'key_name': api_key_record.key_name
+            }), 200
 
-        # POST: Save new API keys
+        # POST: Save new API keys to encrypted storage (delete old if exists)
         elif request.method == 'POST':
             data = request.get_json()
 
@@ -422,9 +444,8 @@ def manage_api_keys():
                     'code': 'MISSING_KEYS'
                 }), 400
 
-            # Update user's API keys
+            # Verify user exists
             user = session.query(User).filter(User.id == user_id).first()
-
             if not user:
                 return jsonify({
                     'success': False,
@@ -432,14 +453,57 @@ def manage_api_keys():
                     'code': 'USER_NOT_FOUND'
                 }), 404
 
-            user.upbit_access_key = access_key
-            user.upbit_secret_key = secret_key
+            # Verify keys with Upbit API
+            try:
+                upbit_api = UpbitAPI(access_key, secret_key)
+                accounts = upbit_api.get_accounts()
 
+                if not accounts:
+                    return jsonify({
+                        'success': False,
+                        'error': 'API key verification failed. Please check your keys.',
+                        'code': 'VERIFICATION_FAILED'
+                    }), 400
+
+            except Exception as verify_error:
+                return jsonify({
+                    'success': False,
+                    'error': f'API key verification failed: {str(verify_error)}',
+                    'code': 'VERIFICATION_FAILED'
+                }), 400
+
+            # Encrypt keys
+            encrypted_access, encrypted_secret = encrypt_api_credentials(access_key, secret_key)
+
+            # Check if user already has keys (DELETE old keys if exists)
+            existing_key = session.query(UpbitAPIKey).filter(
+                UpbitAPIKey.user_id == user_id
+            ).first()
+
+            if existing_key:
+                # Delete old keys first (as requested by user)
+                session.delete(existing_key)
+                session.flush()  # Ensure deletion is committed before insert
+
+            # Create new API key record
+            new_key = UpbitAPIKey(
+                user_id=user_id,
+                access_key_encrypted=encrypted_access,
+                secret_key_encrypted=encrypted_secret,
+                key_name=f'Settings Key ({datetime.now().strftime("%Y-%m-%d")})',
+                is_active=True,
+                is_verified=True,
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow()
+            )
+
+            session.add(new_key)
             session.commit()
 
             return jsonify({
                 'success': True,
-                'message': 'API keys saved successfully'
+                'message': 'API keys saved successfully',
+                'verified': True
             }), 200
 
     except Exception as e:
