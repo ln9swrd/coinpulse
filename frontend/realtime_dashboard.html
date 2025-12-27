@@ -493,6 +493,13 @@
             const availableData = aggregatedData.map(d => d.available);
             const totalData = aggregatedData.map(d => d.total);
 
+            // DEBUG: Log data info
+            console.log('[Chart] Total data points:', history.length);
+            console.log('[Chart] Unique dates:', sortedDates.length);
+            console.log('[Chart] First 5 dates:', sortedDates.slice(0, 5));
+            console.log('[Chart] Last 5 dates:', sortedDates.slice(-5));
+            console.log('[Chart] Categories sample:', categories.slice(0, 10), '...', categories.slice(-5));
+
             if (balanceChart) {
                 balanceChart.destroy();
             }
