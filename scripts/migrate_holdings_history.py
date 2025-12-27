@@ -15,7 +15,7 @@ from sqlalchemy import text, inspect
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from backend.database.connection import get_db_session, get_engine
+from backend.database.connection import get_db_session
 
 
 def check_column_exists(db, table_name, column_name):
