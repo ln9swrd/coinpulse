@@ -41,7 +41,8 @@
                 // surge-history added back to iframe list for better DOM isolation
                 // realtime added for cache busting to prevent stale balance data
                 // history added for cache busting to prevent stale JS references
-                if (pageName === 'trading' || pageName === 'surge' || pageName === 'auto-trading' || pageName === 'signals' || pageName === 'surge-history' || pageName === 'realtime' || pageName === 'history') {
+                // portfolio added for cache busting and to prevent logout issues
+                if (pageName === 'trading' || pageName === 'surge' || pageName === 'auto-trading' || pageName === 'signals' || pageName === 'surge-history' || pageName === 'realtime' || pageName === 'history' || pageName === 'portfolio') {
                     // Add cache busting to prevent 404 caching
                     const cacheBuster = `v=${Date.now()}`;
                     const pageUrl = `${window.location.origin}/${filePath}?${cacheBuster}`;
@@ -51,6 +52,7 @@
                                      pageName === 'signals' ? 'signals-iframe' :
                                      pageName === 'realtime' ? 'realtime-dashboard-iframe' :
                                      pageName === 'history' ? 'history-iframe' :
+                                     pageName === 'portfolio' ? 'portfolio-iframe' :
                                      'surge-history-iframe';
                     console.log(`[Dashboard] Loading ${pageName} page via iframe:`, pageUrl);
 
