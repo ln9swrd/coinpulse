@@ -19,8 +19,9 @@ function formatKRW(amount) {
 
 // Format date
 function formatDate(dateString) {
-    if (!dateString) return '-';
+    if (!dateString || dateString === 'N/A') return '-';
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '-'; // Check if date is valid
     return date.toLocaleString('ko-KR', {
         year: 'numeric',
         month: '2-digit',
