@@ -20,6 +20,7 @@ from backend.services.surge_predictor import SurgePredictor
 from backend.services.telegram_bot import SurgeTelegramBot, TELEGRAM_AVAILABLE
 from backend.database.connection import get_db_session
 from backend.models.surge_candidates_cache_models import SurgeCandidatesCache
+from backend.models.surge_system_settings import SurgeSystemSettings
 from backend.services.websocket_service import get_websocket_service
 from backend.services.dynamic_market_selector import get_market_selector
 
@@ -43,35 +44,69 @@ class SurgeAlertScheduler:
             check_interval: Check interval in seconds (default: 300 = 5 minutes)
         """
         self.telegram_bot = telegram_bot
-        self.check_interval = check_interval
 
         # Initialize Upbit API
         access_key, secret_key = load_api_keys()
         self.upbit_api = UpbitAPI(access_key, secret_key)
 
-        # Initialize SurgePredictor
+        # Load system settings from DB
+        self.system_settings = self._load_system_settings()
+
+        # Use check_interval from DB if not explicitly provided
+        self.check_interval = self.system_settings.check_interval
+
+        # Initialize SurgePredictor with DB config
+        analysis_config = self.system_settings.get_analysis_config()
         self.config = {
-            "surge_prediction": {
-                "volume_increase_threshold": 1.5,
-                "rsi_oversold_level": 35,
-                "rsi_buy_zone_max": 50,
-                "support_level_proximity": 0.02,
-                "uptrend_confirmation_days": 3,
-                "min_surge_probability_score": 60
-            }
+            "surge_prediction": analysis_config
         }
         self.predictor = SurgePredictor(self.config)
 
-        # Initialize Dynamic Market Selector (50 coins, updated daily)
-        self.market_selector = get_market_selector(target_count=50)
+        # Initialize Dynamic Market Selector (coins count from DB)
+        monitor_count = self.system_settings.monitor_coins_count
+        self.market_selector = get_market_selector(target_count=monitor_count)
         self.monitor_coins = self.market_selector.get_markets(force_update=True, update_interval_hours=24)
 
         # Track alerted candidates (to avoid duplicate alerts)
         self.alerted_candidates: Set[str] = set()  # Set of market names
-        self.min_score = 70  # Raised from 60 to improve signal quality
 
-        logger.info(f"[SurgeAlertScheduler] Initialized (interval: {check_interval}s, coins: {len(self.monitor_coins)})")
+        # Telegram alert threshold from DB (higher for quality)
+        self.min_score = self.system_settings.telegram_min_score
+
+        # Duplicate alert hours from DB
+        self.duplicate_alert_hours = self.system_settings.duplicate_alert_hours
+
+        logger.info(f"[SurgeAlertScheduler] Initialized (interval: {self.check_interval}s, coins: {len(self.monitor_coins)})")
         logger.info(f"[SurgeAlertScheduler] Dynamic market selection enabled (auto-update every 24h)")
+        logger.info(f"[SurgeAlertScheduler] Telegram min score: {self.min_score} (from DB settings)")
+        logger.info(f"[SurgeAlertScheduler] Duplicate alert prevention: {self.duplicate_alert_hours} hours")
+
+    def _load_system_settings(self) -> SurgeSystemSettings:
+        """Load system settings from database"""
+        session = get_db_session()
+        try:
+            settings = session.query(SurgeSystemSettings).filter_by(id=1).first()
+
+            if not settings:
+                # Create default settings if not exists
+                logger.warning("[SurgeAlertScheduler] No system settings found, creating defaults")
+                settings = SurgeSystemSettings(id=1)
+                settings.set_analysis_config(SurgeSystemSettings.get_default_analysis_config())
+                session.add(settings)
+                session.commit()
+
+            logger.info(f"[SurgeAlertScheduler] Loaded system settings: telegram_min_score={settings.telegram_min_score}")
+            return settings
+
+        except Exception as e:
+            logger.error(f"[SurgeAlertScheduler] Failed to load system settings: {e}")
+            # Return default settings on error
+            settings = SurgeSystemSettings(id=1)
+            settings.set_analysis_config(SurgeSystemSettings.get_default_analysis_config())
+            return settings
+
+        finally:
+            session.close()
 
     def get_surge_candidates(self) -> List[Dict]:
         """
@@ -513,9 +548,9 @@ class SurgeAlertScheduler:
                 # Check if already sent telegram alert (in-memory check for telegram spam prevention)
                 telegram_already_sent = market in self.alerted_candidates
 
-                # Check if already alerted within recent hours (24 hours by default)
-                # This prevents duplicate alerts for the same coin within a day
-                db_already_alerted = self.is_already_alerted_recently(market, hours=24)
+                # Check if already alerted within recent hours (from DB settings)
+                # This prevents duplicate alerts for the same coin within configured period
+                db_already_alerted = self.is_already_alerted_recently(market, hours=self.duplicate_alert_hours)
 
                 # Send telegram alert only if not already sent (in-memory check)
                 if not telegram_already_sent:

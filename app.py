@@ -64,6 +64,7 @@ from backend.routes.surge_history_routes import surge_history_bp  # Surge predic
 from backend.routes.user_agreement_routes import user_agreement_bp  # User agreement records (legal compliance)
 from backend.routes.feedback_routes import feedback_bp  # User feedback system (bug reports, feature requests)
 from backend.routes.enterprise_routes import enterprise_bp  # Enterprise plan inquiries
+from backend.routes.admin_surge_routes import admin_surge_bp  # Admin surge system settings (Phase 8 v2.1)
 
 # Import WebSocket service (Phase 3)
 from backend.services.websocket_service import init_websocket_service, setup_socketio_handlers
@@ -246,7 +247,8 @@ def register_blueprints():
         (surge_history_bp, None),  # Surge prediction history admin (already has /api/admin/surge-history prefix)
         (user_agreement_bp, None),  # User agreement records (legal compliance, already has /api/agreements prefix)
         (feedback_bp, None),  # User feedback system (bug reports, feature requests, already has /api/feedback prefix)
-        (enterprise_bp, None)  # Enterprise plan inquiries (already has /api/enterprise prefix)
+        (enterprise_bp, None),  # Enterprise plan inquiries (already has /api/enterprise prefix)
+        (admin_surge_bp, None)  # Admin surge system settings (already has /api/admin/surge prefix)
     ]
 
     for blueprint, url_prefix in blueprints:

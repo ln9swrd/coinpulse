@@ -16,6 +16,7 @@ from sqlalchemy import and_
 from backend.database.connection import get_db_session
 from backend.database.models import User
 from backend.models.surge_alert_models import SurgeAutoTradingSettings, SurgeAlert
+from backend.models.surge_system_settings import SurgeSystemSettings
 from backend.services.surge_alert_service import get_surge_alert_service
 from backend.common import UpbitAPI, load_api_keys
 from backend.services.surge_predictor import SurgePredictor
@@ -49,32 +50,57 @@ class SurgeAutoTradingWorker:
         access_key, secret_key = load_api_keys()
         self.upbit_api = UpbitAPI(access_key, secret_key)
 
-        # Initialize SurgePredictor
+        # Load system settings from DB
+        self.system_settings = self._load_system_settings()
+
+        # Initialize SurgePredictor with DB config
+        analysis_config = self.system_settings.get_analysis_config()
         self.config = {
-            "surge_prediction": {
-                "volume_increase_threshold": 1.5,
-                "rsi_oversold_level": 35,
-                "rsi_buy_zone_max": 50,
-                "support_level_proximity": 0.02,
-                "uptrend_confirmation_days": 3,
-                "min_surge_probability_score": 60
-            }
+            "surge_prediction": analysis_config
         }
         self.predictor = SurgePredictor(self.config)
 
-        # Initialize Dynamic Market Selector (50 coins, updated daily)
-        # Same as surge_alert_scheduler to ensure consistency
-        self.market_selector = get_market_selector(target_count=50)
+        # Initialize Dynamic Market Selector (coins count from DB)
+        monitor_count = self.system_settings.monitor_coins_count
+        self.market_selector = get_market_selector(target_count=monitor_count)
         self.monitor_coins = self.market_selector.get_markets(force_update=True, update_interval_hours=24)
 
         # Track alerted markets to avoid duplicate alerts within same cycle
         self.alerted_in_cycle: Set[str] = set()
 
-        # Base minimum score for initial filtering (user-specific filtering happens later)
-        self.base_min_score = 70  # Raised from 60 to improve signal quality
+        # Base minimum score from DB settings
+        self.base_min_score = self.system_settings.base_min_score
 
         logger.info(f"[AutoTradingWorker] Initialized (interval: {check_interval}s, coins: {len(self.monitor_coins)})")
         logger.info(f"[AutoTradingWorker] Dynamic market selection enabled (auto-update every 24h)")
+        logger.info(f"[AutoTradingWorker] Base min score: {self.base_min_score} (from DB settings)")
+
+    def _load_system_settings(self) -> SurgeSystemSettings:
+        """Load system settings from database"""
+        session = get_db_session()
+        try:
+            settings = session.query(SurgeSystemSettings).filter_by(id=1).first()
+
+            if not settings:
+                # Create default settings if not exists
+                logger.warning("[AutoTradingWorker] No system settings found, creating defaults")
+                settings = SurgeSystemSettings(id=1)
+                settings.set_analysis_config(SurgeSystemSettings.get_default_analysis_config())
+                session.add(settings)
+                session.commit()
+
+            logger.info(f"[AutoTradingWorker] Loaded system settings: base_min_score={settings.base_min_score}")
+            return settings
+
+        except Exception as e:
+            logger.error(f"[AutoTradingWorker] Failed to load system settings: {e}")
+            # Return default settings on error
+            settings = SurgeSystemSettings(id=1)
+            settings.set_analysis_config(SurgeSystemSettings.get_default_analysis_config())
+            return settings
+
+        finally:
+            session.close()
 
     def get_surge_candidates(self) -> List[Dict]:
         """
