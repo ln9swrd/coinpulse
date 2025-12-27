@@ -254,14 +254,16 @@ def backfill_balance_history(user_id, days=90):
 
         # 입금 역산
         elif tx_type == 'deposit':
-            if tx_data.get('currency') == 'KRW' and tx_data.get('state') == 'ACCEPTED':
+            if tx_data.get('currency') == 'KRW':
                 amount = float(tx_data.get('amount', 0))
                 # 과거에는: 입금 전이므로 KRW가 적었음
                 balance_tracker['krw_balance'] -= amount
+                balance_tracker['has_deposit'] = True  # 입금 이벤트 플래그
+                balance_tracker['deposit_amount'] = amount
 
         # 출금 역산
         elif tx_type == 'withdraw':
-            if tx_data.get('currency') == 'KRW' and tx_data.get('state') == 'DONE':
+            if tx_data.get('currency') == 'KRW':
                 amount = float(tx_data.get('amount', 0))
                 fee = float(tx_data.get('fee', 0))
                 # 과거에는: 출금 전이므로 KRW가 많았음
@@ -271,6 +273,9 @@ def backfill_balance_history(user_id, days=90):
         date_str = str(tx_date)
         if date_str not in daily_snapshots:
             daily_snapshots[date_str] = create_snapshot(balance_tracker, api, tx_date)
+            # 입금 플래그 초기화 (다음 날짜를 위해)
+            balance_tracker['has_deposit'] = False
+            balance_tracker['deposit_amount'] = 0
 
     # 거래가 없는 날짜 채우기 (선형 보간)
     print(f"  Generated {len(daily_snapshots)} snapshots")
@@ -373,6 +378,13 @@ def create_snapshot(balance_tracker, api, date):
     total_profit = crypto_value - total_purchase_amount
     total_profit_rate = (total_profit / total_purchase_amount * 100) if total_purchase_amount > 0 else 0
 
+    # BTC/ETH/XRP 가격 가져오기
+    reference_prices = {}
+    for market in ['KRW-BTC', 'KRW-ETH', 'KRW-XRP']:
+        price = get_historical_price(api, market, date)
+        if price > 0:
+            reference_prices[market] = price
+
     return {
         'snapshot_time': datetime.combine(date, datetime.min.time()),
         'krw_balance': krw_balance,
@@ -385,7 +397,10 @@ def create_snapshot(balance_tracker, api, date):
         'coin_count': len(balance_tracker['holdings']),
         'holdings_detail': {
             'coins': holdings_detail,
-            'total_purchase_amount': total_purchase_amount
+            'total_purchase_amount': total_purchase_amount,
+            'reference_prices': reference_prices,  # BTC/ETH/XRP 가격
+            'has_deposit': balance_tracker.get('has_deposit', False),  # 입금 이벤트 플래그
+            'deposit_amount': balance_tracker.get('deposit_amount', 0)  # 입금 금액
         }
     }
 

@@ -530,13 +530,13 @@ class UpbitAPI:
 
     # ==================== Deposits & Withdraws ====================
 
-    def get_deposits(self, currency=None, state='accepted', limit=100):
+    def get_deposits(self, currency=None, state=None, limit=100):
         """
         Get deposit history.
 
         Args:
             currency (str, optional): Currency code to filter
-            state (str): Deposit state ('accepted', 'processing')
+            state (str, optional): Deposit state (None=all, 'submitting', 'submitted', 'almost_accepted', 'rejected', 'accepted', 'processing')
             limit (int): Number of records (max: 100)
 
         Returns:
@@ -544,9 +544,11 @@ class UpbitAPI:
         """
         try:
             query_params = {
-                'state': state,
                 'limit': limit
             }
+
+            if state:
+                query_params['state'] = state
 
             if currency:
                 query_params['currency'] = currency
@@ -568,13 +570,13 @@ class UpbitAPI:
             print(f"[UpbitAPI] Deposits query error: {str(e)}")
             return []
 
-    def get_withdraws(self, currency=None, state='done', limit=100):
+    def get_withdraws(self, currency=None, state=None, limit=100):
         """
         Get withdrawal history.
 
         Args:
             currency (str, optional): Currency code to filter
-            state (str): Withdraw state ('done', 'processing', 'failed')
+            state (str, optional): Withdraw state (None=all, 'submitting', 'submitted', 'almost_accepted', 'rejected', 'accepted', 'processing', 'done', 'canceled')
             limit (int): Number of records (max: 100)
 
         Returns:
@@ -582,9 +584,11 @@ class UpbitAPI:
         """
         try:
             query_params = {
-                'state': state,
                 'limit': limit
             }
+
+            if state:
+                query_params['state'] = state
 
             if currency:
                 query_params['currency'] = currency
