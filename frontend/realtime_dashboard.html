@@ -363,7 +363,7 @@
         // Balance history management
         let balanceChart = null;
         const HISTORY_KEY = 'coinpulse_balance_history';
-        const MAX_HISTORY_POINTS = 1000; // Keep last 1000 data points (more history for date-based view)
+        const MAX_HISTORY_POINTS = 90; // Keep last 90 days (about 3 months)
 
         function getBalanceHistory() {
             try {
@@ -394,17 +394,30 @@
                 day: '2-digit'
             }).replace(/\. /g, '-').replace('.', '');
 
-            history.push({
+            // Check if we already have data for today
+            const existingIndex = history.findIndex(h => h.date === dateLabel);
+
+            const dataPoint = {
                 timestamp: now.toISOString(),
                 time: dateLabel,
                 date: dateLabel,
                 krw: krwBalance,
                 available: availableBalance,
                 total: totalValue
-            });
+            };
 
-            // Keep only last MAX_HISTORY_POINTS
-            if (history.length > MAX_HISTORY_POINTS) {
+            if (existingIndex >= 0) {
+                // Update today's data (keep only latest value per day)
+                history[existingIndex] = dataPoint;
+                console.log(`[Balance] Updated today's (${dateLabel}) balance data`);
+            } else {
+                // Add new day
+                history.push(dataPoint);
+                console.log(`[Balance] Added new day (${dateLabel}) balance data`);
+            }
+
+            // Keep only last 90 days
+            if (history.length > 90) {
                 history.shift();
             }
 
@@ -460,24 +473,39 @@
                             label: '총 잔고액 (KRW)',
                             data: krwData,
                             borderColor: 'rgb(102, 126, 234)',
-                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            backgroundColor: 'rgba(102, 126, 234, 0.3)',
+                            fill: true,
                             tension: 0.4,
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: 'rgb(102, 126, 234)',
                             yAxisID: 'y-left'
                         },
                         {
                             label: '주문가능액',
                             data: availableData,
                             borderColor: 'rgb(16, 185, 129)',
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            backgroundColor: 'rgba(16, 185, 129, 0.3)',
+                            fill: true,
                             tension: 0.4,
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: 'rgb(16, 185, 129)',
                             yAxisID: 'y-left'
                         },
                         {
                             label: '포트폴리오 총액',
                             data: totalData,
                             borderColor: 'rgb(239, 68, 68)',
-                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            backgroundColor: 'rgba(239, 68, 68, 0.3)',
+                            fill: true,
                             tension: 0.4,
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: 'rgb(239, 68, 68)',
                             yAxisID: 'y-right'
                         }
                     ]
