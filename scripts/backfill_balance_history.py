@@ -393,7 +393,8 @@ def create_snapshot(balance_tracker, api, date):
 if __name__ == '__main__':
     import sys
 
-    # Optional: specify user_id as command line argument
+    # Optional: specify user_id and days as command line arguments
+    # Usage: python script.py [user_id] [days]
     if len(sys.argv) > 1:
         user_id = int(sys.argv[1])
         print(f"\n[Backfill] Using user_id from command line: {user_id}")
@@ -405,4 +406,12 @@ if __name__ == '__main__':
         finally:
             db.close()
 
-    backfill_balance_history(user_id, days=90)
+    # Get days parameter (default: 90)
+    if len(sys.argv) > 2:
+        days = int(sys.argv[2])
+        print(f"[Backfill] Using days from command line: {days}")
+    else:
+        days = 90
+        print(f"[Backfill] Using default days: {days}")
+
+    backfill_balance_history(user_id, days=days)
