@@ -440,8 +440,8 @@
             const chartElement = document.getElementById('balance-chart');
             if (!chartElement) return;
 
-            // Fetch history from API
-            const history = await fetchBalanceHistory(30);
+            // Fetch history from API (90 days for longer historical view)
+            const history = await fetchBalanceHistory(90);
             if (history.length === 0) {
                 console.log('[Chart] No historical data available');
                 return;
