@@ -464,8 +464,41 @@
             const totalValueData = history.map(h => h.total_value);
             const purchaseAmountData = history.map(h => h.total_purchase_amount);
 
+            // Extract BTC/ETH/XRP prices from holdings_detail
+            const btcPrices = history.map(h => {
+                const refPrices = h.holdings_detail?.reference_prices;
+                return refPrices ? refPrices['KRW-BTC'] : null;
+            });
+            const ethPrices = history.map(h => {
+                const refPrices = h.holdings_detail?.reference_prices;
+                return refPrices ? refPrices['KRW-ETH'] : null;
+            });
+            const xrpPrices = history.map(h => {
+                const refPrices = h.holdings_detail?.reference_prices;
+                return refPrices ? refPrices['KRW-XRP'] : null;
+            });
+
+            // Find deposit events for annotations
+            const depositAnnotations = [];
+            history.forEach((h, idx) => {
+                if (h.holdings_detail?.has_deposit && h.holdings_detail?.deposit_amount > 0) {
+                    depositAnnotations.push({
+                        x: categories[idx],
+                        borderColor: '#10b981',
+                        label: {
+                            style: {
+                                color: '#fff',
+                                background: '#10b981'
+                            },
+                            text: `입금 ${(h.holdings_detail.deposit_amount).toLocaleString()}원`
+                        }
+                    });
+                }
+            });
+
             console.log('[Chart] Date range:', categories[0], 'to', categories[categories.length - 1]);
             console.log('[Chart] Data points:', categories.length);
+            console.log('[Chart] Deposit events:', depositAnnotations.length);
 
             if (balanceChart) {
                 balanceChart.destroy();
@@ -492,6 +525,21 @@
                         name: '매수금액의 총액',
                         type: 'line',
                         data: purchaseAmountData
+                    },
+                    {
+                        name: 'BTC 가격',
+                        type: 'line',
+                        data: btcPrices
+                    },
+                    {
+                        name: 'ETH 가격',
+                        type: 'line',
+                        data: ethPrices
+                    },
+                    {
+                        name: 'XRP 가격',
+                        type: 'line',
+                        data: xrpPrices
                     }
                 ],
                 chart: {
@@ -521,16 +569,17 @@
                         autoScaleYaxis: true
                     }
                 },
-                colors: ['#667eea', '#10b981', '#ef4444'],
+                colors: ['#667eea', '#10b981', '#ef4444', '#f59e0b', '#f97316', '#06b6d4', '#3b82f6'],
                 dataLabels: {
                     enabled: false
                 },
                 stroke: {
-                    width: [2, 2, 3],
-                    curve: 'smooth'
+                    width: [2, 2, 3, 3, 2, 2, 2],
+                    curve: 'smooth',
+                    dashArray: [0, 0, 0, 0, 4, 4, 4]  // Dashed lines for BTC/ETH/XRP
                 },
                 fill: {
-                    type: ['gradient', 'gradient', 'solid'],
+                    type: ['gradient', 'gradient', 'solid', 'solid', 'solid', 'solid', 'solid'],
                     gradient: {
                         opacityFrom: 0.6,
                         opacityTo: 0.1
@@ -593,6 +642,40 @@
                                 colors: '#ef4444'
                             }
                         }
+                    },
+                    {
+                        seriesName: '포트폴리오 총액',
+                        show: false
+                    },
+                    {
+                        opposite: true,
+                        seriesName: 'BTC 가격',
+                        title: {
+                            text: '코인 가격 (원)',
+                            style: {
+                                color: '#f97316'
+                            }
+                        },
+                        labels: {
+                            formatter: function(value) {
+                                if (!value) return '0';
+                                if (value >= 1000000) {
+                                    return (value / 1000000).toFixed(1) + 'M';
+                                }
+                                return value.toLocaleString();
+                            },
+                            style: {
+                                colors: '#f97316'
+                            }
+                        }
+                    },
+                    {
+                        seriesName: 'BTC 가격',
+                        show: false
+                    },
+                    {
+                        seriesName: 'BTC 가격',
+                        show: false
                     }
                 ],
                 legend: {
@@ -611,6 +694,9 @@
                 },
                 grid: {
                     borderColor: '#e5e7eb'
+                },
+                annotations: {
+                    xaxis: depositAnnotations
                 }
             };
 
