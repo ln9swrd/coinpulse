@@ -159,10 +159,11 @@ class ChartSettings {
         try {
             const { timeframe, unit } = this.parseTimeframe(timeframeValue);
 
-            if (this.chart.currentTimeframe === timeframe && this.chart.currentUnit === unit) {
-                console.log('[ChartSettings] Timeframe already set, skipping');
-                return;
-            }
+            // Allow re-selection of same timeframe (for refresh/retry)
+            // if (this.chart.currentTimeframe === timeframe && this.chart.currentUnit === unit) {
+            //     console.log('[ChartSettings] Timeframe already set, skipping');
+            //     return;
+            // }
 
             console.log(`[ChartSettings] Changing timeframe to: ${timeframeValue} (${timeframe}, unit: ${unit})`);
 
@@ -197,10 +198,35 @@ class ChartSettings {
                 this.chart.technicalIndicators.updateAll();
             }
 
+            // Update candle type display
+            this.updateCandleTypeDisplay(timeframeValue);
+
             console.log(`[ChartSettings] Timeframe changed to ${timeframeValue}`);
         } catch (error) {
             console.error('[ChartSettings] Error in changeTimeframe:', error);
         }
+    }
+
+    /**
+     * Update candle type display text
+     */
+    updateCandleTypeDisplay(timeframeValue) {
+        const candleTypeEl = document.getElementById('candle-type');
+        if (!candleTypeEl) return;
+
+        const displayMap = {
+            '1m': '1분봉',
+            '5m': '5분봉',
+            '15m': '15분봉',
+            '1h': '1시간봉',
+            '4h': '4시간봉',
+            '1d': '일봉',
+            '1w': '주봉'
+        };
+
+        const displayText = displayMap[timeframeValue] || '일봉';
+        candleTypeEl.textContent = displayText;
+        console.log(`[ChartSettings] Updated candle type display to: ${displayText}`);
     }
 
     /**
