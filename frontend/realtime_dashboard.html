@@ -417,10 +417,35 @@
             if (!ctx) return;
 
             const history = getBalanceHistory();
-            const labels = history.map(d => d.time);
-            const krwData = history.map(d => d.krw);
-            const availableData = history.map(d => d.available);
-            const totalData = history.map(d => d.total);
+
+            // Group data by date (aggregate by day)
+            const dataByDate = {};
+            history.forEach(d => {
+                const date = d.date || d.time; // Use date field or time field
+                if (!dataByDate[date]) {
+                    dataByDate[date] = [];
+                }
+                dataByDate[date].push(d);
+            });
+
+            // Get one data point per date (last value of each day)
+            const dates = Object.keys(dataByDate).sort();
+            const aggregatedData = dates.map(date => {
+                const dayData = dataByDate[date];
+                const lastPoint = dayData[dayData.length - 1]; // Use last value of the day
+                return {
+                    date: date,
+                    krw: lastPoint.krw,
+                    available: lastPoint.available,
+                    total: lastPoint.total
+                };
+            });
+
+            // Use aggregated data for chart
+            const labels = aggregatedData.map(d => d.date);
+            const krwData = aggregatedData.map(d => d.krw);
+            const availableData = aggregatedData.map(d => d.available);
+            const totalData = aggregatedData.map(d => d.total);
 
             if (balanceChart) {
                 balanceChart.destroy();
@@ -554,10 +579,34 @@
             }
 
             const history = getBalanceHistory();
-            balanceChart.data.labels = history.map(d => d.time);
-            balanceChart.data.datasets[0].data = history.map(d => d.krw);
-            balanceChart.data.datasets[1].data = history.map(d => d.available);
-            balanceChart.data.datasets[2].data = history.map(d => d.total);
+
+            // Group data by date (aggregate by day) - same as createChart()
+            const dataByDate = {};
+            history.forEach(d => {
+                const date = d.date || d.time;
+                if (!dataByDate[date]) {
+                    dataByDate[date] = [];
+                }
+                dataByDate[date].push(d);
+            });
+
+            // Get one data point per date (last value of each day)
+            const dates = Object.keys(dataByDate).sort();
+            const aggregatedData = dates.map(date => {
+                const dayData = dataByDate[date];
+                const lastPoint = dayData[dayData.length - 1];
+                return {
+                    date: date,
+                    krw: lastPoint.krw,
+                    available: lastPoint.available,
+                    total: lastPoint.total
+                };
+            });
+
+            balanceChart.data.labels = aggregatedData.map(d => d.date);
+            balanceChart.data.datasets[0].data = aggregatedData.map(d => d.krw);
+            balanceChart.data.datasets[1].data = aggregatedData.map(d => d.available);
+            balanceChart.data.datasets[2].data = aggregatedData.map(d => d.total);
             balanceChart.update('none'); // 'none' mode for better performance
         }
 
