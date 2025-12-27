@@ -6,14 +6,14 @@ Admin Surge Settings Routes
 from flask import Blueprint, jsonify, request
 from backend.database.connection import get_db_session
 from backend.models.surge_system_settings import SurgeSystemSettings
-from backend.middleware.auth_middleware import require_admin
+from backend.middleware.auth_middleware import admin_required
 from sqlalchemy import text
 
 admin_surge_bp = Blueprint('admin_surge', __name__)
 
 
 @admin_surge_bp.route('/api/admin/surge/settings', methods=['GET'])
-@require_admin
+@admin_required
 def get_surge_settings():
     """
     Get current surge system settings
@@ -51,7 +51,7 @@ def get_surge_settings():
 
 
 @admin_surge_bp.route('/api/admin/surge/settings', methods=['PUT'])
-@require_admin
+@admin_required
 def update_surge_settings():
     """
     Update surge system settings
@@ -135,7 +135,7 @@ def update_surge_settings():
 
 
 @admin_surge_bp.route('/api/admin/surge/status', methods=['GET'])
-@require_admin
+@admin_required
 def get_surge_status():
     """
     Get current surge system status
@@ -200,7 +200,7 @@ def get_surge_status():
 
 
 @admin_surge_bp.route('/api/admin/surge/restart', methods=['POST'])
-@require_admin
+@admin_required
 def restart_surge_worker():
     """
     Restart surge worker and scheduler
@@ -236,7 +236,7 @@ def restart_surge_worker():
 
 
 @admin_surge_bp.route('/api/admin/surge/test', methods=['POST'])
-@require_admin
+@admin_required
 def test_surge_detection():
     """
     Test surge detection with current settings
