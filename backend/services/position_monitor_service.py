@@ -142,7 +142,7 @@ class PositionMonitorService:
         if current_profit_pct >= -2.0:  # Only analyze if loss < 2%
             try:
                 # Get fresh market data for AI analysis
-                candles = self.upbit_api.get_day_candles(position.market, count=30)
+                candles = self.upbit_api.get_candles_days(position.market, count=30)
 
                 if not candles or len(candles) < 20:
                     logger.warning(f"[PositionMonitor] Insufficient data for AI analysis: {position.market}")
