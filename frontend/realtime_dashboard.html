@@ -816,7 +816,13 @@
                         // Initialize sample data if first time
                         const krwBalance = window.currentKrwBalance || 0;
                         const availableBalance = window.currentAvailableBalance || 0;
-                        initializeSampleData(krwBalance, availableBalance, totalValue);
+                        const history = getBalanceHistory();
+
+                        // If no history exists, create sample data first
+                        if (history.length === 0) {
+                            initializeSampleData(krwBalance, availableBalance, totalValue);
+                            createChart(); // Recreate chart with sample data
+                        }
 
                         // Update chart with new data
                         addBalanceDataPoint(krwBalance, availableBalance, totalValue);
@@ -835,12 +841,12 @@
 
         // Initialize - Check login status first
         if (checkLoginStatus()) {
+            // Load initial chart (will show sample data if available)
+            createChart();
+
             // User is logged in, load data
             loadBalanceInfo();
             setInterval(loadBalanceInfo, 10000); // Update every 10 seconds
-
-            // Initialize chart
-            createChart();
         }
 
         // Add event listener for clear history button
