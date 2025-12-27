@@ -3,12 +3,12 @@
 body {
     background: #f5f7fa;
     min-height: 100vh;
-    padding: 20px;
 }
 
 .portfolio-container {
     max-width: 1400px;
     margin: 0 auto;
+    padding: 0;
 }
 
 .page-header {
@@ -75,6 +75,7 @@ body {
     padding: 24px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     margin-bottom: 24px;
+    overflow-x: auto;
 }
 
 .section-header {
