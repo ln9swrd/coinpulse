@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 키 관리 - CoinPulse</title>
+    <link rel="stylesheet" href="css/internal-pages.css">
+    <script src="js/error-handler.js?v=20251227"></script>
+    <style>
+        body {
+            background: #f5f7fa;
+            padding: 20px;
+        }
+
+        .api-keys-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: #718096;
+        }
+
+        .info-card {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 16px;
+            margin-bottom: 24px;
+            border-radius: 8px;
+        }
+
+        .info-card h3 {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            color: #1976d2;
+        }
+
+        .info-card ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #424242;
+            font-size: 14px;
+        }
+
+        .info-card li {
+            margin-bottom: 4px;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: monospace;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 4px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .status-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .status-row:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            font-size: 14px;
+            color: #718096;
+        }
+
+        .status-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f4f6;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .link-external {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .link-external:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="api-keys-container">
+        <div class="page-header">
+            <h1 class="page-title">API 키 관리</h1>
+            <p class="page-subtitle">Upbit API 키를 등록하여 자동매매를 시작하세요</p>
+        </div>
+
+        <!-- Info Card -->
+        <div class="info-card">
+            <h3>🔑 Upbit API 키 발급 방법</h3>
+            <ul>
+                <li><a href="https://upbit.com/mypage/open_api_management" target="_blank" class="link-external">Upbit 오픈 API 관리 페이지</a>에 접속하세요</li>
+                <li>"Open API Key 발급받기" 클릭</li>
+                <li>권한 설정: <strong>자산 조회</strong>, <strong>주문 조회</strong>, <strong>주문하기</strong> 체크</li>
+                <li>생성된 Access Key와 Secret Key를 복사하여 아래에 입력하세요</li>
+            </ul>
+        </div>
+
+        <!-- Alert Container -->
+        <div id="alert-container"></div>
+
+        <!-- API Key Status -->
+        <div id="status-container" style="display:none;">
+            <div class="status-card">
+                <h3 style="margin-top:0; margin-bottom:16px;">등록된 API 키</h3>
+                <div class="status-row">
+                    <span class="status-label">상태</span>
+                    <span class="status-value" id="status-active"></span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">검증 여부</span>
+                    <span class="status-value" id="status-verified"></span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">등록일</span>
+                    <span class="status-value" id="status-created"></span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">마지막 사용</span>
+                    <span class="status-value" id="status-last-used"></span>
+                </div>
+                <div style="margin-top:20px;">
+                    <button class="btn-danger" onclick="deleteAPIKeys()">API 키 삭제</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Key Form -->
+        <div id="form-container">
+            <div class="form-card">
+                <h3 style="margin-top:0; margin-bottom:24px;">API 키 등록</h3>
+
+                <div class="form-group">
+                    <label class="form-label" for="key-name">키 이름 (선택)</label>
+                    <input type="text" id="key-name" class="form-input" placeholder="예: 자동매매용 키">
+                    <p class="form-help">식별하기 쉬운 이름을 입력하세요</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="access-key">Access Key *</label>
+                    <input type="text" id="access-key" class="form-input" placeholder="Upbit Access Key" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="secret-key">Secret Key *</label>
+                    <input type="password" id="secret-key" class="form-input" placeholder="Upbit Secret Key" required>
+                    <p class="form-help">Secret Key는 암호화되어 안전하게 저장됩니다</p>
+                </div>
+
+                <button class="btn-primary" id="register-btn" onclick="registerAPIKeys()">
+                    API 키 등록 및 검증
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading-container" style="display:none;">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>로딩 중...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        const USER_ID = 1; // TODO: Get from session/auth
+
+        // Load API key status on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadAPIKeyStatus();
+        });
+
+        async function loadAPIKeyStatus() {
+            try {
+                showLoading(true);
+
+                const response = await safeFetch(`${API_BASE}/api/api-keys/?user_id=${USER_ID}`);
+                const data = await response.json();
+
+                if (data.has_key) {
+                    showStatusCard(data.key);
+                    showFormCard(false);
+                } else {
+                    showStatusCard(null);
+                    showFormCard(true);
+                }
+
+            } catch (error) {
+                console.error('[APIKeys] Error loading status:', error);
+                showAlert('API 키 상태를 불러오는데 실패했습니다', 'error');
+                showFormCard(true);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function registerAPIKeys() {
+            const accessKey = $id('access-key')?.value.trim();
+            const secretKey = $id('secret-key')?.value.trim();
+            const keyName = $id('key-name')?.value.trim() || '기본 거래 키';
+
+            if (!accessKey || !secretKey) {
+                showAlert('Access Key와 Secret Key를 모두 입력해주세요', 'error');
+                return;
+            }
+
+            try {
+                setButtonLoading(true);
+
+                const response = await safeFetch(`${API_BASE}/api/api-keys/register`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        user_id: USER_ID,
+                        access_key: accessKey,
+                        secret_key: secretKey,
+                        key_name: keyName,
+                        verify: true
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('API 키가 성공적으로 등록되었습니다! ✅', 'success');
+
+                    // Clear form
+                    $id('access-key').value = '';
+                    $id('secret-key').value = '';
+                    $id('key-name').value = '';
+
+                    // Reload status
+                    setTimeout(() => loadAPIKeyStatus(), 1500);
+                } else {
+                    showAlert(data.error || 'API 키 등록에 실패했습니다', 'error');
+                }
+
+            } catch (error) {
+                console.error('[APIKeys] Registration error:', error);
+                showAlert('API 키 등록 중 오류가 발생했습니다', 'error');
+            } finally {
+                setButtonLoading(false);
+            }
+        }
+
+        async function deleteAPIKeys() {
+            if (!confirm('정말로 API 키를 삭제하시겠습니까?\n자동매매가 중단됩니다.')) {
+                return;
+            }
+
+            try {
+                const response = await safeFetch(`${API_BASE}/api/api-keys/delete`, {
+                    method: 'DELETE',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({user_id: USER_ID})
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('API 키가 삭제되었습니다', 'success');
+                    setTimeout(() => loadAPIKeyStatus(), 1500);
+                } else {
+                    showAlert(data.error || 'API 키 삭제에 실패했습니다', 'error');
+                }
+
+            } catch (error) {
+                console.error('[APIKeys] Delete error:', error);
+                showAlert('API 키 삭제 중 오류가 발생했습니다', 'error');
+            }
+        }
+
+        function showStatusCard(keyData) {
+            const statusContainer = $id('status-container');
+
+            if (!keyData) {
+                statusContainer.style.display = 'none';
+                return;
+            }
+
+            statusContainer.style.display = 'block';
+
+            const activeEl = $id('status-active');
+            const verifiedEl = $id('status-verified');
+            const createdEl = $id('status-created');
+            const lastUsedEl = $id('status-last-used');
+
+            if (activeEl) {
+                activeEl.innerHTML = keyData.is_active
+                    ? '<span class="badge badge-success">활성</span>'
+                    : '<span class="badge badge-danger">비활성</span>';
+            }
+
+            if (verifiedEl) {
+                verifiedEl.innerHTML = keyData.is_verified
+                    ? '<span class="badge badge-success">검증됨</span>'
+                    : '<span class="badge badge-danger">미검증</span>';
+            }
+
+            if (createdEl) {
+                createdEl.textContent = new Date(keyData.created_at).toLocaleString('ko-KR');
+            }
+
+            if (lastUsedEl) {
+                lastUsedEl.textContent = keyData.last_used_at
+                    ? new Date(keyData.last_used_at).toLocaleString('ko-KR')
+                    : '사용 안 함';
+            }
+        }
+
+        function showFormCard(show) {
+            const formContainer = $id('form-container');
+            if (formContainer) {
+                formContainer.style.display = show ? 'block' : 'none';
+            }
+        }
+
+        function showLoading(show) {
+            const loadingContainer = $id('loading-container');
+            if (loadingContainer) {
+                loadingContainer.style.display = show ? 'block' : 'none';
+            }
+        }
+
+        function setButtonLoading(loading) {
+            const btn = $id('register-btn');
+            if (btn) {
+                btn.disabled = loading;
+                btn.textContent = loading ? '등록 중...' : 'API 키 등록 및 검증';
+            }
+        }
+
+        function showAlert(message, type = 'success') {
+            const container = $id('alert-container');
+            if (!container) return;
+
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+
+            container.innerHTML = '';
+            container.appendChild(alert);
+
+            setTimeout(() => {
+                alert.style.opacity = '0';
+                alert.style.transition = 'opacity 0.3s';
+                setTimeout(() => alert.remove(), 300);
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

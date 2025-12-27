@@ -65,6 +65,7 @@ from backend.routes.user_agreement_routes import user_agreement_bp  # User agree
 from backend.routes.feedback_routes import feedback_bp  # User feedback system (bug reports, feature requests)
 from backend.routes.enterprise_routes import enterprise_bp  # Enterprise plan inquiries
 from backend.routes.admin_surge_routes import admin_surge_bp  # Admin surge system settings (Phase 8 v2.1)
+from backend.routes.api_key_routes import api_key_bp  # User API key management (Upbit credentials)
 
 # Import WebSocket service (Phase 3)
 from backend.services.websocket_service import init_websocket_service, setup_socketio_handlers
@@ -248,7 +249,8 @@ def register_blueprints():
         (user_agreement_bp, None),  # User agreement records (legal compliance, already has /api/agreements prefix)
         (feedback_bp, None),  # User feedback system (bug reports, feature requests, already has /api/feedback prefix)
         (enterprise_bp, None),  # Enterprise plan inquiries (already has /api/enterprise prefix)
-        (admin_surge_bp, None)  # Admin surge system settings (already has /api/admin/surge prefix)
+        (admin_surge_bp, None),  # Admin surge system settings (already has /api/admin/surge prefix)
+        (api_key_bp, None)  # User API key management (already has /api/api-keys prefix)
     ]
 
     for blueprint, url_prefix in blueprints:

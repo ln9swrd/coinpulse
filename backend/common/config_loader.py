@@ -81,23 +81,67 @@ def load_env_config():
     }
 
 
-def load_api_keys():
+def load_api_keys(user_id=None):
     """
-    Load Upbit API keys from environment variables.
+    Load Upbit API keys - supports both user-specific and global keys.
+
+    Priority:
+    1. If user_id provided: Load user's encrypted API keys from database
+    2. If no user_id or user has no keys: Fallback to global keys from environment
+
+    Args:
+        user_id: User ID to load keys for (optional)
 
     Returns:
         tuple: (access_key, secret_key) or (None, None) if not found
     """
+    # Try user-specific keys first
+    if user_id:
+        try:
+            from backend.database.connection import get_db_session
+            from backend.models.user_api_key import UserAPIKey
+            from backend.utils.crypto import decrypt_api_credentials
+
+            session = get_db_session()
+
+            # Query user's API keys
+            user_key = session.query(UserAPIKey).filter(
+                UserAPIKey.user_id == user_id,
+                UserAPIKey.is_active == True
+            ).first()
+
+            if user_key:
+                # Decrypt and return
+                access_key, secret_key = decrypt_api_credentials(
+                    user_key.access_key_encrypted,
+                    user_key.secret_key_encrypted
+                )
+
+                # Mark as used
+                user_key.mark_used()
+                session.commit()
+                session.close()
+
+                print(f"[Config] User {user_id} API keys loaded from database")
+                return access_key, secret_key
+
+            session.close()
+
+        except Exception as e:
+            print(f"[Config] Error loading user API keys: {e}")
+            # Continue to fallback
+
+    # Fallback to global environment keys
     load_dotenv()
 
     access_key = os.getenv('UPBIT_ACCESS_KEY', '')
     secret_key = os.getenv('UPBIT_SECRET_KEY', '')
 
     if access_key and secret_key:
-        print("[Config] API keys loaded from environment")
+        print("[Config] Global API keys loaded from environment")
         return access_key, secret_key
     else:
-        print("[Config] Warning: API keys not found in environment")
+        print("[Config] Warning: No API keys found (user or global)")
         return None, None
 
 
