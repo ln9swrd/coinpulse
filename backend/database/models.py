@@ -23,6 +23,9 @@ class Order(Base):
     # Primary Key
     uuid = Column(String(36), primary_key=True, comment='Upbit order UUID')
 
+    # User Info
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), index=True, comment='User ID for multi-user support')
+
     # Order Info
     market = Column(String(20), nullable=False, index=True, comment='Market code (KRW-BTC)')
     side = Column(String(10), nullable=False, index=True, comment='bid/ask')
