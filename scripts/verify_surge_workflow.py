@@ -6,7 +6,12 @@ Tests: Detection → Telegram → Auto-Trading → Monitoring
 
 import json
 import os
+import sys
 from datetime import datetime
+
+# Add project root to Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from backend.database.connection import get_db_session
 from sqlalchemy import text
 from backend.common.upbit_api import UpbitAPI
@@ -65,11 +70,11 @@ def test_workflow():
                     'result': result
                 })
 
-                status = '✅' if score >= 60 else '⚠️'
+                status = '' if score >= 60 else ''
                 print(f"{status} {market:12} | Score: {score:3.0f} | Pattern: {pattern_type:20} | Timing: {entry_timing}")
 
         except Exception as e:
-            print(f"❌ {market:12} | Error: {str(e)[:50]}")
+            print(f" {market:12} | Error: {str(e)[:50]}")
             continue
 
     print("-" * 100)
@@ -77,7 +82,7 @@ def test_workflow():
     print(f"Production threshold (60+): {sum(1 for c in candidates if c['score'] >= 60)} candidates")
 
     if not candidates:
-        print("\n⚠️ No candidates found for testing workflow")
+        print("\n No candidates found for testing workflow")
         print("This is expected if market conditions don't match Pattern A or B criteria")
         return
 
@@ -131,10 +136,10 @@ def test_workflow():
             signal_id = result.fetchone()[0]
             session.commit()
 
-            print(f"✅ Signal inserted to DB (ID: {signal_id})")
+            print(f" Signal inserted to DB (ID: {signal_id})")
 
         except Exception as e:
-            print(f"❌ Database insert failed: {str(e)}")
+            print(f" Database insert failed: {str(e)}")
             return
 
     print("\n[Step 3] Testing Telegram Notification...")
@@ -142,19 +147,26 @@ def test_workflow():
 
     # Check Telegram bot status
     try:
-        from backend.services.telegram_bot import TelegramBot
+        from backend.services.telegram_bot import SurgeTelegramBot, get_telegram_bot
 
         # Check if bot is configured
         telegram_token = os.getenv('TELEGRAM_BOT_TOKEN', '')
         if not telegram_token:
-            print("⚠️ Telegram bot token not configured")
+            print(" Telegram bot token not configured")
             print("Set TELEGRAM_BOT_TOKEN environment variable to enable")
         else:
-            print(f"✅ Telegram bot configured (token: {telegram_token[:10]}...)")
+            print(f" Telegram bot configured (token: {telegram_token[:10]}...)")
             print("Note: Actual notification sending requires user subscriptions")
 
+            # Try to get bot instance
+            bot = get_telegram_bot()
+            if bot:
+                print(" Telegram bot instance created successfully")
+            else:
+                print(" Telegram bot instance is None (python-telegram-bot may not be installed)")
+
     except Exception as e:
-        print(f"❌ Telegram bot check failed: {str(e)}")
+        print(f" Telegram bot check failed: {str(e)}")
 
     print("\n[Step 4] Testing Auto-Trading System...")
     print("-" * 100)
@@ -171,7 +183,7 @@ def test_workflow():
             signal = session.execute(check_query, {'signal_id': signal_id}).fetchone()
 
             if signal:
-                print(f"✅ Signal found in DB:")
+                print(f" Signal found in DB:")
                 print(f"   Market: {signal[1]}")
                 print(f"   Confidence: {signal[2]}")
                 print(f"   Entry Price: {signal[3]:,}")
@@ -179,7 +191,7 @@ def test_workflow():
 
                 # Check if user has auto-trading enabled
                 auto_trading_query = text("""
-                    SELECT enabled, max_investment_per_trade
+                    SELECT enabled, amount_per_trade, total_budget, min_confidence
                     FROM surge_auto_trading_settings
                     WHERE user_id = :user_id
                 """)
@@ -187,14 +199,16 @@ def test_workflow():
                 auto_settings = session.execute(auto_trading_query, {'user_id': 1}).fetchone()
 
                 if auto_settings and auto_settings[0]:
-                    print(f"\n✅ Auto-trading enabled for user")
-                    print(f"   Max investment: {auto_settings[1]:,} KRW")
+                    print(f"\n Auto-trading enabled for user")
+                    print(f"   Amount per trade: {auto_settings[1]:,} KRW")
+                    print(f"   Total budget: {auto_settings[2]:,} KRW")
+                    print(f"   Min confidence: {auto_settings[3]}%")
                 else:
-                    print(f"\n⚠️ Auto-trading not enabled for user")
+                    print(f"\n Auto-trading not enabled for user")
                     print("   Enable in surge_auto_trading_settings table")
 
     except Exception as e:
-        print(f"❌ Auto-trading check failed: {str(e)}")
+        print(f" Auto-trading check failed: {str(e)}")
 
     print("\n[Step 5] Testing Monitoring System...")
     print("-" * 100)
@@ -206,23 +220,23 @@ def test_workflow():
         # Create scheduler instance
         scheduler = SurgeAlertScheduler(config)
 
-        print("✅ Monitoring system initialized")
+        print(" Monitoring system initialized")
         print(f"   Check interval: {scheduler.check_interval}s")
         print(f"   Monitored coins: {scheduler.num_coins}")
         print("\nNote: Signal will be picked up in next scheduler run (every 5 minutes)")
 
     except Exception as e:
-        print(f"❌ Monitoring check failed: {str(e)}")
+        print(f" Monitoring check failed: {str(e)}")
 
     print("\n" + "=" * 100)
     print("WORKFLOW TEST SUMMARY")
     print("=" * 100)
     print(f"""
-    ✅ Detection: {len(candidates)} candidates found (score >= 50)
-    ✅ Database: Test signal inserted (ID: {signal_id})
-    ✅ Telegram: Bot configured (requires user subscriptions)
-    ✅ Auto-Trading: System available (requires user settings)
-    ✅ Monitoring: Scheduler running (5 minute intervals)
+     Detection: {len(candidates)} candidates found (score >= 50)
+     Database: Test signal inserted (ID: {signal_id})
+     Telegram: Bot configured (requires user subscriptions)
+     Auto-Trading: System available (requires user settings)
+     Monitoring: Scheduler running (5 minute intervals)
 
     Next Steps:
     1. Wait for next scheduler run (check logs: journalctl -u coinpulse -f)

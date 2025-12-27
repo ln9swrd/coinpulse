@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Database Migration: Add trade_amount column to surge_alerts table
+Database Migration: Add trade_amount and trade_quantity columns to surge_alerts table
 Date: 2025-12-26
-Issue: PositionMonitor service fails with "surge_alerts.trade_amount 칼럼 없음"
+Issue: PositionMonitor service fails with missing columns
 """
 
 import sys
@@ -14,38 +14,42 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend.database.connection import get_db_session
 from sqlalchemy import text
+import psycopg2
 
 def migrate():
-    """Add trade_amount column to surge_alerts table"""
-    print("[Migration] Starting: Add trade_amount column")
+    """Add missing columns to surge_alerts table"""
+    print("[Migration] Starting: Add missing columns to surge_alerts")
 
     try:
         with get_db_session() as session:
-            # Check if column already exists
-            check_query = text("""
-                SELECT column_name
-                FROM information_schema.columns
-                WHERE table_name = 'surge_alerts'
-                AND column_name = 'trade_amount'
-            """)
+            # Add trade_amount column
+            try:
+                alter_query1 = text("ALTER TABLE surge_alerts ADD COLUMN trade_amount BIGINT")
+                session.execute(alter_query1)
+                print("[Migration] SUCCESS: Added 'trade_amount' column")
+            except psycopg2.errors.DuplicateColumn:
+                print("[Migration] - Column 'trade_amount' already exists")
+            except Exception as e:
+                if "already exists" in str(e).lower() or "duplicate" in str(e).lower():
+                    print("[Migration] - Column 'trade_amount' already exists")
+                else:
+                    raise
 
-            result = session.execute(check_query).fetchone()
+            # Add trade_quantity column
+            try:
+                alter_query2 = text("ALTER TABLE surge_alerts ADD COLUMN trade_quantity FLOAT")
+                session.execute(alter_query2)
+                print("[Migration] SUCCESS: Added 'trade_quantity' column")
+            except psycopg2.errors.DuplicateColumn:
+                print("[Migration] - Column 'trade_quantity' already exists")
+            except Exception as e:
+                if "already exists" in str(e).lower() or "duplicate" in str(e).lower():
+                    print("[Migration] - Column 'trade_quantity' already exists")
+                else:
+                    raise
 
-            if result:
-                print("[Migration] SUCCESS: Column 'trade_amount' already exists. Skipping.")
-                return True
-
-            # Add column
-            print("[Migration] Adding column 'trade_amount' to surge_alerts...")
-            alter_query = text("""
-                ALTER TABLE surge_alerts
-                ADD COLUMN trade_amount BIGINT
-            """)
-
-            session.execute(alter_query)
             session.commit()
-
-            print("[Migration] SUCCESS: Column 'trade_amount' added successfully!")
+            print("[Migration] SUCCESS: All columns checked/added successfully!")
             return True
 
     except Exception as e:

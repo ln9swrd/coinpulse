@@ -1,44 +1,94 @@
-1. 급등 예측은 현재 급등 예측 후보가 없다라도 벡테스트 검증 결과는 나와야 해
+  📋 CoinPulse 요금제 재정리
+  🆓 Free 플랜
 
-2. 대시보드 요금제에 엔터프라이즈 요금제가 빠져 있어
+  컨셉: 서비스 체험용, 조회만 가능
 
-3. 친구 초대에서
-내 추천 코드가 실패하는 경우가 많아
-ailed to load resource: the server responded with a status of 429 ()Understand this error
-VM1318:74 [Referral] Code response status: 429
-VM1318:76 [Referral] Code response data: Object
-VM1318:98 [Referral] Failed to load code (attempt 2): Error: Rate limit exceeded
-    at loadReferralCode (<anonymous>:95:27)
-loadReferralCode @ VM1318:98
-VM1318:99 [Referral] Error details: Object
-loadReferralCode @ VM1318:99
-VM1318:108 [Referral] Retrying in 2000ms...
-VM1318:59 [Referral] Loading referral code... (attempt 3/4)
-VM1318:63 [Referral] Using API_BASE: https://coinpulse.sinsi.ai
-VM1318:64 [Referral] Auth token: exists
-api/referral/code:1  Failed to load resource: the server responded with a status of 429 ()Understand this error
-VM1318:74 [Referral] Code response status: 429
-VM1318:76 [Referral] Code response data: Object
-VM1318:98 [Referral] Failed to load code (attempt 3): Error: Rate limit exceeded
-    at loadReferralCode (<anonymous>:95:27)
-loadReferralCode @ VM1318:98
-VM1318:99 [Referral] Error details: Object
-loadReferralCode @ VM1318:99
-VM1318:108 [Referral] Retrying in 3000ms...
-VM1318:59 [Referral] Loading referral code... (attempt 4/4)
-VM1318:63 [Referral] Using API_BASE: https://coinpulse.sinsi.ai
-VM1318:64 [Referral] Auth token: exists
-api/referral/code:1  Failed to load resource: the server responded with a status of 429 ()Understand this error
-VM1318:74 [Referral] Code response status: 429
-VM1318:76 [Referral] Code response data: Object
-VM1318:98 [Referral] Failed to load code (attempt 4): Error: Rate limit exceeded
-    at loadReferralCode (<anonymous>:95:27)
-loadReferralCode @ VM1318:98
-VM1318:99 [Referral] Error details: Object
-loadReferralCode @ VM1318:99
-VM1318:118 [Referral] All retry attempts failed
-loadReferralCode @ VM1318:118
-dashboard-inline.js?v=20251223_loading_fix:395 [Dashboard] Auto-refreshing data...
+  핵심 기능:
+  - ✅ 대시보드 조회
+  - ✅ 포트폴리오 조회
+  - ✅ 거래 내역 조회
+  - ✅ 거래 차트 조회만 (주문 불가)
+  - ❌ 거래 주문 불가
+  - ❌ 급등 신호 없음
+  - ❌ 자동 매매 없음
+  - ❌ 텔레그램 알림 없음
 
-4. 급등예측 이력
-에이브가 계속 추가되고 있어. 계속 추가되는 걸 방지해줘
+  가격: ₩0/월
+
+  ---
+  💼 Basic 플랜 - 수동 거래 입문
+
+  컨셉: 수동 거래만 가능한 입문자용
+
+  핵심 기능:
+  - ✅ Free 플랜 모든 기능
+  - ✅ 수동 거래 주문 (매수/매도/취소)
+  - ✅ 텔레그램 거래 체결 알림
+  - ✅ 기본 기술적 지표 (MA, RSI, MACD, 볼린저밴드)
+  - ✅ 포트폴리오 추적
+  - ❌ 급등 신호 없음
+  - ❌ 자동 매매 없음
+  - ❌ 데이터 내보내기 없음
+
+  가격: ₩29,000/월
+
+  ---
+  🚀 Pro 플랜 - 수동 거래 전문가
+
+  컨셉: 수동 거래 + 고급 분석 도구
+
+  Basic과의 차별점:
+  - ✅ Basic 플랜 모든 기능
+  - ✅ 고급 기술적 지표 (Ichimoku, SuperTrend, 사용자 정의 지표)
+  - ✅ 고급 차트 분석 도구 (그리기 도구, 패턴 인식)
+  - ✅ 포트폴리오 추적
+  - ✅ 데이터 내보내기 (CSV 형식)
+  - ✅ 우선 고객 지원
+  - ❌ 급등 신호 없음
+  - ❌ 자동 매매 없음
+
+  가격: ₩59,000/월
+
+  ---
+  🏢 Enterprise 플랜 - 급등 + 자동매매
+
+  컨셉: AI 급등 예측 + 완전 자동화
+
+  Pro와의 차별점:
+  - ✅ Pro 플랜 모든 기능
+  - ✅ 급등 예측 무제한 조회 ⭐️ (Enterprise만 제공)
+  - ✅ 자동매매 무제한 전략 ⭐️ (Enterprise만 제공)
+  - ✅ 텔레그램 급등 실시간 알림 (모든 신호)
+  - ✅ 포트폴리오 추적 (무제한 코인)
+  - ✅ 백테스트 및 성과 분석
+  - ✅ 우선 고객 지원
+
+  가격: 영업문의
+
+  ---
+  📊 플랜 비교표
+
+  | 기능            | Free   | Basic     | Pro       | Enterprise  |
+  |-----------------|--------|-----------|-----------|-------------|
+  | 거래 방식       | 조회만 | 수동      | 수동      | 수동 + 자동 |
+  | 급등 신호       | ❌     | ❌        | ❌        | ✅ 무제한   |
+  | 자동 매매       | ❌     | ❌        | ❌        | ✅ 무제한   |
+  | 기술적 지표     | 기본   | 기본      | 고급      | 고급        |
+  | 차트 도구       | 기본   | 기본      | 고급      | 고급        |
+  | 포트폴리오      | O    | O       | O      | O      |
+  | 데이터 내보내기 | ❌     | ❌        | ✅ CSV    | ✅ CSV      |
+  | 텔레그램 알림   | ❌     | ❌ | ❌ | 급등 신호   |
+  | 고객 지원       | 없음   | 이메일    | 우선 지원 | 최우선 지원 |
+  | 가격            | ₩0     | ₩29,000   | ₩59,000   | 영업문의    |
+
+  ---
+  🎯 핵심 정리
+
+  1. Free: 조회만, 맛보기
+  2. Basic: 수동 거래 입문 (기본 도구)
+  3. Pro: 수동 거래 전문가 (고급 도구 + 분석)
+  4. Enterprise: 유일하게 급등신호 + 자동매매 지원
+
+  차별화 포인트:
+  - Basic vs Pro: 지표/도구 수준, 데이터 보관 기간, 지원 수준
+  - Pro vs Enterprise: 급등/자동매매 여부 (가장 큰 차이)
