@@ -481,8 +481,13 @@
 
             const token = getAuthToken();
             if (!token) {
-                console.warn('[Overview] No auth token, redirecting to login');
-                window.location.href = '/login.html';
+                console.warn('[Overview] No auth token');
+                // Don't redirect - dashboard will handle authentication
+                // Just show error state instead
+                const totalBalanceEl = document.getElementById('total-balance');
+                const availableBalanceEl = document.getElementById('available-balance');
+                if (totalBalanceEl) totalBalanceEl.textContent = '인증 필요';
+                if (availableBalanceEl) availableBalanceEl.textContent = '인증 필요';
                 return;
             }
 
