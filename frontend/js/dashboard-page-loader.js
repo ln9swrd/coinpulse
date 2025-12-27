@@ -42,7 +42,8 @@
                 // realtime added for cache busting to prevent stale balance data
                 // history added for cache busting to prevent stale JS references
                 // portfolio added for cache busting and to prevent logout issues
-                if (pageName === 'trading' || pageName === 'surge' || pageName === 'auto-trading' || pageName === 'signals' || pageName === 'surge-history' || pageName === 'realtime' || pageName === 'history' || pageName === 'portfolio') {
+                // overview added for cache busting to prevent stale data
+                if (pageName === 'trading' || pageName === 'surge' || pageName === 'auto-trading' || pageName === 'signals' || pageName === 'surge-history' || pageName === 'realtime' || pageName === 'history' || pageName === 'portfolio' || pageName === 'overview') {
                     // Add cache busting to prevent 404 caching
                     const cacheBuster = `v=${Date.now()}`;
                     const pageUrl = `${window.location.origin}/${filePath}?${cacheBuster}`;
@@ -53,6 +54,7 @@
                                      pageName === 'realtime' ? 'realtime-dashboard-iframe' :
                                      pageName === 'history' ? 'history-iframe' :
                                      pageName === 'portfolio' ? 'portfolio-iframe' :
+                                     pageName === 'overview' ? 'overview-iframe' :
                                      'surge-history-iframe';
                     console.log(`[Dashboard] Loading ${pageName} page via iframe:`, pageUrl);
 
