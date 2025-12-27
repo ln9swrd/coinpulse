@@ -2027,18 +2027,12 @@
             const statusFilter = document.getElementById('enterpriseStatusFilter').value;
 
             try {
-                let url = '/api/enterprise/inquiries?per_page=100';
+                let url = `${window.location.origin}/api/enterprise/inquiries?per_page=100`;
                 if (statusFilter) {
                     url += `&status=${statusFilter}`;
                 }
 
-                const response = await fetch(url, {
-                    headers: {
-                        'Authorization': `Bearer ${window.adminToken}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
+                const response = await fetch(url, { headers: getHeaders() });
                 const data = await response.json();
 
                 if (data.success) {
@@ -2113,11 +2107,8 @@
 
         async function openEnterpriseModal(inquiryId) {
             try {
-                const response = await fetch(`/api/enterprise/inquiry/${inquiryId}`, {
-                    headers: {
-                        'Authorization': `Bearer ${window.adminToken}`,
-                        'Content-Type': 'application/json'
-                    }
+                const response = await fetch(`${window.location.origin}/api/enterprise/inquiry/${inquiryId}`, {
+                    headers: getHeaders()
                 });
 
                 const data = await response.json();
@@ -2178,12 +2169,9 @@
             const adminNote = document.getElementById('enterpriseAdminNote').value;
 
             try {
-                const response = await fetch(`/api/enterprise/inquiry/${inquiryId}/status`, {
+                const response = await fetch(`${window.location.origin}/api/enterprise/inquiry/${inquiryId}/status`, {
                     method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${window.adminToken}`,
-                        'Content-Type': 'application/json'
-                    },
+                    headers: getHeaders(),
                     body: JSON.stringify({
                         status: status,
                         admin_note: adminNote
