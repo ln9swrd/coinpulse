@@ -17,6 +17,7 @@ from backend.database.connection import get_db_session
 from backend.database.models import User
 from backend.models.surge_alert_models import SurgeAutoTradingSettings, SurgeAlert
 from backend.models.surge_system_settings import SurgeSystemSettings
+from backend.models.subscription_models import Subscription
 from backend.services.surge_alert_service import get_surge_alert_service
 from backend.common import UpbitAPI, load_api_keys
 from backend.services.surge_predictor import SurgePredictor
@@ -162,9 +163,9 @@ class SurgeAutoTradingWorker:
 
         try:
             # Query users with auto-trading enabled and join with subscription
-            results = session.query(User, SurgeAutoTradingSettings, UserSubscription)\
+            results = session.query(User, SurgeAutoTradingSettings, Subscription)\
                 .join(SurgeAutoTradingSettings, User.id == SurgeAutoTradingSettings.user_id)\
-                .outerjoin(UserSubscription, User.id == UserSubscription.user_id)\
+                .outerjoin(Subscription, User.id == Subscription.user_id)\
                 .filter(
                     and_(
                         SurgeAutoTradingSettings.enabled == True,
