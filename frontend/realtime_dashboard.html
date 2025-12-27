@@ -408,30 +408,43 @@
                 }
 
                 // Load holdings for total value
+                console.log('[Holdings] Fetching holdings data...');
                 const holdingsResponse = await fetch('https://coinpulse.sinsi.ai/api/holdings', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
 
+                console.log('[Holdings] Response status:', holdingsResponse.status);
+
                 if (holdingsResponse.ok) {
                     const holdingsData = await holdingsResponse.json();
+                    console.log('[Holdings] Response data:', holdingsData);
+
                     if (holdingsData.success && holdingsData.holdings) {
                         const holdings = holdingsData.holdings;
+                        console.log('[Holdings] Holdings count:', holdings.length);
 
                         // Calculate total value
                         let totalValue = 0;
                         let totalInvested = 0;
 
                         holdings.forEach(h => {
-                            totalValue += parseFloat(h.value) || 0;
-                            totalInvested += parseFloat(h.avg_buy_price) * parseFloat(h.balance) || 0;
+                            const value = parseFloat(h.value) || 0;
+                            const invested = parseFloat(h.avg_buy_price) * parseFloat(h.balance) || 0;
+                            totalValue += value;
+                            totalInvested += invested;
+                            console.log(`[Holdings] ${h.currency}: value=${value}, invested=${invested}`);
                         });
 
                         // Add KRW balance
                         if (krwAccount) {
-                            totalValue += parseFloat(krwAccount.balance) || 0;
+                            const krwValue = parseFloat(krwAccount.balance) || 0;
+                            totalValue += krwValue;
+                            console.log('[Holdings] Added KRW:', krwValue);
                         }
+
+                        console.log('[Holdings] Total value:', totalValue, 'Total invested:', totalInvested);
 
                         const profitLoss = totalValue - totalInvested;
                         const profitLossPercent = totalInvested > 0 ?
@@ -445,7 +458,13 @@
                             `${profitLoss >= 0 ? '+' : ''}${profitLoss.toLocaleString()}원 (${profitLossPercent}%)`;
                         profitLossEl.className = profitLoss >= 0 ?
                             'balance-value positive' : 'balance-value negative';
+
+                        console.log('[Holdings] Display updated successfully');
+                    } else {
+                        console.warn('[Holdings] Invalid response:', holdingsData);
                     }
+                } else {
+                    console.error('[Holdings] Failed to fetch:', holdingsResponse.status);
                 }
 
             } catch (error) {
