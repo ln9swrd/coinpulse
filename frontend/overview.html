@@ -348,9 +348,11 @@
                     const locked = parseFloat(krwAccount.locked || 0);
                     const available = balance - locked;
 
-                    // Update balance cards
-                    document.getElementById('total-balance').textContent = formatNumber(balance);
-                    document.getElementById('available-balance').textContent = formatNumber(available);
+                    // Update balance cards (with null checks)
+                    const totalBalanceEl = document.getElementById('total-balance');
+                    const availableBalanceEl = document.getElementById('available-balance');
+                    if (totalBalanceEl) totalBalanceEl.textContent = formatNumber(balance);
+                    if (availableBalanceEl) availableBalanceEl.textContent = formatNumber(available);
                 }
 
                 // Calculate total assets
@@ -361,16 +363,20 @@
                     totalAssets += balance * avgBuyPrice;
                 }
 
-                document.getElementById('total-assets').textContent = formatNumber(totalAssets);
+                const totalAssetsEl = document.getElementById('total-assets');
+                if (totalAssetsEl) totalAssetsEl.textContent = formatNumber(totalAssets);
 
                 // Update holdings count
                 const holdingsCount = accounts.filter(acc => acc.currency !== 'KRW' && parseFloat(acc.balance) > 0).length;
-                document.getElementById('holdings-count').textContent = holdingsCount;
+                const holdingsCountEl = document.getElementById('holdings-count');
+                if (holdingsCountEl) holdingsCountEl.textContent = holdingsCount;
 
             } catch (error) {
                 console.error('[Overview] Error loading balance:', error);
-                document.getElementById('total-balance').textContent = '오류';
-                document.getElementById('available-balance').textContent = '오류';
+                const totalBalanceEl = document.getElementById('total-balance');
+                const availableBalanceEl = document.getElementById('available-balance');
+                if (totalBalanceEl) totalBalanceEl.textContent = '오류';
+                if (availableBalanceEl) availableBalanceEl.textContent = '오류';
             }
         }
 
@@ -391,16 +397,20 @@
                 if (data.success) {
                     const stats = data.stats;
 
-                    // Update profit/loss
+                    // Update profit/loss (with null checks)
                     const totalPL = stats.total_profit_loss || 0;
                     const plElement = document.getElementById('total-profit-loss');
                     const plChangeElement = document.getElementById('total-pl-change');
 
-                    plElement.textContent = (totalPL >= 0 ? '+' : '') + formatNumber(totalPL) + ' KRW';
-                    plElement.style.color = totalPL >= 0 ? '#10b981' : '#ef4444';
+                    if (plElement) {
+                        plElement.textContent = (totalPL >= 0 ? '+' : '') + formatNumber(totalPL) + ' KRW';
+                        plElement.style.color = totalPL >= 0 ? '#10b981' : '#ef4444';
+                    }
 
-                    plChangeElement.textContent = `승률: ${stats.win_rate}%`;
-                    plChangeElement.className = 'stat-change ' + (totalPL >= 0 ? 'positive' : 'negative');
+                    if (plChangeElement) {
+                        plChangeElement.textContent = `승률: ${stats.win_rate}%`;
+                        plChangeElement.className = 'stat-change ' + (totalPL >= 0 ? 'positive' : 'negative');
+                    }
                 }
 
                 // Get active orders count
@@ -412,7 +422,8 @@
 
                 if (ordersResponse.ok) {
                     const orders = await ordersResponse.json();
-                    document.getElementById('active-orders').textContent = orders.length || 0;
+                    const activeOrdersEl = document.getElementById('active-orders');
+                    if (activeOrdersEl) activeOrdersEl.textContent = orders.length || 0;
                 }
 
             } catch (error) {
@@ -480,14 +491,14 @@
                 checkPlanAccess()
             ]);
 
+            // Auto-refresh every 30 seconds (only after init completes)
+            setInterval(() => {
+                loadBalanceData();
+                loadStatsData();
+            }, 30000);
+
             console.log('[Overview] Initialization complete');
         }
-
-        // Auto-refresh every 30 seconds
-        setInterval(() => {
-            loadBalanceData();
-            loadStatsData();
-        }, 30000);
 
         // Initialize on page load
         if (document.readyState === 'loading') {
