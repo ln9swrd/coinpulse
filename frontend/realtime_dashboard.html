@@ -428,21 +428,24 @@
                             data: krwData,
                             borderColor: 'rgb(102, 126, 234)',
                             backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                            tension: 0.4
+                            tension: 0.4,
+                            yAxisID: 'y-left'
                         },
                         {
                             label: '주문가능액',
                             data: availableData,
                             borderColor: 'rgb(16, 185, 129)',
                             backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            tension: 0.4
+                            tension: 0.4,
+                            yAxisID: 'y-left'
                         },
                         {
                             label: '포트폴리오 총액',
                             data: totalData,
                             borderColor: 'rgb(239, 68, 68)',
                             backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                            tension: 0.4
+                            tension: 0.4,
+                            yAxisID: 'y-right'
                         }
                     ]
                 },
@@ -472,12 +475,42 @@
                         }
                     },
                     scales: {
-                        y: {
+                        'y-left': {
+                            type: 'linear',
+                            position: 'left',
                             beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'KRW 잔고 (원)',
+                                color: 'rgb(102, 126, 234)'
+                            },
                             ticks: {
                                 callback: function(value) {
                                     return value.toLocaleString() + '원';
-                                }
+                                },
+                                color: 'rgb(102, 126, 234)'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        },
+                        'y-right': {
+                            type: 'linear',
+                            position: 'right',
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: '포트폴리오 총액 (원)',
+                                color: 'rgb(239, 68, 68)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString() + '원';
+                                },
+                                color: 'rgb(239, 68, 68)'
+                            },
+                            grid: {
+                                drawOnChartArea: true
                             }
                         },
                         x: {
