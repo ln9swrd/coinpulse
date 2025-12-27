@@ -91,7 +91,7 @@
                 await pageLoader.loadPage(filePath, contentContainer, {
                     useCache: useCache,
                     showLoading: true,
-                    extractBody: true,
+                    extractBody: false,  // Changed to false - load full HTML including <head>
                     executeScripts: true
                 });
 
