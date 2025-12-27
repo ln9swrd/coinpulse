@@ -265,20 +265,26 @@
             <div class="actions-grid">
                 <div class="action-card" onclick="window.location.hash = 'trading'">
                     <div class="action-icon">📈</div>
-                    <div class="action-title">거래 차트</div>
+                    <div class="action-title">차트</div>
                     <div class="action-description">실시간 차트 보기</div>
                 </div>
 
+                <div class="action-card enterprise-only" id="surge-action-card" onclick="window.location.hash = 'surge'" style="display: none;">
+                    <div class="action-icon">📊</div>
+                    <div class="action-title">단타 감지</div>
+                    <div class="action-description">급등 코인 실시간 모니터링</div>
+                </div>
+
                 <div class="action-card enterprise-only" id="signals-action-card" onclick="window.location.hash = 'signals'" style="display: none;">
-                    <div class="action-icon">🚀</div>
-                    <div class="action-title">급등 신호</div>
-                    <div class="action-description">AI 급등 예측 확인</div>
+                    <div class="action-icon">⚡</div>
+                    <div class="action-title">단타 이력</div>
+                    <div class="action-description">급등 신호 이력 확인</div>
                 </div>
 
                 <div class="action-card enterprise-only" id="auto-trading-action-card" onclick="window.location.hash = 'auto-trading'" style="display: none;">
-                    <div class="action-icon">⚡</div>
-                    <div class="action-title">자동 매매</div>
-                    <div class="action-description">자동 매매 설정</div>
+                    <div class="action-icon">🤖</div>
+                    <div class="action-title">단타 설정</div>
+                    <div class="action-description">자동매매 알림 설정</div>
                 </div>
 
                 <div class="action-card" onclick="window.location.hash = 'portfolio'">
@@ -407,8 +413,8 @@
             }
         }
 
-        // Check Enterprise feature access
-        async function checkEnterpriseAccess() {
+        // Check plan access for surge features
+        async function checkPlanAccess() {
             try {
                 const response = await fetch(`${window.API_BASE}/api/user/subscription`, {
                     headers: {
@@ -421,24 +427,30 @@
 
                 console.log('[Overview] Current plan:', plan);
 
-                // Show Enterprise-only action cards for Enterprise plan
+                const surgeCard = document.getElementById('surge-action-card');
                 const signalsCard = document.getElementById('signals-action-card');
                 const autoTradingCard = document.getElementById('auto-trading-action-card');
 
-                if (plan === 'enterprise') {
-                    console.log('[Overview] Enterprise plan - showing surge features');
-                    if (signalsCard) signalsCard.style.display = 'block';
-                    if (autoTradingCard) autoTradingCard.style.display = 'block';
-                } else {
-                    console.log('[Overview] Non-Enterprise plan - hiding surge features');
+                // Free: 단타 감지만 보기 가능
+                // Basic/Pro/Enterprise: 모든 단타 기능 사용 가능
+                if (plan === 'free') {
+                    console.log('[Overview] Free plan - showing surge monitoring only');
+                    if (surgeCard) surgeCard.style.display = 'block';
                     if (signalsCard) signalsCard.style.display = 'none';
                     if (autoTradingCard) autoTradingCard.style.display = 'none';
+                } else {
+                    console.log(`[Overview] ${plan.toUpperCase()} plan - showing all surge features`);
+                    if (surgeCard) surgeCard.style.display = 'block';
+                    if (signalsCard) signalsCard.style.display = 'block';
+                    if (autoTradingCard) autoTradingCard.style.display = 'block';
                 }
             } catch (error) {
                 console.error('[Overview] Failed to check plan:', error);
-                // Hide by default on error
+                // Show surge monitoring only by default on error
+                const surgeCard = document.getElementById('surge-action-card');
                 const signalsCard = document.getElementById('signals-action-card');
                 const autoTradingCard = document.getElementById('auto-trading-action-card');
+                if (surgeCard) surgeCard.style.display = 'block';
                 if (signalsCard) signalsCard.style.display = 'none';
                 if (autoTradingCard) autoTradingCard.style.display = 'none';
             }
@@ -458,7 +470,7 @@
             await Promise.all([
                 loadBalanceData(),
                 loadStatsData(),
-                checkEnterpriseAccess()
+                checkPlanAccess()
             ]);
 
             console.log('[Overview] Initialization complete');

@@ -144,16 +144,32 @@
 
                     console.log('[Dashboard] Current plan:', plan);
 
-                    // Get Enterprise feature menu links
+                    // Get surge feature menu links
                     const enterpriseSectionTitle = document.getElementById('enterprise-section-title');
                     const surgeMenuLink = document.getElementById('surge-menu-link');
                     const signalsMenuLink = document.getElementById('signals-menu-link');
                     const autoTradingMenuLink = document.getElementById('auto-trading-menu-link');
                     const telegramMenuLink = document.getElementById('telegram-menu-link');
 
-                    // Show Enterprise features only for Enterprise plan
-                    if (plan === 'enterprise') {
-                        console.log('[Dashboard] Enterprise plan - showing Enterprise features');
+                    // Surge features access by plan
+                    // Free: surge monitoring only (view)
+                    // Basic/Pro/Enterprise: all surge features
+                    if (plan === 'free') {
+                        console.log('[Dashboard] Free plan - showing surge monitoring only');
+                        if (enterpriseSectionTitle) {
+                            enterpriseSectionTitle.style.display = 'block';
+                        }
+                        if (surgeMenuLink) {
+                            surgeMenuLink.style.display = 'flex';
+                        }
+                        if (signalsMenuLink) {
+                            signalsMenuLink.style.display = 'none';
+                        }
+                        if (autoTradingMenuLink) {
+                            autoTradingMenuLink.style.display = 'none';
+                        }
+                    } else {
+                        console.log(`[Dashboard] ${plan.toUpperCase()} plan - showing all surge features`);
                         if (enterpriseSectionTitle) {
                             enterpriseSectionTitle.style.display = 'block';
                         }
@@ -166,58 +182,46 @@
                         if (autoTradingMenuLink) {
                             autoTradingMenuLink.style.display = 'flex';
                         }
-                    } else {
-                        console.log('[Dashboard] Non-Enterprise plan - hiding Enterprise features');
-                        if (enterpriseSectionTitle) {
-                            enterpriseSectionTitle.style.display = 'none';
-                        }
-                        if (surgeMenuLink) {
-                            surgeMenuLink.style.display = 'none';
-                        }
-                        if (signalsMenuLink) {
-                            signalsMenuLink.style.display = 'none';
-                        }
-                        if (autoTradingMenuLink) {
-                            autoTradingMenuLink.style.display = 'none';
-                        }
                     }
 
-                    // Show Telegram integration for Enterprise plan only
-                    if (plan === 'enterprise') {
+                    // Show Telegram integration for Pro/Enterprise only
+                    if (plan === 'pro' || plan === 'enterprise') {
                         console.log(`[Dashboard] ${plan} plan - showing Telegram integration`);
                         if (telegramMenuLink) {
                             telegramMenuLink.style.display = 'flex';
                         }
-                        // Show footer Enterprise links
-                        const footerEnterpriseLinks = document.querySelectorAll('.enterprise-only-link');
-                        footerEnterpriseLinks.forEach(link => {
-                            link.style.display = 'list-item';
-                        });
                     } else {
-                        console.log('[Dashboard] Free/Basic/Pro plan - hiding Telegram integration');
+                        console.log('[Dashboard] Free/Basic plan - hiding Telegram integration');
                         if (telegramMenuLink) {
                             telegramMenuLink.style.display = 'none';
                         }
-                        // Hide footer Enterprise links
-                        const footerEnterpriseLinks = document.querySelectorAll('.enterprise-only-link');
-                        footerEnterpriseLinks.forEach(link => {
+                    }
+
+                    // Show footer paid links for Basic/Pro/Enterprise
+                    const footerPaidLinks = document.querySelectorAll('.paid-only-link');
+                    if (plan !== 'free') {
+                        footerPaidLinks.forEach(link => {
+                            link.style.display = 'list-item';
+                        });
+                    } else {
+                        footerPaidLinks.forEach(link => {
                             link.style.display = 'none';
                         });
                     }
 
                 } catch (error) {
-                    console.error('[Dashboard] Failed to check Enterprise feature access:', error);
-                    // On error, hide Enterprise features by default
+                    console.error('[Dashboard] Failed to check plan access:', error);
+                    // On error, show surge monitoring only (Free plan default)
                     const enterpriseSectionTitle = document.getElementById('enterprise-section-title');
                     const surgeMenuLink = document.getElementById('surge-menu-link');
                     const signalsMenuLink = document.getElementById('signals-menu-link');
                     const autoTradingMenuLink = document.getElementById('auto-trading-menu-link');
                     const telegramMenuLink = document.getElementById('telegram-menu-link');
                     if (enterpriseSectionTitle) {
-                        enterpriseSectionTitle.style.display = 'none';
+                        enterpriseSectionTitle.style.display = 'block';
                     }
                     if (surgeMenuLink) {
-                        surgeMenuLink.style.display = 'none';
+                        surgeMenuLink.style.display = 'flex';
                     }
                     if (signalsMenuLink) {
                         signalsMenuLink.style.display = 'none';
@@ -228,9 +232,9 @@
                     if (telegramMenuLink) {
                         telegramMenuLink.style.display = 'none';
                     }
-                    // Hide footer Enterprise links on error
-                    const footerEnterpriseLinks = document.querySelectorAll('.enterprise-only-link');
-                    footerEnterpriseLinks.forEach(link => {
+                    // Hide footer paid links on error
+                    const footerPaidLinks = document.querySelectorAll('.paid-only-link');
+                    footerPaidLinks.forEach(link => {
                         link.style.display = 'none';
                     });
                 }
