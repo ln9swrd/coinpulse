@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>코인펄스 - 실시간 대시보드</title>
+    <title>코인펄스 - 잔고 현황</title>
 
     <!-- Scripts will be loaded dynamically to ensure proper loading order -->
 
@@ -25,38 +25,6 @@
             gap: 10px;
         }
 
-        .connection-status {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .connection-status.connected {
-            background: #10b981;
-            color: white;
-        }
-
-        .connection-status.disconnected {
-            background: #ef4444;
-            color: white;
-        }
-
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: currentColor;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
 
         .dashboard-grid {
             display: grid;
@@ -214,16 +182,9 @@
         <!-- Header -->
         <div class="header">
             <h1>
-                <span>📊</span>
-                코인펄스 실시간 대시보드
+                <span>💰</span>
+                잔고 현황
             </h1>
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <!-- Notification Bell (auto-added by notification_system.js) -->
-                <div class="connection-status disconnected" id="connection-status">
-                    <span class="status-dot"></span>
-                    <span id="status-text">연결 중...</span>
-                </div>
-            </div>
         </div>
 
         <!-- Login Required Notice -->
@@ -398,17 +359,6 @@
 
             function initDashboard() {
                 console.log('[Dashboard] Initializing dashboard...');
-
-            // Elements
-            const connectionStatus = document.getElementById('connection-status');
-            const statusText = document.getElementById('status-text');
-
-            // Update connection status to "loaded"
-            if (connectionStatus && statusText) {
-                connectionStatus.classList.remove('disconnected');
-                connectionStatus.classList.add('connected');
-                statusText.textContent = '데이터 로드됨';
-            }
 
         // Portfolio Chart
         let portfolioChart = null;
