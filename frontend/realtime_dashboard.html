@@ -87,49 +87,6 @@
             line-height: 1.6;
         }
 
-        .price-card {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background: #f9fafb;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            transition: all 0.3s;
-        }
-
-        .price-card:hover {
-            background: #f3f4f6;
-            transform: translateX(5px);
-        }
-
-        .price-symbol {
-            font-weight: 700;
-            font-size: 16px;
-            color: #374151;
-        }
-
-        .price-value {
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        .price-change {
-            font-size: 14px;
-            font-weight: 600;
-            padding: 4px 8px;
-            border-radius: 4px;
-        }
-
-        .price-up {
-            color: #10b981;
-            background: #d1fae5;
-        }
-
-        .price-down {
-            color: #ef4444;
-            background: #fee2e2;
-        }
 
         .stat-item {
             display: flex;
@@ -153,32 +110,6 @@
             color: #111827;
         }
 
-        .notification {
-            padding: 15px;
-            background: #e0e7ff;
-            border-left: 4px solid #667eea;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            font-size: 14px;
-            animation: slideIn 0.3s;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .notification-time {
-            color: #6b7280;
-            font-size: 12px;
-            margin-top: 5px;
-        }
 
         .empty-state {
             text-align: center;
@@ -209,13 +140,6 @@
             background: #5568d3;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        .market-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
         }
 
         /* Balance Grid */
@@ -281,12 +205,6 @@
 
             .dashboard-grid {
                 grid-template-columns: 1fr;
-            }
-
-            .price-card {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
             }
         }
     </style>
@@ -387,20 +305,6 @@
 
         <!-- Dashboard Grid -->
         <div class="dashboard-grid">
-            <!-- Real-time Prices -->
-            <div class="card">
-                <div class="card-header">
-                    실시간 가격
-                    <span style="font-size: 12px; color: #6b7280;">1초마다 업데이트</span>
-                </div>
-                <div class="card-content" id="price-container">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📈</div>
-                        <div>가격 피드 연결 중...</div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Portfolio Status -->
             <div class="card">
                 <div class="card-header">포트폴리오 상태</div>
@@ -420,16 +324,6 @@
                 </div>
             </div>
 
-            <!-- Notifications -->
-            <div class="card">
-                <div class="card-header">최근 알림</div>
-                <div class="card-content" id="notifications-container">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">🔔</div>
-                        <div>알림이 없습니다</div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -470,7 +364,6 @@
                     console.log('[Dashboard] Starting library loading...');
 
                     // Load libraries in sequence
-                    await loadScript('https://cdn.socket.io/4.5.4/socket.io.min.js');
                     await loadScript('https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js');
                     await loadScript('js/coin_info.js?v=20251227');
                     await loadScript('js/notification_system.js?v=20251227');
@@ -506,188 +399,16 @@
             function initDashboard() {
                 console.log('[Dashboard] Initializing dashboard...');
 
-            // WebSocket Connection
-            const socket = io('https://coinpulse.sinsi.ai', {
-                transports: ['websocket', 'polling'],
-                reconnection: true,
-                reconnectionDelay: 1000,
-                reconnectionAttempts: 10
-            });
-
-            // State
-            const state = {
-                subscribedMarkets: new Set(['KRW-BTC', 'KRW-ETH', 'KRW-XRP']),
-                prices: {},
-                notifications: []
-            };
-
             // Elements
             const connectionStatus = document.getElementById('connection-status');
             const statusText = document.getElementById('status-text');
-            const priceContainer = document.getElementById('price-container');
-            const notificationsContainer = document.getElementById('notifications-container');
 
-        // Socket.IO Event Handlers
-        socket.on('connect', () => {
-            console.log('[WebSocket] Connected');
-            updateConnectionStatus(true);
-
-            // Subscribe to markets
-            state.subscribedMarkets.forEach(market => {
-                socket.emit('subscribe_market', { market });
-                console.log(`[WebSocket] Subscribed to ${market}`);
-            });
-        });
-
-        socket.on('disconnect', () => {
-            console.log('[WebSocket] Disconnected');
-            updateConnectionStatus(false);
-        });
-
-        socket.on('connected', (data) => {
-            console.log('[WebSocket] Server acknowledged connection:', data);
-        });
-
-        socket.on('price_update', (data) => {
-            console.log('[WebSocket] Price update:', data);
-            updatePrice(data);
-        });
-
-        socket.on('order_notification', (data) => {
-            console.log('[WebSocket] Order notification:', data);
-            addNotification('Order', data);
-        });
-
-        socket.on('position_update', (data) => {
-            console.log('[WebSocket] Position update:', data);
-            addNotification('Position', data);
-        });
-
-        socket.on('error', (data) => {
-            console.error('[WebSocket] Error:', data);
-        });
-
-        // Update connection status
-        function updateConnectionStatus(connected) {
-            if (connected) {
+            // Update connection status to "loaded"
+            if (connectionStatus && statusText) {
                 connectionStatus.classList.remove('disconnected');
                 connectionStatus.classList.add('connected');
-                statusText.textContent = '연결됨';
-            } else {
-                connectionStatus.classList.remove('connected');
-                connectionStatus.classList.add('disconnected');
-                statusText.textContent = '연결 끊김';
+                statusText.textContent = '데이터 로드됨';
             }
-        }
-
-        // Update price display
-        function updatePrice(data) {
-            const { market, price, change } = data;
-            state.prices[market] = data;
-
-            // Render all prices
-            renderPrices();
-        }
-
-        function renderPrices() {
-            const markets = Array.from(state.subscribedMarkets);
-
-            if (markets.length === 0) {
-                priceContainer.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📈</div>
-                        <div>모니터링할 마켓을 선택하세요</div>
-                    </div>
-                `;
-                return;
-            }
-
-            priceContainer.innerHTML = markets.map(market => {
-                const data = state.prices[market];
-                const coinSymbol = extractCoinSymbol(market);
-                const coinInfo = getCoinInfo(coinSymbol);
-
-                if (!data) {
-                    return `
-                        <div class="price-card">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <img src="${coinInfo.logo}" alt="${coinSymbol}"
-                                     style="width: 28px; height: 28px; border-radius: 50%;"
-                                     onerror="this.style.display='none'">
-                                <div class="price-symbol">${coinInfo.name}</div>
-                            </div>
-                            <div style="color: #9ca3af;">로딩 중...</div>
-                        </div>
-                    `;
-                }
-
-                const changeClass = data.change >= 0 ? 'price-up' : 'price-down';
-                const changePrefix = data.change >= 0 ? '+' : '';
-
-                return `
-                    <div class="price-card">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <img src="${coinInfo.logo}" alt="${coinSymbol}"
-                                 style="width: 28px; height: 28px; border-radius: 50%;"
-                                 onerror="this.style.display='none'">
-                            <div>
-                                <div class="price-symbol">${coinInfo.name}</div>
-                                <div style="font-size: 0.75em; color: #9ca3af;">${market}</div>
-                            </div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div class="price-value">${Number(data.price).toLocaleString()} KRW</div>
-                            <div class="price-change ${changeClass}">
-                                ${changePrefix}${data.change.toFixed(2)}%
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Add notification
-        function addNotification(type, data) {
-            const notification = {
-                type,
-                data,
-                timestamp: new Date().toLocaleTimeString()
-            };
-
-            state.notifications.unshift(notification);
-            if (state.notifications.length > 10) {
-                state.notifications.pop();
-            }
-
-            renderNotifications();
-        }
-
-        function renderNotifications() {
-            if (state.notifications.length === 0) {
-                notificationsContainer.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">🔔</div>
-                        <div>알림이 없습니다</div>
-                    </div>
-                `;
-                return;
-            }
-
-            notificationsContainer.innerHTML = state.notifications.map(notif => {
-                const typeMap = {
-                    'Order': '주문',
-                    'Position': '포지션'
-                };
-                const typeText = typeMap[notif.type] || notif.type;
-
-                return `
-                    <div class="notification">
-                        <strong>${typeText}</strong>: ${JSON.stringify(notif.data.data || notif.data, null, 2)}
-                        <div class="notification-time">${notif.timestamp}</div>
-                    </div>
-                `;
-            }).join('');
-        }
 
         // Portfolio Chart
         let portfolioChart = null;
@@ -806,7 +527,7 @@
                 }
 
                 console.log('[Balance] Fetching balance data...');
-                const response = await fetch('https://coinpulse.sinsi.ai/api/balance', {
+                const response = await fetch('https://coinpulse.sinsi.ai/api/account/balance', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -954,10 +675,7 @@
             }
         }
 
-        // Initialize
-        renderPrices();
-
-        // Check login status first
+        // Initialize - Check login status first
         if (checkLoginStatus()) {
             // User is logged in, load data
             fetchPortfolioStatus();
