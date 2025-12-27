@@ -35,15 +35,15 @@ def get_users_with_api_keys():
     try:
         db = get_db_session()
 
-        # Query users with Upbit API keys
+        # Query users with Upbit API keys (active and verified)
         query = text("""
             SELECT DISTINCT user_id
-            FROM user_api_keys
-            WHERE exchange = 'upbit'
-            AND access_key IS NOT NULL
-            AND access_key != ''
-            AND secret_key IS NOT NULL
-            AND secret_key != ''
+            FROM upbit_api_keys
+            WHERE is_active = true
+            AND access_key_encrypted IS NOT NULL
+            AND access_key_encrypted != ''
+            AND secret_key_encrypted IS NOT NULL
+            AND secret_key_encrypted != ''
             ORDER BY user_id
         """)
 
