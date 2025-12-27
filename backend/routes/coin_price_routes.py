@@ -51,38 +51,60 @@ def get_coin_price_history():
                 'valid_markets': valid_markets
             }), 400
 
-        # Limit days to max 365 (1 year)
-        if days > 365:
-            days = 365
+        # days=0 means all available data (no limit)
+        # Otherwise limit to reasonable range (max 5000 days)
+        if days > 0 and days > 5000:
+            days = 5000
 
         logger.info(f"[CoinPrice] Retrieving {len(markets)} markets for {days} days")
 
         # Get database session
         db = get_db_session()
 
-        # Calculate cutoff date
-        cutoff_date = datetime.now() - timedelta(days=days)
+        # Build query with optional date filter
+        if days > 0:
+            # Calculate cutoff date
+            cutoff_date = datetime.now() - timedelta(days=days)
 
-        # Query price history
-        query = text("""
-            SELECT
-                market,
-                date,
-                open_price,
-                high_price,
-                low_price,
-                close_price,
-                volume
-            FROM coin_price_history
-            WHERE market = ANY(:markets)
-            AND date >= :cutoff_date
-            ORDER BY date ASC
-        """)
+            # Query price history with date filter
+            query = text("""
+                SELECT
+                    market,
+                    date,
+                    open_price,
+                    high_price,
+                    low_price,
+                    close_price,
+                    volume
+                FROM coin_price_history
+                WHERE market = ANY(:markets)
+                AND date >= :cutoff_date
+                ORDER BY date ASC
+            """)
 
-        result = db.execute(query, {
-            'markets': markets,
-            'cutoff_date': cutoff_date.date()
-        })
+            result = db.execute(query, {
+                'markets': markets,
+                'cutoff_date': cutoff_date.date()
+            })
+        else:
+            # Query all available data (no date filter)
+            query = text("""
+                SELECT
+                    market,
+                    date,
+                    open_price,
+                    high_price,
+                    low_price,
+                    close_price,
+                    volume
+                FROM coin_price_history
+                WHERE market = ANY(:markets)
+                ORDER BY date ASC
+            """)
+
+            result = db.execute(query, {
+                'markets': markets
+            })
 
         # Group results by market
         price_data = {}

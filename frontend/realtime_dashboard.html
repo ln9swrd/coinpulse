@@ -681,9 +681,9 @@
             if (!chartElement) return;
 
             try {
-                // Fetch coin price history from shared API (no auth needed)
+                // Fetch coin price history from shared API (days=0 means all available data)
                 console.log('[CoinChart] Fetching coin price history...');
-                const response = await fetch('/api/coin-prices/history?markets=KRW-BTC,KRW-ETH&days=365');
+                const response = await fetch('/api/coin-prices/history?markets=KRW-BTC,KRW-ETH&days=0');
 
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);
