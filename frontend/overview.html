@@ -414,14 +414,15 @@
                 }
 
                 // Get active orders count
-                const ordersResponse = await fetch(`${window.API_BASE}/api/upbit/orders/open`, {
+                const ordersResponse = await fetch(`${window.API_BASE}/api/upbit/orders?state=wait`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
 
                 if (ordersResponse.ok) {
-                    const orders = await ordersResponse.json();
+                    const ordersData = await ordersResponse.json();
+                    const orders = ordersData.orders || ordersData || [];
                     const activeOrdersEl = document.getElementById('active-orders');
                     if (activeOrdersEl) activeOrdersEl.textContent = orders.length || 0;
                 }
