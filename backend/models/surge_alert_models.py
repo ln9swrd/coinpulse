@@ -198,9 +198,13 @@ class SurgeAlert(Base):
     coin = Column(String(10), nullable=False)    # 'BTC'
 
     # Signal info
+    signal_type = Column(String(20), nullable=False, default='surge')  # 'surge' or 'advisory'
     confidence = Column(Float, nullable=False)   # 85.5
+    expected_return = Column(Float, nullable=True)  # Expected return percentage
 
     # Price info (Numeric(20, 6) for up to 6 decimal places)
+    current_price = Column(Numeric(20, 6), nullable=True)   # Current price (for monitoring)
+    peak_price = Column(Numeric(20, 6), nullable=True)      # Peak price reached
     entry_price = Column(Numeric(20, 6), nullable=True)      # Entry price at signal time
     target_price = Column(Numeric(20, 6), nullable=True)     # Predicted target price
     stop_loss_price = Column(Numeric(20, 6), nullable=True)  # Stop loss price
@@ -216,6 +220,7 @@ class SurgeAlert(Base):
     status = Column(String(20), nullable=True)            # pending/executed/stopped/completed
     profit_loss = Column(Numeric(20, 6), nullable=True)       # Profit/loss in KRW (supports decimal)
     profit_loss_percent = Column(Float, nullable=True)    # Profit/loss %
+    close_reason = Column(String(100), nullable=True)     # Reason for closing position
 
     # Alert metadata
     reason = Column(Text, nullable=True)                  # Why this alert was sent
@@ -227,6 +232,7 @@ class SurgeAlert(Base):
     sent_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     executed_at = Column(DateTime, nullable=True)         # When trade was executed
     closed_at = Column(DateTime, nullable=True)           # When position was closed
+    last_checked_at = Column(DateTime, nullable=True)     # Last time position was checked
     week_number = Column(Integer, nullable=False, index=True)  # 202452 (YYYYWW format)
 
     # User action
@@ -249,7 +255,11 @@ class SurgeAlert(Base):
             'user_id': self.user_id,
             'market': self.market,
             'coin': self.coin,
+            'signal_type': self.signal_type,
             'confidence': self.confidence,
+            'expected_return': self.expected_return,
+            'current_price': self.current_price,
+            'peak_price': self.peak_price,
             'entry_price': self.entry_price,
             'target_price': self.target_price,
             'stop_loss_price': self.stop_loss_price,
@@ -261,11 +271,13 @@ class SurgeAlert(Base):
             'status': self.status,
             'profit_loss': self.profit_loss,
             'profit_loss_percent': self.profit_loss_percent,
+            'close_reason': self.close_reason,
             'reason': self.reason,
             'telegram_sent': self.telegram_sent,
             'sent_at': self.sent_at.isoformat() if self.sent_at else None,
             'executed_at': self.executed_at.isoformat() if self.executed_at else None,
             'closed_at': self.closed_at.isoformat() if self.closed_at else None,
+            'last_checked_at': self.last_checked_at.isoformat() if self.last_checked_at else None,
             'week_number': self.week_number,
             'user_action': self.user_action,
             'action_timestamp': self.action_timestamp.isoformat() if self.action_timestamp else None

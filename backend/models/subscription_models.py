@@ -75,7 +75,12 @@ class Subscription(Base):
     amount = Column(Integer, nullable=False, default=0)  # Amount in KRW
     currency = Column(String(3), nullable=False, default='KRW')
 
+    # Payment
+    payment_method = Column(String(50), nullable=True)  # e.g., 'card', 'bank_transfer'
+    auto_renew = Column(Boolean, default=False, nullable=False)  # Auto-renewal enabled
+
     # Dates
+    expires_at = Column(DateTime, nullable=True)  # Subscription expiration date
     started_at = Column(DateTime, nullable=True)  # When subscription became active
     current_period_start = Column(DateTime, nullable=True)
     current_period_end = Column(DateTime, nullable=True)
@@ -102,6 +107,9 @@ class Subscription(Base):
             'status': self.status,  # Already string
             'amount': self.amount,
             'currency': self.currency,
+            'payment_method': self.payment_method,
+            'auto_renew': self.auto_renew,
+            'expires_at': self.expires_at.isoformat() if self.expires_at else None,
             'started_at': self.started_at.isoformat() if self.started_at else None,
             'current_period_start': self.current_period_start.isoformat() if self.current_period_start else None,
             'current_period_end': self.current_period_end.isoformat() if self.current_period_end else None,
