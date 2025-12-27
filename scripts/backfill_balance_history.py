@@ -37,36 +37,6 @@ def get_user_id(db):
     return row[0]
 
 
-def get_historical_price(api, market, timestamp):
-    """
-    특정 시점의 가격을 가져옵니다 (일봉 데이터 활용)
-
-    Args:
-        api: UpbitAPI instance
-        market: 마켓 코드 (예: KRW-BTC)
-        timestamp: 날짜 (YYYY-MM-DD)
-
-    Returns:
-        float: 해당 날짜의 종가
-    """
-    import time
-
-    try:
-        # Rate limiting: 0.1초 대기
-        time.sleep(0.1)
-
-        # 일봉 1개만 가져오기
-        candles = api.get_candles_days(market=market, count=1, to=f"{timestamp}T23:59:59Z")
-        if candles and len(candles) > 0:
-            return float(candles[0]['trade_price'])
-    except Exception as e:
-        # 429 에러인 경우 더 긴 대기
-        if '429' in str(e):
-            time.sleep(1)
-        print(f"  Warning: Failed to get historical price for {market} at {timestamp}: {e}")
-    return 0
-
-
 def backfill_balance_history(user_id, days=90):
     """
     현재 잔고를 기준으로 과거 N일치 잔고 이력을 역산합니다.
@@ -393,13 +363,6 @@ def create_snapshot(balance_tracker, api, date):
     total_profit = crypto_value - total_purchase_amount
     total_profit_rate = (total_profit / total_purchase_amount * 100) if total_purchase_amount > 0 else 0
 
-    # BTC/ETH/XRP 가격 가져오기
-    reference_prices = {}
-    for market in ['KRW-BTC', 'KRW-ETH', 'KRW-XRP']:
-        price = get_historical_price(api, market, date)
-        if price > 0:
-            reference_prices[market] = price
-
     return {
         'snapshot_time': datetime.combine(date, datetime.min.time()),
         'krw_balance': krw_balance,
@@ -413,7 +376,6 @@ def create_snapshot(balance_tracker, api, date):
         'holdings_detail': {
             'coins': holdings_detail,
             'total_purchase_amount': total_purchase_amount,
-            'reference_prices': reference_prices,  # BTC/ETH/XRP 가격
             'has_deposit': balance_tracker.get('has_deposit', False),  # 입금 이벤트 플래그
             'deposit_amount': balance_tracker.get('deposit_amount', 0)  # 입금 금액
         }
