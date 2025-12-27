@@ -37,9 +37,21 @@
         /* Pricing Cards */
         .pricing-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 32px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
             margin-bottom: 48px;
+        }
+
+        @media (max-width: 1200px) {
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .pricing-card {
@@ -446,6 +458,57 @@
 
                 <button class="btn-select primary" onclick="alert('준비 중입니다')">
                     플랜 선택
+                </button>
+            </div>
+
+            <!-- Enterprise Plan -->
+            <div class="pricing-card">
+                <div class="plan-name">Enterprise</div>
+                <div class="plan-description">관리자 전용 플랜</div>
+                <div class="plan-price">맞춤형</div>
+                <div class="plan-period">별도 문의</div>
+
+                <ul class="plan-features">
+                    <li>
+                        <svg class="feature-icon check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span><strong>Pro 모든 기능 포함</strong></span>
+                    </li>
+                    <li>
+                        <svg class="feature-icon check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span>관리자 대시보드 접근</span>
+                    </li>
+                    <li>
+                        <svg class="feature-icon check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span>시스템 설정 관리</span>
+                    </li>
+                    <li>
+                        <svg class="feature-icon check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span>사용자 관리</span>
+                    </li>
+                    <li>
+                        <svg class="feature-icon check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span>급등 감지 설정</span>
+                    </li>
+                    <li>
+                        <svg class="feature-icon check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span>전용 기술 지원</span>
+                    </li>
+                </ul>
+
+                <button class="btn-select secondary" onclick="alert('관리자 전용 플랜입니다')">
+                    관리자 전용
                 </button>
             </div>
         </div>
