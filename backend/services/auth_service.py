@@ -31,8 +31,9 @@ class AuthService:
         self.fernet = Fernet(self.encryption_key.encode() if isinstance(self.encryption_key, str) else self.encryption_key)
 
         # Token expiration times
-        self.access_token_expires = timedelta(hours=1)
-        self.refresh_token_expires = timedelta(days=30)
+        # Updated 2025-12-26: Increased from 1 hour to 7 days to reduce frequent logouts
+        self.access_token_expires = timedelta(days=7)  # 7 days (168 hours)
+        self.refresh_token_expires = timedelta(days=90)  # 90 days (extended from 30)
 
     @staticmethod
     def _generate_secret_key() -> str:

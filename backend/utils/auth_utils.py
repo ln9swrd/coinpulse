@@ -18,8 +18,9 @@ load_dotenv()
 # Configuration
 SECRET_KEY = os.getenv('JWT_SECRET_KEY', secrets.token_hex(32))  # Use env var or fallback to random
 ALGORITHM = 'HS256'
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 60 * 24)) // 60  # Convert seconds to minutes
-REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES', 2592000)) // 86400  # Convert seconds to days
+# Updated 2025-12-26: Increased from 24 hours to 7 days to reduce frequent logouts
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 60 * 24 * 7)) // 60  # 7 days (10080 minutes)
+REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES', 60 * 60 * 24 * 90)) // 86400  # 90 days
 
 
 # ============================================
