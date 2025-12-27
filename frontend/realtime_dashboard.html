@@ -387,6 +387,9 @@
                 const data = await response.json();
                 if (data.success && data.history) {
                     console.log(`[Balance] Loaded ${data.history.length} historical snapshots`);
+                    console.log('[Balance] Date range:',
+                        data.history.length > 0 ? `${data.history[0].date} to ${data.history[data.history.length - 1].date}` : 'none');
+                    console.log('[Balance] Full data:', data.history);
                     balanceHistoryData = data.history;
                     return data.history;
                 } else {
