@@ -20,14 +20,22 @@ function formatKRW(amount) {
 // Format date
 function formatDate(dateString) {
     if (!dateString || dateString === 'N/A') return '-';
+
+    // Try parsing as ISO date
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) return '-'; // Check if date is valid
+    if (isNaN(date.getTime())) {
+        // If parsing fails, return the string as-is (might be pre-formatted kr_time)
+        return dateString;
+    }
+
+    // Format as KST
     return date.toLocaleString('ko-KR', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
+        timeZone: 'Asia/Seoul'
     });
 }
 
@@ -145,7 +153,7 @@ function renderOrdersTable(orders) {
             <tbody>
                 ${orders.map(order => `
                     <tr>
-                        <td>${formatDate(order.executed_at || order.created_at)}</td>
+                        <td>${formatDate(order.kr_time || order.executed_at || order.created_at)}</td>
                         <td><strong>${order.market}</strong></td>
                         <td>
                             <span class="badge ${order.side === 'bid' ? 'badge-buy' : 'badge-sell'}">
