@@ -446,7 +446,11 @@ WorkingTradingChart.prototype.updateAvailableBalances = async function() {
         const result = await response.json();
 
         if (response.ok && result.success) {
-            const krwBalance = result.balance || 0;
+            // Extract KRW balance from accounts array
+            const accounts = result.balance || [];
+            const krwAccount = accounts.find(acc => acc.currency === 'KRW');
+            const krwBalance = krwAccount ? parseFloat(krwAccount.balance) : 0;
+
             const buyBalanceInfo = document.getElementById('buy-balance-info');
             if (buyBalanceInfo) {
                 buyBalanceInfo.textContent = `잔액: ${krwBalance.toLocaleString()}원`;
