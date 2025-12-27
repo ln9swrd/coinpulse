@@ -171,8 +171,12 @@ export class PageLoader {
                 newScript.textContent = `(function() {\n${scriptContent}\n})();`;
             }
 
-            // Replace old script with new one
-            oldScript.parentNode.replaceChild(newScript, oldScript);
+            // Replace old script with new one (check parentNode exists)
+            if (oldScript.parentNode) {
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            } else {
+                console.warn('[PageLoader] Script has no parent node, skipping replacement');
+            }
         }
     }
 
