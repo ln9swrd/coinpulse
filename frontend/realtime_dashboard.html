@@ -463,19 +463,25 @@
 
             history.forEach(d => {
                 const time = new Date(d.timestamp);
-                const dateKey = `${(time.getMonth() + 1).toString().padStart(2, '0')}-${time.getDate().toString().padStart(2, '0')}`;
+                // Use YYYY-MM-DD for proper sorting
+                const dateKey = `${time.getFullYear()}-${(time.getMonth() + 1).toString().padStart(2, '0')}-${time.getDate().toString().padStart(2, '0')}`;
                 if (!dataByDate[dateKey]) {
-                    dataByDate[dateKey] = [];
+                    dataByDate[dateKey] = {
+                        fullDate: dateKey,
+                        displayDate: `${(time.getMonth() + 1).toString().padStart(2, '0')}-${time.getDate().toString().padStart(2, '0')}`,
+                        data: []
+                    };
                 }
-                dataByDate[dateKey].push(d);
+                dataByDate[dateKey].data.push(d);
             });
 
-            const dates = Object.keys(dataByDate).sort();
-            const aggregatedData = dates.map(date => {
-                const dayData = dataByDate[date];
-                const lastPoint = dayData[dayData.length - 1];
+            // Sort by full date (YYYY-MM-DD) then extract display date (MM-DD)
+            const sortedDates = Object.keys(dataByDate).sort();
+            const aggregatedData = sortedDates.map(dateKey => {
+                const dateObj = dataByDate[dateKey];
+                const lastPoint = dateObj.data[dateObj.data.length - 1];
                 return {
-                    label: date,
+                    label: dateObj.displayDate,
                     krw: lastPoint.krw,
                     available: lastPoint.available,
                     total: lastPoint.total
@@ -641,19 +647,25 @@
             const dataByDate = {};
             history.forEach(d => {
                 const time = new Date(d.timestamp);
-                const dateKey = `${(time.getMonth() + 1).toString().padStart(2, '0')}-${time.getDate().toString().padStart(2, '0')}`;
+                // Use YYYY-MM-DD for proper sorting
+                const dateKey = `${time.getFullYear()}-${(time.getMonth() + 1).toString().padStart(2, '0')}-${time.getDate().toString().padStart(2, '0')}`;
                 if (!dataByDate[dateKey]) {
-                    dataByDate[dateKey] = [];
+                    dataByDate[dateKey] = {
+                        fullDate: dateKey,
+                        displayDate: `${(time.getMonth() + 1).toString().padStart(2, '0')}-${time.getDate().toString().padStart(2, '0')}`,
+                        data: []
+                    };
                 }
-                dataByDate[dateKey].push(d);
+                dataByDate[dateKey].data.push(d);
             });
 
-            const dates = Object.keys(dataByDate).sort();
-            const aggregatedData = dates.map(date => {
-                const dayData = dataByDate[date];
-                const lastPoint = dayData[dayData.length - 1];
+            // Sort by full date (YYYY-MM-DD) then extract display date (MM-DD)
+            const sortedDates = Object.keys(dataByDate).sort();
+            const aggregatedData = sortedDates.map(dateKey => {
+                const dateObj = dataByDate[dateKey];
+                const lastPoint = dateObj.data[dateObj.data.length - 1];
                 return {
-                    label: date,
+                    label: dateObj.displayDate,
                     krw: lastPoint.krw,
                     available: lastPoint.available,
                     total: lastPoint.total
