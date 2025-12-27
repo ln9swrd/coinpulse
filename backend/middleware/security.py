@@ -134,6 +134,8 @@ class RateLimiter:
             '/api/auth/me',
             '/api/auth/check',
             '/api/user/plan',
+            '/api/user/profile',  # User profile information (JWT secured)
+            '/api/user/api-keys/status',  # API keys status check (JWT secured)
             '/api/holdings',
             '/api/orders',
             '/api/trading/orders',  # Alternative route for orders
