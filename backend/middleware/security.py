@@ -138,7 +138,8 @@ class RateLimiter:
             '/api/orders',
             '/api/trading/orders',  # Alternative route for orders
             '/api/account/balance',
-            '/api/subscription/current',  # User subscription status
+            '/api/subscription/current',  # User subscription status (old route)
+            '/api/user/subscription',  # User subscription status (new route)
             '/api/subscription/transactions',  # User transaction history
             '/api/user/signals/stats',  # User signal statistics
             '/api/telegram/link/status',  # Telegram link status
