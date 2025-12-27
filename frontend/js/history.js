@@ -212,7 +212,16 @@ function showEmptyState(message) {
 }
 
 // Load data on page load
-window.addEventListener('DOMContentLoaded', () => {
+function initHistoryPage() {
     console.log('[History] Initializing history page...');
     loadOrders();
-});
+}
+
+// Handle both DOMContentLoaded and immediate execution (for dynamic loading)
+if (document.readyState === 'loading') {
+    // Still loading, wait for DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', initHistoryPage);
+} else {
+    // Already loaded (dynamic page loading), execute immediately
+    initHistoryPage();
+}
