@@ -96,10 +96,12 @@ class HoldingsHistory(Base):
     Holdings History table - Portfolio snapshots over time.
 
     Captures portfolio state at regular intervals for historical analysis.
+    Multi-user support: Each user has separate snapshot history.
     """
     __tablename__ = 'holdings_history'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=True, index=True, comment='User ID for multi-user support')
     snapshot_time = Column(DateTime, nullable=False, index=True, comment='Snapshot timestamp')
 
     # KRW Balance
@@ -119,6 +121,11 @@ class HoldingsHistory(Base):
 
     # Metadata
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Indexes for multi-user queries
+    __table_args__ = (
+        Index('idx_user_snapshot_time', 'user_id', 'snapshot_time'),
+    )
 
     def to_dict(self):
         """Convert model instance to dictionary."""
