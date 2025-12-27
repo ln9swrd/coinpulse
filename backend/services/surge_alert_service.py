@@ -447,21 +447,46 @@ class SurgeAlertService:
                     executed_volume = float(order_data.get('executed_volume', quantity))
                     avg_price = float(order_data.get('avg_price', entry_price))
 
+                    # ✅ CRITICAL: Recalculate stop-loss and take-profit based on ACTUAL execution price
+                    # This prevents slippage issues where signal price != execution price
+                    if use_prediction_prices and target_price and stop_loss_price:
+                        # Keep prediction-based absolute prices (already set)
+                        actual_stop_loss = final_stop_loss
+                        actual_take_profit = final_take_profit
+                        logger.info(f"[SurgeAlert] Using prediction-based prices (no recalculation)")
+                    else:
+                        # Recalculate based on actual execution price
+                        actual_stop_loss = None
+                        if settings.stop_loss_enabled:
+                            calculated = avg_price * (1 + settings.stop_loss_percent / 100)
+                            actual_stop_loss = round(calculated, 2) if avg_price < 100 else int(calculated)
+
+                        actual_take_profit = None
+                        if settings.take_profit_enabled:
+                            calculated = avg_price * (1 + settings.take_profit_percent / 100)
+                            actual_take_profit = round(calculated, 2) if avg_price < 100 else int(calculated)
+
+                        logger.info(f"[SurgeAlert] Recalculated based on execution price:")
+                        logger.info(f"  Stop Loss: {actual_stop_loss:,} KRW (avg_price × {1 + settings.stop_loss_percent/100:.3f})")
+                        logger.info(f"  Take Profit: {actual_take_profit:,} KRW (avg_price × {1 + settings.take_profit_percent/100:.3f})")
+
                     logger.info(f"[SurgeAlert] ✅ REAL order placed successfully:")
                     logger.info(f"  Order ID: {order_id}")
                     logger.info(f"  Market: {market}")
                     logger.info(f"  Amount: {amount:,} KRW")
                     logger.info(f"  Executed Volume: {executed_volume:.8f}")
                     logger.info(f"  Avg Price: {avg_price:,} KRW")
+                    logger.info(f"  Final Stop Loss: {actual_stop_loss:,} KRW")
+                    logger.info(f"  Final Take Profit: {actual_take_profit:,} KRW")
 
                     trade_info = {
                         'order_id': order_id,
                         'amount': amount,
                         'quantity': executed_volume,
                         'price': avg_price,
-                        'entry_price': entry_price,
-                        'stop_loss_price': final_stop_loss,
-                        'take_profit_price': final_take_profit,
+                        'entry_price': avg_price,  # ✅ Use actual execution price
+                        'stop_loss_price': actual_stop_loss,  # ✅ Recalculated
+                        'take_profit_price': actual_take_profit,  # ✅ Recalculated
                         'executed_at': datetime.utcnow(),
                         'real_trade': True
                     }
