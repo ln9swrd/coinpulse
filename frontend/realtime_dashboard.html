@@ -6,10 +6,10 @@
     <title>코인펄스 - 실시간 대시보드</title>
 
     <!-- Socket.IO Client -->
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js?v=20251218"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script src="js/coin_info.js?v=20251224"></script>
-    <script src="js/notification_system.js?v=20251224"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js?v=20251227"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js?v=20251227"></script>
+    <script src="js/coin_info.js?v=20251227"></script>
+    <script src="js/notification_system.js?v=20251227"></script>
 
     <link rel="stylesheet" href="css/internal-pages.css">
     <link rel="stylesheet" href="css/notification_system.css?v=20251224">
@@ -442,16 +442,49 @@
         (function() {
             'use strict';
 
-            // Wait for Socket.IO to load
+            // Wait for all required libraries to load
+            let retryCount = 0;
+            const maxRetries = 50; // 5 seconds max
+
             function initDashboard() {
-                // Check if Socket.IO is loaded
+                retryCount++;
+
+                // Check if all required libraries are loaded
                 if (typeof io === 'undefined') {
-                    console.log('[Dashboard] Waiting for Socket.IO...');
+                    if (retryCount >= maxRetries) {
+                        console.error('[Dashboard] Failed to load Socket.IO after', maxRetries, 'retries');
+                        const container = document.querySelector('.container');
+                        if (container) {
+                            container.innerHTML = `
+                                <div class="card" style="background: #fee2e2; border-left: 4px solid #ef4444; margin: 20px;">
+                                    <div style="padding: 20px; text-align: center;">
+                                        <div style="font-size: 48px; margin-bottom: 10px;">⚠️</div>
+                                        <h3 style="color: #991b1b; margin-bottom: 10px;">라이브러리 로드 실패</h3>
+                                        <p style="color: #7f1d1d; margin-bottom: 20px;">
+                                            Socket.IO 라이브러리를 불러올 수 없습니다. 페이지를 새로고침해주세요.
+                                        </p>
+                                        <button onclick="location.reload()" class="btn btn-primary">
+                                            새로고침
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        return;
+                    }
+
+                    console.log('[Dashboard] Waiting for Socket.IO... (attempt', retryCount, '/', maxRetries, ')');
                     setTimeout(initDashboard, 100);
                     return;
                 }
 
-                console.log('[Dashboard] Socket.IO loaded, initializing...');
+                if (typeof Chart === 'undefined') {
+                    console.log('[Dashboard] Waiting for Chart.js... (attempt', retryCount, '/', maxRetries, ')');
+                    setTimeout(initDashboard, 100);
+                    return;
+                }
+
+                console.log('[Dashboard] All libraries loaded, initializing...');
 
             // WebSocket Connection
             const socket = io('https://coinpulse.sinsi.ai', {
