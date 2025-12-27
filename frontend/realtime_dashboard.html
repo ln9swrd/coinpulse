@@ -234,6 +234,19 @@
             </div>
         </div>
 
+        <!-- Balance History Chart -->
+        <div class="card" id="chart-card">
+            <div class="card-header">
+                📈 잔고 변화 추이
+                <button id="clear-history-btn" class="btn btn-sm" style="padding: 5px 10px; font-size: 12px;">
+                    기록 초기화
+                </button>
+            </div>
+            <div style="padding: 20px; height: 400px; position: relative;">
+                <canvas id="balance-chart"></canvas>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -273,6 +286,7 @@
                     console.log('[Dashboard] Starting library loading...');
 
                     // Load libraries in sequence
+                    await loadScript('https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js');
                     await loadScript('js/coin_info.js?v=20251227');
                     await loadScript('js/notification_system.js?v=20251227');
 
@@ -346,6 +360,161 @@
             if (balanceCard) balanceCard.style.display = 'none';
         }
 
+        // Balance history management
+        let balanceChart = null;
+        const HISTORY_KEY = 'coinpulse_balance_history';
+        const MAX_HISTORY_POINTS = 100; // Keep last 100 data points
+
+        function getBalanceHistory() {
+            try {
+                const data = localStorage.getItem(HISTORY_KEY);
+                return data ? JSON.parse(data) : [];
+            } catch (error) {
+                console.error('[History] Error loading history:', error);
+                return [];
+            }
+        }
+
+        function saveBalanceHistory(history) {
+            try {
+                localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+            } catch (error) {
+                console.error('[History] Error saving history:', error);
+            }
+        }
+
+        function addBalanceDataPoint(krwBalance, availableBalance, totalValue) {
+            const history = getBalanceHistory();
+            const now = new Date();
+
+            history.push({
+                timestamp: now.toISOString(),
+                time: now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
+                krw: krwBalance,
+                available: availableBalance,
+                total: totalValue
+            });
+
+            // Keep only last MAX_HISTORY_POINTS
+            if (history.length > MAX_HISTORY_POINTS) {
+                history.shift();
+            }
+
+            saveBalanceHistory(history);
+            updateChart();
+        }
+
+        function createChart() {
+            const ctx = document.getElementById('balance-chart');
+            if (!ctx) return;
+
+            const history = getBalanceHistory();
+            const labels = history.map(d => d.time);
+            const krwData = history.map(d => d.krw);
+            const availableData = history.map(d => d.available);
+            const totalData = history.map(d => d.total);
+
+            if (balanceChart) {
+                balanceChart.destroy();
+            }
+
+            balanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '총 잔고액 (KRW)',
+                            data: krwData,
+                            borderColor: 'rgb(102, 126, 234)',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: '주문가능액',
+                            data: availableData,
+                            borderColor: 'rgb(16, 185, 129)',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: '포트폴리오 총액',
+                            data: totalData,
+                            borderColor: 'rgb(239, 68, 68)',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += context.parsed.y.toLocaleString() + '원';
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString() + '원';
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+
+            console.log('[Chart] Created with', history.length, 'data points');
+        }
+
+        function updateChart() {
+            if (!balanceChart) {
+                createChart();
+                return;
+            }
+
+            const history = getBalanceHistory();
+            balanceChart.data.labels = history.map(d => d.time);
+            balanceChart.data.datasets[0].data = history.map(d => d.krw);
+            balanceChart.data.datasets[1].data = history.map(d => d.available);
+            balanceChart.data.datasets[2].data = history.map(d => d.total);
+            balanceChart.update('none'); // 'none' mode for better performance
+        }
+
+        function clearHistory() {
+            if (confirm('잔고 변화 기록을 모두 삭제하시겠습니까?')) {
+                localStorage.removeItem(HISTORY_KEY);
+                updateChart();
+                console.log('[History] Cleared');
+            }
+        }
+
         // Load balance info
         async function loadBalanceInfo() {
             try {
@@ -405,6 +574,10 @@
                         balance.toLocaleString() + '원';
                     document.getElementById('available-balance').textContent =
                         available.toLocaleString() + '원';
+
+                    // Store KRW balance for chart update later
+                    window.currentKrwBalance = balance;
+                    window.currentAvailableBalance = available;
                 }
 
                 // Load holdings for total value
@@ -467,6 +640,11 @@
                             'balance-value positive' : 'balance-value negative';
 
                         console.log('[Holdings] Display updated successfully');
+
+                        // Update chart with new data
+                        const krwBalance = window.currentKrwBalance || 0;
+                        const availableBalance = window.currentAvailableBalance || 0;
+                        addBalanceDataPoint(krwBalance, availableBalance, totalValue);
                     } else {
                         console.warn('[Holdings] Invalid response:', holdingsData);
                     }
@@ -485,6 +663,15 @@
             // User is logged in, load data
             loadBalanceInfo();
             setInterval(loadBalanceInfo, 10000); // Update every 10 seconds
+
+            // Initialize chart
+            createChart();
+        }
+
+        // Add event listener for clear history button
+        const clearBtn = document.getElementById('clear-history-btn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', clearHistory);
         }
 
         console.log('[Dashboard] Initialized');
