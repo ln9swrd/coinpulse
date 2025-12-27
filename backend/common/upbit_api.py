@@ -268,6 +268,11 @@ class UpbitAPI:
                     if not volume:
                         raise ValueError("Volume required for market sell")
                     query_params['volume'] = str(volume)
+            elif ord_type == 'price':
+                # Market buy with specific KRW amount
+                if not price:
+                    raise ValueError("Price (KRW amount) required for price order")
+                query_params['price'] = str(price)
 
             query_string = urlencode(query_params, doseq=True)
             query_hash = hashlib.sha512(query_string.encode('utf-8')).hexdigest()
