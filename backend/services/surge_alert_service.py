@@ -297,7 +297,8 @@ class SurgeAlertService:
         max_alerts = self.get_max_alerts_for_plan(plan)
         current_count = self.get_weekly_alert_count(user_id, auto_traded_only=True)
 
-        if current_count >= max_alerts:
+        # -1 means unlimited
+        if max_alerts != -1 and current_count >= max_alerts:
             return False, f"Weekly limit reached ({current_count}/{max_alerts})"
 
         # 4. Check budget
