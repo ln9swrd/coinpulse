@@ -19,7 +19,10 @@ function formatKRW(amount) {
 
 // Format date
 function formatDate(dateString) {
-    if (!dateString || dateString === 'N/A' || dateString === 'Invalid Date') return '-';
+    // Handle null, undefined, or invalid values
+    if (!dateString || dateString === 'N/A' || dateString === 'Invalid Date' || dateString === 'null' || dateString === 'undefined') {
+        return '-';
+    }
 
     // If it's already formatted (YYYY-MM-DD HH:MM:SS), return as-is
     if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(dateString)) {
@@ -27,8 +30,19 @@ function formatDate(dateString) {
     }
 
     try {
-        // Try parsing as ISO date (handles 2025-12-27T06:14:00.831091 format)
-        const date = new Date(dateString);
+        // Handle timestamp in milliseconds
+        let date;
+        if (typeof dateString === 'number') {
+            date = new Date(dateString);
+        } else if (typeof dateString === 'string') {
+            // Try parsing as ISO date (handles 2025-12-27T06:14:00.831091 format)
+            date = new Date(dateString);
+        } else {
+            console.warn('[History] Unexpected date type:', typeof dateString, dateString);
+            return '-';
+        }
+
+        // Check if date is valid
         if (isNaN(date.getTime())) {
             console.warn('[History] Invalid date:', dateString);
             return '-';
