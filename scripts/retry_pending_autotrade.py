@@ -110,18 +110,28 @@ def retry_pending_autotrade(alert_id: int = None, user_id: int = None):
                     continue
 
                 # Calculate stop_loss_price if not set
-                entry_price = int(alert.entry_price)
-                target_price = int(alert.target_price) if alert.target_price else None
-                stop_loss_price = int(alert.stop_loss_price) if alert.stop_loss_price else None
+                # For low-price coins (< 100), keep 2 decimal places
+                entry_price = float(alert.entry_price)
+                if alert.target_price:
+                    target_price = round(float(alert.target_price), 2) if entry_price < 100 else int(alert.target_price)
+                else:
+                    target_price = None
+
+                if alert.stop_loss_price:
+                    stop_loss_price = round(float(alert.stop_loss_price), 2) if entry_price < 100 else int(alert.stop_loss_price)
+                else:
+                    stop_loss_price = None
 
                 # If stop_loss_price is None but user has stop loss enabled, calculate it
                 if stop_loss_price is None and settings.stop_loss_enabled:
-                    stop_loss_price = int(entry_price * (1 + settings.stop_loss_percent / 100))
+                    calculated = entry_price * (1 + settings.stop_loss_percent / 100)
+                    stop_loss_price = round(calculated, 2) if entry_price < 100 else int(calculated)
                     logger.info(f"  Calculated stop_loss_price: {stop_loss_price} ({settings.stop_loss_percent}%)")
 
                 # If target_price is None but user has take profit enabled, calculate it
                 if target_price is None and settings.take_profit_enabled:
-                    target_price = int(entry_price * (1 + settings.take_profit_percent / 100))
+                    calculated = entry_price * (1 + settings.take_profit_percent / 100)
+                    target_price = round(calculated, 2) if entry_price < 100 else int(calculated)
                     logger.info(f"  Calculated target_price: {target_price} ({settings.take_profit_percent}%)")
 
                 # Execute auto-trade

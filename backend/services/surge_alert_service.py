@@ -401,11 +401,15 @@ class SurgeAlertService:
                 # Use user's settings
                 final_stop_loss = None
                 if settings.stop_loss_enabled:
-                    final_stop_loss = int(entry_price * (1 + settings.stop_loss_percent / 100))
+                    calculated = entry_price * (1 + settings.stop_loss_percent / 100)
+                    # For low-price coins (< 100), keep 2 decimal places
+                    final_stop_loss = round(calculated, 2) if entry_price < 100 else int(calculated)
 
                 final_take_profit = None
                 if settings.take_profit_enabled:
-                    final_take_profit = int(entry_price * (1 + settings.take_profit_percent / 100))
+                    calculated = entry_price * (1 + settings.take_profit_percent / 100)
+                    # For low-price coins (< 100), keep 2 decimal places
+                    final_take_profit = round(calculated, 2) if entry_price < 100 else int(calculated)
 
                 logger.info(f"  Using user settings:")
                 logger.info(f"    - Stop Loss: {settings.stop_loss_percent}%")

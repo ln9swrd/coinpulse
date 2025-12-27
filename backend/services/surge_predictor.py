@@ -768,8 +768,12 @@ class SurgePredictor:
         take_profit = settings.get('take_profit_percent', 10.0)
         stop_loss = settings.get('stop_loss_percent', -5.0)
 
-        target_price = int(entry_price * (1 + take_profit / 100))
-        stop_loss_price = int(entry_price * (1 + stop_loss / 100))
+        # For low-price coins (< 100), keep 2 decimal places
+        target_calc = entry_price * (1 + take_profit / 100)
+        stop_loss_calc = entry_price * (1 + stop_loss / 100)
+
+        target_price = round(target_calc, 2) if entry_price < 100 else int(target_calc)
+        stop_loss_price = round(stop_loss_calc, 2) if entry_price < 100 else int(stop_loss_calc)
 
         return {
             'target_price': target_price,

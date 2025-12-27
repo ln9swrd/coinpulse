@@ -133,11 +133,14 @@ class SurgeAutoTradingWorker:
 
                     # Store analysis result for dynamic target calculation per user
                     # (Target prices will be calculated per-user based on their settings)
+                    # For low-price coins (< 100), keep 2 decimal places
+                    price = round(current_price, 2) if current_price < 100 else int(current_price)
+
                     candidates.append({
                         'market': market,
                         'coin': coin,
                         'score': analysis['score'],
-                        'current_price': int(current_price),
+                        'current_price': price,
                         'analysis': analysis,  # Store full analysis for dynamic target calculation
                         'signals': analysis['signals'],
                         'recommendation': analysis['recommendation']
