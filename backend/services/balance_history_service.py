@@ -223,7 +223,7 @@ class BalanceHistoryService:
 
         Args:
             user_id: User ID to get history for
-            days: Number of days to retrieve (default: 30)
+            days: Number of days to retrieve (default: 30, 0 = all available data)
 
         Returns:
             list: List of snapshot dictionaries ordered by date (oldest first)
@@ -232,15 +232,17 @@ class BalanceHistoryService:
         try:
             db = get_db_session()
 
-            # Calculate start date
-            start_date = datetime.utcnow() - timedelta(days=days)
+            # Build query (USER-SPECIFIC)
+            query = db.query(HoldingsHistory)\
+                .filter(HoldingsHistory.user_id == user_id)
 
-            # Query snapshots (USER-SPECIFIC)
-            snapshots = db.query(HoldingsHistory)\
-                .filter(HoldingsHistory.user_id == user_id)\
-                .filter(HoldingsHistory.snapshot_time >= start_date)\
-                .order_by(HoldingsHistory.snapshot_time)\
-                .all()
+            # Add date filter only if days > 0
+            if days > 0:
+                start_date = datetime.utcnow() - timedelta(days=days)
+                query = query.filter(HoldingsHistory.snapshot_time >= start_date)
+
+            # Execute query
+            snapshots = query.order_by(HoldingsHistory.snapshot_time).all()
 
             if not snapshots:
                 logger.info(f"[BalanceHistory] User {user_id}: No history found for last {days} days")

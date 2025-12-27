@@ -85,7 +85,7 @@ def get_balance_history():
     Get balance history for the authenticated user.
 
     Query params:
-        days: Number of days to retrieve (default: 30, max: 365)
+        days: Number of days to retrieve (default: 30, 0 = all available data)
         grouped: If 'true', group by day (default: false)
 
     Returns:
@@ -100,9 +100,10 @@ def get_balance_history():
         days = request.args.get('days', 30, type=int)
         grouped = request.args.get('grouped', 'false').lower() == 'true'
 
-        # Limit days to max 365 (1 year)
-        if days > 365:
-            days = 365
+        # days=0 means all available data (no limit)
+        # Otherwise limit to reasonable range (max 5000 days = ~13.7 years)
+        if days > 0 and days > 5000:
+            days = 5000
 
         logger.info(f"[BalanceHistory] User {user_id}: Retrieving history (days={days}, grouped={grouped})")
 
