@@ -71,14 +71,12 @@ def get_historical_prices(api, market, days):
             all_candles.extend(candles)
             fetched_count += len(candles)
 
-            # For next iteration, use the oldest candle's date minus 1 day as 'to'
+            # For next iteration, use the oldest candle's datetime as 'to'
             if len(candles) == count:
                 oldest_candle_time = candles[-1].get('candle_date_time_kst', '')
                 if oldest_candle_time:
-                    # Parse date and subtract 1 day to avoid duplicate
-                    oldest_date = datetime.strptime(oldest_candle_time[:10], '%Y-%m-%d')
-                    prev_date = oldest_date - timedelta(days=1)
-                    to_date = prev_date.strftime('%Y-%m-%d')
+                    # Use the full datetime string (업비트 API accepts this format)
+                    to_date = oldest_candle_time
                 else:
                     break
             else:
