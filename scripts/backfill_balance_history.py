@@ -1,10 +1,17 @@
 """
 Backfill Balance History Script
 
-90일치 잔고 이력을 현재 잔고 기준으로 역산하여 생성합니다.
+현재 잔고 기준으로 과거 잔고 이력을 역산하여 생성합니다.
 
 Usage:
-    python scripts/backfill_balance_history.py
+    python scripts/backfill_balance_history.py [user_id] [days]
+
+    user_id: 사용자 ID (기본값: DB의 첫 번째 사용자)
+    days: 역산할 일수 (기본값: 90, 0=전체 이력)
+
+Examples:
+    python scripts/backfill_balance_history.py 1 365  # 1년치
+    python scripts/backfill_balance_history.py 1 0    # 전체 이력
 """
 
 import os
@@ -120,19 +127,26 @@ def backfill_balance_history(user_id, days=90):
             if not orders or len(orders) == 0:
                 break
 
-            # 90일 이전 주문은 제외
-            cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
-            filtered_orders = [
-                order for order in orders
-                if datetime.fromisoformat(order['created_at'].replace('Z', '+00:00')) > cutoff_date
-            ]
+            # days=0이면 모든 주문 가져오기 (날짜 제한 없음)
+            if days == 0:
+                filtered_orders = orders
+            else:
+                # 지정된 일수 이전 주문은 제외
+                cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
+                filtered_orders = [
+                    order for order in orders
+                    if datetime.fromisoformat(order['created_at'].replace('Z', '+00:00')) > cutoff_date
+                ]
 
             all_orders.extend(filtered_orders)
 
-            print(f"  Page {page}: {len(filtered_orders)}/{len(orders)} orders within {days} days")
+            if days == 0:
+                print(f"  Page {page}: {len(orders)} orders (all history)")
+            else:
+                print(f"  Page {page}: {len(filtered_orders)}/{len(orders)} orders within {days} days")
 
-            # 모든 주문이 90일 이전이면 중단
-            if len(filtered_orders) < len(orders):
+            # days > 0이고 모든 주문이 cutoff 이전이면 중단
+            if days > 0 and len(filtered_orders) < len(orders):
                 print(f"  Reached cutoff date, stopping at page {page}")
                 break
 
@@ -154,16 +168,17 @@ def backfill_balance_history(user_id, days=90):
         deposits = api.get_deposits(limit=100)
         withdraws = api.get_withdraws(limit=100)
 
-        # 90일 이전 제외
-        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
-        deposits = [
-            d for d in deposits
-            if datetime.fromisoformat(d['created_at'].replace('Z', '+00:00')) > cutoff_date
-        ]
-        withdraws = [
-            w for w in withdraws
-            if datetime.fromisoformat(w['created_at'].replace('Z', '+00:00')) > cutoff_date
-        ]
+        # days=0이면 모든 입출금 내역 포함
+        if days > 0:
+            cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
+            deposits = [
+                d for d in deposits
+                if datetime.fromisoformat(d['created_at'].replace('Z', '+00:00')) > cutoff_date
+            ]
+            withdraws = [
+                w for w in withdraws
+                if datetime.fromisoformat(w['created_at'].replace('Z', '+00:00')) > cutoff_date
+            ]
 
         print(f"  Deposits: {len(deposits)}, Withdraws: {len(withdraws)}")
     except Exception as e:

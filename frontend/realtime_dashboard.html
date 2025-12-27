@@ -461,7 +461,8 @@
             const categories = history.map(h => {
                 // Date is in YYYY-MM-DD format
                 const parts = h.date.split('-');
-                return `${parts[1]}-${parts[2]}`; // MM-DD
+                const year = parts[0].slice(2); // YY (last 2 digits)
+                return `${year}-${parts[1]}-${parts[2]}`; // YY-MM-DD
             });
 
             const krwTotalData = history.map(h => h.krw_total);
