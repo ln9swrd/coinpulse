@@ -396,7 +396,7 @@ def get_account_balance():
             return jsonify({
                 "success": False,
                 "error": "API keys not configured",
-                "balance": {"krw": 0, "coins": []}
+                "balance": []
             }), 400
 
         # Get accounts
@@ -405,40 +405,24 @@ def get_account_balance():
         if not accounts:
             return jsonify({
                 "success": True,
-                "balance": {"krw": 0, "coins": []},
+                "balance": [],
                 "api_mode": "real"
             })
 
-        krw_balance = 0
-        coin_balances = []
-
-        for account in accounts:
-            currency = account.get('currency', '')
-            balance = float(account.get('balance', 0))
-            locked = float(account.get('locked', 0))
-            avg_buy_price = float(account.get('avg_buy_price', 0))
-
-            if currency == 'KRW':
-                krw_balance = balance
-            else:
-                if balance > 0 or locked > 0:
-                    coin_balances.append({
-                        'currency': currency,
-                        'balance': balance,
-                        'locked': locked,
-                        'avg_buy_price': avg_buy_price
-                    })
-
         # Get user_id from Flask g object (set by @require_auth decorator)
         user_id = g.user_id
-        print(f"[Balance] User {user_id}: KRW ₩{krw_balance:,.0f}, {len(coin_balances)} coins")
 
+        # Calculate totals for logging
+        krw_account = next((a for a in accounts if a.get('currency') == 'KRW'), None)
+        krw_balance = float(krw_account.get('balance', 0)) if krw_account else 0
+        coin_count = len([a for a in accounts if a.get('currency') != 'KRW' and float(a.get('balance', 0)) > 0])
+
+        print(f"[Balance] User {user_id}: KRW ₩{krw_balance:,.0f}, {coin_count} coins")
+
+        # Return raw accounts array (Upbit API format)
         return jsonify({
             "success": True,
-            "balance": {
-                "krw": krw_balance,
-                "coins": coin_balances
-            },
+            "balance": accounts,
             "api_mode": "real"
         })
 
