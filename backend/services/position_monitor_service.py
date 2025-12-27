@@ -76,7 +76,7 @@ class PositionMonitorService:
                 .filter(
                     and_(
                         SurgeAlert.auto_traded == True,
-                        SurgeAlert.status.in_(['executed', 'pending']),
+                        SurgeAlert.status.in_(['active', 'executed', 'pending']),
                         SurgeAlert.order_id != None
                     )
                 )\
