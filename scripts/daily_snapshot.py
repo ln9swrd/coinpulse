@@ -106,8 +106,8 @@ def get_current_price_from_api(api, market):
         float: Current price, or 0 if failed
     """
     try:
-        ticker = api.get_current_price(market)
-        return float(ticker.get('trade_price', 0)) if ticker else 0
+        price = api.get_current_price(market)
+        return price if price else 0
     except Exception as e:
         print(f"  Warning: Failed to get API price for {market}: {e}")
         return 0
