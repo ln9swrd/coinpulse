@@ -1006,6 +1006,22 @@
                 return;
             }
 
+            // Remove duplicates: Keep only first alert for each market+date combination
+            const uniqueAlerts = [];
+            const seenKeys = new Set();
+
+            data.forEach(alert => {
+                const dateKey = alert.sent_at.split('T')[0]; // Extract YYYY-MM-DD
+                const key = `${alert.market}_${dateKey}`;
+
+                if (!seenKeys.has(key)) {
+                    seenKeys.add(key);
+                    uniqueAlerts.push(alert);
+                }
+            });
+
+            console.log(`[SurgeHistory] Filtered ${data.length} alerts to ${uniqueAlerts.length} unique alerts (removed ${data.length - uniqueAlerts.length} duplicates)`);
+
             let html = `
                 <table>
                     <thead>
@@ -1026,7 +1042,7 @@
                     <tbody>
             `;
 
-            data.forEach(alert => {
+            uniqueAlerts.forEach(alert => {
                 const confidence = alert.confidence.toFixed(1);
                 const profitLoss = alert.profit_loss || 0;
                 const profitLossPercent = alert.profit_loss_percent ? alert.profit_loss_percent.toFixed(2) : '0.00';
