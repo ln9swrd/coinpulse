@@ -363,7 +363,7 @@
         // Balance history management
         let balanceChart = null;
         const HISTORY_KEY = 'coinpulse_balance_history';
-        const MAX_HISTORY_POINTS = 90; // Keep last 90 days (about 3 months)
+        const MAX_HISTORY_POINTS = 10000; // Keep last 10,000 points (adaptive view: hourly or daily)
 
         function getBalanceHistory() {
             try {
@@ -387,37 +387,19 @@
             const history = getBalanceHistory();
             const now = new Date();
 
-            // Format: YYYY-MM-DD (for date-based grouping)
-            const dateLabel = now.toLocaleDateString('ko-KR', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            }).replace(/\. /g, '-').replace('.', '');
-
-            // Check if we already have data for today
-            const existingIndex = history.findIndex(h => h.date === dateLabel);
-
+            // Always add new data point with timestamp
             const dataPoint = {
                 timestamp: now.toISOString(),
-                time: dateLabel,
-                date: dateLabel,
                 krw: krwBalance,
                 available: availableBalance,
                 total: totalValue
             };
 
-            if (existingIndex >= 0) {
-                // Update today's data (keep only latest value per day)
-                history[existingIndex] = dataPoint;
-                console.log(`[Balance] Updated today's (${dateLabel}) balance data`);
-            } else {
-                // Add new day
-                history.push(dataPoint);
-                console.log(`[Balance] Added new day (${dateLabel}) balance data`);
-            }
+            history.push(dataPoint);
 
-            // Keep only last 90 days
-            if (history.length > 90) {
+            // Keep last 10,000 points (about 1 day at 10 sec intervals)
+            // This allows for both hourly (today) and daily (long-term) views
+            if (history.length > 10000) {
                 history.shift();
             }
 
@@ -430,32 +412,71 @@
             if (!ctx) return;
 
             const history = getBalanceHistory();
+            if (history.length === 0) return;
 
-            // Group data by date (aggregate by day)
-            const dataByDate = {};
-            history.forEach(d => {
-                const date = d.date || d.time; // Use date field or time field
-                if (!dataByDate[date]) {
-                    dataByDate[date] = [];
-                }
-                dataByDate[date].push(d);
-            });
+            // Determine time range
+            const oldestTime = new Date(history[0].timestamp);
+            const newestTime = new Date(history[history.length - 1].timestamp);
+            const hoursDiff = (newestTime - oldestTime) / (1000 * 60 * 60);
 
-            // Get one data point per date (last value of each day)
-            const dates = Object.keys(dataByDate).sort();
-            const aggregatedData = dates.map(date => {
-                const dayData = dataByDate[date];
-                const lastPoint = dayData[dayData.length - 1]; // Use last value of the day
-                return {
-                    date: date,
-                    krw: lastPoint.krw,
-                    available: lastPoint.available,
-                    total: lastPoint.total
-                };
-            });
+            let aggregatedData, xAxisLabel;
+
+            if (hoursDiff < 24) {
+                // Less than 24 hours: group by hour (show today's changes)
+                console.log('[Chart] Grouping by hour (intraday view)');
+                xAxisLabel = '시간';
+                const dataByHour = {};
+
+                history.forEach(d => {
+                    const time = new Date(d.timestamp);
+                    const hourKey = time.getHours().toString().padStart(2, '0') + ':00';
+                    if (!dataByHour[hourKey]) {
+                        dataByHour[hourKey] = [];
+                    }
+                    dataByHour[hourKey].push(d);
+                });
+
+                const hours = Object.keys(dataByHour).sort();
+                aggregatedData = hours.map(hour => {
+                    const hourData = dataByHour[hour];
+                    const lastPoint = hourData[hourData.length - 1];
+                    return {
+                        label: hour,
+                        krw: lastPoint.krw,
+                        available: lastPoint.available,
+                        total: lastPoint.total
+                    };
+                });
+            } else {
+                // More than 24 hours: group by day (show daily trend)
+                console.log('[Chart] Grouping by day (long-term view)');
+                xAxisLabel = '날짜';
+                const dataByDate = {};
+
+                history.forEach(d => {
+                    const time = new Date(d.timestamp);
+                    const dateKey = `${(time.getMonth() + 1).toString().padStart(2, '0')}-${time.getDate().toString().padStart(2, '0')}`;
+                    if (!dataByDate[dateKey]) {
+                        dataByDate[dateKey] = [];
+                    }
+                    dataByDate[dateKey].push(d);
+                });
+
+                const dates = Object.keys(dataByDate).sort();
+                aggregatedData = dates.map(date => {
+                    const dayData = dataByDate[date];
+                    const lastPoint = dayData[dayData.length - 1];
+                    return {
+                        label: date,
+                        krw: lastPoint.krw,
+                        available: lastPoint.available,
+                        total: lastPoint.total
+                    };
+                });
+            }
 
             // Use aggregated data for chart
-            const labels = aggregatedData.map(d => d.date);
+            const labels = aggregatedData.map(d => d.label);
             const krwData = aggregatedData.map(d => d.krw);
             const availableData = aggregatedData.map(d => d.available);
             const totalData = aggregatedData.map(d => d.total);
@@ -577,7 +598,7 @@
                         x: {
                             title: {
                                 display: true,
-                                text: '날짜'
+                                text: xAxisLabel
                             },
                             ticks: {
                                 maxRotation: 0,
@@ -607,31 +628,64 @@
             }
 
             const history = getBalanceHistory();
+            if (history.length === 0) return;
 
-            // Group data by date (aggregate by day) - same as createChart()
-            const dataByDate = {};
-            history.forEach(d => {
-                const date = d.date || d.time;
-                if (!dataByDate[date]) {
-                    dataByDate[date] = [];
-                }
-                dataByDate[date].push(d);
-            });
+            // Determine time range (same logic as createChart)
+            const oldestTime = new Date(history[0].timestamp);
+            const newestTime = new Date(history[history.length - 1].timestamp);
+            const hoursDiff = (newestTime - oldestTime) / (1000 * 60 * 60);
 
-            // Get one data point per date (last value of each day)
-            const dates = Object.keys(dataByDate).sort();
-            const aggregatedData = dates.map(date => {
-                const dayData = dataByDate[date];
-                const lastPoint = dayData[dayData.length - 1];
-                return {
-                    date: date,
-                    krw: lastPoint.krw,
-                    available: lastPoint.available,
-                    total: lastPoint.total
-                };
-            });
+            let aggregatedData;
 
-            balanceChart.data.labels = aggregatedData.map(d => d.date);
+            if (hoursDiff < 24) {
+                // Less than 24 hours: group by hour
+                const dataByHour = {};
+                history.forEach(d => {
+                    const time = new Date(d.timestamp);
+                    const hourKey = time.getHours().toString().padStart(2, '0') + ':00';
+                    if (!dataByHour[hourKey]) {
+                        dataByHour[hourKey] = [];
+                    }
+                    dataByHour[hourKey].push(d);
+                });
+
+                const hours = Object.keys(dataByHour).sort();
+                aggregatedData = hours.map(hour => {
+                    const hourData = dataByHour[hour];
+                    const lastPoint = hourData[hourData.length - 1];
+                    return {
+                        label: hour,
+                        krw: lastPoint.krw,
+                        available: lastPoint.available,
+                        total: lastPoint.total
+                    };
+                });
+            } else {
+                // More than 24 hours: group by day
+                const dataByDate = {};
+                history.forEach(d => {
+                    const time = new Date(d.timestamp);
+                    const dateKey = `${(time.getMonth() + 1).toString().padStart(2, '0')}-${time.getDate().toString().padStart(2, '0')}`;
+                    if (!dataByDate[dateKey]) {
+                        dataByDate[dateKey] = [];
+                    }
+                    dataByDate[dateKey].push(d);
+                });
+
+                const dates = Object.keys(dataByDate).sort();
+                aggregatedData = dates.map(date => {
+                    const dayData = dataByDate[date];
+                    const lastPoint = dayData[dayData.length - 1];
+                    return {
+                        label: date,
+                        krw: lastPoint.krw,
+                        available: lastPoint.available,
+                        total: lastPoint.total
+                    };
+                });
+            }
+
+            balanceChart.data.labels = aggregatedData.map(d => d.label);
             balanceChart.data.datasets[0].data = aggregatedData.map(d => d.krw);
             balanceChart.data.datasets[1].data = aggregatedData.map(d => d.available);
             balanceChart.data.datasets[2].data = aggregatedData.map(d => d.total);
