@@ -26,23 +26,27 @@ function formatDate(dateString) {
         return dateString;
     }
 
-    // Try parsing as ISO date
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
-        // If parsing fails, return the string as-is or '-'
-        return dateString.length < 50 ? dateString : '-';
-    }
+    try {
+        // Try parsing as ISO date (handles 2025-12-27T06:14:00.831091 format)
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            console.warn('[History] Invalid date:', dateString);
+            return '-';
+        }
 
-    // Format as KST
-    return date.toLocaleString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        timeZone: 'Asia/Seoul'
-    });
+        // Format as readable Korean time (YYYY-MM-DD HH:MM:SS)
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    } catch (e) {
+        console.error('[History] Date parsing error:', e, dateString);
+        return '-';
+    }
 }
 
 // Load orders with filters
