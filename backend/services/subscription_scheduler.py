@@ -11,7 +11,7 @@ import threading
 from datetime import datetime, timedelta
 from backend.database.connection import get_db_session
 from backend.database.models import User, BillingKey
-from backend.models.subscription_models import UserSubscription
+from backend.models.subscription_models import Subscription
 from backend.routes.payments import get_auth_header
 import requests
 import os
@@ -50,10 +50,10 @@ class SubscriptionScheduler:
             renewal_date_str = renewal_date.strftime('%Y-%m-%d')
 
             # Find subscriptions expiring within 3 days
-            expiring_subs = session.query(UserSubscription).filter(
-                UserSubscription.status == 'active',
-                UserSubscription.end_date <= renewal_date,
-                UserSubscription.end_date >= datetime.utcnow()
+            expiring_subs = session.query(Subscription).filter(
+                Subscription.status == 'active',
+                Subscription.current_period_end <= renewal_date,
+                Subscription.current_period_end >= datetime.utcnow()
             ).all()
 
             print(f"[SubscriptionScheduler] Found {len(expiring_subs)} expiring subscriptions")
@@ -71,7 +71,7 @@ class SubscriptionScheduler:
         Process renewal payment for a subscription.
 
         Args:
-            subscription: UserSubscription object
+            subscription: Subscription object
             session: Database session
         """
         user_id = subscription.user_id

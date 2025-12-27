@@ -253,15 +253,15 @@ def get_user_subscription():
         401: Unauthorized
         404: No subscription found
     """
-    from backend.models.subscription_models import UserSubscription
+    from backend.models.subscription_models import Subscription
 
     session = get_db_session()
     try:
         user_id = request.user_id
 
         # Query user subscription
-        subscription = session.query(UserSubscription)\
-            .filter(UserSubscription.user_id == user_id)\
+        subscription = session.query(Subscription)\
+            .filter(Subscription.user_id == user_id)\
             .first()
 
         if subscription:

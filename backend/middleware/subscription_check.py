@@ -115,7 +115,7 @@ def get_user_plan(user_id: str = None, email: str = None) -> Dict[str, Any]:
     """
     try:
         from backend.database import get_db_session
-        from backend.models.subscription_models import UserSubscription
+        from backend.models.subscription_models import Subscription
         from backend.models.auth_models import User
 
         session = get_db_session()
@@ -133,7 +133,7 @@ def get_user_plan(user_id: str = None, email: str = None) -> Dict[str, Any]:
             return get_default_plan()
 
         # 구독 조회
-        subscription = session.query(UserSubscription).filter_by(
+        subscription = session.query(Subscription).filter_by(
             user_id=user_id,
             status='active'
         ).first()

@@ -420,7 +420,7 @@ def cancel_subscription(user_id):
     Returns:
         JSON: 취소 결과
     """
-    from backend.database.models import UserSubscription
+    from backend.models.subscription_models import Subscription
 
     data = request.json or {}
     cancel_reason = data.get('reason', '사용자 요청')
@@ -429,7 +429,7 @@ def cancel_subscription(user_id):
     session = get_db_session()
     try:
         # 사용자 구독 정보 조회
-        subscription = session.query(UserSubscription).filter_by(
+        subscription = session.query(Subscription).filter_by(
             user_id=user_id,
             status='active'
         ).first()
