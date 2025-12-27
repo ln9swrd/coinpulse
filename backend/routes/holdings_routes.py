@@ -19,6 +19,9 @@ import time
 from backend.middleware.user_api_keys import get_user_upbit_api, get_user_from_token
 from backend.middleware.auth_middleware import require_auth
 from backend.middleware.subscription_check import check_feature_access, get_user_plan
+from backend.database.connection import get_db_session
+from backend.services.surge_predictor import SurgePredictor
+from sqlalchemy import text
 
 # Create Blueprint
 holdings_bp = Blueprint('holdings', __name__)
@@ -45,6 +48,92 @@ def cleanup_holdings_cache():
         del _holdings_cache[user_id]
     if expired_users:
         logger.info(f"[Holdings] Cache cleanup: removed {len(expired_users)} expired entries")
+
+
+def update_surge_alert_prices(alert_id, actual_entry_price, user_id):
+    """
+    Update surge alert with actual entry price and recalculate stop loss/target prices
+
+    Args:
+        alert_id: Surge alert ID
+        actual_entry_price: Actual buy price (order price)
+        user_id: User ID for loading settings
+
+    Returns:
+        bool: True if updated successfully
+    """
+    try:
+        session = get_db_session()
+
+        # Get alert
+        alert = session.execute(
+            text("SELECT id, market, coin FROM surge_alerts WHERE id = :alert_id AND user_id = :user_id"),
+            {'alert_id': alert_id, 'user_id': user_id}
+        ).fetchone()
+
+        if not alert:
+            logger.warning(f"[Trading] Alert {alert_id} not found for user {user_id}")
+            session.close()
+            return False
+
+        # Get user's auto-trading settings for stop loss percentage
+        settings = session.execute(
+            text("SELECT stop_loss_percent, take_profit_percent FROM surge_auto_trading_settings WHERE user_id = :user_id"),
+            {'user_id': user_id}
+        ).fetchone()
+
+        stop_loss_percent = settings[0] if settings and settings[0] else -5.0
+        take_profit_percent = settings[1] if settings and settings[1] else 10.0
+
+        # Recalculate stop loss and target prices based on actual entry price
+        predictor = SurgePredictor({'surge_prediction': {}})
+        user_settings = {
+            'stop_loss_percent': stop_loss_percent,
+            'take_profit_percent': take_profit_percent
+        }
+
+        target_result = predictor.get_target_prices(
+            entry_price=actual_entry_price,
+            analysis_result={},
+            settings=user_settings
+        )
+
+        new_target_price = target_result['target_price']
+        new_stop_loss_price = target_result['stop_loss_price']
+
+        # Update alert
+        session.execute(
+            text("""
+                UPDATE surge_alerts
+                SET entry_price = :entry_price,
+                    target_price = :target_price,
+                    stop_loss_price = :stop_loss_price,
+                    current_price = :entry_price
+                WHERE id = :alert_id
+            """),
+            {
+                'alert_id': alert_id,
+                'entry_price': actual_entry_price,
+                'target_price': new_target_price,
+                'stop_loss_price': new_stop_loss_price
+            }
+        )
+        session.commit()
+
+        logger.info(
+            f"[Trading] Updated alert {alert_id} ({alert[2]}): "
+            f"Entry={actual_entry_price:,} → Target={new_target_price:,} (+{take_profit_percent:.1f}%), "
+            f"Stop={new_stop_loss_price:,} ({stop_loss_percent:.1f}%)"
+        )
+
+        session.close()
+        return True
+
+    except Exception as e:
+        logger.error(f"[Trading] Error updating surge alert prices: {e}")
+        if 'session' in locals():
+            session.close()
+        return False
 
 
 @holdings_bp.route('/api/holdings')
@@ -597,7 +686,63 @@ def place_buy_order(current_user):
         )
 
         if result:
-            logger.info(f"[Trading] Buy order placed successfully: {result.get('uuid')}")
+            order_uuid = result.get('uuid')
+            logger.info(f"[Trading] Buy order placed successfully: {order_uuid}")
+
+            # Check if there's an active surge alert for this market
+            # If yes, update entry/target/stop loss prices based on actual order price
+            try:
+                # Use the order price as the actual entry price
+                actual_entry_price = float(price)
+
+                # Find active surge alert for this market and user
+                session = get_db_session()
+                alert = session.execute(
+                    text("""
+                        SELECT id FROM surge_alerts
+                        WHERE user_id = :user_id
+                        AND market = :market
+                        AND status = 'pending'
+                        ORDER BY sent_at DESC
+                        LIMIT 1
+                    """),
+                    {'user_id': current_user.id, 'market': market}
+                ).fetchone()
+
+                if alert:
+                    alert_id = alert[0]
+                    logger.info(f"[Trading] Found active surge alert {alert_id} for {market}, updating prices...")
+
+                    # Update surge alert prices based on actual buy price
+                    update_success = update_surge_alert_prices(
+                        alert_id=alert_id,
+                        actual_entry_price=actual_entry_price,
+                        user_id=current_user.id
+                    )
+
+                    if update_success:
+                        # Also mark user action as 'bought'
+                        session.execute(
+                            text("""
+                                UPDATE surge_alerts
+                                SET user_action = 'bought',
+                                    action_timestamp = CURRENT_TIMESTAMP,
+                                    order_id = :order_id
+                                WHERE id = :alert_id
+                            """),
+                            {'alert_id': alert_id, 'order_id': order_uuid}
+                        )
+                        session.commit()
+                        logger.info(f"[Trading] Surge alert {alert_id} updated with order {order_uuid}")
+
+                session.close()
+
+            except Exception as e:
+                logger.warning(f"[Trading] Failed to update surge alert prices: {e}")
+                # Don't fail the order if alert update fails
+                if 'session' in locals():
+                    session.close()
+
             return jsonify({"success": True, "order": result})
         else:
             logger.error(f"[Trading] Failed to place buy order")
