@@ -212,6 +212,66 @@ class DrawingTools {
     }
 
     /**
+     * Snap coordinates to nearest candle OHLC point
+     * @param {number} time - Unix timestamp
+     * @param {number} price - Price value
+     * @returns {Object} - Snapped {time, price} coordinates
+     */
+    snapToNearestCandle(time, price) {
+        try {
+            if (!this.chart || !this.chart.chartData || this.chart.chartData.length === 0) {
+                return { time, price }; // Return original if no data
+            }
+
+            const chartData = this.chart.chartData;
+
+            // Find the nearest candle by time
+            let nearestCandle = chartData[0];
+            let minTimeDiff = Math.abs(chartData[0].time - time);
+
+            for (let i = 1; i < chartData.length; i++) {
+                const timeDiff = Math.abs(chartData[i].time - time);
+                if (timeDiff < minTimeDiff) {
+                    minTimeDiff = timeDiff;
+                    nearestCandle = chartData[i];
+                }
+            }
+
+            // Find the nearest OHLC point (high, low, open, close)
+            const ohlcPoints = [
+                { type: 'high', price: nearestCandle.high },
+                { type: 'low', price: nearestCandle.low },
+                { type: 'open', price: nearestCandle.open },
+                { type: 'close', price: nearestCandle.close }
+            ];
+
+            let nearestPoint = ohlcPoints[0];
+            let minPriceDiff = Math.abs(ohlcPoints[0].price - price);
+
+            for (let i = 1; i < ohlcPoints.length; i++) {
+                const priceDiff = Math.abs(ohlcPoints[i].price - price);
+                if (priceDiff < minPriceDiff) {
+                    minPriceDiff = priceDiff;
+                    nearestPoint = ohlcPoints[i];
+                }
+            }
+
+            const snappedCoords = {
+                time: nearestCandle.time,
+                price: nearestPoint.price
+            };
+
+            console.log(`[DrawingTools] Snapped to ${nearestPoint.type}: (${time}, ${price}) → (${snappedCoords.time}, ${snappedCoords.price})`);
+
+            return snappedCoords;
+
+        } catch (error) {
+            console.error('[DrawingTools] Error snapping to candle:', error);
+            return { time, price }; // Return original on error
+        }
+    }
+
+    /**
      * Handle chart click for drawing
      * @param {number} time - Unix timestamp
      * @param {number} price - Price value
@@ -222,7 +282,13 @@ class DrawingTools {
 
             console.log(`[DrawingTools] Chart clicked at time=${time}, price=${price}`);
 
-            this.tempPoints.push({ time, price });
+            // Snap to nearest candle for trendline and fibonacci
+            let finalPoint = { time, price };
+            if (this.drawingMode === 'trendline' || this.drawingMode === 'fibonacci') {
+                finalPoint = this.snapToNearestCandle(time, price);
+            }
+
+            this.tempPoints.push(finalPoint);
 
             // Trendline and Fibonacci need 2 points
             if (this.drawingMode === 'trendline' && this.tempPoints.length === 2) {
