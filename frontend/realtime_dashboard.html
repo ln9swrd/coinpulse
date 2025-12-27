@@ -312,8 +312,22 @@
             </div>
         </div>
 
+        <!-- Login Required Notice -->
+        <div class="card" id="login-notice" style="display: none; background: #fef3c7; border-left: 4px solid #f59e0b;">
+            <div style="padding: 20px; text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 10px;">🔐</div>
+                <h3 style="color: #92400e; margin-bottom: 10px;">로그인이 필요합니다</h3>
+                <p style="color: #78350f; margin-bottom: 20px;">
+                    실시간 잔고 및 포트폴리오 데이터를 보려면 로그인이 필요합니다.
+                </p>
+                <a href="login.html" class="btn btn-primary" style="display: inline-block; text-decoration: none;">
+                    로그인하기
+                </a>
+            </div>
+        </div>
+
         <!-- Balance Info -->
-        <div class="card">
+        <div class="card" id="balance-card">
             <div class="card-header">💰 잔고 현황</div>
             <div class="balance-grid">
                 <div class="balance-item">
@@ -647,11 +661,33 @@
             });
         }
 
+        // Check login status
+        function checkLoginStatus() {
+            const token = localStorage.getItem('access_token');
+            const loginNotice = document.getElementById('login-notice');
+            const balanceCard = document.getElementById('balance-card');
+
+            if (!token) {
+                // Show login notice, hide balance card
+                if (loginNotice) loginNotice.style.display = 'block';
+                if (balanceCard) balanceCard.style.display = 'none';
+                return false;
+            } else {
+                // Hide login notice, show balance card
+                if (loginNotice) loginNotice.style.display = 'none';
+                if (balanceCard) balanceCard.style.display = 'block';
+                return true;
+            }
+        }
+
         // Load balance info
         async function loadBalanceInfo() {
             try {
                 const token = localStorage.getItem('access_token');
-                if (!token) return;
+                if (!token) {
+                    checkLoginStatus();
+                    return;
+                }
 
                 const response = await fetch('https://coinpulse.sinsi.ai/api/balance', {
                     headers: {
@@ -778,12 +814,16 @@
 
         // Initialize
         renderPrices();
-        fetchPortfolioStatus();
-        setInterval(fetchPortfolioStatus, 5000); // Update every 5 seconds
 
-        // Load balance info on init
-        loadBalanceInfo();
-        setInterval(loadBalanceInfo, 10000); // Update every 10 seconds
+        // Check login status first
+        if (checkLoginStatus()) {
+            // User is logged in, load data
+            fetchPortfolioStatus();
+            setInterval(fetchPortfolioStatus, 5000); // Update every 5 seconds
+
+            loadBalanceInfo();
+            setInterval(loadBalanceInfo, 10000); // Update every 10 seconds
+        }
 
         console.log('[Dashboard] Initialized');
     </script>
