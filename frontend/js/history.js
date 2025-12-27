@@ -19,13 +19,18 @@ function formatKRW(amount) {
 
 // Format date
 function formatDate(dateString) {
-    if (!dateString || dateString === 'N/A') return '-';
+    if (!dateString || dateString === 'N/A' || dateString === 'Invalid Date') return '-';
+
+    // If it's already formatted (YYYY-MM-DD HH:MM:SS), return as-is
+    if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(dateString)) {
+        return dateString;
+    }
 
     // Try parsing as ISO date
     const date = new Date(dateString);
     if (isNaN(date.getTime())) {
-        // If parsing fails, return the string as-is (might be pre-formatted kr_time)
-        return dateString;
+        // If parsing fails, return the string as-is or '-'
+        return dateString.length < 50 ? dateString : '-';
     }
 
     // Format as KST
@@ -35,6 +40,7 @@ function formatDate(dateString) {
         day: '2-digit',
         hour: '2-digit',
         minute: '2-digit',
+        second: '2-digit',
         timeZone: 'Asia/Seoul'
     });
 }
@@ -113,8 +119,13 @@ async function loadOrders() {
 
         // Apply sorting
         orders.sort((a, b) => {
-            const dateA = new Date(a.executed_at || a.created_at);
-            const dateB = new Date(b.executed_at || b.created_at);
+            // Use kr_time first (pre-formatted), then fallback to executed_at/created_at
+            const dateStrA = a.kr_time || a.executed_at || a.created_at;
+            const dateStrB = b.kr_time || b.executed_at || b.created_at;
+
+            const dateA = new Date(dateStrA);
+            const dateB = new Date(dateStrB);
+
             return sortFilter === 'recent' ? dateB - dateA : dateA - dateB;
         });
 
