@@ -99,15 +99,15 @@ def load_api_keys(user_id=None):
     if user_id:
         try:
             from backend.database.connection import get_db_session
-            from backend.models.user_api_key import UserAPIKey
+            from backend.models.user_api_key import UpbitAPIKey
             from backend.utils.crypto import decrypt_api_credentials
 
             session = get_db_session()
 
             # Query user's API keys
-            user_key = session.query(UserAPIKey).filter(
-                UserAPIKey.user_id == user_id,
-                UserAPIKey.is_active == True
+            user_key = session.query(UpbitAPIKey).filter(
+                UpbitAPIKey.user_id == user_id,
+                UpbitAPIKey.is_active == True
             ).first()
 
             if user_key:

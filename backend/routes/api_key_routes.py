@@ -5,7 +5,7 @@ Handles user's Upbit API key registration, verification, and management
 
 from flask import Blueprint, request, jsonify
 from backend.database.connection import get_db_session
-from backend.models.user_api_key import UserAPIKey
+from backend.models.user_api_key import UpbitAPIKey
 from backend.utils.crypto import encrypt_api_credentials, decrypt_api_credentials
 from backend.common import UpbitAPI
 from datetime import datetime
@@ -47,8 +47,8 @@ def get_api_keys():
         session = get_db_session()
 
         # Query user's API key
-        user_key = session.query(UserAPIKey).filter(
-            UserAPIKey.user_id == user_id
+        user_key = session.query(UpbitAPIKey).filter(
+            UpbitAPIKey.user_id == user_id
         ).first()
 
         if not user_key:
@@ -138,8 +138,8 @@ def register_api_keys():
         session = get_db_session()
 
         # Check if user already has API keys
-        existing_key = session.query(UserAPIKey).filter(
-            UserAPIKey.user_id == user_id
+        existing_key = session.query(UpbitAPIKey).filter(
+            UpbitAPIKey.user_id == user_id
         ).first()
 
         if existing_key:
@@ -166,7 +166,7 @@ def register_api_keys():
 
         else:
             # Create new record
-            new_key = UserAPIKey(
+            new_key = UpbitAPIKey(
                 user_id=user_id,
                 access_key_encrypted=encrypted_access,
                 secret_key_encrypted=encrypted_secret,
@@ -224,9 +224,9 @@ def verify_api_keys():
         session = get_db_session()
 
         # Get user's API keys
-        user_key = session.query(UserAPIKey).filter(
-            UserAPIKey.user_id == user_id,
-            UserAPIKey.is_active == True
+        user_key = session.query(UpbitAPIKey).filter(
+            UpbitAPIKey.user_id == user_id,
+            UpbitAPIKey.is_active == True
         ).first()
 
         if not user_key:
@@ -300,8 +300,8 @@ def delete_api_keys():
         session = get_db_session()
 
         # Delete user's API keys
-        deleted_count = session.query(UserAPIKey).filter(
-            UserAPIKey.user_id == user_id
+        deleted_count = session.query(UpbitAPIKey).filter(
+            UpbitAPIKey.user_id == user_id
         ).delete()
 
         session.commit()

@@ -1,5 +1,5 @@
 """
-User API Key Model
+Upbit API Key Model
 Stores encrypted Upbit API keys for each user
 """
 
@@ -8,13 +8,14 @@ from datetime import datetime
 from backend.database.connection import Base
 
 
-class UserAPIKey(Base):
+class UpbitAPIKey(Base):
     """
-    User API Key model
+    Upbit API Key model
     Stores encrypted Upbit API credentials for automated trading
+
+    Note: This is separate from UserAPIKey which is for CoinPulse API access tokens.
     """
-    __tablename__ = 'user_api_keys'
-    __table_args__ = {'extend_existing': True}
+    __tablename__ = 'upbit_api_keys'
 
     # Primary key
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -48,7 +49,7 @@ class UserAPIKey(Base):
     updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def __repr__(self):
-        return f"<UserAPIKey(id={self.id}, user_id={self.user_id}, is_active={self.is_active})>"
+        return f"<UpbitAPIKey(id={self.id}, user_id={self.user_id}, is_active={self.is_active})>"
 
     def to_dict(self, include_keys=False):
         """
