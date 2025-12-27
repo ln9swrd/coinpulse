@@ -499,11 +499,35 @@ class SurgeAlertScheduler:
 
                 # Keep existing cache for active alerts (even if score < 60 now)
                 # Just update their analyzed_at to show they were checked
+                # If not in cache, add from surge_alerts table
                 for market in active_markets - current_markets:
                     existing = session.query(SurgeCandidatesCache).filter_by(market=market).first()
                     if existing:
                         existing.updated_at = datetime.now()
                         logger.debug(f"[SurgeAlertScheduler] Kept {market} in cache (active alert, score < 60)")
+                    else:
+                        # Active alert but not in cache - add it from surge_alerts
+                        alert_query = text("""
+                            SELECT market, coin, confidence, entry_price, reason, alert_message
+                            FROM surge_alerts
+                            WHERE market = :market AND status IN ('pending', 'active')
+                            ORDER BY sent_at DESC
+                            LIMIT 1
+                        """)
+                        alert_result = session.execute(alert_query, {'market': market}).fetchone()
+                        if alert_result:
+                            cache_record = SurgeCandidatesCache(
+                                market=alert_result[0],
+                                coin=alert_result[1],
+                                score=alert_result[2] or 60,  # Use confidence as score
+                                current_price=alert_result[3],  # Use entry_price as current_price
+                                recommendation='buy',
+                                signals={'reason': alert_result[4], 'message': alert_result[5]},
+                                analysis_result={},
+                                analyzed_at=datetime.now()
+                            )
+                            session.add(cache_record)
+                            logger.info(f"[SurgeAlertScheduler] Added {market} to cache from active alert")
 
                 session.commit()
                 logger.info(f"[SurgeAlertScheduler] Cache updated: {len(candidates)} high-score + {len(active_markets - current_markets)} active (low-score)")
