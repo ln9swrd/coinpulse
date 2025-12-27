@@ -318,6 +318,27 @@
             return Math.round(num).toLocaleString('ko-KR');
         }
 
+        // Fetch with timeout
+        async function fetchWithTimeout(url, options = {}, timeout = 10000) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                return response;
+            } catch (error) {
+                clearTimeout(timeoutId);
+                if (error.name === 'AbortError') {
+                    throw new Error('Request timeout');
+                }
+                throw error;
+            }
+        }
+
         // Load balance data
         async function loadBalanceData() {
             const token = getAuthToken();
@@ -328,11 +349,11 @@
 
             try {
                 // Get Upbit accounts
-                const response = await fetch(`${window.API_BASE}/api/upbit/accounts`, {
+                const response = await fetchWithTimeout(`${window.API_BASE}/api/upbit/accounts`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
-                });
+                }, 10000);
 
                 if (!response.ok) {
                     throw new Error(`API error: ${response.status}`);
@@ -387,11 +408,11 @@
 
             try {
                 // Get signal stats
-                const response = await fetch(`${window.API_BASE}/api/user/signals/stats`, {
+                const response = await fetchWithTimeout(`${window.API_BASE}/api/user/signals/stats`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
-                });
+                }, 10000);
 
                 const data = await response.json();
                 if (data.success) {
@@ -414,11 +435,11 @@
                 }
 
                 // Get active orders count
-                const ordersResponse = await fetch(`${window.API_BASE}/api/orders?state=wait`, {
+                const ordersResponse = await fetchWithTimeout(`${window.API_BASE}/api/orders?state=wait`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
-                });
+                }, 10000);
 
                 if (ordersResponse.ok) {
                     const ordersData = await ordersResponse.json();
@@ -435,11 +456,11 @@
         // Check plan access for surge features
         async function checkPlanAccess() {
             try {
-                const response = await fetch(`${window.API_BASE}/api/user/subscription`, {
+                const response = await fetchWithTimeout(`${window.API_BASE}/api/user/subscription`, {
                     headers: {
                         'Authorization': `Bearer ${getAuthToken()}`
                     }
-                });
+                }, 10000);
 
                 const data = await response.json();
                 const plan = data?.subscription?.plan || 'free';
