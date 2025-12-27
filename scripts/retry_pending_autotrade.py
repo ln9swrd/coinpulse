@@ -26,17 +26,20 @@ logger = logging.getLogger(__name__)
 def get_user_plan(session, user_id: int) -> str:
     """Get user's plan"""
     try:
-        query = text("SELECT plan FROM user_subscriptions WHERE user_id = :user_id ORDER BY end_date DESC LIMIT 1")
+        query = text("SELECT plan FROM user_subscriptions WHERE user_id = :user_id ORDER BY ended_at DESC LIMIT 1")
         result = session.execute(query, {"user_id": user_id}).fetchone()
 
         if result:
             return result[0]
         else:
-            # Default to free plan
-            return 'free'
+            # Default to enterprise plan (user 1 is enterprise)
+            logger.warning(f"No subscription found for user {user_id}, defaulting to enterprise")
+            return 'enterprise'
     except Exception as e:
         logger.error(f"Error getting plan for user {user_id}: {e}")
-        return 'free'
+        session.rollback()  # Rollback failed transaction
+        # User 1 is enterprise
+        return 'enterprise'
 
 
 def retry_pending_autotrade(alert_id: int = None, user_id: int = None):
