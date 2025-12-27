@@ -374,9 +374,18 @@ def create_snapshot(balance_tracker, api, date):
 
 
 if __name__ == '__main__':
-    db = get_db_session()
-    try:
-        user_id = get_user_id(db)
-        backfill_balance_history(user_id, days=90)
-    finally:
-        db.close()
+    import sys
+
+    # Optional: specify user_id as command line argument
+    if len(sys.argv) > 1:
+        user_id = int(sys.argv[1])
+        print(f"\n[Backfill] Using user_id from command line: {user_id}")
+    else:
+        db = get_db_session()
+        try:
+            user_id = get_user_id(db)
+            print(f"\n[Backfill] Using first user from database: {user_id}")
+        finally:
+            db.close()
+
+    backfill_balance_history(user_id, days=90)
