@@ -3,8 +3,10 @@
  * 거래 내역 데이터 로드 및 표시
  */
 
-// Get API base URL
-const API_BASE = window.API_BASE || window.location.origin;
+// Get API base URL (use existing global if available)
+if (typeof API_BASE === 'undefined') {
+    var API_BASE = window.API_BASE || window.location.origin;
+}
 
 // Get auth token
 function getAuthToken() {
