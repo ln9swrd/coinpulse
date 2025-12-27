@@ -109,6 +109,21 @@ def retry_pending_autotrade(alert_id: int = None, user_id: int = None):
                     failed_count += 1
                     continue
 
+                # Calculate stop_loss_price if not set
+                entry_price = int(alert.entry_price)
+                target_price = int(alert.target_price) if alert.target_price else None
+                stop_loss_price = int(alert.stop_loss_price) if alert.stop_loss_price else None
+
+                # If stop_loss_price is None but user has stop loss enabled, calculate it
+                if stop_loss_price is None and settings.stop_loss_enabled:
+                    stop_loss_price = int(entry_price * (1 + settings.stop_loss_percent / 100))
+                    logger.info(f"  Calculated stop_loss_price: {stop_loss_price} ({settings.stop_loss_percent}%)")
+
+                # If target_price is None but user has take profit enabled, calculate it
+                if target_price is None and settings.take_profit_enabled:
+                    target_price = int(entry_price * (1 + settings.take_profit_percent / 100))
+                    logger.info(f"  Calculated target_price: {target_price} ({settings.take_profit_percent}%)")
+
                 # Execute auto-trade
                 logger.info(f"  Executing auto-trade for {alert.market}...")
                 success, trade_info = surge_service.execute_auto_trade(
@@ -116,9 +131,9 @@ def retry_pending_autotrade(alert_id: int = None, user_id: int = None):
                     settings=settings,
                     market=alert.market,
                     coin=alert.coin,
-                    entry_price=int(alert.entry_price),
-                    target_price=int(alert.target_price) if alert.target_price else None,
-                    stop_loss_price=int(alert.stop_loss_price) if alert.stop_loss_price else None,
+                    entry_price=entry_price,
+                    target_price=target_price,
+                    stop_loss_price=stop_loss_price,
                     use_prediction_prices=True
                 )
 
@@ -130,6 +145,12 @@ def retry_pending_autotrade(alert_id: int = None, user_id: int = None):
                     alert.order_id = trade_info.get('order_id')
                     alert.executed_at = datetime.utcnow()
                     alert.status = 'active'
+
+                    # Update stop_loss_price and target_price if they were calculated
+                    if alert.stop_loss_price is None and stop_loss_price is not None:
+                        alert.stop_loss_price = stop_loss_price
+                    if alert.target_price is None and target_price is not None:
+                        alert.target_price = target_price
 
                     session.commit()
 
