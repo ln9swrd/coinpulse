@@ -150,6 +150,7 @@ class RateLimiter:
             '/api/feedback/my'  # User's own feedback (JWT secured)
         ]
         if path_without_query in auth_get_endpoints:
+            print(f"[RateLimit] ✅ Excluded: {path_without_query}")
             return True, 0
 
         # Exclude user signals with query parameters (JWT secured)
@@ -367,7 +368,10 @@ def setup_security_middleware(app):
             return
 
         # 1. Rate limiting
+        # Debug logging to diagnose 429 errors
+        print(f"[RateLimit] Checking path: {request.path} for IP: {client_ip}")
         allowed, retry_after = _rate_limiter.is_allowed(client_ip, request.path)
+        print(f"[RateLimit] Result: allowed={allowed}, retry_after={retry_after}")
 
         if not allowed:
             # Log rate limit exceeded
