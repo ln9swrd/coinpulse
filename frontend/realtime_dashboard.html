@@ -338,8 +338,12 @@
         <!-- Portfolio Chart -->
         <div class="card">
             <div class="card-header">📊 포트폴리오 차트</div>
-            <div class="chart-container">
-                <canvas id="portfolio-chart" style="max-height: 300px;"></canvas>
+            <div class="chart-container" id="chart-container">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📊</div>
+                    <div>포트폴리오 데이터 로딩 중...</div>
+                </div>
+                <canvas id="portfolio-chart" style="max-height: 300px; display: none;"></canvas>
             </div>
         </div>
 
@@ -580,7 +584,13 @@
 
         function createPortfolioChart(holdings) {
             const canvas = document.getElementById('portfolio-chart');
-            if (!canvas) return;
+            const container = document.getElementById('chart-container');
+            if (!canvas || !container) return;
+
+            // Show canvas and hide empty state
+            const emptyState = container.querySelector('.empty-state');
+            if (emptyState) emptyState.style.display = 'none';
+            canvas.style.display = 'block';
 
             const ctx = canvas.getContext('2d');
 
@@ -710,14 +720,41 @@
 
                         // Create chart
                         const chartData = holdings.filter(h => parseFloat(h.value) > 0);
+                        const container = document.getElementById('chart-container');
+                        const canvas = document.getElementById('portfolio-chart');
+                        const emptyState = container?.querySelector('.empty-state');
+
                         if (chartData.length > 0) {
                             createPortfolioChart(chartData);
+                        } else {
+                            // Show empty state message
+                            if (canvas) canvas.style.display = 'none';
+                            if (emptyState) {
+                                emptyState.style.display = 'block';
+                                emptyState.innerHTML = `
+                                    <div class="empty-state-icon">📊</div>
+                                    <div>보유 중인 코인이 없습니다</div>
+                                `;
+                            }
                         }
                     }
                 }
 
             } catch (error) {
                 console.error('[Balance] Error loading balance:', error);
+                // Show error state
+                const container = document.getElementById('chart-container');
+                const canvas = document.getElementById('portfolio-chart');
+                const emptyState = container?.querySelector('.empty-state');
+
+                if (canvas) canvas.style.display = 'none';
+                if (emptyState) {
+                    emptyState.style.display = 'block';
+                    emptyState.innerHTML = `
+                        <div class="empty-state-icon">⚠️</div>
+                        <div>데이터를 불러올 수 없습니다</div>
+                    `;
+                }
             }
         }
 
