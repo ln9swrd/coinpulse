@@ -312,6 +312,51 @@ def backfill_balance_history(user_id, days=90):
         db.close()
 
 
+def get_historical_price(db, market, date):
+    """
+    Get historical price from coin_price_history table
+
+    Args:
+        db: Database session
+        market: Market code (e.g., 'KRW-BTC')
+        date: Date to query
+
+    Returns:
+        float: Close price, or 0 if not found
+    """
+    try:
+        query = text("""
+            SELECT close_price
+            FROM coin_price_history
+            WHERE market = :market
+            AND date = :date
+            LIMIT 1
+        """)
+
+        result = db.execute(query, {'market': market, 'date': date})
+        row = result.fetchone()
+
+        if row:
+            return float(row[0])
+
+        # Fallback: get latest price if date's not available
+        query = text("""
+            SELECT close_price
+            FROM coin_price_history
+            WHERE market = :market
+            ORDER BY date DESC
+            LIMIT 1
+        """)
+
+        result = db.execute(query, {'market': market})
+        row = result.fetchone()
+
+        return float(row[0]) if row else 0
+
+    except Exception as e:
+        return 0
+
+
 def create_snapshot(balance_tracker, api, date):
     """
     현재 balance_tracker 상태로 스냅샷 생성
@@ -333,13 +378,16 @@ def create_snapshot(balance_tracker, api, date):
     crypto_value = 0
     total_purchase_amount = 0
 
+    # Get database session for price lookup
+    db = get_db_session()
+
     for currency, holding in balance_tracker['holdings'].items():
         market = f'KRW-{currency}'
         amount = holding['amount']
         avg_buy_price = holding.get('avg_buy_price', 0)
 
-        # 해당 날짜의 가격 가져오기 (일봉 종가)
-        current_price = get_historical_price(api, market, date)
+        # 해당 날짜의 가격 가져오기 (coin_price_history 테이블)
+        current_price = get_historical_price(db, market, date)
         if current_price == 0:
             current_price = avg_buy_price
 
@@ -362,6 +410,9 @@ def create_snapshot(balance_tracker, api, date):
     total_value = krw_total + crypto_value
     total_profit = crypto_value - total_purchase_amount
     total_profit_rate = (total_profit / total_purchase_amount * 100) if total_purchase_amount > 0 else 0
+
+    # Close database session
+    db.close()
 
     return {
         'snapshot_time': datetime.combine(date, datetime.min.time()),
