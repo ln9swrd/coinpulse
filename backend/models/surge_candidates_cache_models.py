@@ -7,7 +7,7 @@ Background scheduler가 분석한 결과를 저장하여
 프론트엔드 API에서 즉시 조회 가능하도록 함 (API 호출 0회)
 """
 
-from sqlalchemy import Column, Integer, String, Float, DateTime, Text, JSON, Index
+from sqlalchemy import Column, Integer, String, Float, DateTime, Text, JSON, Index, Numeric
 from datetime import datetime
 from backend.database.connection import Base
 
@@ -32,7 +32,7 @@ class SurgeCandidatesCache(Base):
 
     # Analysis results
     score = Column(Integer, nullable=False)  # 0-100
-    current_price = Column(Integer, nullable=False)  # in KRW
+    current_price = Column(Numeric(20, 10), nullable=False)  # in KRW (supports decimals for low-price coins)
     recommendation = Column(String(20), nullable=False)  # 'strong_buy', 'buy', 'hold', 'pass'
 
     # Detailed signals (JSON)
