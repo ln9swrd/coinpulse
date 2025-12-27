@@ -431,16 +431,17 @@
                         let totalInvested = 0;
 
                         holdings.forEach(h => {
-                            // Check what fields are available
-                            const currency = h.currency || h.coin || 'unknown';
-                            const value = parseFloat(h.value || h.current_value || 0);
-                            const balance = parseFloat(h.balance || h.amount || 0);
-                            const avgPrice = parseFloat(h.avg_buy_price || h.avg_price || 0);
+                            const currency = h.coin || 'unknown';
+                            const currentPrice = parseFloat(h.current_price || 0);
+                            const balance = parseFloat(h.balance || 0);
+                            const avgPrice = parseFloat(h.avg_price || 0);
+
+                            const value = currentPrice * balance;
                             const invested = avgPrice * balance;
 
                             totalValue += value;
                             totalInvested += invested;
-                            console.log(`[Holdings] ${currency}: value=${value}, balance=${balance}, avgPrice=${avgPrice}, invested=${invested}`);
+                            console.log(`[Holdings] ${currency}: currentPrice=${currentPrice}, balance=${balance}, value=${value}, invested=${invested}`);
                         });
 
                         // Add KRW balance
