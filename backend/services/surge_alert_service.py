@@ -422,51 +422,62 @@ class SurgeAlertService:
                 # Load user's API keys
                 access_key, secret_key = load_api_keys(user_id=user_id)
 
-                if access_key and secret_key:
-                    # Real trade execution
-                    upbit_api = UpbitAPI(access_key, secret_key)
-
-                    # Place market buy order
-                    order_result = upbit_api.place_order(
-                        market=market,
-                        side='bid',
-                        volume=None,
-                        price=amount,
-                        ord_type='price'  # Market order by amount
-                    )
-
-                    if order_result and 'uuid' in order_result:
-                        order_id = order_result['uuid']
-                        executed_volume = float(order_result.get('executed_volume', quantity))
-                        avg_price = float(order_result.get('avg_price', entry_price))
-
-                        logger.info(f"[SurgeAlert] REAL order placed successfully:")
-                        logger.info(f"  Order ID: {order_id}")
-                        logger.info(f"  Executed Volume: {executed_volume:.8f}")
-                        logger.info(f"  Avg Price: {avg_price:,} KRW")
-
-                        trade_info = {
-                            'order_id': order_id,
-                            'amount': amount,
-                            'quantity': executed_volume,
-                            'price': avg_price,
-                            'entry_price': entry_price,
-                            'stop_loss_price': final_stop_loss,
-                            'take_profit_price': final_take_profit,
-                            'executed_at': datetime.utcnow(),
-                            'real_trade': True
-                        }
-
-                        return True, trade_info
-                    else:
-                        logger.error(f"[SurgeAlert] Order placement failed: {order_result}")
-                        raise Exception("Order placement failed")
-
-                else:
+                if not access_key or not secret_key:
                     raise Exception("No API keys found for user")
 
+                # Real trade execution
+                upbit_api = UpbitAPI(access_key, secret_key)
+
+                # Place market buy order
+                logger.info(f"[SurgeAlert] Attempting real order: {market}, amount={amount}")
+                order_result = upbit_api.place_order(
+                    market=market,
+                    side='bid',
+                    volume=None,
+                    price=amount,
+                    ord_type='price'  # Market order by amount
+                )
+
+                # Check if order was successful
+                if order_result and order_result.get('success'):
+                    order_id = order_result.get('uuid')
+                    order_data = order_result.get('order', {})
+
+                    # Get executed volume and price
+                    executed_volume = float(order_data.get('executed_volume', quantity))
+                    avg_price = float(order_data.get('avg_price', entry_price))
+
+                    logger.info(f"[SurgeAlert] ✅ REAL order placed successfully:")
+                    logger.info(f"  Order ID: {order_id}")
+                    logger.info(f"  Market: {market}")
+                    logger.info(f"  Amount: {amount:,} KRW")
+                    logger.info(f"  Executed Volume: {executed_volume:.8f}")
+                    logger.info(f"  Avg Price: {avg_price:,} KRW")
+
+                    trade_info = {
+                        'order_id': order_id,
+                        'amount': amount,
+                        'quantity': executed_volume,
+                        'price': avg_price,
+                        'entry_price': entry_price,
+                        'stop_loss_price': final_stop_loss,
+                        'take_profit_price': final_take_profit,
+                        'executed_at': datetime.utcnow(),
+                        'real_trade': True
+                    }
+
+                    return True, trade_info
+                else:
+                    # Order failed - log detailed error
+                    error_msg = order_result.get('error', 'Unknown error')
+                    error_details = order_result.get('details', '')
+                    logger.error(f"[SurgeAlert] ❌ Order placement failed:")
+                    logger.error(f"  Error: {error_msg}")
+                    logger.error(f"  Details: {error_details}")
+                    raise Exception(f"Order failed: {error_msg}")
+
             except Exception as api_error:
-                logger.warning(f"[SurgeAlert] Real trade failed: {api_error}, falling back to simulation")
+                logger.warning(f"[SurgeAlert] Real trade failed: {str(api_error)}, falling back to simulation")
 
                 # Fall back to simulation
                 trade_info = {

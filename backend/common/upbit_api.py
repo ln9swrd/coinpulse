@@ -230,6 +230,50 @@ class UpbitAPI:
             print(f"[UpbitAPI] Daily candle query error: {str(e)}")
             return []
 
+    def get_candles(self, market, interval='15', count=100, to=None):
+        """
+        Get candle data with flexible intervals.
+
+        Args:
+            market (str): Market code (e.g., 'KRW-BTC')
+            interval (str): Interval ('1', '3', '5', '10', '15', '30', '60', '240', 'day', 'week', 'month')
+            count (int): Number of candles (default: 100, max: 200)
+            to (str, optional): End datetime (YYYY-MM-DD HH:mm:ss)
+
+        Returns:
+            list: List of candle data or empty list on error
+        """
+        try:
+            query_params = {
+                'market': market,
+                'count': min(count, 200)  # Upbit max is 200
+            }
+
+            if to:
+                query_params['to'] = to
+
+            # Determine endpoint based on interval
+            if interval in ['day', 'days']:
+                endpoint = 'days'
+            elif interval in ['week', 'weeks']:
+                endpoint = 'weeks'
+            elif interval in ['month', 'months']:
+                endpoint = 'months'
+            else:
+                # Minutes: 1, 3, 5, 10, 15, 30, 60, 240
+                endpoint = f'minutes/{interval}'
+
+            response = requests.get(f'{self.base_url}/v1/candles/{endpoint}', params=query_params)
+
+            if response.status_code == 200:
+                return response.json()
+            else:
+                print(f"[UpbitAPI] Candle query failed ({interval}): {response.status_code}, {response.text}")
+                return []
+        except Exception as e:
+            print(f"[UpbitAPI] Candle query error ({interval}): {str(e)}")
+            return []
+
     # ==================== Order Management ====================
 
     def place_order(self, market, side, volume=None, price=None, ord_type='limit'):
