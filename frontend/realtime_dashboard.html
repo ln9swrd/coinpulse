@@ -252,6 +252,16 @@
             </div>
         </div>
 
+        <!-- Coin Price Chart -->
+        <div class="card" id="coin-price-card">
+            <div class="card-header">
+                💰 코인 가격 추이 (BTC/ETH/XRP)
+            </div>
+            <div style="padding: 20px;">
+                <div id="coin-price-chart"></div>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -367,6 +377,7 @@
 
         // Balance history management (API-based)
         let balanceChart = null;
+        let coinPriceChart = null;
         let balanceHistoryData = [];
 
         async function fetchBalanceHistory(days = 30) {
@@ -531,21 +542,6 @@
                         name: '매수금액의 총액',
                         type: 'line',
                         data: purchaseAmountData
-                    },
-                    {
-                        name: 'BTC 가격',
-                        type: 'line',
-                        data: btcPrices
-                    },
-                    {
-                        name: 'ETH 가격',
-                        type: 'line',
-                        data: ethPrices
-                    },
-                    {
-                        name: 'XRP 가격',
-                        type: 'line',
-                        data: xrpPrices
                     }
                 ],
                 chart: {
@@ -575,17 +571,16 @@
                         autoScaleYaxis: true
                     }
                 },
-                colors: ['#667eea', '#10b981', '#ef4444', '#f59e0b', '#f97316', '#06b6d4', '#3b82f6'],
+                colors: ['#667eea', '#10b981', '#ef4444', '#f59e0b'],
                 dataLabels: {
                     enabled: false
                 },
                 stroke: {
-                    width: [2, 2, 3, 3, 2, 2, 2],
-                    curve: 'smooth',
-                    dashArray: [0, 0, 0, 0, 4, 4, 4]  // Dashed lines for BTC/ETH/XRP
+                    width: [2, 2, 3, 3],
+                    curve: 'smooth'
                 },
                 fill: {
-                    type: ['gradient', 'gradient', 'solid', 'solid', 'solid', 'solid', 'solid'],
+                    type: ['gradient', 'gradient', 'solid', 'solid'],
                     gradient: {
                         opacityFrom: 0.6,
                         opacityTo: 0.1
@@ -652,36 +647,6 @@
                     {
                         seriesName: '포트폴리오 총액',
                         show: false
-                    },
-                    {
-                        opposite: true,
-                        seriesName: 'BTC 가격',
-                        title: {
-                            text: '코인 가격 (원)',
-                            style: {
-                                color: '#f97316'
-                            }
-                        },
-                        labels: {
-                            formatter: function(value) {
-                                if (!value) return '0';
-                                if (value >= 1000000) {
-                                    return (value / 1000000).toFixed(1) + 'M';
-                                }
-                                return value.toLocaleString();
-                            },
-                            style: {
-                                colors: '#f97316'
-                            }
-                        }
-                    },
-                    {
-                        seriesName: 'BTC 가격',
-                        show: false
-                    },
-                    {
-                        seriesName: 'BTC 가격',
-                        show: false
                     }
                 ],
                 legend: {
@@ -710,6 +675,161 @@
             balanceChart.render();
 
             console.log('[Chart] ApexCharts created with', history.length, 'data points');
+        }
+
+        async function createCoinPriceChart() {
+            const chartElement = document.getElementById('coin-price-chart');
+            if (!chartElement) return;
+
+            // Fetch history from API (365 days to show full year of data)
+            const history = await fetchBalanceHistory(365);
+            if (history.length === 0) {
+                console.log('[CoinChart] No historical data available');
+                return;
+            }
+
+            console.log('[CoinChart] Creating coin price chart with', history.length, 'data points');
+
+            // Extract data from API response
+            const categories = history.map(h => {
+                const parts = h.date.split('-');
+                const year = parts[0].slice(2); // YY (last 2 digits)
+                return `${year}-${parts[1]}-${parts[2]}`; // YY-MM-DD
+            });
+
+            // Extract BTC/ETH/XRP prices from holdings_detail
+            const btcPrices = history.map(h => {
+                const refPrices = h.holdings_detail?.reference_prices;
+                return refPrices ? refPrices['KRW-BTC'] : null;
+            });
+            const ethPrices = history.map(h => {
+                const refPrices = h.holdings_detail?.reference_prices;
+                return refPrices ? refPrices['KRW-ETH'] : null;
+            });
+            const xrpPrices = history.map(h => {
+                const refPrices = h.holdings_detail?.reference_prices;
+                return refPrices ? refPrices['KRW-XRP'] : null;
+            });
+
+            console.log('[CoinChart] Date range:', categories[0], 'to', categories[categories.length - 1]);
+            console.log('[CoinChart] Data points:', categories.length);
+
+            if (coinPriceChart) {
+                coinPriceChart.destroy();
+            }
+
+            const options = {
+                series: [
+                    {
+                        name: 'BTC 가격',
+                        type: 'line',
+                        data: btcPrices
+                    },
+                    {
+                        name: 'ETH 가격',
+                        type: 'line',
+                        data: ethPrices
+                    },
+                    {
+                        name: 'XRP 가격',
+                        type: 'line',
+                        data: xrpPrices
+                    }
+                ],
+                chart: {
+                    height: 400,
+                    type: 'line',
+                    stacked: false,
+                    toolbar: {
+                        show: true,
+                        tools: {
+                            download: true,
+                            selection: true,
+                            zoom: true,
+                            zoomin: true,
+                            zoomout: true,
+                            pan: true,
+                            reset: true
+                        }
+                    },
+                    animations: {
+                        enabled: true,
+                        easing: 'easeinout',
+                        speed: 800
+                    },
+                    zoom: {
+                        enabled: true,
+                        type: 'x',
+                        autoScaleYaxis: true
+                    }
+                },
+                colors: ['#f97316', '#06b6d4', '#3b82f6'],
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    width: [3, 3, 3],
+                    curve: 'smooth'
+                },
+                xaxis: {
+                    categories: categories,
+                    title: {
+                        text: '날짜'
+                    },
+                    labels: {
+                        rotate: -45,
+                        rotateAlways: false,
+                        hideOverlappingLabels: true,
+                        showDuplicates: false,
+                        trim: false,
+                        style: {
+                            fontSize: '11px'
+                        }
+                    },
+                    tickAmount: Math.min(categories.length, 30),
+                    tickPlacement: 'on'
+                },
+                yaxis: {
+                    title: {
+                        text: '가격 (원)'
+                    },
+                    labels: {
+                        formatter: function(value) {
+                            if (!value) return '0';
+                            if (value >= 1000000) {
+                                return (value / 1000000).toFixed(1) + 'M';
+                            }
+                            return value.toLocaleString();
+                        }
+                    }
+                },
+                legend: {
+                    show: true,
+                    position: 'top',
+                    horizontalAlign: 'left'
+                },
+                tooltip: {
+                    shared: true,
+                    intersect: false,
+                    y: {
+                        formatter: function(value) {
+                            if (!value) return '0원';
+                            if (value >= 1000000) {
+                                return (value / 1000000).toFixed(2) + 'M원';
+                            }
+                            return value.toLocaleString() + '원';
+                        }
+                    }
+                },
+                grid: {
+                    borderColor: '#e5e7eb'
+                }
+            };
+
+            coinPriceChart = new ApexCharts(chartElement, options);
+            coinPriceChart.render();
+
+            console.log('[CoinChart] ApexCharts created with', history.length, 'data points');
         }
 
 
@@ -860,7 +980,10 @@
         // Refresh all data (chart + balance)
         async function refreshAllData() {
             console.log('[Dashboard] Refreshing all data...');
-            await createChart();
+            await Promise.all([
+                createChart(),
+                createCoinPriceChart()
+            ]);
             await loadBalanceInfo();
 
             const refreshBtn = document.getElementById('refresh-data-btn');
@@ -874,8 +997,9 @@
 
         // Initialize - Check login status first
         if (checkLoginStatus()) {
-            // Load initial chart from API
+            // Load initial charts from API
             createChart();
+            createCoinPriceChart();
 
             // User is logged in, load data
             loadBalanceInfo();
