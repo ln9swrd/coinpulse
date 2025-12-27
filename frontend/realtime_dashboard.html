@@ -363,7 +363,7 @@
         // Balance history management
         let balanceChart = null;
         const HISTORY_KEY = 'coinpulse_balance_history';
-        const MAX_HISTORY_POINTS = 100; // Keep last 100 data points
+        const MAX_HISTORY_POINTS = 1000; // Keep last 1000 data points (more history for date-based view)
 
         function getBalanceHistory() {
             try {
@@ -387,17 +387,17 @@
             const history = getBalanceHistory();
             const now = new Date();
 
-            // Format: MM/DD HH:MM
-            const timeLabel = now.toLocaleString('ko-KR', {
+            // Format: YYYY-MM-DD (for date-based grouping)
+            const dateLabel = now.toLocaleDateString('ko-KR', {
+                year: 'numeric',
                 month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-            }).replace(/\. /g, '/').replace('.', '');
+                day: '2-digit'
+            }).replace(/\. /g, '-').replace('.', '');
 
             history.push({
                 timestamp: now.toISOString(),
-                time: timeLabel,
+                time: dateLabel,
+                date: dateLabel,
                 krw: krwBalance,
                 available: availableBalance,
                 total: totalValue
@@ -522,11 +522,22 @@
                             }
                         },
                         x: {
+                            title: {
+                                display: true,
+                                text: '날짜'
+                            },
                             ticks: {
-                                maxRotation: 45,
-                                minRotation: 45,
-                                maxTicksLimit: 20,
-                                autoSkip: true
+                                maxRotation: 0,
+                                minRotation: 0,
+                                maxTicksLimit: 10,
+                                autoSkip: true,
+                                callback: function(value, index, ticks) {
+                                    // Show only unique dates (skip duplicate consecutive labels)
+                                    const currentLabel = this.getLabelForValue(value);
+                                    if (index === 0) return currentLabel;
+                                    const previousLabel = this.getLabelForValue(ticks[index - 1].value);
+                                    return currentLabel !== previousLabel ? currentLabel : '';
+                                }
                             }
                         }
                     }
