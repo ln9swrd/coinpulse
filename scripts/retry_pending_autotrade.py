@@ -12,8 +12,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from backend.database.connection import get_db_session
-from backend.models.surge_alert_models import SurgeAlert
-from backend.models.surge_auto_trading_models import SurgeAutoTradingSettings
+from backend.models.surge_alert_models import SurgeAlert, SurgeAutoTradingSettings
 from backend.services.surge_alert_service import SurgeAlertService
 from backend.models.plan_features import get_user_features
 from datetime import datetime, timedelta
