@@ -255,7 +255,7 @@
         <!-- Coin Price Chart -->
         <div class="card" id="coin-price-card">
             <div class="card-header">
-                💰 코인 가격 추이 (BTC/ETH/XRP)
+                💰 코인 가격 추이 (BTC/ETH)
             </div>
             <div style="padding: 20px;">
                 <div id="coin-price-chart"></div>
@@ -685,7 +685,7 @@
             try {
                 // Fetch coin price history from shared API (no auth needed)
                 console.log('[CoinChart] Fetching coin price history...');
-                const response = await fetch('/api/coin-prices/history?markets=KRW-BTC,KRW-ETH,KRW-XRP&days=365');
+                const response = await fetch('/api/coin-prices/history?markets=KRW-BTC,KRW-ETH&days=365');
 
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);
@@ -699,13 +699,12 @@
 
                 console.log('[CoinChart] Loaded coin price data:', data);
 
-                // Get the longest series to determine date range
+                // Get the data for BTC and ETH
                 const btcData = data.data['KRW-BTC'] || [];
                 const ethData = data.data['KRW-ETH'] || [];
-                const xrpData = data.data['KRW-XRP'] || [];
 
-                if (btcData.length === 0 && ethData.length === 0 && xrpData.length === 0) {
-                    console.log('[CoinChart] No price data for any market');
+                if (btcData.length === 0 && ethData.length === 0) {
+                    console.log('[CoinChart] No price data available');
                     return;
                 }
 
@@ -719,7 +718,6 @@
                 // Extract prices
                 const btcPrices = btcData.map(item => item.close_price);
                 const ethPrices = ethData.map(item => item.close_price);
-                const xrpPrices = xrpData.map(item => item.close_price);
 
             console.log('[CoinChart] Date range:', categories[0], 'to', categories[categories.length - 1]);
             console.log('[CoinChart] Data points:', categories.length);
@@ -739,11 +737,6 @@
                         name: 'ETH 가격',
                         type: 'line',
                         data: ethPrices
-                    },
-                    {
-                        name: 'XRP 가격',
-                        type: 'line',
-                        data: xrpPrices
                     }
                 ],
                 chart: {
@@ -774,12 +767,12 @@
                         autoScaleYaxis: true
                     }
                 },
-                colors: ['#f97316', '#06b6d4', '#3b82f6'],
+                colors: ['#f97316', '#06b6d4'],
                 dataLabels: {
                     enabled: false
                 },
                 stroke: {
-                    width: [3, 3, 3],
+                    width: [3, 3],
                     curve: 'smooth'
                 },
                 xaxis: {
@@ -800,20 +793,51 @@
                     tickAmount: Math.min(categories.length, 30),
                     tickPlacement: 'on'
                 },
-                yaxis: {
-                    title: {
-                        text: '가격 (원)'
-                    },
-                    labels: {
-                        formatter: function(value) {
-                            if (!value) return '0';
-                            if (value >= 1000000) {
-                                return (value / 1000000).toFixed(1) + 'M';
+                yaxis: [
+                    {
+                        seriesName: 'BTC 가격',
+                        title: {
+                            text: 'BTC 가격 (원)',
+                            style: {
+                                color: '#f97316'
                             }
-                            return value.toLocaleString();
+                        },
+                        labels: {
+                            formatter: function(value) {
+                                if (!value) return '0';
+                                if (value >= 1000000) {
+                                    return (value / 1000000).toFixed(1) + 'M';
+                                }
+                                return value.toLocaleString();
+                            },
+                            style: {
+                                colors: '#f97316'
+                            }
+                        }
+                    },
+                    {
+                        opposite: true,
+                        seriesName: 'ETH 가격',
+                        title: {
+                            text: 'ETH 가격 (원)',
+                            style: {
+                                color: '#06b6d4'
+                            }
+                        },
+                        labels: {
+                            formatter: function(value) {
+                                if (!value) return '0';
+                                if (value >= 1000000) {
+                                    return (value / 1000000).toFixed(2) + 'M';
+                                }
+                                return value.toLocaleString();
+                            },
+                            style: {
+                                colors: '#06b6d4'
+                            }
                         }
                     }
-                },
+                ],
                 legend: {
                     show: true,
                     position: 'top',
